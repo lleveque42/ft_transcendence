@@ -6,7 +6,7 @@
 #    By: aasli <aasli@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/03/05 21:51:04 by aasli             #+#    #+#              #
-#    Updated: 2023/03/05 22:03:56 by aasli            ###   ########.fr        #
+#    Updated: 2023/03/06 13:35:03 by aasli            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -29,4 +29,7 @@ clean: down
 fclean: clean
 	docker compose down --volumes
 
-.PHONY:	all up down clean fclean
+re: fclean
+	docker compose up -d --build --remove-orphans
+
+.PHONY:	all up down clean fclean re
