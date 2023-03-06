@@ -1,0 +1,50 @@
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    docker-compose.yaml                                :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: aasli <aasli@student.42.fr>                +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2023/03/05 21:52:28 by aasli             #+#    #+#              #
+#    Updated: 2023/03/05 22:01:39 by aasli            ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
+
+version: "3.9"
+
+# **************************************************************************** #
+#                                 SERVICES                                     #
+# **************************************************************************** #
+
+services:
+
+# Source -> docker hub of postgres + adminer : https://hub.docker.com/_/postgres
+
+  db:
+    image: postgres:latest
+    container_name: postgres
+    ports:
+      - "7240:7240"
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWD}
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+    volumes:
+      - database:/var/lib/postgresql/data
+
+  admin:
+    image: adminer
+    container_name: adminer 
+    restart: always
+    depends_on: 
+      - db
+    ports:
+      - 8080:8080
+
+# **************************************************************************** #
+#                                 VOLUMES                                      #
+# **************************************************************************** #
+
+volumes:
+  database:
