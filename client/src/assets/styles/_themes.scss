@@ -1,0 +1,25 @@
+.btn {
+  text-decoration: none;
+  padding: 1.2vh 1.2vw;
+  cursor: pointer;
+  font-size: 1vw;
+  font-weight: 400;
+  letter-spacing: 0.3rem;
+  font-family: sans-serif;
+  transition: 0.3s background, 0.3s color;
+
+  &:hover {
+    background: var(--primary);
+    color: var(--dark-grey);
+  }
+}
+
+.btn-primary {
+  background-color: var(--primary);
+  border: 1px solid var(--primary);
+}
+
+.btn-reverse-primary {
+  color: var(--primary);
+  border: 1px solid var(--primary);
+}
