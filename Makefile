@@ -3,33 +3,41 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: aasli <aasli@student.42.fr>                +#+  +:+       +#+         #
+#    By: arudy <arudy@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/03/05 21:51:04 by aasli             #+#    #+#              #
-#    Updated: 2023/03/06 13:35:03 by aasli            ###   ########.fr        #
+#    Updated: 2023/03/27 12:43:23 by arudy            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-all: build
-
-# --remove-orphans is set to put away a warning of similar containers name in different projects
-# Source: https://stackoverflow.com/questions/50947938/docker-compose-orphan-containers-warning
-build:
-	docker compose up -d --build --remove-orphans
+all:
+	docker compose up --build
 
 up:
-	docker compose up -d --remove-orphans
+	docker compose up
 
 down:
 	docker compose down
 
+re: fclean all
+
+fclean: clean prune
+
 clean: down
-	docker system prune -a
+	docker system prune -a --force
 
-fclean: clean
-	docker compose down --volumes
+prune:
+	docker volume prune --force
+	docker network prune --force
 
-re: fclean
-	docker compose up -d --build --remove-orphans
+ls:
+	docker image ls -a
+	@echo "------------------\n"
+	docker container ls
+	@echo "------------------\n"
+	docker volume ls -q
+	@echo "------------------\n"
+	docker network ls
 
-.PHONY:	all up down clean fclean re
+.PHONY: all re build up stop clean fclean prune ls
+
