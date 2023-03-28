@@ -6,7 +6,7 @@
 #    By: arudy <arudy@student.42.fr>                +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/03/05 21:51:04 by aasli             #+#    #+#              #
-#    Updated: 2023/03/27 12:43:23 by arudy            ###   ########.fr        #
+#    Updated: 2023/03/28 16:04:34 by arudy            ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -21,14 +21,11 @@ down:
 
 re: fclean all
 
-fclean: clean prune
-
-clean: down
-	docker system prune -a --force
-
-prune:
-	docker volume prune --force
-	docker network prune --force
+fclean:
+	docker image rm -f api_img client_img postgres
+	docker container rm -f api client postgres
+	docker volume rm -f ft_transcendence_database
+	docker network rm -f ft_transcendence_backend-network ft_transcendence_frontend-network
 
 ls:
 	docker image ls -a

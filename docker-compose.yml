@@ -29,6 +29,7 @@ services:
   backend:
     build:
       context: api/
+    image: api_img
     container_name: api
     ports:
       - 3000:3000
@@ -47,6 +48,7 @@ services:
   frontend:
     build:
       context: client/
+    image: client_img
     container_name: client
     ports:
       - 3001:3001
