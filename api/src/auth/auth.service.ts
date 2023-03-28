@@ -1,7 +1,7 @@
 import { ForbiddenException, Injectable } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { PrismaService } from "../prisma/prisma.service";
-import { AuthDto } from "./dto";
+import { SignupDto, SigninDto } from "./dto";
 import * as argon from "argon2";
 import { ConfigService } from "@nestjs/config";
 
@@ -14,9 +14,9 @@ export class AuthService {
 	) {}
 
 	//inscription
-	async signup(dto: AuthDto) {
+	async signup(dto: SignupDto) {
 		try {
-			const hash = await argon.hash(dto.hash);
+			const hash = await argon.hash(dto.password);
 			const user = await this.prisma.user.create({
 				data: {
 					hash,
@@ -28,12 +28,23 @@ export class AuthService {
 			});
 			return this.signToken(user.id, user.email);
 		} catch (e) {
-			console.log(e);
-			throw new ForbiddenException("Credentials taken.");
+			if (e.code === "P2002")
+				throw new ForbiddenException("Credentials taken.");
+			throw e;
 		}
 	}
 
-	// async signin() {}
+	async signin(dto: SigninDto) {
+		const user = await this.prisma.user.findUnique({
+			where: {
+				userName: dto.userName,
+			},
+		});
+		if (!user) throw new ForbiddenException("Credentials incorrect.");
+		const match = await argon.verify(user.hash, dto.password);
+		if (!match) throw new ForbiddenException("Credentials incorrect.");
+		return this.signToken(user.id, user.email);
+	}
 
 	async signToken(
 		userId: number,
@@ -44,7 +55,6 @@ export class AuthService {
 			email,
 		};
 		const secret = this.config.get("JWT_SECRET");
-		// const secret = "secret";
 		const token = await this.jwt.signAsync(payload, {
 			expiresIn: "365d",
 			secret,
