@@ -18,7 +18,7 @@ model User {
   email     String @unique
   hash      String
   userName  String @unique
-  firstName String
-  lastName  String
+  firstName String?
+  lastName  String?
   avatar    String?
 }

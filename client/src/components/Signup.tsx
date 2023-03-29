@@ -1,4 +1,3 @@
-import { FormEvent, useRef } from "react";
 import React, { useState } from "react";
 
 type FormValues = {
@@ -62,39 +61,4 @@ export default function Signup() {
 			<button type="submit">Submit</button>
 		</form>
 	);
-
-	// const userRef = useRef<HTMLInputElement>();
-	// const passwordRef = useRef();
-	// const usernameRef = useRef();
-	// const firstnameRef = useRef();
-	// const lastnameRef = useRef();
-
-	// const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-	// 	e.preventDefault();
-
-	// };
-
-	// return (
-	// 	<>
-	// 		<h1>Signup</h1>
-	// 		<form onSubmit={handleSubmit} className="d-flex flex-column">
-	// 			<label htmlFor="userName">Username</label>
-	// 			<input ref={userRef} type="text" />
-
-	// 			<label htmlFor="email">Email</label>
-	// 			<input type="email" />
-
-	// 			<label htmlFor="password">Password</label>
-	// 			<input type="password" />
-
-	// 			<label htmlFor="firstName">First Name</label>
-	// 			<input type="text" />
-
-	// 			<label htmlFor="lastName">Last Name</label>
-	// 			<input type="text" />
-
-	// 			<button>Submit</button>
-	// 		</form>
-	// 	</>
-	// );
 }

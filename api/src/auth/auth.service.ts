@@ -4,6 +4,7 @@ import { PrismaService } from "../prisma/prisma.service";
 import { SignupDto, SigninDto } from "./dto";
 import * as argon from "argon2";
 import { ConfigService } from "@nestjs/config";
+import { Request, Response } from "express";
 
 @Injectable()
 export class AuthService {
@@ -14,7 +15,7 @@ export class AuthService {
 	) {}
 
 	//inscription
-	async signup(dto: SignupDto) {
+	async signup(dto: SignupDto, req: Request, res: Response) {
 		try {
 			const hash = await argon.hash(dto.password);
 			const user = await this.prisma.user.create({
@@ -22,11 +23,12 @@ export class AuthService {
 					hash,
 					email: dto.email,
 					userName: dto.userName,
-					lastName: dto.lastName,
-					firstName: dto.firstName,
 				},
 			});
-			return this.signToken(user.id, user.email);
+			// res.cookie(
+			// 	"_jwt",
+			// 	(await this.signToken(user.id, user.email)).access_token,
+			// );
 		} catch (e) {
 			if (e.code === "P2002")
 				throw new ForbiddenException("Credentials taken.");

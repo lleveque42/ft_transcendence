@@ -1,23 +1,22 @@
 import React from "react";
-import { Route, Routes } from "react-router-dom";
-import Layout from "./components/Layout";
-import Login from "./components/Login";
-import NotFound from "./components/NotFound";
-import Signup from "./components/Signup";
+// import { Route, Routes } from "react-router-dom";
+// import Layout from "./components/Layout";
+// import Login from "./components/Login";
+// import NotFound from "./components/NotFound";
+// import Signup from "./components/Signup";
+import Header from "./components/Header/Header";
+import Footer from "./components/Footer/Footer";
+import { Outlet } from "react-router-dom";
 
-function App() {
+export default function App() {
 	return (
-		<Routes>
-			<Route path="/" element={<Layout />}>
-				{/* PUBLIC ROUTES */}
-				<Route path="login" element={<Login />} />
-				<Route path="signup" element={<Signup />} />
-
-
-				<Route path="*" element={<NotFound />} />
-			</Route>
-		</Routes>
+		<div>
+			{/* <div className="appContainer"> */}
+			<Header />
+			{/* <div> */}
+				<Outlet />
+			{/* </div> */}
+			<Footer />
+		</div>
 	);
 }
-
-export default App;
