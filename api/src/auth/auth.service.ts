@@ -68,6 +68,7 @@ export class AuthService {
 	async createCookieAuth(token: string, res: Response) {
 		res.cookie("_jwt", token, {
 			sameSite: "strict",
+			secure: true,
 		});
 	}
 }

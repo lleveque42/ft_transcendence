@@ -3,12 +3,12 @@ import { useCookies } from "react-cookie";
 import { useNavigate } from "react-router-dom";
 
 export default function Homepage() {
-	const [cookie, setCookie, removeCookie] = useCookies(["_jwt"]);
+	const [cookie, ,removeCookie] = useCookies(["_jwt"]);
 	const navigate = useNavigate();
 
 	useEffect(() => {
 		if (!cookie["_jwt"]) navigate("/login");
-	}, []);
+	});
 
 	return (
 		<>

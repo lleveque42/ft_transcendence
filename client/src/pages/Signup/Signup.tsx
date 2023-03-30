@@ -21,7 +21,7 @@ export default function Signup() {
 
 	useEffect(() => {
 		if (cookie["_jwt"]) navigate("/");
-	}, []);
+	});
 
 	function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
 		const { name, value } = event.target;
