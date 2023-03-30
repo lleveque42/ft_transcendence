@@ -25,10 +25,9 @@ export class AuthService {
 					userName: dto.userName,
 				},
 			});
-			// res.cookie(
-			// 	"_jwt",
-			// 	(await this.signToken(user.id, user.email)).access_token,
-			// );
+			const token = await this.signToken(user.id, user.email);
+			this.createCookieAuth(token.access_token, res);
+			return token;
 		} catch (e) {
 			if (e.code === "P2002")
 				throw new ForbiddenException("Credentials taken.");
@@ -36,7 +35,7 @@ export class AuthService {
 		}
 	}
 
-	async signin(dto: SigninDto) {
+	async login(dto: SigninDto, res: Response) {
 		const user = await this.prisma.user.findUnique({
 			where: {
 				userName: dto.userName,
@@ -45,7 +44,9 @@ export class AuthService {
 		if (!user) throw new ForbiddenException("Credentials incorrect.");
 		const match = await argon.verify(user.hash, dto.password);
 		if (!match) throw new ForbiddenException("Credentials incorrect.");
-		return this.signToken(user.id, user.email);
+		const token = await this.signToken(user.id, user.email);
+		this.createCookieAuth(token.access_token, res);
+		return token;
 	}
 
 	async signToken(
@@ -62,5 +63,11 @@ export class AuthService {
 			secret,
 		});
 		return { access_token: token };
+	}
+
+	async createCookieAuth(token: string, res: Response) {
+		res.cookie("_jwt", token, {
+			sameSite: "strict",
+		});
 	}
 }
