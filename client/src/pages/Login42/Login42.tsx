@@ -1,0 +1,33 @@
+// import { useNavigate } from "react-router-dom";
+
+import { useSearchParams } from "react-router-dom";
+
+export default function Login42() {
+	const [searchParams, setSearchParams] = useSearchParams();
+	const code = searchParams.get("code");
+
+	async function sendCode() {
+		try {
+			const response = await fetch("http://localhost:3000/auth/login42", {
+				method: "POST",
+				credentials: "include",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({ code }),
+			});
+			if (response.ok) console.log("OK");
+			else if (response.status === 403) alert("Credentials incorrect");
+		} catch (e) {
+			console.error("ERROR FETCH");
+		}
+	}
+	sendCode();
+
+	return (
+		<>
+			<h2>42Login Page</h2>
+			<p>{code}</p>
+		</>
+	);
+}

@@ -1,15 +1,15 @@
 import { useNavigate } from "react-router-dom";
 import LoginForm from "./LoginForm";
-import { useCookies } from "react-cookie";
-import { useEffect } from "react";
+// import { useCookies } from "react-cookie";
+// import { useEffect } from "react";
 
 export default function Login() {
 	const navigate = useNavigate();
-	const [cookie] = useCookies(["_jwt"]);
+	// const [cookie] = useCookies(["_jwt"]);
 
-	useEffect(() => {
-		if (cookie["_jwt"]) navigate("/");
-	});
+	// useEffect(() => {
+	// 	if (cookie["_jwt"]) navigate("/");
+	// });
 
 	return (
 		<>
@@ -22,6 +22,9 @@ export default function Login() {
 				Signup Page
 			</button>
 			<LoginForm />
+			<button>
+				<a href={process.env.REACT_APP_URL42}>Login with 42</a>
+			</button>
 		</>
 	);
 }

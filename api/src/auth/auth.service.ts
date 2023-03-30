@@ -1,7 +1,7 @@
 import { ForbiddenException, Injectable } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { PrismaService } from "../prisma/prisma.service";
-import { SignupDto, SigninDto } from "./dto";
+import { SignupDto, SigninDto, CodeDto } from "./dto";
 import * as argon from "argon2";
 import { ConfigService } from "@nestjs/config";
 import { Request, Response } from "express";
@@ -14,7 +14,8 @@ export class AuthService {
 		private config: ConfigService,
 	) {}
 
-	//inscription
+	// AUTH ////////////////////////////////////////////////////////
+
 	async signup(dto: SignupDto, req: Request, res: Response) {
 		try {
 			const hash = await argon.hash(dto.password);
@@ -47,6 +48,13 @@ export class AuthService {
 		const token = await this.signToken(user.id, user.email);
 		this.createCookieAuth(token.access_token, res);
 		return token;
+	}
+
+	// 42 ////////////////////////////////////////////////////////
+
+	async loginFortyTwo(dto: CodeDto, res: Response) {
+		console.log(dto.code);
+		return "coucou";
 	}
 
 	async signToken(
