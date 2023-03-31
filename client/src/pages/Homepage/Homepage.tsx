@@ -15,7 +15,7 @@ export default function Homepage() {
 			<h2>Homepage</h2>
 			{/* <button
 				onClick={() => {
-					removeCookie("_jwt", { path: "/" });
+					// removeCookie("_jwt", { path: "/" });
 					navigate("/login");
 				}}
 			>

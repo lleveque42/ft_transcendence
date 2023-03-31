@@ -6,11 +6,11 @@ import "./login.scss";
 
 export default function Login() {
 	const navigate = useNavigate();
-	const [cookie] = useCookies(["_jwt"]);
+	// const [cookie] = useCookies(["_jwt"]);
 
-	useEffect(() => {
-		if (cookie["_jwt"]) navigate("/");
-	});
+	// useEffect(() => {
+	// 	if (cookie["_jwt"]) navigate("/");
+	// });
 
 	return (
 		<>
@@ -24,7 +24,7 @@ export default function Login() {
 				Signup Page
 			</button> */}
 				<div className="title mb-30">PONG</div>
-				<div className="d-flex flex-column align-items justify-content">
+				<div className="card d-flex flex-column align-items justify-content">
 					<LoginForm />
 					<div className="mb-10">or</div>
 					<a

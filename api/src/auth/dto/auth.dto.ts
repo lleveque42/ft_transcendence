@@ -23,3 +23,8 @@ export class SigninDto {
 	@IsNotEmpty()
 	password: string;
 }
+
+export class CodeDto {
+	@IsString()
+	code: string;
+}
