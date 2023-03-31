@@ -55,27 +55,6 @@ export class AuthService {
 	// 42 ////////////////////////////////////////////////////////
 
 	async loginFortyTwo(dto: CodeDto, res: Response) {
-
-		console.log(dto);
-
-
-
-		// const urlToken =
-		// 	"https://api.intra.42.fr/oauth/token?grant_type=authorization_code&client_id=u-s4t2ud-cb7e8e9c933bd0e336d2ae4d3239f3c624c26ead7c81ad7eeb598107ed551be5&client_secret=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&code=";
-		// +dto.code + "&redirect_uri=http%3A%2F%2Flocalhost%3A3001%2Flogin42";
-		// const token = await this.httpService.post(urlToken);
-		// console.log(token);
-		// token.subscribe((value) => console.log(value));
-
-		// const params = {
-		// 	grant_type: "authorization_code",
-		// 	client_id:
-		// 		"u-s4t2ud-cb7e8e9c933bd0e336d2ae4d3239f3c624c26ead7c81ad7eeb598107ed551be5",
-		// 	client_secret:
-		// 		"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",
-		// 	code: dto.code,
-		// 	redirect_uri: "http%3A%2F%2Flocalhost%3A3001%2Flogin42",
-		// };
 		// const response = await axios.post(
 		// 	"https://api.intra.42.fr/oauth/token",
 		// 	querystring.stringify(params),
