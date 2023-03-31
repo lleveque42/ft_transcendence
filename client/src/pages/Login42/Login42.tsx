@@ -18,7 +18,7 @@ export default function Login42() {
 			});
 			if (response.ok) {
 				console.log("OK");
-				navigate("/");
+				// navigate("/");
 			} else if (response.status === 403) alert("Credentials incorrect");
 		} catch (e) {
 			console.error("ERROR FETCH");

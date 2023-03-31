@@ -55,6 +55,59 @@ export class AuthService {
 	// 42 ////////////////////////////////////////////////////////
 
 	async loginFortyTwo(dto: CodeDto, res: Response) {
+
+		const urlToken =
+		`https://api.intra.42.fr/oauth/token?grant_type=authorization_code&client_id=${this.config.get("CLIENT_42_UID")}&client_secret=${this.config.get("CLIENT_42_SECRET")}&code=${dto.code}&redirect_uri=http%3A%2F%2Flocalhost%3A3001%2Flogin42`;
+		// const token = this.httpService.post(urlToken);
+
+
+		try {
+			const response = await fetch(urlToken, {
+				method: "POST",
+				credentials: "include",
+				headers: {
+					"Content-Type": "application/json",
+				},
+			});
+			if (response.ok) {
+				console.log("OK login back 42");
+				// navigate("/");
+			} else {
+				console.log(response);
+
+			}
+		} catch (e) {
+			console.error("ERROR FETCH");
+		}
+
+
+
+
+
+
+		// token.subscribe((value) => console.log(value));
+		// const params = {
+		// grant_type: "authorization_code",
+		// client_id:
+		// "ID",
+		// client_secret:
+		// "SECRET",
+		// code: dto.code,
+		// redirect_uri: "http%3A%2F%2Flocalhost%3A3001%2Flogin42",
+		// };
+		// const response = await axios.post(
+		// "https://api.intra.42.fr/oauth/token",
+		// querystring.stringify(params),
+		// {
+		// headers: {
+		// "Content-Type": "application/x-www-form-urlencoded",
+		// },
+		// },
+		// );
+		// const access_token = response.data.access_token;
+		// // console.log(access_token);
+
+
 		// const response = await axios.post(
 		// 	"https://api.intra.42.fr/oauth/token",
 		// 	querystring.stringify(params),
@@ -78,6 +131,8 @@ export class AuthService {
 			email,
 		};
 		const secret = this.config.get("JWT_SECRET");
+		console.log(this.config.get("CLIENT_42_UID"));
+
 		const token = await this.jwt.signAsync(payload, {
 			expiresIn: "365d",
 			secret,
