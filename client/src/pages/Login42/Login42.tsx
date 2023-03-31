@@ -1,10 +1,10 @@
-// import { useNavigate } from "react-router-dom";
-
+import { useNavigate } from "react-router-dom";
 import { useSearchParams } from "react-router-dom";
 
 export default function Login42() {
 	const [searchParams, setSearchParams] = useSearchParams();
 	const code = searchParams.get("code");
+	const navigate = useNavigate();
 
 	async function sendCode() {
 		try {
@@ -16,8 +16,10 @@ export default function Login42() {
 				},
 				body: JSON.stringify({ code }),
 			});
-			if (response.ok) console.log("OK");
-			else if (response.status === 403) alert("Credentials incorrect");
+			if (response.ok) {
+				console.log("OK");
+				navigate("/");
+			} else if (response.status === 403) alert("Credentials incorrect");
 		} catch (e) {
 			console.error("ERROR FETCH");
 		}

@@ -25,5 +25,6 @@ export class SigninDto {
 }
 
 export class CodeDto {
+	@IsString()
 	code: string;
 }
