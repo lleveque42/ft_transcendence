@@ -1,17 +1,23 @@
 :root {
-  --primary: #e7b10a;
-  --secondary: #898121;
-  --secondary-dark: #041A00;
-  --secondary-light: #083600;
-  --red: #c0392b;
-  --light: #f7f1e5;
-  --dark-grey: #20232a;
-  --grey: #8d8d8d;
-  --light-grey: #d1ccc0;
-  --black: #0b0b0e;
-  --text-color: var(--primary);
-  --font-family: "300 11px/1.4", "Helvetica Neue", sans-serif;
-  --box-shadow: 0 6px 9px 0 rgb(0 0 0 / 15%);
-  --box-shadow-nav: rgb(0 0 0 / 22%) 0px 2px 18px 0px;
-  --border: 1px solid var(--light-grey);
+	// --primary: #e7b10a;
+	--primary: #74b9ff;
+	--black: #2d3436;
+	--primary-dark: #3d4c53;
+	--secondary-dark: #636e72;
+	--light-grey: #dfe6e9;
+	// --secondary: #898121;
+	// --secondary-dark: #041a00;
+	// --secondary-light: #083600;
+	// --red: #c0392b;
+	// --light: #f7f1e5;
+	// --dark-grey: #20232a;
+	// --grey: #8d8d8d;
+	// --light-grey: #d1ccc0;
+	// --black: #0b0b0e;
+	--text-color: var(--primary);
+	--font-family: "Space Grotesk", sans-serif;
+	--box-shadow: 0 6px 9px 0 rgb(0 0 0 / 15%);
+	--box-shadow-login42: rgb(0 0 0 / 33%) 0px 5px 18px 0px;
+	--box-shadow-nav: rgb(0 0 0 / 22%) 0px 2px 18px 0px;
+	--border: 1px solid var(--light-grey);
 }

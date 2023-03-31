@@ -12,15 +12,15 @@ export default function Homepage() {
 
 	return (
 		<>
-			<h2>Homepage, can't acces without loged in</h2>
-			<button
+			<h2>Homepage</h2>
+			{/* <button
 				onClick={() => {
 					removeCookie("_jwt", { path: "/" });
 					navigate("/login");
 				}}
 			>
 				Log Out
-			</button>
+			</button> */}
 		</>
 	);
 }

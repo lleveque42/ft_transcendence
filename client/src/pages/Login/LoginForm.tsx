@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import "./loginForm.scss";
 
 type FormValues = {
 	userName: string;
@@ -40,28 +41,33 @@ export default function LoginForm() {
 
 	return (
 		<div>
-			<form onSubmit={handleSubmit}>
-				<label>
-					Username:
+			<form
+				onSubmit={handleSubmit}
+				className="d-flex flex-column align-items justify-content"
+			>
+				<label className="d-flex align-items">
+					<i className="fa-solid fa-user"></i>
 					<input
 						type="text"
 						name="userName"
+						placeholder="Username..."
 						value={formValues.userName}
 						onChange={handleInputChange}
 					/>
 				</label>
-				<br />
-				<label>
-					Password:
+				<label className="d-flex align-items">
+					<i className="fa-solid fa-lock"></i>
 					<input
 						type="password"
 						name="password"
+						placeholder="Password..."
 						value={formValues.password}
 						onChange={handleInputChange}
 					/>
 				</label>
-				<br />
-				<button type="submit">Submit</button>
+				<button className="mb-10 btn-primary" type="submit">
+					Submit
+				</button>
 			</form>
 		</div>
 	);

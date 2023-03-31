@@ -12,11 +12,11 @@ export default function App() {
 	return (
 		<div>
 			{/* <div className="appContainer"> */}
-			<Header />
+			{/* <Header /> */}
 			{/* <div> */}
 				<Outlet />
 			{/* </div> */}
-			<Footer />
+			{/* <Footer /> */}
 		</div>
 	);
 }
