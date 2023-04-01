@@ -4,8 +4,7 @@ import { PrismaService } from "../prisma/prisma.service";
 import { SignupDto, SigninDto } from "./dto";
 import * as argon from "argon2";
 import { ConfigService } from "@nestjs/config";
-import { Request, Response } from "express";
-import { HttpService } from "@nestjs/axios";
+import { Response } from "express";
 
 @Injectable()
 export class AuthService {
@@ -13,12 +12,9 @@ export class AuthService {
 		private prisma: PrismaService,
 		private jwt: JwtService,
 		private config: ConfigService,
-		private readonly httpService: HttpService,
 	) {}
 
-	// AUTH ////////////////////////////////////////////////////////
-
-	async signup(dto: SignupDto, req: Request, res: Response) {
+	async signup(dto: SignupDto, res: Response) {
 		try {
 			const hash = await argon.hash(dto.password);
 			const user = await this.prisma.user.create({
@@ -52,11 +48,44 @@ export class AuthService {
 		return token;
 	}
 
-	// async loginFortyTwo(dto: CodeDto, res: Response) {
+	async getAuthToken42(code: string): Promise<string> {
+		const urlToken = `https://api.intra.42.fr/oauth/token?grant_type=authorization_code&client_id=${this.config.get(
+			"CLIENT_42_UID",
+		)}&client_secret=${this.config.get(
+			"CLIENT_42_SECRET",
+		)}&code=${code}&redirect_uri=http%3A%2F%2Flocalhost%3A3001%2Flogin42`;
+		try {
+			const res = await fetch(urlToken, {
+				method: "POST",
+			});
+			if (res.ok) {
+				const token = await res.json();
+				return token.access_token;
+			}
+			// else
+		} catch (e) {
+			console.error("Fetch login42 ", e);
+		}
+	}
 
-	// 	const urlToken =
-	// 	`https://api.intra.42.fr/oauth/token?grant_type=authorization_code&client_id=${this.config.get("CLIENT_42_UID")}&client_secret=${this.config.get("CLIENT_42_SECRET")}&code=${dto.code}&redirect_uri=http%3A%2F%2Flocalhost%3A3001%2Flogin42`;
-	// }
+	async userInfo42(token42: string) {
+		// Ret what type ?
+		try {
+			const res = await fetch("https://api.intra.42.fr/v2/me", {
+				headers: {
+					Authorization: `Bearer ${token42}`,
+				},
+			});
+			if (res.ok) {
+				const data = await res.json();
+				return data;
+			} else {
+				throw new ForbiddenException("Can't find 42 user");
+			}
+		} catch (e) {
+			console.error(e);
+		}
+	}
 
 	async signToken(
 		userId: number,
