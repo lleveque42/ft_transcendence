@@ -1,7 +1,7 @@
-import { Controller, Post, Body, Req, Res} from "@nestjs/common";
+import { Controller, Post, Get, Body, Req, Res, Param } from "@nestjs/common";
 import { Request, Response } from "express";
 import { AuthService } from "./auth.service";
-import { SignupDto, SigninDto, CodeDto } from "./dto";
+import { SignupDto, SigninDto, login42Dto } from "./dto";
 
 @Controller("auth")
 export class AuthController {
@@ -21,11 +21,11 @@ export class AuthController {
 		return this.authService.login(dto, res);
 	}
 
-	@Post("login42")
-	loginFortyTwo(
-		@Body() dto: CodeDto,
-		@Res({ passthrough: true }) res: Response,
-	) {
-		return this.authService.loginFortyTwo(dto, res);
+	@Get("login42/:code")
+	loginFortyTwo(@Param() params: login42Dto) {
+		console.log(params.code);
+		// Use Service and pass code as string param,
+		
+		// return this.authService.loginFortyTwo(dto, res);
 	}
 }

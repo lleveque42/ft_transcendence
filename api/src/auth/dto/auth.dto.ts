@@ -24,7 +24,7 @@ export class SigninDto {
 	password: string;
 }
 
-export class CodeDto {
+export class login42Dto {
 	@IsString()
 	code: string;
 }
