@@ -14,10 +14,11 @@ export default function Login42() {
 				const response = await fetch(
 					`http://localhost:3000/auth/token42/${code}`,
 				);
-				if (response.ok) {
-					// console.log(await response.json());
-					navigate("/");
-				}
+				// if (response.ok) {
+					// console.log(await response.text());
+
+					// navigate("/");
+				// }
 				// else...
 			} catch (e) {
 				console.error(e);
@@ -29,8 +30,14 @@ export default function Login42() {
 	return (
 		<div className="container">
 			<h2>Login42 Page</h2>
-			<p>code from 42api: {code}</p>
 			<p>Waiting...</p>
+			<button
+				onClick={() => {
+					navigate("/");
+				}}
+			>
+				HOME
+			</button>
 		</div>
 	);
 }

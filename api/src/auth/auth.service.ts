@@ -1,10 +1,12 @@
 import { ForbiddenException, Injectable } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { PrismaService } from "../prisma/prisma.service";
-import { SignupDto, SigninDto } from "./dto";
+import { SignupDto, SigninDto, userInfo42Dto } from "./dto";
 import * as argon from "argon2";
 import { ConfigService } from "@nestjs/config";
 import { Response } from "express";
+import { UserService } from "../user/user.service";
+import { User } from "@prisma/client";
 
 @Injectable()
 export class AuthService {
@@ -12,6 +14,7 @@ export class AuthService {
 		private prisma: PrismaService,
 		private jwt: JwtService,
 		private config: ConfigService,
+		private userService: UserService,
 	) {}
 
 	async signup(dto: SignupDto, res: Response) {
@@ -48,6 +51,10 @@ export class AuthService {
 		return token;
 	}
 
+	async login42(user: User) {
+		// add res ? Ret ??
+	}
+
 	async getAuthToken42(code: string): Promise<string> {
 		const urlToken = `https://api.intra.42.fr/oauth/token?grant_type=authorization_code&client_id=${this.config.get(
 			"CLIENT_42_UID",
@@ -68,23 +75,38 @@ export class AuthService {
 		}
 	}
 
-	async userInfo42(token42: string) {
+	async userInfo42(token42: string): Promise<userInfo42Dto> {
 		// Ret what type ?
-		try {
-			const res = await fetch("https://api.intra.42.fr/v2/me", {
-				headers: {
-					Authorization: `Bearer ${token42}`,
-				},
-			});
-			if (res.ok) {
-				const data = await res.json();
-				return data;
-			} else {
-				throw new ForbiddenException("Can't find 42 user");
-			}
-		} catch (e) {
-			console.error(e);
+		// try { keep try catch here ?
+		const res = await fetch("https://api.intra.42.fr/v2/me", {
+			headers: {
+				Authorization: `Bearer ${token42}`,
+			},
+		});
+		if (res.ok) {
+			const { login, email, first_name, last_name } = await res.json(); // Add avatar link ?
+			return { login, email, first_name, last_name };
+		} else {
+			throw new ForbiddenException("Can't find 42 user");
 		}
+		// } catch (e) {
+		// console.error(e.message);
+		// }
+	}
+
+	async manageNewAuth(newUser: userInfo42Dto, res: Response) {
+		let user = await this.userService.getUserByEmail(newUser.email);
+		if (user) {
+			res.redirect("http://localhost:3001/");
+			return this.login42(user);
+		}
+		if ((await this.userService.getUserByUserName(newUser.login)) != null) {
+			newUser.login += "_";
+		}
+		user = await this.userService.createUser(newUser);
+		// console.log("USER CREATED : ", user.userName);
+		// redirect to edit page user
+		return res.redirect("http://localhost:3001/signup");
 	}
 
 	async signToken(
@@ -96,8 +118,6 @@ export class AuthService {
 			email,
 		};
 		const secret = this.config.get("JWT_SECRET");
-		console.log(this.config.get("CLIENT_42_UID"));
-
 		const token = await this.jwt.signAsync(payload, {
 			expiresIn: "365d",
 			secret,

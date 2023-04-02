@@ -28,3 +28,21 @@ export class getAuthToken42Dto {
 	@IsString()
 	code: string;
 }
+
+export class userInfo42Dto {
+	@IsNotEmpty()
+	@IsEmail()
+	email: string;
+
+	@IsString()
+	@IsNotEmpty()
+	login: string;
+
+	@IsString()
+	@IsNotEmpty()
+	first_name: string;
+
+	@IsString()
+	@IsNotEmpty()
+	last_name: string;
+}
