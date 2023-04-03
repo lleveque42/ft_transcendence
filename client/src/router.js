@@ -5,6 +5,7 @@ import Homepage from "./pages/Homepage/Homepage";
 import Login from "./pages/Login/Login";
 import Login42 from "./pages/Login42/Login42";
 import Signup from "./pages/Signup/Signup";
+import EditProfile from "./pages/User/EditProfile";
 
 export const router = createBrowserRouter([
 	{
@@ -27,6 +28,10 @@ export const router = createBrowserRouter([
 			{
 				path: "/login42",
 				element: <Login42 />,
+			},
+			{
+				path: "/editprofile",
+				element: <EditProfile />,
 			},
 		],
 	},

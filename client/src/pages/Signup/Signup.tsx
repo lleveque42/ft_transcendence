@@ -19,7 +19,6 @@ export default function Signup() {
 	const navigate = useNavigate();
 	const [cookie] = useCookies(["_jwt"]);
 
-	console.log("SIGNUP");
 	// useEffect(() => {
 	// 	if (cookie["_jwt"]) navigate("/");
 	// });

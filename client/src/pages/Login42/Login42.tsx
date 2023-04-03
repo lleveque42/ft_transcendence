@@ -1,5 +1,5 @@
 import { error } from "console";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSearchParams } from "react-router-dom";
 
@@ -7,6 +7,7 @@ export default function Login42() {
 	const [searchParams] = useSearchParams();
 	const code = searchParams.get("code");
 	const navigate = useNavigate();
+	const ref = useRef(false);
 
 	useEffect(() => {
 		async function sendCode() {
@@ -14,9 +15,12 @@ export default function Login42() {
 				if (!code) throw new Error("No code provided");
 				const res = await fetch(
 					`http://localhost:3000/auth/callback42/${code}`,
+					{
+						credentials: "include",
+					},
 				);
 				if (res.status === 201) {
-					navigate("/signup"); // Redirect to user edit profile when its first co
+					navigate("/editprofile"); // Redirect to user edit profile when its first co
 				} else if (res.ok) {
 					navigate("/");
 				} else {
@@ -29,8 +33,13 @@ export default function Login42() {
 				navigate("/login");
 			}
 		}
-		sendCode();
-	}, [code]);
+		if (!ref.current) {
+			sendCode();
+		}
+		return () => {
+			ref.current = true;
+		};
+	}, []);
 
 	return (
 		<div className="container d-flex flex-column align-items justify-content">

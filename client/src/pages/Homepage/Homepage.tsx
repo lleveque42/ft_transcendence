@@ -13,6 +13,7 @@ export default function Homepage() {
 	return (
 		<div className="container">
 			<h2>Homepage</h2>
+			<p>COOKIE : {cookie['_jwt']}|</p>
 			<button
 				className="btn btn-primary"
 				onClick={() => {

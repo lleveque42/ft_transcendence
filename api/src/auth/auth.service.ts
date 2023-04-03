@@ -3,8 +3,6 @@ import {
 	HttpException,
 	HttpStatus,
 	Injectable,
-	NotFoundException,
-	UnauthorizedException,
 } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { PrismaService } from "../prisma/prisma.service";
@@ -58,8 +56,9 @@ export class AuthService {
 		return token;
 	}
 
-	async login42(user: User) {
-		// add res ? Ret ??
+	async login42(user: User, res: Response) {
+		const token = await this.signToken(user.id, user.email);
+		this.createCookieAuth(token.access_token, res);
 	}
 
 	async getAuthToken42(code: string): Promise<string> {
@@ -92,20 +91,23 @@ export class AuthService {
 		return { login, email, first_name, last_name };
 	}
 
-	async manageNewAuth(newUser: userInfo42Dto, res: Response) {
+	async manageNewAuth42(newUser: userInfo42Dto, res: Response) {
 		let user = await this.userService.getUserByEmail(newUser.email);
 		if (user) {
 			console.log("USER ALREADY EXIST : ", user.userName);
-			this.login42(user);
-			return res.status(HttpStatus.OK).send();
+			res.status(HttpStatus.OK);
+		} else {
+			if ((await this.userService.getUserByUserName(newUser.login)) != null) {
+				newUser.login += "_";
+			}
+			user = await this.userService.createUser(newUser);
+			console.log("USER CREATED : ", user.userName);
+			res.status(HttpStatus.CREATED);
 		}
-		if ((await this.userService.getUserByUserName(newUser.login)) != null) {
-			newUser.login += "_";
-		}
-		user = await this.userService.createUser(newUser);
-		console.log("USER CREATED : ", user.userName);
-		return res.status(HttpStatus.CREATED).json([]);
+		await this.login42(user, res);
 	}
+
+	////////////////////////////////// JWT
 
 	async signToken(
 		userId: number,
@@ -116,17 +118,19 @@ export class AuthService {
 			email,
 		};
 		const secret = this.config.get("JWT_SECRET");
+
 		const token = await this.jwt.signAsync(payload, {
-			expiresIn: "365d",
+			expiresIn: "1d",
 			secret,
 		});
 		return { access_token: token };
 	}
 
-	async createCookieAuth(token: string, res: Response) {
+	createCookieAuth(token: string, res: Response) {
 		res.cookie("_jwt", token, {
 			sameSite: "strict",
 			secure: true,
+			maxAge: 36000000, // 10h
 		});
 	}
 }

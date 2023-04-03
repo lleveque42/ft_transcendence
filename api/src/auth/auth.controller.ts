@@ -28,14 +28,13 @@ export class AuthController {
 	@Get("callback42/:code")
 	async getAuthToken42(
 		@Param() params: getAuthToken42Dto,
-		@Res() res: Response,
+		@Res({ passthrough: true }) res: Response,
 	) {
-		// Need to store token42 ??
 		console.log("------------------- GET token 42 -------------------");
 		try {
 			const token42 = await this.authService.getAuthToken42(params.code);
 			const newUser42 = await this.authService.userInfo42(token42);
-			return this.authService.manageNewAuth(newUser42, res);
+			await this.authService.manageNewAuth42(newUser42, res);
 		} catch (e) {
 			throw new HttpException(e.message, e.status);
 		}
