@@ -16,13 +16,28 @@ export class AuthController {
 	constructor(private authService: AuthService) {}
 
 	@Post("signup") // To del at the end
-	signup(@Body() dto: SignupDto, @Res({ passthrough: true }) res: Response) {
-		return this.authService.signup(dto, res);
+	async signup(
+		@Body() dto: SignupDto,
+		@Res({ passthrough: true }) res: Response,
+	) {
+		try {
+			await this.authService.signup(dto, res);
+		} catch (e) {
+			// handle user email already exist
+			throw new HttpException(e.message, e.status);
+		}
 	}
 
-	@Post("login")
-	login(@Body() dto: SigninDto, @Res({ passthrough: true }) res: Response) {
-		return this.authService.login(dto, res);
+	@Post("login") // To del at the end
+	async login(
+		@Body() dto: SigninDto,
+		@Res({ passthrough: true }) res: Response,
+	) {
+		try {
+			await this.authService.login(dto, res);
+		} catch (e) {
+			throw new HttpException(e.message, e.status);
+		}
 	}
 
 	@Get("callback42/:code")
@@ -30,7 +45,6 @@ export class AuthController {
 		@Param() params: getAuthToken42Dto,
 		@Res({ passthrough: true }) res: Response,
 	) {
-		console.log("------------------- GET token 42 -------------------");
 		try {
 			const token42 = await this.authService.getAuthToken42(params.code);
 			const newUser42 = await this.authService.userInfo42(token42);

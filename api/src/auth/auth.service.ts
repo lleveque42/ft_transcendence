@@ -23,37 +23,39 @@ export class AuthService {
 	) {}
 
 	async signup(dto: SignupDto, res: Response) {
-		try {
+		let user = await this.userService.getUserByEmail(dto.email);
+		if (user) {
+			console.log("SIGNUP USER ALREADY EXIST : ", user.email);
+			throw new ForbiddenException("Credentials taken.");
+		} else {
+			if ((await this.userService.getUserByUserName(dto.userName)) != null) {
+				dto.userName += "_";
+			}
 			const hash = await argon.hash(dto.password);
-			const user = await this.prisma.user.create({
+			user = await this.prisma.user.create({
 				data: {
 					hash,
 					email: dto.email,
 					userName: dto.userName,
 				},
 			});
-			const token = await this.signToken(user.id, user.email);
-			this.createCookieAuth(token.access_token, res);
-			return token;
-		} catch (e) {
-			if (e.code === "P2002")
-				throw new ForbiddenException("Credentials taken.");
-			throw e;
+			console.log("SIGNUP USER CREATED : ", user.userName);
+			res.status(HttpStatus.CREATED);
 		}
+		const token = await this.signToken(user.id, user.email);
+		this.createCookieAuth(token.access_token, res);
 	}
 
 	async login(dto: SigninDto, res: Response) {
-		const user = await this.prisma.user.findUnique({
-			where: {
-				userName: dto.userName,
-			},
-		});
-		if (!user) throw new ForbiddenException("Credentials incorrect.");
-		const match = await argon.verify(user.hash, dto.password);
-		if (!match) throw new ForbiddenException("Credentials incorrect.");
-		const token = await this.signToken(user.id, user.email);
-		this.createCookieAuth(token.access_token, res);
-		return token;
+		const user = await this.userService.getUserByUserName(dto.userName);
+		if (user) {
+			const match = await argon.verify(user.hash, dto.password);
+			if (!match) throw new ForbiddenException("Credentials incorrect.");
+			const token = await this.signToken(user.id, user.email);
+			this.createCookieAuth(token.access_token, res);
+		} else {
+			throw new ForbiddenException("Credentials incorrect.");
+		}
 	}
 
 	async login42(user: User, res: Response) {

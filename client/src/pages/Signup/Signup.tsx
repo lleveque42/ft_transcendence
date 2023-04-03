@@ -17,11 +17,6 @@ const initialFormValues: FormValues = {
 export default function Signup() {
 	const [formValues, setFormValues] = useState<FormValues>(initialFormValues);
 	const navigate = useNavigate();
-	const [cookie] = useCookies(["_jwt"]);
-
-	// useEffect(() => {
-	// 	if (cookie["_jwt"]) navigate("/");
-	// });
 
 	function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
 		const { name, value } = event.target;
@@ -40,7 +35,7 @@ export default function Signup() {
 				body: JSON.stringify(formValues),
 			});
 			if (response.ok) navigate("/");
-			else if (response.status === 403) alert("Credentials taken");
+			else alert("Email taken");
 		} catch (e) {
 			console.error("ERROR FETCH");
 		}
@@ -86,7 +81,6 @@ export default function Signup() {
 			<button
 				className="btn btn-primary"
 				onClick={() => {
-					// removeCookie("_jwt", { path: "/" });
 					navigate("/login");
 				}}
 			>
