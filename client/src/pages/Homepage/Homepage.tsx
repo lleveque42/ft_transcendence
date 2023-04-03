@@ -16,6 +16,7 @@ export default function Homepage() {
 	}
 
 	// async fuction handleClickDeleteAllDatabase() {
+		// faire une requete a l'api pour delete tous les users
 	// }
 
 	return (
@@ -35,7 +36,7 @@ export default function Homepage() {
 					className={`btn-danger ${styles.removeCookieButton}`}
 					// onClick={handleClickDeleteAllDatabase}
 				>
-					Empty database
+					Empty users db
 				</button>
 			</div>
 		</div>
