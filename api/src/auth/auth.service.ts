@@ -1,4 +1,11 @@
-import { ForbiddenException, Injectable } from "@nestjs/common";
+import {
+	ForbiddenException,
+	HttpException,
+	HttpStatus,
+	Injectable,
+	NotFoundException,
+	UnauthorizedException,
+} from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { PrismaService } from "../prisma/prisma.service";
 import { SignupDto, SigninDto, userInfo42Dto } from "./dto";
@@ -61,52 +68,43 @@ export class AuthService {
 		)}&client_secret=${this.config.get(
 			"CLIENT_42_SECRET",
 		)}&code=${code}&redirect_uri=http%3A%2F%2Flocalhost%3A3001%2Flogin42`;
-		try {
-			const res = await fetch(urlToken, {
-				method: "POST",
-			});
-			if (res.ok) {
-				const token = await res.json();
-				return token.access_token;
-			}
-			// else
-		} catch (e) {
-			console.error("Fetch login42 ", e);
+		const res = await fetch(urlToken, {
+			method: "POST",
+		});
+		if (!res.ok) {
+			console.error("Error getAuthToken42 :", code, res.status);
+			throw new HttpException("Bad code request", HttpStatus.UNAUTHORIZED);
 		}
+		const token42 = await res.json();
+		return token42.access_token;
 	}
 
 	async userInfo42(token42: string): Promise<userInfo42Dto> {
-		// Ret what type ?
-		// try { keep try catch here ?
 		const res = await fetch("https://api.intra.42.fr/v2/me", {
 			headers: {
 				Authorization: `Bearer ${token42}`,
 			},
 		});
-		if (res.ok) {
-			const { login, email, first_name, last_name } = await res.json(); // Add avatar link ?
-			return { login, email, first_name, last_name };
-		} else {
-			throw new ForbiddenException("Can't find 42 user");
+		if (!res.ok) {
+			throw new HttpException("Can't find 42 user", HttpStatus.NOT_FOUND);
 		}
-		// } catch (e) {
-		// console.error(e.message);
-		// }
+		const { login, email, first_name, last_name } = await res.json(); // Add avatar link ?
+		return { login, email, first_name, last_name };
 	}
 
 	async manageNewAuth(newUser: userInfo42Dto, res: Response) {
 		let user = await this.userService.getUserByEmail(newUser.email);
 		if (user) {
-			res.redirect("http://localhost:3001/");
-			return this.login42(user);
+			console.log("USER ALREADY EXIST : ", user.userName);
+			this.login42(user);
+			return res.status(HttpStatus.OK).send();
 		}
 		if ((await this.userService.getUserByUserName(newUser.login)) != null) {
 			newUser.login += "_";
 		}
 		user = await this.userService.createUser(newUser);
-		// console.log("USER CREATED : ", user.userName);
-		// redirect to edit page user
-		return res.redirect("http://localhost:3001/signup");
+		console.log("USER CREATED : ", user.userName);
+		return res.status(HttpStatus.CREATED).json([]);
 	}
 
 	async signToken(

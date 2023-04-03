@@ -15,14 +15,6 @@ export default function Login() {
 	return (
 		<>
 			<div className="loginContainer d-flex flex-column align-items justify-content">
-				{/* <h1>Login</h1> */}
-				{/* <button
-				onClick={() => {
-					navigate("/signup");
-				}}
-			>
-				Signup Page
-			</button> */}
 				<div className="title mb-30">PONG</div>
 				<div className="card d-flex flex-column align-items justify-content">
 					<LoginForm />

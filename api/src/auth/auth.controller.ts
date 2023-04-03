@@ -1,4 +1,12 @@
-import { Controller, Post, Get, Body, Res, Param } from "@nestjs/common";
+import {
+	Controller,
+	Post,
+	Get,
+	Body,
+	Res,
+	Param,
+	HttpException,
+} from "@nestjs/common";
 import { Response } from "express";
 import { AuthService } from "./auth.service";
 import { SignupDto, SigninDto, getAuthToken42Dto } from "./dto";
@@ -17,20 +25,19 @@ export class AuthController {
 		return this.authService.login(dto, res);
 	}
 
-	@Get("token42/:code") // Rename callback42
+	@Get("callback42/:code")
 	async getAuthToken42(
 		@Param() params: getAuthToken42Dto,
-		@Res({ passthrough: true }) res: Response,
+		@Res() res: Response,
 	) {
 		// Need to store token42 ??
 		console.log("------------------- GET token 42 -------------------");
 		try {
 			const token42 = await this.authService.getAuthToken42(params.code);
 			const newUser42 = await this.authService.userInfo42(token42);
-			console.log("NEWUSER INFO : ", newUser42);
-			this.authService.manageNewAuth(newUser42, res);
+			return this.authService.manageNewAuth(newUser42, res);
 		} catch (e) {
-			console.error(e.message);
+			throw new HttpException(e.message, e.status);
 		}
 	}
 }

@@ -19,9 +19,10 @@ export default function Signup() {
 	const navigate = useNavigate();
 	const [cookie] = useCookies(["_jwt"]);
 
-	useEffect(() => {
-		if (cookie["_jwt"]) navigate("/");
-	});
+	console.log("SIGNUP");
+	// useEffect(() => {
+	// 	if (cookie["_jwt"]) navigate("/");
+	// });
 
 	function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
 		const { name, value } = event.target;
@@ -47,38 +48,51 @@ export default function Signup() {
 	}
 
 	return (
-		<form onSubmit={handleSubmit}>
-			<label>
-				Username:
-				<input
-					type="text"
-					name="userName"
-					value={formValues.userName}
-					onChange={handleInputChange}
-				/>
-			</label>
-			<br />
-			<label>
-				Email:
-				<input
-					type="email"
-					name="email"
-					value={formValues.email}
-					onChange={handleInputChange}
-				/>
-			</label>
-			<br />
-			<label>
-				Password:
-				<input
-					type="password"
-					name="password"
-					value={formValues.password}
-					onChange={handleInputChange}
-				/>
-			</label>
-			<br />
-			<button type="submit">Submit</button>
-		</form>
+		<>
+			<form onSubmit={handleSubmit}>
+				<label>
+					Username:
+					<input
+						type="text"
+						name="userName"
+						value={formValues.userName}
+						onChange={handleInputChange}
+					/>
+				</label>
+				<br />
+				<label>
+					Email:
+					<input
+						type="email"
+						name="email"
+						value={formValues.email}
+						onChange={handleInputChange}
+					/>
+				</label>
+				<br />
+				<label>
+					Password:
+					<input
+						type="password"
+						name="password"
+						value={formValues.password}
+						onChange={handleInputChange}
+					/>
+				</label>
+				<br />
+				<button className="btn btn-primary" type="submit">
+					Submit
+				</button>
+			</form>
+			<button
+				className="btn btn-primary"
+				onClick={() => {
+					// removeCookie("_jwt", { path: "/" });
+					navigate("/login");
+				}}
+			>
+				Login
+			</button>
+		</>
 	);
 }

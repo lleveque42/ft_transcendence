@@ -3,24 +3,25 @@ import { useCookies } from "react-cookie";
 import { useNavigate } from "react-router-dom";
 
 export default function Homepage() {
-	const [cookie, ,removeCookie] = useCookies(["_jwt"]);
+	const [cookie, , removeCookie] = useCookies(["_jwt"]);
 	const navigate = useNavigate();
 
-	useEffect(() => {
-		if (!cookie["_jwt"]) navigate("/login");
-	});
+	// useEffect(() => {
+	// 	if (!cookie["_jwt"]) navigate("/login");
+	// });
 
 	return (
-		<>
+		<div className="container">
 			<h2>Homepage</h2>
-			{/* <button
+			<button
+				className="btn btn-primary"
 				onClick={() => {
 					// removeCookie("_jwt", { path: "/" });
 					navigate("/login");
 				}}
 			>
-				Log Out
-			</button> */}
-		</>
+				Login
+			</button>
+		</div>
 	);
 }
