@@ -1,21 +1,10 @@
-import React, { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useCookies } from "react-cookie";
 import { useNavigate } from "react-router-dom";
-
-type FormValues = {
-	userName: string;
-	email: string;
-	password: string;
-};
-
-const initialFormValues: FormValues = {
-	userName: "",
-	email: "",
-	password: "",
-};
+import SignupForm from "../../components/Forms/SignupForm/Signup";
+import styles from "./Signup.module.scss";
 
 export default function Signup() {
-	const [formValues, setFormValues] = useState<FormValues>(initialFormValues);
 	const navigate = useNavigate();
 	const [cookie] = useCookies(["_jwt"]);
 
@@ -23,62 +12,14 @@ export default function Signup() {
 		if (cookie["_jwt"]) navigate("/");
 	});
 
-	function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
-		const { name, value } = event.target;
-		setFormValues({ ...formValues, [name]: value });
-	}
-
-	async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-		event.preventDefault();
-		try {
-			const response = await fetch("http://localhost:3000/auth/signup", {
-				method: "POST",
-				credentials: "include",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify(formValues),
-			});
-			if (response.ok) navigate("/");
-			else if (response.status === 403) alert("Credentials taken");
-		} catch (e) {
-			console.error("ERROR FETCH");
-		}
-	}
-
 	return (
-		<form onSubmit={handleSubmit}>
-			<label>
-				Username:
-				<input
-					type="text"
-					name="userName"
-					value={formValues.userName}
-					onChange={handleInputChange}
-				/>
-			</label>
-			<br />
-			<label>
-				Email:
-				<input
-					type="email"
-					name="email"
-					value={formValues.email}
-					onChange={handleInputChange}
-				/>
-			</label>
-			<br />
-			<label>
-				Password:
-				<input
-					type="password"
-					name="password"
-					value={formValues.password}
-					onChange={handleInputChange}
-				/>
-			</label>
-			<br />
-			<button type="submit">Submit</button>
-		</form>
+		<div
+			className={`${styles.signupContainer} d-flex flex-column align-items justify-content`}
+		>
+			<div className="title mb-30">
+				PONG<h2 className="underTitle">Signup</h2>
+			</div>
+			<SignupForm />
+		</div>
 	);
 }
