@@ -38,15 +38,15 @@ export default function SignupForm() {
 			if (res.ok) navigate("/");
 			else alert("Email taken");
 		} catch (e) {
-			console.error("ERROR FETCH");
+			console.error("Error Signup");
 		}
 	}
 
 	return (
 		<div className={styles.formContainer}>
 			<form
-				className="d-flex flex-column align-items justify-content"
 				onSubmit={handleSubmit}
+				className="d-flex flex-column align-items justify-content"
 			>
 				<Input
 					icon="fa-solid fa-user"
@@ -72,9 +72,20 @@ export default function SignupForm() {
 					value={formValues.password}
 					onChange={handleInputChange}
 				/>
-				<button className="btn-primary" type="submit">
-					Signup
-				</button>
+				<div className={`${styles.buttonContainer} d-flex flex-row justify-content-space-between mb-10`}>
+					<button
+						className="btn-reverse-primary"
+						type="button"
+						onClick={() => {
+							navigate("/login");
+						}}
+					>
+						Back to Login
+					</button>
+					<button className="btn-primary" type="submit">
+						Signup
+					</button>
+				</div>
 			</form>
 		</div>
 	);

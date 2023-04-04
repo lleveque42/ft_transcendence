@@ -1,59 +1,45 @@
-import { useEffect } from "react";
-import { useCookies } from "react-cookie";
 import { useNavigate } from "react-router-dom";
 import styles from "./Homepage.module.scss";
 
 export default function Homepage() {
-	const [cookie, , removeCookie] = useCookies(["_jwt"]);
 	const navigate = useNavigate();
-
-	// useEffect(() => {
-	// 	if (!cookie["_jwt"]) navigate("/login");
-	// });
-
-	function handleClickRemoveCookie() {
-		removeCookie("_jwt");
-	}
 
 	// async fuction handleClickDeleteAllDatabase() {
 	// faire une requete a l'api pour delete tous les users
 	// }
 
+	async function logout() {
+		try {
+			const res = await fetch("http://localhost:3000/auth/logout", {
+				method: "POST",
+				credentials: "include",
+			});
+			if (res.status === 204) navigate("/login");
+		} catch (e) {
+			console.error("Error logout: ", e);
+		}
+	}
+
 	return (
-		<>
-			<div className="container">
-				<h2>Homepage</h2>
-				<p>COOKIE : {cookie["_jwt"]}|</p>
+		<div className="container d-flex flex-column justify-content align-items">
+			<div className="title">PONG</div>
+			<h2 className="underTitle mb-20">Homepage</h2>
+			<div
+				className={`${styles.btnContainer} d-flex justify-content-space-between align-items mb-30`}
+			>
 				<button
-					className="btn btn-primary"
-					onClick={() => {
-						// removeCookie("_jwt", { path: "/" });
-						navigate("/login");
-					}}
+					className={`btn-danger ${styles.removeCookieButton}`}
+					onClick={logout}
 				>
-					Login
+					Logout
+				</button>
+				<button
+					className={`btn-danger ${styles.removeCookieButton}`}
+					// onClick={handleClickDeleteAllDatabase}
+				>
+					Empty users db
 				</button>
 			</div>
-			<div className="container d-flex flex-column justify-content align-items">
-				<div className="title">PONG</div>
-				<h2 className="underTitle mb-20">Homepage</h2>
-				<div
-					className={`${styles.btnContainer} d-flex justify-content-space-between align-items mb-30`}
-				>
-					<button
-						className={`btn-danger ${styles.removeCookieButton}`}
-						onClick={handleClickRemoveCookie}
-					>
-						Remove login cookie
-					</button>
-					<button
-						className={`btn-danger ${styles.removeCookieButton}`}
-						// onClick={handleClickDeleteAllDatabase}
-					>
-						Empty users db
-					</button>
-				</div>
-			</div>
-		</>
+		</div>
 	);
 }

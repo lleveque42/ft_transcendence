@@ -1,4 +1,4 @@
-import SignupForm from "../../components/Forms/SignupForm/Signup";
+import SignupForm from "../../components/Forms/SignupForm/SignupForm";
 import styles from "./Signup.module.scss";
 
 export default function Signup() {

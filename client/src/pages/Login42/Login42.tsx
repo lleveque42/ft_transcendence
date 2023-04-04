@@ -38,20 +38,12 @@ export default function Login42() {
 		return () => {
 			ref.current = true;
 		};
-	}, []);
+	});
 
 	return (
 		<div className="container d-flex flex-column align-items justify-content">
 			<h2 className="mb-20">Asking Xav for 42 connexion</h2>
 			<p>Waiting...</p>
-			<button
-				className="btn btn-primary"
-				onClick={() => {
-					navigate("/login");
-				}}
-			>
-				Back to Login
-			</button>
 		</div>
 	);
 }

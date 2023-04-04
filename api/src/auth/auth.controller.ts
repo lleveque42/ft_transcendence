@@ -6,6 +6,8 @@ import {
 	Res,
 	Param,
 	HttpException,
+	HttpCode,
+	HttpStatus,
 } from "@nestjs/common";
 import { Response } from "express";
 import { AuthService } from "./auth.service";
@@ -38,6 +40,12 @@ export class AuthController {
 		} catch (e) {
 			throw new HttpException(e.message, e.status);
 		}
+	}
+
+	@Post("logout")
+	@HttpCode(HttpStatus.NO_CONTENT)
+	logout(@Res({ passthrough: true }) res: Response) {
+		this.authService.logout(res);
 	}
 
 	@Get("callback42/:code")

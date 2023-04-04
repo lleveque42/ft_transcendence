@@ -63,6 +63,10 @@ export class AuthService {
 		this.createCookieAuth(token.access_token, res);
 	}
 
+	logout(res: Response) {
+		res.clearCookie("_jwt");
+	}
+
 	async getAuthToken42(code: string): Promise<string> {
 		const urlToken = `https://api.intra.42.fr/oauth/token?grant_type=authorization_code&client_id=${this.config.get(
 			"CLIENT_42_UID",

@@ -24,6 +24,7 @@ export default function LoginForm() {
 
 	async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
 		event.preventDefault();
+		if (formValues.password === "" || formValues.userName === "") return;
 		try {
 			const response = await fetch("http://localhost:3000/auth/login", {
 				method: "POST",
@@ -33,10 +34,13 @@ export default function LoginForm() {
 				},
 				body: JSON.stringify(formValues),
 			});
-			if (response.ok) navigate("/");
-			else if (response.status === 403) alert("Credentials incorrect");
+			if (!response.ok) {
+				alert("Credentials incorrect");
+			} else {
+				navigate("/");
+			}
 		} catch (e) {
-			console.error("ERROR FETCH");
+			console.error("Error login classic");
 		}
 	}
 
@@ -67,7 +71,7 @@ export default function LoginForm() {
 				>
 					<button
 						className="btn-reverse-primary"
-						type="submit"
+						type="button"
 						onClick={() => {
 							navigate("/signup");
 						}}
