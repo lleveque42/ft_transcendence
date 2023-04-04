@@ -33,4 +33,8 @@ export class UserService {
 			},
 		});
 	}
+
+	async dropdb() {
+		await this.prisma.user.deleteMany({});
+	}
 }

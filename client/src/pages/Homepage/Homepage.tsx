@@ -4,9 +4,21 @@ import styles from "./Homepage.module.scss";
 export default function Homepage() {
 	const navigate = useNavigate();
 
-	// async fuction handleClickDeleteAllDatabase() {
-	// faire une requete a l'api pour delete tous les users
-	// }
+	async function handleClickDeleteAllDatabase() {
+		// Need to logout user
+		try {
+			const res = await fetch("http://localhost:3000/user/temporary_dropdb", {
+				method: "DELETE",
+				credentials: "include",
+			});
+			if (res.status === 410) {
+				logout();
+				// navigate("/login");
+			}
+		} catch (e) {
+			console.error("Error remove users DB: ", e);
+		}
+	}
 
 	async function logout() {
 		try {
@@ -35,7 +47,7 @@ export default function Homepage() {
 				</button>
 				<button
 					className={`btn-danger ${styles.removeCookieButton}`}
-					// onClick={handleClickDeleteAllDatabase}
+					onClick={handleClickDeleteAllDatabase}
 				>
 					Empty users db
 				</button>
