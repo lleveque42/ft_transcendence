@@ -1,8 +1,15 @@
 import { useNavigate } from "react-router-dom";
 import styles from "./Homepage.module.scss";
+import { useCookies } from "react-cookie";
+import { useEffect } from "react";
 
 export default function Homepage() {
+	const [cookie, , ] = useCookies(["_jwt"]);
 	const navigate = useNavigate();
+
+	useEffect(() => {
+		if (!cookie["_jwt"]) navigate("/login");
+	});
 
 	async function handleClickDeleteAllDatabase() {
 		// Need to logout user

@@ -72,7 +72,7 @@ export default function SignupForm() {
 					value={formValues.password}
 					onChange={handleInputChange}
 				/>
-				<div className={`${styles.buttonContainer} d-flex flex-row justify-content-space-between mb-10`}>
+				<div className={`${styles.buttonContainer} d-flex flex-row justify-content-space-between mb-30`}>
 					<button
 						className="btn-reverse-primary"
 						type="button"
