@@ -7,15 +7,9 @@
 	margin-bottom: 5.5rem;
 }
 
-.title {
-	font-family: "Press Start 2P", cursive;
-	color: var(--primary);
-	font-size: 2.5rem;
-}
-
 .btn {
 	background: #3d4c53;
-	width: 15rem;
+	width: 20rem;
 	height: 3rem;
 	overflow: hidden;
 	text-align: center;
@@ -24,37 +18,67 @@
 	border-radius: 4px;
 	box-shadow: var(--box-shadow-nav);
 
-	&-Two {
+	&Two {
 		position: relative;
-		width: 15rem;
+		width: 20rem;
 		height: 6rem;
 		margin-top: -6rem;
 		padding-top: 2px;
 		background: var(--primary);
-		left: -18.75rem;
+		left: calc(-1.25 * 20rem);
 		top: calc(0.8rem + 1px);
 		transition: 0.3s;
 	}
 
-	&-Text {
+	&Text {
 		color: white;
 		transition: 0.3s;
 		font-weight: 700;
 	}
 
-	&-Text2 {
+	&Text2 {
 		margin-top: 3.78rem;
-		margin-right: -9.75rem;
+		margin-right: calc(-0.65 * 20rem);
 		color: #fff;
 		font-weight: 700;
 	}
 
-	&:hover &-Two {
-		left: -9.75rem;
+	&:hover {
+		box-shadow: var(--box-shadow-login42);
 	}
 
-	&:hover &-Text {
+	&:hover &Two {
+		left: calc(-0.65 * 20rem);
+	}
+
+	&:hover &Text {
 		margin-left: calc(4.78rem + 2px);
+	}
+
+	.clickedText2 {
+		color: #fff;
+		transition: margin-right 0.3s;
+		font-weight: 700;
+	}
+
+	.clickedText {
+		color: white;
+		transition: 0.3s;
+		font-weight: 700;
+		margin-left: 20rem;
+		display: none;
+	}
+
+	.clickedBtn2 {
+		position: relative;
+		width: 20rem;
+		background: var(--primary);
+		top: calc(0.8rem + 1px);
+		transition: left 0.3s;
+		margin-top: calc(-2rem + 2px);
+		padding-top: 1rem;
+		height: 3rem;
+		left: 0rem;
 	}
 
 	&:active {

@@ -1,31 +1,60 @@
-import { useNavigate } from "react-router-dom";
-import LoginForm from "./LoginForm";
+import LoginForm from "../../components/Forms/LoginForm/LoginForm";
 import { useCookies } from "react-cookie";
-import { useEffect } from "react";
-import "./login.scss";
+import { useEffect, useState } from "react";
+import styles from "./Login.module.scss";
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
+	const [hasBeenClicked, setHasBeenClicked] = useState<Boolean>(false);
+	const [cookie] = useCookies(["_jwt"]);
 	const navigate = useNavigate();
-	// const [cookie] = useCookies(["_jwt"]);
 
-	// useEffect(() => {
-	// 	if (cookie["_jwt"]) navigate("/");
-	// });
+	useEffect(() => {
+		if (cookie["_jwt"]) navigate("/");
+	});
+
+	function handleLoginFortyTwoClick(e: React.MouseEvent) {
+		setHasBeenClicked(!hasBeenClicked);
+		e.preventDefault();
+		let tID = setTimeout(function () {
+			window.location.href = process.env.REACT_APP_URL42 as string;
+			window.clearTimeout(tID);
+		}, 250);
+	}
 
 	return (
 		<>
-			<div className="loginContainer d-flex flex-column align-items justify-content">
-				<div className="title mb-30">PONG</div>
-				<div className="card d-flex flex-column align-items justify-content">
+			<div
+				className={`${styles.loginContainer} d-flex flex-column align-items justify-content`}
+			>
+				<div className="title mb-30">PONG<h2 className="underTitle">Login</h2></div>
+				<div
+					className={`${styles.card} d-flex flex-column align-items justify-content`}
+				>
 					<LoginForm />
 					<div className="mb-10">or</div>
 					<a
 						href={process.env.REACT_APP_URL42}
-						className="btn d-flex flex-column justify-content align-items"
+						className={`${styles.btn} d-flex flex-column justify-content align-items`}
+						onClick={handleLoginFortyTwoClick}
 					>
-						<p className="btn-Text">Login with 42</p>
-						<div className="btn-Two">
-							<p className="btn-Text2">
+						<p
+							className={`${
+								hasBeenClicked ? styles.clickedText : styles.btnText
+							}`}
+						>
+							Login with 42
+						</p>
+						<div
+							className={`${
+								hasBeenClicked ? styles.clickedBtn2 : styles.btnTwo
+							}`}
+						>
+							<p
+								className={`${
+									hasBeenClicked ? styles.clickedText2 : styles.btnText2
+								}`}
+							>
 								<i className="fa-solid fa-right-to-bracket"></i>
 							</p>
 						</div>

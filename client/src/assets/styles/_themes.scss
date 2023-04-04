@@ -1,32 +1,48 @@
 .btn {
 	text-decoration: none;
-	// padding: 0.8rem;
 	cursor: pointer;
 	font-weight: 700;
-	transition: 0.2s box-shadow;
+	transition: 0.3s;
 	border-radius: 5px;
-  box-shadow: var(--box-shadow);
+	box-shadow: var(--box-shadow);
+	padding: 0 0.5rem 0 0.5rem;
+	opacity: 1;
 
 	&-primary {
 		@extend .btn;
 		background-color: var(--primary);
-		border: 1px solid var(--primary);
-		&:hover {
-			background: var(--primary);
-			color: var(--dark-grey);
-			transition: 0.2s box-shadow;
-			// scale: 1.025;
-		}
+		border: 2px solid var(--primary);
 	}
 
 	&-reverse-primary {
 		@extend .btn;
+		background-color: var(--dark-grey);
 		color: var(--primary);
-		border: 1px solid var(--primary);
-		&:hover {
-			background: var(--primary);
-			color: var(--dark-grey);
-			transition: 0.2s box-shadow;
-		}
+		border: 2px solid var(--primary);
 	}
+
+	&-danger {
+		@extend .btn;
+		background-color: var(--danger);
+		border: 2px solid var(--danger);
+	}
+
+	&:hover {
+		transition: 0.3s;
+		box-shadow: var(--box-shadow-login42);
+	}
+}
+
+.title {
+	text-align: center;
+	font-family: "Press Start 2P", cursive;
+	color: var(--primary);
+	font-size: 3rem;
+}
+
+.underTitle {
+	@extend .title;
+	margin-top: 0.5rem;
+	font-size: 1rem;
+
 }
