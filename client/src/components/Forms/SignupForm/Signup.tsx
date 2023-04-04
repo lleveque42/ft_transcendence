@@ -27,7 +27,7 @@ export default function SignupForm() {
 	async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
 		event.preventDefault();
 		try {
-			const response = await fetch("http://localhost:3000/auth/signup", {
+			const res = await fetch("http://localhost:3000/auth/signup", {
 				method: "POST",
 				credentials: "include",
 				headers: {
@@ -35,8 +35,8 @@ export default function SignupForm() {
 				},
 				body: JSON.stringify(formValues),
 			});
-			if (response.ok) navigate("/");
-			else if (response.status === 403) alert("Credentials taken");
+			if (res.ok) navigate("/");
+			else alert("Email taken");
 		} catch (e) {
 			console.error("ERROR FETCH");
 		}
