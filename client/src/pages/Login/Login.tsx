@@ -1,17 +1,17 @@
 import LoginForm from "../../components/Forms/LoginForm/LoginForm";
-import { useCookies } from "react-cookie";
 import { useEffect, useState } from "react";
 import styles from "./Login.module.scss";
 import { useNavigate } from "react-router-dom";
+import useAuth from "../../hooks/useAuth";
 
 export default function Login() {
+	const naviagte = useNavigate();
+	const { auth } = useAuth();
 	const [hasBeenClicked, setHasBeenClicked] = useState<Boolean>(false);
-	const [cookie] = useCookies(["_jwt"]);
-	const navigate = useNavigate();
 
-	useEffect(() => {
-		if (cookie["_jwt"]) navigate("/");
-	});
+	// useEffect(() => {
+	// 	if (auth !== "ok") naviagte("/");
+	// }, [auth]);
 
 	function handleLoginFortyTwoClick(e: React.MouseEvent) {
 		setHasBeenClicked(!hasBeenClicked);
@@ -27,7 +27,9 @@ export default function Login() {
 			<div
 				className={`${styles.loginContainer} d-flex flex-column align-items justify-content`}
 			>
-				<div className="title mb-30">PONG<h2 className="underTitle">Login</h2></div>
+				<div className="title mb-30">
+					PONG<h2 className="underTitle">Login</h2>
+				</div>
 				<div
 					className={`${styles.card} d-flex flex-column align-items justify-content`}
 				>

@@ -1,34 +1,27 @@
 import { useNavigate } from "react-router-dom";
 import styles from "./Homepage.module.scss";
+import useLogout from "../../hooks/useLogout";
 
 export default function Homepage() {
+	const logout = useLogout();
 	const navigate = useNavigate();
 
+	const signout = async () => {
+		await logout();
+		navigate("/login");
+	}
+
 	async function handleClickDeleteAllDatabase() {
-		// Need to logout user
 		try {
 			const res = await fetch("http://localhost:3000/user/temporary_dropdb", {
 				method: "DELETE",
 				credentials: "include",
 			});
 			if (res.status === 410) {
-				logout();
-				// navigate("/login");
+				signout();
 			}
 		} catch (e) {
 			console.error("Error remove users DB: ", e);
-		}
-	}
-
-	async function logout() {
-		try {
-			const res = await fetch("http://localhost:3000/auth/logout", {
-				method: "POST",
-				credentials: "include",
-			});
-			if (res.status === 204) navigate("/login");
-		} catch (e) {
-			console.error("Error logout: ", e);
 		}
 	}
 
@@ -41,7 +34,7 @@ export default function Homepage() {
 			>
 				<button
 					className={`btn-danger ${styles.removeCookieButton}`}
-					onClick={logout}
+					onClick={signout}
 				>
 					Logout
 				</button>
