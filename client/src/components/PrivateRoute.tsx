@@ -1,15 +1,13 @@
-import { ReactElement, useEffect, useState } from "react";
-import { Navigate, Outlet, useNavigate } from "react-router-dom";
-import useRefreshToken from "../hooks/useRefreshToken";
-import useAuth from "../hooks/useAuth";
+import { ReactElement } from "react";
+import { Navigate } from "react-router-dom";
+import { useAuth } from "../context/AuthProvider";
 
 export default function PrivateRoute(props: {
 	element: ReactElement;
 }): ReactElement {
-	const isAuth = useAuth();
-	// const refresh = useRefreshToken();
+	const { auth } = useAuth();
 
+	console.log("AUTH PRIVATE ROUTE:", auth);
 
-	return isAuth ? props.element : <Navigate to="/login" />;
-
+	return auth ? props.element : <Navigate to="/login" />;
 }

@@ -40,6 +40,7 @@ export default function Router() {
 				<Route path="/login42" element={<Login42 />} />
 
 				<Route path="/" element={<PrivateRoute element={<Homepage />} />} />
+				<Route path="/editprofile" element={<PrivateRoute element={<EditProfile />} />} />
 
 				<Route path="*" element={<NotFound />} />
 			</Route>

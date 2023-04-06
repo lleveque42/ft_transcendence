@@ -1,9 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import styles from "./Homepage.module.scss";
-import useLogout from "../../hooks/useLogout";
+import { useAuth } from "../../context/AuthProvider";
 
 export default function Homepage() {
-	const logout = useLogout();
+	const { logout } = useAuth();
 	const navigate = useNavigate();
 
 	const signout = async () => {

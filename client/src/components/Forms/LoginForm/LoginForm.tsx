@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./LoginForm.module.scss";
 import Input from "../../Input/Input";
+import { useAuth } from "../../../context/AuthProvider";
 
 type FormValues = {
 	userName: string;
@@ -16,6 +17,7 @@ const initialFormValues: FormValues = {
 export default function LoginForm() {
 	const [formValues, setFormValues] = useState<FormValues>(initialFormValues);
 	const navigate = useNavigate();
+	const {login} = useAuth();
 
 	function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
 		const { name, value } = event.target;
@@ -37,6 +39,7 @@ export default function LoginForm() {
 			if (!response.ok) {
 				alert("Credentials incorrect");
 			} else {
+				login();
 				navigate("/");
 			}
 		} catch (e) {
