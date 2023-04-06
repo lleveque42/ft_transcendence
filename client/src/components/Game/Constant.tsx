@@ -11,7 +11,7 @@ export const PADDLE_WIDTH: number = 0.1;
 export const PADDLE_HALF_SIZE: number = PADDLE_HEIGHT / 2;
 export const RIGHT_PADDLE: number = PADDLE_X;
 export const LEFT_PADDLE: number = -PADDLE_X;
-export const PADDLE_SPEED: number = 4;
+export const PADDLE_SPEED: number = 6;
 
 // MAP //
 

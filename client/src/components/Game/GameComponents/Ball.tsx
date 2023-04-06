@@ -62,6 +62,7 @@ export default function Ball({
 		ball.current.position.x = 0;
 		ball.current.position.y = 0;
 		setDirVector(randomBallDir());
+		setXSpeedMultiplier(1)
 	}
 
 	function resetPaddles(): void {
@@ -78,6 +79,7 @@ export default function Ball({
 	function rebound(collision: Collision): { x: number; y: number } {
 		switch (collision) {
 			case Collision.RIGHT_PADDLE_HIT:
+				if (xSpeedMultiplier === 1) setXSpeedMultiplier(2); // speed up ball after first hit
 				return {
 					x: dirVector.x * -1,
 					y:
@@ -86,6 +88,7 @@ export default function Ball({
 						dirVector.x,
 				};
 			case Collision.LEFT_PADDLE_HIT:
+				if (xSpeedMultiplier === 1) setXSpeedMultiplier(2); // speed up ball after first hit
 				return {
 					x: dirVector.x * -1,
 					y:
@@ -136,9 +139,9 @@ export default function Ball({
 	}
 
 	function checkWallCollision(): Collision {
-		if (ceilToDecimal(ball.current.position.y) === CEILING)
+		if (inRange(ceilToDecimal(ball.current.position.y), CEILING, CEILING + 0.2))
 			return Collision.CEILING_HIT;
-		else if (floorToDecimal(ball.current.position.y) === FLOOR)
+		if (inRange(floorToDecimal(ball.current.position.y), FLOOR - 0.2, FLOOR))
 			return Collision.FLOOR_HIT;
 		return Collision.NO_HIT;
 	}
@@ -190,7 +193,9 @@ export default function Ball({
 
 	return (
 		<mesh position={[0, 0, 0]} ref={ball}>
-			<sphereGeometry args={[0.07]} />
+			<sphereGeometry args={[BALL_RADIUS]} />
+
+			{/* <boxGeometry args={[0.1, 0.1, 0.1]} /> */}
 			<meshStandardMaterial color="#74b9ff" />
 		</mesh>
 	);
