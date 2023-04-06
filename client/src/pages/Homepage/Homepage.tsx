@@ -9,7 +9,7 @@ export default function Homepage() {
 	const signout = async () => {
 		await logout();
 		navigate("/login");
-	}
+	};
 
 	async function handleClickDeleteAllDatabase() {
 		try {

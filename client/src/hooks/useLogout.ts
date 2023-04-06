@@ -1,7 +1,9 @@
+import { useContext } from "react";
 import useAuth from "./useAuth";
+import AuthContext from "../context/AuthProvider";
 
 export default function useLogout() {
-	const { setAuth } = useAuth();
+	const { setAuth } = useContext(AuthContext);
 
 	const logout = async () => {
 		try {
@@ -9,7 +11,9 @@ export default function useLogout() {
 				method: "POST",
 				credentials: "include",
 			});
-			if (res.status === 204) setAuth("");
+			if (res.status === 204){
+				setAuth("");
+			}
 		} catch (e) {
 			console.error("Error logout: ", e);
 		}

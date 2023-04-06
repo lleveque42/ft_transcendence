@@ -5,13 +5,8 @@ import { useNavigate } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 
 export default function Login() {
-	const naviagte = useNavigate();
-	const { auth } = useAuth();
+	const navigate = useNavigate();
 	const [hasBeenClicked, setHasBeenClicked] = useState<Boolean>(false);
-
-	// useEffect(() => {
-	// 	if (auth !== "ok") naviagte("/");
-	// }, [auth]);
 
 	function handleLoginFortyTwoClick(e: React.MouseEvent) {
 		setHasBeenClicked(!hasBeenClicked);
