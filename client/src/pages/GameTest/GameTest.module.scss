@@ -1,0 +1,15 @@
+
+.gamePage {
+	padding: auto;
+	height: 100vh;
+	width: 100%;
+	// padding-top: 56.25%;
+}
+
+.gameContainer {
+	// border: 2px solid var(--primary);
+	border-radius: 4px;
+	width: 75vw;
+	height: calc(0.5625 * 75vw);
+	box-shadow: var(--box-shadow-nav)
+}
