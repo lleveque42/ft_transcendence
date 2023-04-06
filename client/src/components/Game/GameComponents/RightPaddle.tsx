@@ -1,37 +1,36 @@
-import React, { useEffect, useRef, useState } from "react";
-import { useFrame, ThreeElements } from "@react-three/fiber";
-import { useGameContext } from "../../../Context/Game/GameContext";
+import React, { useEffect, useState } from "react";
+import { useFrame } from "@react-three/fiber";
 import {
+	BALL_RADIUS,
 	CEILING,
 	FLOOR,
 	PADDLE_HALF_SIZE,
 	PADDLE_HEIGHT,
 	PADDLE_SPEED,
+	PADDLE_X,
 } from "../Constant";
 import { ceilToDecimal, floorToDecimal } from "./Utils";
 
-export default function RightPaddle(props: ThreeElements["mesh"]) {
-	const paddle = useRef<THREE.Mesh>(null!);
-	const { setRightPaddlePosY, mustReset } = useGameContext();
+interface RightPaddleProps {
+	paddle: React.MutableRefObject<
+		THREE.Mesh<THREE.BufferGeometry, THREE.Material | THREE.Material[]>
+	>;
+}
+
+export default function RightPaddle({ paddle }: RightPaddleProps) {
 	const [move, setMove] = useState({ up: false, down: false });
 
 	useFrame((state, delta) => {
-		if (mustReset) paddle.current.position.y = 0;
-		if (move.up) {
-			if (
-				ceilToDecimal(paddle.current.position.y + PADDLE_HALF_SIZE) < CEILING
-			) {
-				setRightPaddlePosY(paddle.current.position.y + delta * PADDLE_SPEED);
-				paddle.current.position.y += delta * PADDLE_SPEED;
-			}
-		} else if (move.down) {
-			if (
-				floorToDecimal(paddle.current.position.y - PADDLE_HALF_SIZE) > FLOOR
-			) {
-				setRightPaddlePosY(paddle.current.position.y - delta * PADDLE_SPEED);
-				paddle.current.position.y -= delta * PADDLE_SPEED;
-			}
-		}
+		if (
+			move.up &&
+			ceilToDecimal(paddle.current.position.y + PADDLE_HALF_SIZE) < CEILING
+		)
+			paddle.current.position.y += delta * PADDLE_SPEED;
+		else if (
+			move.down &&
+			floorToDecimal(paddle.current.position.y - PADDLE_HALF_SIZE) > FLOOR
+		)
+			paddle.current.position.y -= delta * PADDLE_SPEED;
 	});
 
 	function handleKeyDown(e: KeyboardEvent): void {
@@ -62,7 +61,7 @@ export default function RightPaddle(props: ThreeElements["mesh"]) {
 	}, []);
 
 	return (
-		<mesh {...props} ref={paddle}>
+		<mesh position={[PADDLE_X + BALL_RADIUS, 0, 0]} ref={paddle}>
 			<boxGeometry args={[0.1, PADDLE_HEIGHT, 0.1]} />
 			<meshStandardMaterial color="#74b9ff" />
 		</mesh>

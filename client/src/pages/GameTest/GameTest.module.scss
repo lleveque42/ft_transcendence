@@ -1,4 +1,3 @@
-
 .gamePage {
 	padding: auto;
 	height: 100vh;
@@ -11,5 +10,24 @@
 	border-radius: 4px;
 	width: 75vw;
 	height: calc(0.5625 * 75vw);
-	box-shadow: var(--box-shadow-nav)
+	box-shadow: var(--box-shadow-nav);
+}
+
+.pointContainer {
+	width: 75vw;
+	padding: 2rem 4rem 2rem 4rem;
+}
+
+.rightPoints {
+	// font-size: 2.5rem;
+	font-size: 2rem;
+	font-family: var(--game-font);
+	color: var(--primary);
+}
+
+.leftPoints {
+	// font-size: 2.5rem;
+	font-size: 2rem;
+	font-family: var(--game-font);
+	color: var(--primary);
 }

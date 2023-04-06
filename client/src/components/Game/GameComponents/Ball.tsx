@@ -1,13 +1,11 @@
 import React, { useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
-import { useGameContext } from "../../../Context/Game/GameContext";
 import {
 	RIGHT_PADDLE,
 	LEFT_PADDLE,
 	CEILING,
 	FLOOR,
 	PADDLE_HALF_SIZE,
-	PADDLE_X,
 	BALL_RADIUS,
 	OUT_OF_RANGE,
 	PADDLE_WIDTH,
@@ -36,19 +34,28 @@ const enum Paddle {
 	RIGHT,
 }
 
-export default function Ball() {
-	const {
-		leftPaddlePosY,
-		setLeftPaddlePosY,
-		rightPaddlePosY,
-		setRightPaddlePosY,
-		setMustReset,
-	} = useGameContext();
+interface BallProps {
+	leftPaddleRef: React.MutableRefObject<
+		THREE.Mesh<THREE.BufferGeometry, THREE.Material | THREE.Material[]>
+	>;
+	rightPaddleRef: React.MutableRefObject<
+		THREE.Mesh<THREE.BufferGeometry, THREE.Material | THREE.Material[]>
+	>;
+	points: { left: number; right: number };
+	setPoints: React.Dispatch<
+		React.SetStateAction<{ left: number; right: number }>
+	>;
+}
+
+export default function Ball({
+	leftPaddleRef,
+	rightPaddleRef,
+	points,
+	setPoints,
+}: BallProps) {
 	const [dirVector, setDirVector] = useState(randomBallDir());
 	const [xSpeedMultiplier, setXSpeedMultiplier] = useState(1);
-	const [justChangedDirFromPaddle, setJustChangedDirFromPaddle] =
-		useState(false);
-	const [justChangedDirFromWall, setJustChangedDirFromWall] = useState(false);
+	const [resetted, setResetted] = useState(true);
 	const ball = useRef<THREE.Mesh>(null!);
 
 	function newBall(): void {
@@ -58,26 +65,34 @@ export default function Ball() {
 	}
 
 	function resetPaddles(): void {
-		setLeftPaddlePosY(0);
-		setRightPaddlePosY(0);
+		rightPaddleRef.current.position.y = 0;
+		leftPaddleRef.current.position.y = 0;
 	}
 
 	function resetPoint(): void {
 		newBall();
 		resetPaddles();
-		setJustChangedDirFromPaddle(false);
-		setJustChangedDirFromWall(false);
-		setMustReset(true);
-		setTimeout(() => setMustReset(false), 20);
+		setResetted(true);
 	}
 
-	function rebound(collision: Collision) {
+	function rebound(collision: Collision): { x: number; y: number } {
 		switch (collision) {
 			case Collision.RIGHT_PADDLE_HIT:
+				return {
+					x: dirVector.x * -1,
+					y:
+						((ball.current.position.y - rightPaddleRef.current.position.y) /
+							PADDLE_HALF_SIZE) *
+						dirVector.x,
+				};
 			case Collision.LEFT_PADDLE_HIT:
 				return {
 					x: dirVector.x * -1,
-					y: dirVector.y,
+					y:
+						((ball.current.position.y - leftPaddleRef.current.position.y) /
+							PADDLE_HALF_SIZE) *
+						dirVector.x *
+						-1,
 				};
 			case Collision.FLOOR_HIT:
 			case Collision.CEILING_HIT:
@@ -108,41 +123,23 @@ export default function Ball() {
 	}
 
 	function checkPaddleCollision(): Collision {
-		if (!justChangedDirFromPaddle) {
-			if (Math.floor(ball.current.position.x) === RIGHT_PADDLE) {
-				return onPaddle(rightPaddlePosY, Paddle.RIGHT)
-					? Collision.RIGHT_PADDLE_HIT
-					: Collision.RIGHT_PADDLE_MISSED;
-			} else if (Math.ceil(ball.current.position.x) === LEFT_PADDLE) {
-				return onPaddle(leftPaddlePosY, Paddle.LEFT)
-					? Collision.LEFT_PADDLE_HIT
-					: Collision.LEFT_PADDLE_MISSED;
-			}
-		} else if (
-			inRange(
-				ball.current.position.x,
-				-PADDLE_X + BALL_RADIUS,
-				PADDLE_X - BALL_RADIUS,
-			)
-		)
-			setJustChangedDirFromPaddle(false);
+		if (Math.floor(ball.current.position.x) === RIGHT_PADDLE) {
+			return onPaddle(rightPaddleRef.current.position.y, Paddle.RIGHT)
+				? Collision.RIGHT_PADDLE_HIT
+				: Collision.RIGHT_PADDLE_MISSED;
+		} else if (Math.ceil(ball.current.position.x) === LEFT_PADDLE) {
+			return onPaddle(leftPaddleRef.current.position.y, Paddle.LEFT)
+				? Collision.LEFT_PADDLE_HIT
+				: Collision.LEFT_PADDLE_MISSED;
+		}
 		return Collision.NO_HIT;
 	}
 
 	function checkWallCollision(): Collision {
-		if (!justChangedDirFromWall) {
-			if (ceilToDecimal(ball.current.position.y) === CEILING)
-				return Collision.CEILING_HIT;
-			else if (floorToDecimal(ball.current.position.y) === FLOOR)
-				return Collision.FLOOR_HIT;
-		} else if (
-			inRange(
-				ball.current.position.x,
-				FLOOR + BALL_RADIUS,
-				CEILING - BALL_RADIUS,
-			)
-		)
-			setJustChangedDirFromWall(false);
+		if (ceilToDecimal(ball.current.position.y) === CEILING)
+			return Collision.CEILING_HIT;
+		else if (floorToDecimal(ball.current.position.y) === FLOOR)
+			return Collision.FLOOR_HIT;
 		return Collision.NO_HIT;
 	}
 
@@ -162,39 +159,39 @@ export default function Ball() {
 			case Collision.NO_HIT:
 				break;
 			case Collision.RIGHT_PADDLE_HIT:
+				if (dirVector.x > 0) setDirVector(rebound(collision));
+				break;
 			case Collision.LEFT_PADDLE_HIT:
-				setDirVector(rebound(collision));
-				setJustChangedDirFromPaddle(true);
+				if (dirVector.x < 0) setDirVector(rebound(collision));
 				break;
 			case Collision.FLOOR_HIT:
+				if (dirVector.y < 0) setDirVector(rebound(collision));
+				break;
 			case Collision.CEILING_HIT:
-				setDirVector(rebound(collision));
-				setJustChangedDirFromWall(true);
+				if (dirVector.y > 0) setDirVector(rebound(collision));
+				break;
+			case Collision.RIGHT_PADDLE_MISSED:
+				if (resetted) {
+					setPoints({ left: points.left + 1, right: points.right });
+					setResetted(false);
+				}
+				break;
+			case Collision.LEFT_PADDLE_MISSED:
+				if (resetted) {
+					setPoints({ left: points.left, right: points.right + 1 });
+					setResetted(false);
+				}
 				break;
 			case Collision.OUT_OF_BOUND:
 				resetPoint();
 				break;
-			// case Collision.RIGHT_PADDLE_MISSED:
-			// case Collision.LEFT_PADDLE_MISSED:
-			// 	add point to player who won
-			// 	break;
 		}
 	});
 
 	return (
-		<>
-			{/* <mesh position={[-PADDLE_X - BALL_RADIUS, leftPaddlePosY, 0]}>
-				<boxGeometry args={[0.1, 1, 0.1]} />
-				<meshStandardMaterial color="red" />
-			</mesh> */}
-			<mesh position={[0, 0, 0]} ref={ball}>
-				<sphereGeometry args={[0.07]} />
-				<meshStandardMaterial color="#74b9ff" />
-			</mesh>
-			{/* <mesh position={[PADDLE_X + BALL_RADIUS, rightPaddlePosY, 0]}>
-				<boxGeometry args={[0.1, 1, 0.1]} />
-				<meshStandardMaterial color="red" />
-			</mesh> */}
-		</>
+		<mesh position={[0, 0, 0]} ref={ball}>
+			<sphereGeometry args={[0.07]} />
+			<meshStandardMaterial color="#74b9ff" />
+		</mesh>
 	);
 }

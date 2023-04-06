@@ -2,34 +2,32 @@ import { Canvas } from "@react-three/fiber";
 import LeftPaddle from "./GameComponents/LeftPaddle";
 import RightPaddle from "./GameComponents/RightPaddle";
 import Ball from "./GameComponents/Ball";
-import { GameContext } from "../../Context/Game/GameContext";
-import { useState } from "react";
-import { BALL_RADIUS, PADDLE_X } from "./Constant";
+import { useRef } from "react";
 
-export default function GameRender() {
-	const [leftPaddlePosY, setLeftPaddlePosY] = useState(0);
-	const [rightPaddlePosY, setRightPaddlePosY] = useState(0);
-	const [mustReset, setMustReset] = useState(false);
+interface GameRenderProps {
+	points: { left: number; right: number };
+	setPoints: React.Dispatch<
+		React.SetStateAction<{ left: number; right: number }>
+	>;
+}
+
+export default function GameRender({ points, setPoints }: GameRenderProps) {
+	const leftPaddleRef = useRef<THREE.Mesh>(null!);
+	const rightPaddleRef = useRef<THREE.Mesh>(null!);
 
 	return (
 		<Canvas>
 			<ambientLight intensity={0.2} />
 			<pointLight position={[0, 5, 10]} />
 			<group>
-				<GameContext.Provider
-					value={{
-						leftPaddlePosY,
-						setLeftPaddlePosY,
-						rightPaddlePosY,
-						setRightPaddlePosY,
-						mustReset,
-						setMustReset,
-					}}
-				>
-					<LeftPaddle position={[-PADDLE_X - BALL_RADIUS, 0, 0]} />
-					<Ball />
-					<RightPaddle position={[PADDLE_X + BALL_RADIUS, 0, 0]} />
-				</GameContext.Provider>
+				<LeftPaddle paddle={leftPaddleRef} />
+				<Ball
+					leftPaddleRef={leftPaddleRef}
+					rightPaddleRef={rightPaddleRef}
+					points={points}
+					setPoints={setPoints}
+				/>
+				<RightPaddle paddle={rightPaddleRef} />
 			</group>
 		</Canvas>
 	);
