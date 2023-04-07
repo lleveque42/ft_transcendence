@@ -8,8 +8,9 @@ import {
 	HttpException,
 	HttpCode,
 	HttpStatus,
+	Req,
 } from "@nestjs/common";
-import { Response } from "express";
+import { Response, Request } from "express";
 import { AuthService } from "./auth.service";
 import { SignupDto, SigninDto, getAuthToken42Dto } from "./dto";
 
@@ -46,6 +47,12 @@ export class AuthController {
 	@HttpCode(HttpStatus.NO_CONTENT)
 	logout(@Res({ passthrough: true }) res: Response) {
 		this.authService.logout(res);
+	}
+
+	@Get("refresh")
+	refresh(@Req() req: Request): string {
+		const cookie = req.cookies["_jwt"];
+		return cookie;
 	}
 
 	@Get("callback42/:code")
