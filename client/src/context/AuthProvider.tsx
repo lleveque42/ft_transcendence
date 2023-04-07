@@ -1,73 +1,49 @@
-import { ReactNode, createContext, useContext, useState } from "react";
-import { useCookies } from "react-cookie";
+import { createContext, useContext } from "react";
 
-type AuthContent = {
-	auth: boolean;
-	setAuth: (value: boolean) => void;
-	login: () => void;
-	logout: () => Promise<void>;
-};
+interface AuthContextValue {
+	isAuth: () => Promise<boolean>;
+	logout: () => void;
+}
 
-const defaultValue = {
-	auth: false,
-	setAuth: () => {},
-	login: async () => {},
-	logout: async () => {},
-};
+const AuthContext = createContext<AuthContextValue>({
+	isAuth: async () => false,
+	logout: () => {},
+});
 
-const AuthContext = createContext<AuthContent>(defaultValue);
+interface AuthProviderProps {
+	children: React.ReactNode;
+}
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-	const [auth, setAuth] = useState<boolean>(false);
-	const [authCookie] = useCookies(["_jwt"]);
-
-	const login = () => {
-		// Need to type as Promise ?
-		authCookie["_jwt"] ? setAuth(true) : setAuth(false);
-		console.log("LOGIN FUNCTION");
-		console.log("auth: ", auth);
-		console.log("jwt: ", authCookie["_jwt"]);
+export const AuthProvider = ({ children }: AuthProviderProps) => {
+	const isAuth = async (): Promise<boolean> => {
+		try {
+			const res = await fetch("http://localhost:3000/auth/refresh", {
+				credentials: "include",
+			});
+			const data = await res.text();
+			if (data) {
+				return true;
+			}
+		} catch (e) {
+			console.error("Error refresh: ", e);
+		}
+		return false;
 	};
 
 	const logout = async (): Promise<void> => {
 		try {
-			const res = await fetch("http://localhost:3000/auth/logout", {
+			await fetch("http://localhost:3000/auth/logout", {
 				method: "POST",
 				credentials: "include",
 			});
-			if (res.status === 204) {
-				setAuth(false);
-			}
 		} catch (e) {
 			console.error("Error logout: ", e);
 		}
 	};
-
 	return (
-		<AuthContext.Provider value={{ auth, setAuth, login, logout }}>
+		<AuthContext.Provider value={{ isAuth, logout }}>
 			{children}
 		</AuthContext.Provider>
 	);
-}
+};
 export const useAuth = () => useContext(AuthContext);
-
-// import { ReactNode, createContext, useState } from "react";
-
-// export type AuthContent = {
-// 	auth: string;
-// 	setAuth: (token: string) => void;
-// }
-
-// const AuthContext = createContext<AuthContent>({auth: "", setAuth: () => {}});
-
-// export function AuthProvider({ children }: { children: ReactNode }) {
-// 	const [auth, setAuth] = useState("");
-
-// 	return (
-// 		<AuthContext.Provider value={{ auth, setAuth }}>
-// 			{children}
-// 		</AuthContext.Provider>
-// 	);
-// }
-
-// export default AuthContext;

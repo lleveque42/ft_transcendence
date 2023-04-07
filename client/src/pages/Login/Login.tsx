@@ -1,12 +1,10 @@
 import LoginForm from "../../components/Forms/LoginForm/LoginForm";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import styles from "./Login.module.scss";
-import { useAuth } from "../../context/AuthProvider";
 import { useCookies } from "react-cookie";
 
 export default function Login() {
 	const [hasBeenClicked, setHasBeenClicked] = useState<Boolean>(false);
-	const { auth, login } = useAuth();
 	const [authCookie] = useCookies(["_jwt"]);
 
 	function handleLoginFortyTwoClick(e: React.MouseEvent) {
@@ -17,10 +15,6 @@ export default function Login() {
 			window.clearTimeout(tID);
 		}, 250);
 	}
-	console.log("AUTH cookie :", authCookie);
-	// useEffect(() => {
-	// 	login();
-	// }, []);
 
 	return (
 		<>

@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Input from "../../Input/Input";
 import styles from "./SignupForm.module.scss";
-import { useAuth } from "../../../context/AuthProvider";
 
 type FormValues = {
 	userName: string;
@@ -19,7 +18,6 @@ const initialFormValues: FormValues = {
 export default function SignupForm() {
 	const [formValues, setFormValues] = useState<FormValues>(initialFormValues);
 	const navigate = useNavigate();
-	const {login} = useAuth();
 
 	function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
 		const { name, value } = event.target;
@@ -38,7 +36,6 @@ export default function SignupForm() {
 				body: JSON.stringify(formValues),
 			});
 			if (res.ok) {
-				login();
 				navigate("/");
 			}
 			else alert("Email taken");

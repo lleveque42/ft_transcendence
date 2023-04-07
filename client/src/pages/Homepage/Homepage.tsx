@@ -6,12 +6,12 @@ export default function Homepage() {
 	const { logout } = useAuth();
 	const navigate = useNavigate();
 
-	const signout = async () => {
-		await logout();
+	const signout = () => {
+		logout();
 		navigate("/login");
 	};
 
-	async function handleClickDeleteAllDatabase() {
+	async function handleClickDeleteAllDatabase() { // To del
 		try {
 			const res = await fetch("http://localhost:3000/user/temporary_dropdb", {
 				method: "DELETE",
@@ -43,6 +43,14 @@ export default function Homepage() {
 					onClick={handleClickDeleteAllDatabase}
 				>
 					Empty users db
+				</button>
+				<button
+					className={`btn-danger ${styles.removeCookieButton}`}
+					onClick={() => {
+						navigate("/editprofile");
+					}}
+				>
+					Edit Profile
 				</button>
 			</div>
 		</div>

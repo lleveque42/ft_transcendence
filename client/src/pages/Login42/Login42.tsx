@@ -1,14 +1,12 @@
 import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSearchParams } from "react-router-dom";
-import { useAuth } from "../../context/AuthProvider";
 
 export default function Login42() {
 	const [searchParams] = useSearchParams();
 	const code = searchParams.get("code");
 	const navigate = useNavigate();
 	const ref = useRef(false);
-	const { login } = useAuth();
 
 	useEffect(() => {
 		async function sendCode() {
@@ -21,12 +19,8 @@ export default function Login42() {
 					},
 				);
 				if (res.status === 201) {
-					// login from context
-					login();
-					navigate("/editprofile"); // Redirect to user edit profile when its first co
+					navigate("/editprofile");
 				} else if (res.ok) {
-					// login from context
-					login();
 					navigate("/");
 				} else {
 					const body = await res.json();
