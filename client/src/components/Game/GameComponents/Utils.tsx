@@ -8,11 +8,11 @@ export function randomBallDir(): { x: number; y: number } {
 }
 
 export function ceilToDecimal(n: number): number {
-	return Math.ceil((n + Number.EPSILON) * 10) / 10;
+	return Math.ceil((n + Number.EPSILON) * 100) / 100;
 }
 
 export function floorToDecimal(n: number): number {
-	return Math.floor((n + Number.EPSILON) * 10) / 10;
+	return Math.floor((n + Number.EPSILON) * 100) / 100;
 }
 
 export function inRange(n: number, min: number, max: number): Boolean {

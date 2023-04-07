@@ -4,10 +4,12 @@ import {
 	BALL_RADIUS,
 	CEILING,
 	FLOOR,
+	MAP_DEPTH,
 	PADDLE_HALF_SIZE,
 	PADDLE_HEIGHT,
 	PADDLE_SPEED,
 	PADDLE_X,
+	WALL_WIDTH,
 } from "../Constant";
 import { ceilToDecimal, floorToDecimal } from "./Utils";
 
@@ -62,7 +64,7 @@ export default function RightPaddle({ paddle }: RightPaddleProps) {
 
 	return (
 		<mesh position={[PADDLE_X + BALL_RADIUS, 0, 0]} ref={paddle}>
-			<boxGeometry args={[0.1, PADDLE_HEIGHT, 0.1]} />
+			<boxGeometry args={[WALL_WIDTH, PADDLE_HEIGHT, MAP_DEPTH]} />
 			<meshStandardMaterial color="#74b9ff" />
 		</mesh>
 	);

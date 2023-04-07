@@ -9,6 +9,10 @@ import {
 	BALL_RADIUS,
 	OUT_OF_RANGE,
 	PADDLE_WIDTH,
+	BALL_DIAMETER,
+	BALL_REBOUND_Y_MULTIPLIER,
+	BALL_1ST_REBOUND_X_SPEED_MULTIPLIER,
+	BALL_SPAWN_X_SPEED_MULTIPLIER,
 } from "../Constant";
 import {
 	randomBallDir,
@@ -54,7 +58,9 @@ export default function Ball({
 	setPoints,
 }: BallProps) {
 	const [dirVector, setDirVector] = useState(randomBallDir());
-	const [xSpeedMultiplier, setXSpeedMultiplier] = useState(1);
+	const [xSpeedMultiplier, setXSpeedMultiplier] = useState(
+		BALL_SPAWN_X_SPEED_MULTIPLIER,
+	);
 	const [resetted, setResetted] = useState(true);
 	const ball = useRef<THREE.Mesh>(null!);
 
@@ -62,7 +68,7 @@ export default function Ball({
 		ball.current.position.x = 0;
 		ball.current.position.y = 0;
 		setDirVector(randomBallDir());
-		setXSpeedMultiplier(1)
+		setXSpeedMultiplier(1);
 	}
 
 	function resetPaddles(): void {
@@ -79,23 +85,26 @@ export default function Ball({
 	function rebound(collision: Collision): { x: number; y: number } {
 		switch (collision) {
 			case Collision.RIGHT_PADDLE_HIT:
-				if (xSpeedMultiplier === 1) setXSpeedMultiplier(2); // speed up ball after first hit
+				if (xSpeedMultiplier === BALL_SPAWN_X_SPEED_MULTIPLIER)
+					setXSpeedMultiplier(BALL_1ST_REBOUND_X_SPEED_MULTIPLIER);
 				return {
-					x: dirVector.x * -1,
+					x: -dirVector.x,
 					y:
 						((ball.current.position.y - rightPaddleRef.current.position.y) /
 							PADDLE_HALF_SIZE) *
-						dirVector.x,
+						dirVector.x *
+						BALL_REBOUND_Y_MULTIPLIER,
 				};
 			case Collision.LEFT_PADDLE_HIT:
-				if (xSpeedMultiplier === 1) setXSpeedMultiplier(2); // speed up ball after first hit
+				if (xSpeedMultiplier === BALL_SPAWN_X_SPEED_MULTIPLIER)
+					setXSpeedMultiplier(BALL_1ST_REBOUND_X_SPEED_MULTIPLIER);
 				return {
-					x: dirVector.x * -1,
+					x: -dirVector.x,
 					y:
 						((ball.current.position.y - leftPaddleRef.current.position.y) /
 							PADDLE_HALF_SIZE) *
 						dirVector.x *
-						-1,
+						-BALL_REBOUND_Y_MULTIPLIER,
 				};
 			case Collision.FLOOR_HIT:
 			case Collision.CEILING_HIT:
@@ -111,18 +120,15 @@ export default function Ball({
 	}
 
 	function onPaddle(paddlePosY: number, side: Paddle): Boolean {
-		if (
-			inRange(
-				ball.current.position.y,
-				paddlePosY - PADDLE_HALF_SIZE,
-				paddlePosY + PADDLE_HALF_SIZE,
-			)
-		) {
-			return side === Paddle.LEFT
+		return inRange(
+			ball.current.position.y,
+			paddlePosY - PADDLE_HALF_SIZE,
+			paddlePosY + PADDLE_HALF_SIZE,
+		)
+			? side === Paddle.LEFT
 				? ball.current.position.x > LEFT_PADDLE - BALL_RADIUS - PADDLE_WIDTH
-				: ball.current.position.x < RIGHT_PADDLE + BALL_RADIUS + PADDLE_WIDTH;
-		}
-		return false;
+				: ball.current.position.x < RIGHT_PADDLE + BALL_RADIUS + PADDLE_WIDTH
+			: false;
 	}
 
 	function checkPaddleCollision(): Collision {
@@ -139,11 +145,19 @@ export default function Ball({
 	}
 
 	function checkWallCollision(): Collision {
-		if (inRange(ceilToDecimal(ball.current.position.y), CEILING, CEILING + 0.2))
-			return Collision.CEILING_HIT;
-		if (inRange(floorToDecimal(ball.current.position.y), FLOOR - 0.2, FLOOR))
-			return Collision.FLOOR_HIT;
-		return Collision.NO_HIT;
+		return inRange(
+			ceilToDecimal(ball.current.position.y),
+			CEILING - BALL_DIAMETER,
+			CEILING - BALL_RADIUS,
+		)
+			? Collision.CEILING_HIT
+			: inRange(
+					floorToDecimal(ball.current.position.y),
+					FLOOR + BALL_RADIUS,
+					FLOOR + BALL_DIAMETER,
+			  )
+			? Collision.FLOOR_HIT
+			: Collision.NO_HIT;
 	}
 
 	function checkCollision(): Collision {

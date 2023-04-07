@@ -1,30 +1,36 @@
-import { CEILING, FLOOR, LEFT_PADDLE, RIGHT_PADDLE } from "../Constant";
+import { CEILING, FLOOR, LEFT_PADDLE, MAP_DEPTH, MAP_LENGTH, MAP_WIDTH, RIGHT_PADDLE, WALL_WIDTH } from "../Constant";
 
 export default function Background() {
 	return (
 		<group>
-			<mesh position={[0, 0, -0.00009]}>
-				<planeGeometry args={[0.1, 7.4]} />
+			{/* NET */}
+			<mesh position={[0, 0, -MAP_DEPTH + 0.0001]}>
+				<planeGeometry args={[WALL_WIDTH, MAP_WIDTH]} />
 				<meshStandardMaterial color="#dfe6e9" />
 			</mesh>
-			<mesh position={[0, 0, -0.1]}>
-				<planeGeometry args={[10.4, 7.6]} />
+			{/* BACKGROUND FLOOR */}
+			<mesh position={[0, 0, -MAP_DEPTH]}>
+				<planeGeometry args={[MAP_LENGTH, MAP_WIDTH]} />
 				<meshStandardMaterial color="#2d3436" />
 			</mesh>
-			<mesh position={[0, FLOOR, 0]}>
-				<boxGeometry args={[10.4, 0.1,0.1]} />
+			{/* FLOOR */}
+			<mesh position={[0, FLOOR - WALL_WIDTH, 0]}>
+				<boxGeometry args={[MAP_LENGTH, WALL_WIDTH, MAP_DEPTH]} />
 				<meshStandardMaterial color="#2d3436" />
 			</mesh>
-			<mesh position={[0, CEILING, 0]}>
-				<boxGeometry args={[10.4, 0.1,0.1]} />
+			{/* CEILING */}
+			<mesh position={[0, CEILING + WALL_WIDTH, 0]}>
+				<boxGeometry args={[MAP_LENGTH, WALL_WIDTH, MAP_DEPTH]} />
 				<meshStandardMaterial color="#2d3436" />
 			</mesh>
-			<mesh position={[RIGHT_PADDLE + 0.2, 0, 0]}>
-				<boxGeometry args={[0.1, 7.6,0.1]} />
+			{/* RIGHT WALL */}
+			<mesh position={[MAP_LENGTH / 2, 0, 0]}>
+				<boxGeometry args={[WALL_WIDTH, MAP_WIDTH + WALL_WIDTH, MAP_DEPTH]} />
 				<meshStandardMaterial color="#2d3436" />
 			</mesh>
-			<mesh position={[LEFT_PADDLE - 0.2, 0, 0]}>
-				<boxGeometry args={[0.1, 7.6,0.1]} />
+			{/* LEFT WALL */}
+			<mesh position={[-MAP_LENGTH / 2, 0, 0]}>
+				<boxGeometry args={[WALL_WIDTH, MAP_WIDTH + WALL_WIDTH, MAP_DEPTH]} />
 				<meshStandardMaterial color="#2d3436" />
 			</mesh>
 		</group>

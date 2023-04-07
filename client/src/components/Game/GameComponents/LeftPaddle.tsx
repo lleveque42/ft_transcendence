@@ -4,10 +4,12 @@ import {
 	BALL_RADIUS,
 	CEILING,
 	FLOOR,
+	MAP_DEPTH,
 	PADDLE_HALF_SIZE,
 	PADDLE_HEIGHT,
 	PADDLE_SPEED,
 	PADDLE_X,
+	WALL_WIDTH,
 } from "../Constant";
 import { ceilToDecimal, floorToDecimal } from "./Utils";
 
@@ -36,9 +38,11 @@ export default function LeftPaddle({ paddle }: LeftPaddleProps) {
 	function handleKeyDown(e: KeyboardEvent): any {
 		switch (e.key) {
 			case "w":
+			case "W":
 				setMove({ up: true, down: false });
 				break;
 			case "s":
+			case "S":
 				setMove({ up: false, down: true });
 				break;
 		}
@@ -47,9 +51,11 @@ export default function LeftPaddle({ paddle }: LeftPaddleProps) {
 	function handleKeyUp(e: KeyboardEvent): any {
 		switch (e.key) {
 			case "w":
+			case "W":
 				setMove({ up: false, down: false });
 				break;
 			case "s":
+			case "S":
 				setMove({ up: false, down: false });
 				break;
 		}
@@ -62,7 +68,7 @@ export default function LeftPaddle({ paddle }: LeftPaddleProps) {
 
 	return (
 		<mesh position={[-PADDLE_X - BALL_RADIUS, 0, 0]} ref={paddle}>
-			<boxGeometry args={[0.1, PADDLE_HEIGHT, 0.1]} />
+			<boxGeometry args={[WALL_WIDTH, PADDLE_HEIGHT, MAP_DEPTH]} />
 			<meshStandardMaterial color="#74b9ff" />
 		</mesh>
 	);

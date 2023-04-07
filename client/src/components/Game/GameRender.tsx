@@ -19,7 +19,7 @@ export default function GameRender({ points, setPoints }: GameRenderProps) {
 	return (
 		<Canvas>
 			<ambientLight intensity={0.2} />
-			<pointLight position={[0, 5, 10]} />
+			<pointLight position={[0, 2, 10]} />
 			<group>
 				<Background />
 				<LeftPaddle paddle={leftPaddleRef} />
