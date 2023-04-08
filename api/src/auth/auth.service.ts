@@ -136,6 +136,7 @@ export class AuthService {
 		res.cookie("_jwt", token, {
 			sameSite: "strict",
 			secure: true,
+			httpOnly: true,
 			maxAge: 36000000, // 10h
 		});
 	}
