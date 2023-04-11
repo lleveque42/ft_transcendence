@@ -8,8 +8,8 @@ import {
 	PADDLE_HALF_SIZE,
 	PADDLE_HEIGHT,
 	PADDLE_SPEED,
+	PADDLE_WIDTH,
 	PADDLE_X,
-	WALL_WIDTH,
 } from "../Constant";
 import { ceilToDecimal, floorToDecimal } from "./Utils";
 
@@ -68,7 +68,7 @@ export default function LeftPaddle({ paddle }: LeftPaddleProps) {
 
 	return (
 		<mesh position={[-PADDLE_X - BALL_RADIUS, 0, 0]} ref={paddle}>
-			<boxGeometry args={[WALL_WIDTH, PADDLE_HEIGHT, MAP_DEPTH]} />
+			<boxGeometry args={[PADDLE_WIDTH, PADDLE_HEIGHT, MAP_DEPTH]} />
 			<meshStandardMaterial color="#74b9ff" />
 		</mesh>
 	);
