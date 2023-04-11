@@ -1,13 +1,15 @@
-import { createContext, useContext } from "react";
+import { createContext, useContext, useState } from "react";
 
 interface AuthContextValue {
 	isAuth: () => Promise<boolean>;
 	logout: () => void;
+	testAuth: string;
 }
 
 const AuthContext = createContext<AuthContextValue>({
 	isAuth: async () => false,
 	logout: () => {},
+	testAuth: "",
 });
 
 interface AuthProviderProps {
@@ -15,13 +17,17 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
+	const [testAuth, setTestAuth] = useState<string>("");
+
 	const isAuth = async (): Promise<boolean> => {
 		try {
 			const res = await fetch("http://localhost:3000/auth/refresh", {
 				credentials: "include",
 			});
-			const data = await res.text();
-			if (data) {
+			const data = await res.json();
+			if (data.cookie) {
+				console.log("DATA RES AUTH:", data);
+				setTestAuth(data.test);
 				return true;
 			}
 		} catch (e) {
@@ -41,7 +47,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 		}
 	};
 	return (
-		<AuthContext.Provider value={{ isAuth, logout }}>
+		<AuthContext.Provider value={{ isAuth, logout, testAuth }}>
 			{children}
 		</AuthContext.Provider>
 	);

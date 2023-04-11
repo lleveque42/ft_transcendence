@@ -9,10 +9,12 @@ import {
 	HttpCode,
 	HttpStatus,
 	Req,
+	UseGuards,
 } from "@nestjs/common";
 import { Response, Request } from "express";
 import { AuthService } from "./auth.service";
 import { SignupDto, SigninDto, getAuthToken42Dto } from "./dto";
+import { AuthGuard } from "@nestjs/passport";
 
 @Controller("auth")
 export class AuthController {
@@ -22,13 +24,14 @@ export class AuthController {
 	async signup(
 		@Body() dto: SignupDto,
 		@Res({ passthrough: true }) res: Response,
-	) {
+	): Promise<string> {
 		try {
 			await this.authService.signup(dto, res);
 		} catch (e) {
 			// handle user email already exist
 			throw new HttpException(e.message, e.status);
 		}
+		return "";
 	}
 
 	@Post("login") // To del at the end
@@ -49,10 +52,14 @@ export class AuthController {
 		this.authService.logout(res);
 	}
 
-	@Get("refresh")
-	refresh(@Req() req: Request): string {
+	@UseGuards(AuthGuard("jwt"))
+	@Get("refresh") // Post or get ?
+	refresh(@Req() req: Request): {} {
+		console.log("Refresh token api side");
+
 		const cookie = req.cookies["_jwt"];
-		return cookie;
+		const test = "Coucou lol";
+		return { cookie, test };
 	}
 
 	@Get("callback42/:code")
