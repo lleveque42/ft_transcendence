@@ -12,27 +12,32 @@ import {
 	PADDLE_X,
 } from "../Constant";
 import { ceilToDecimal, floorToDecimal } from "./Utils";
+import { Socket } from "socket.io-client";
 
 interface LeftPaddleProps {
 	paddle: React.MutableRefObject<
 		THREE.Mesh<THREE.BufferGeometry, THREE.Material | THREE.Material[]>
 	>;
+	socket: React.MutableRefObject<Socket>;
 }
 
-export default function LeftPaddle({ paddle }: LeftPaddleProps) {
+export default function LeftPaddle({ paddle, socket }: LeftPaddleProps) {
 	const [move, setMove] = useState({ up: false, down: false });
 
 	useFrame((state, delta) => {
 		if (
 			move.up &&
 			ceilToDecimal(paddle.current.position.y + PADDLE_HALF_SIZE) < CEILING
-		)
+		) {
 			paddle.current.position.y += delta * PADDLE_SPEED;
-		else if (
+			socket.current.emit("updateLeftPaddlePos", paddle.current.position.y);
+		} else if (
 			move.down &&
 			floorToDecimal(paddle.current.position.y - PADDLE_HALF_SIZE) > FLOOR
-		)
+		) {
 			paddle.current.position.y -= delta * PADDLE_SPEED;
+			socket.current.emit("updateLeftPaddlePos", paddle.current.position.y);
+		}
 	});
 
 	function handleKeyDown(e: KeyboardEvent): any {

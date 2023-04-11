@@ -21,6 +21,7 @@ import {
 	floorToDecimal,
 } from "./Utils";
 import { useTimer } from "use-timer";
+import { Socket } from "socket.io-client";
 
 const enum Collision {
 	NO_HIT,
@@ -50,6 +51,7 @@ interface BallProps {
 	setPoints: React.Dispatch<
 		React.SetStateAction<{ left: number; right: number }>
 	>;
+	socket: React.MutableRefObject<Socket>;
 }
 
 export default function Ball({
@@ -58,6 +60,7 @@ export default function Ball({
 	rightPaddleRef,
 	points,
 	setPoints,
+	socket,
 }: BallProps) {
 	const [dirVector, setDirVector] = useState(randomBallDir());
 	const [xSpeedMultiplier, setXSpeedMultiplier] = useState(
@@ -196,6 +199,10 @@ export default function Ball({
 				setXSpeedMultiplier(xSpeedMultiplier); // modify so ball speed up
 				ball.current.position.x += delta * dirVector.x * xSpeedMultiplier;
 				ball.current.position.y += delta * dirVector.y;
+				socket.current.emit("updateBallPos", {
+					x: ball.current.position.x,
+					y: ball.current.position.y,
+				});
 				const collision = checkCollision(delta);
 				switch (collision) {
 					case Collision.NO_HIT:

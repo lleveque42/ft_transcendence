@@ -34,9 +34,9 @@ export default function GameTest() {
 					/>
 				</div>
 			</div>
-			<button className="btn-danger" onClick={handleClick}> {
-				ballStopped ? "Resume" : "Pause"
-			}
+			<button className="btn-danger" onClick={handleClick}>
+				{" "}
+				{ballStopped ? "Resume" : "Pause"}
 			</button>
 		</div>
 	);

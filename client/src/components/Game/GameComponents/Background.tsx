@@ -1,4 +1,11 @@
-import { CEILING, FLOOR, LEFT_PADDLE, MAP_DEPTH, MAP_LENGTH, MAP_WIDTH, RIGHT_PADDLE, WALL_WIDTH } from "../Constant";
+import {
+	CEILING,
+	FLOOR,
+	MAP_DEPTH,
+	MAP_LENGTH,
+	MAP_WIDTH,
+	WALL_WIDTH,
+} from "../Constant";
 
 export default function Background() {
 	return (
