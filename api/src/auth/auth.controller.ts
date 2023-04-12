@@ -14,8 +14,8 @@ import {
 import { Request, Response } from "express";
 import { AuthService } from "./auth.service";
 import { SignupDto, SigninDto, getAuthToken42Dto } from "./dto";
-import { RtGuard } from "./guards/rt.guard";
 import { GetCurrentUser } from "../common/decorators";
+import { AtGuard, RtGuard } from "./guards";
 
 @Controller("auth")
 export class AuthController {
@@ -45,7 +45,7 @@ export class AuthController {
 		}
 	}
 
-	@UseGuards(RtGuard)
+	@UseGuards(AtGuard)
 	@Post("logout")
 	@HttpCode(HttpStatus.NO_CONTENT)
 	logout(@Res({ passthrough: true }) res: Response): void {
@@ -56,14 +56,10 @@ export class AuthController {
 	@UseGuards(RtGuard)
 	@Get("refresh")
 	async refresh(
-		@GetCurrentUser() user: any,
+		@GetCurrentUser("email") userEmail: string,
 		@Req() req: Request,
 	): Promise<{ access_token: string }> {
-		// const header = req?.get("authorization")?.replace("Bearer", "").trim();
-		// const test = await this.authService.test(header, user);
-		// console.log("TEST:", test);
-
-		const access_token = await this.authService.signAccessToken("a", "a", "a");
+		const access_token = await this.authService.newTokens(userEmail);
 		return { access_token: access_token.access_token };
 	}
 
