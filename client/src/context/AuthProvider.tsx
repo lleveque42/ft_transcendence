@@ -3,13 +3,13 @@ import { createContext, useContext, useState } from "react";
 interface AuthContextValue {
 	isAuth: () => Promise<boolean>;
 	logout: () => void;
-	testAuth: string;
+	accessToken: string;
 }
 
 const AuthContext = createContext<AuthContextValue>({
 	isAuth: async () => false,
 	logout: () => {},
-	testAuth: "",
+	accessToken: "",
 });
 
 interface AuthProviderProps {
@@ -17,18 +17,25 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-	const [testAuth, setTestAuth] = useState<string>("");
+	const [accessToken, setAccessToken] = useState<string>("");
 
 	const isAuth = async (): Promise<boolean> => {
 		try {
 			const res = await fetch("http://localhost:3000/auth/refresh", {
 				credentials: "include",
+				headers: {
+					Authorization: `Bearer ${accessToken}`
+				},
 			});
 			const data = await res.json();
-			if (data.cookie) {
-				console.log("DATA RES AUTH:", data);
-				setTestAuth(data.test);
+			if (data.statusCode === 401){
+				return false;
+			}
+			if (data.access_token) {
+				setAccessToken(data.access_token);
 				return true;
+			} else {
+				return false;
 			}
 		} catch (e) {
 			console.error("Error refresh: ", e);
@@ -42,12 +49,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 				method: "POST",
 				credentials: "include",
 			});
+			setAccessToken("");
 		} catch (e) {
 			console.error("Error logout: ", e);
 		}
 	};
 	return (
-		<AuthContext.Provider value={{ isAuth, logout, testAuth }}>
+		<AuthContext.Provider value={{ isAuth, logout, accessToken }}>
 			{children}
 		</AuthContext.Provider>
 	);

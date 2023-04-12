@@ -3,7 +3,7 @@ import styles from "./Homepage.module.scss";
 import { useAuth } from "../../context/AuthProvider";
 
 export default function Homepage() {
-	const { logout } = useAuth();
+	const { logout, accessToken } = useAuth();
 	const navigate = useNavigate();
 
 	const signout = () => {
@@ -11,7 +11,8 @@ export default function Homepage() {
 		navigate("/login");
 	};
 
-	async function handleClickDeleteAllDatabase() { // To del
+	async function handleClickDeleteAllDatabase() {
+		// To del
 		try {
 			const res = await fetch("http://localhost:3000/user/temporary_dropdb", {
 				method: "DELETE",
@@ -29,6 +30,7 @@ export default function Homepage() {
 		<div className="container d-flex flex-column justify-content align-items">
 			<div className="title">PONG</div>
 			<h2 className="underTitle mb-20">Homepage</h2>
+			<small>AT: {accessToken}</small>
 			<div
 				className={`${styles.btnContainer} d-flex justify-content-space-between align-items mb-30`}
 			>

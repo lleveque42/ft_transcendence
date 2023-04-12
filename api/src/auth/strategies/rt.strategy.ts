@@ -5,24 +5,21 @@ import { Request } from "express";
 import { ExtractJwt, Strategy } from "passport-jwt";
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy, "jwt") {
+export class RtStrategy extends PassportStrategy(Strategy, "jwt-refresh") {
 	constructor(private readonly config: ConfigService) {
 		super({
 			jwtFromRequest: ExtractJwt.fromExtractors([
-				JwtStrategy.extractFromCookie,
+				RtStrategy.extractFromCookie,
 				ExtractJwt.fromAuthHeaderAsBearerToken(),
 			]),
 			ignoreExpiation: false,
-			secretOrKey: config.get("JWT_SECRET"), // Check if is defined
+			secretOrKey: config.get("JWT_SECRET"),
 		});
 	}
 
 	// This func assign req.user
 	validate(payload: any) {
 		// Need to change param type and check payload
-		console.log(Date.now());
-		console.log("================PAYLOAD:", payload);
-
 		return payload;
 	}
 
