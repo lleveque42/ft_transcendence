@@ -163,7 +163,7 @@ export class AuthService {
 			createdAt,
 		};
 		const token = await this.jwt.signAsync(payload, {
-			expiresIn: "0.1m",
+			expiresIn: "1d",
 			secret: this.config.get<string>("JWT_SECRET"),
 		});
 		return { refresh_token: token };
@@ -174,7 +174,7 @@ export class AuthService {
 			sameSite: "strict",
 			secure: true,
 			httpOnly: true,
-			maxAge: 3600000, // 1h=3600000 | 10h=36000000
+			maxAge: 36000000, // 1h=3600000 | 10h=36000000
 		});
 	}
 }
