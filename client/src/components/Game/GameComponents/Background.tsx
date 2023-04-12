@@ -5,7 +5,7 @@ import {
 	MAP_LENGTH,
 	MAP_WIDTH,
 	WALL_WIDTH,
-} from "../Constant";
+} from "../GameUtils/Constant";
 
 export default function Background() {
 	return (

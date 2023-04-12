@@ -27,6 +27,6 @@ export const BALL_MAX_X_SPEED: number = 3;
 export const BALL_X_SPEED: number = 1.25;
 // export const BALL_X_SPEED: number = 0.25;
 // export const BALL_X_SPEED: number = 0;
-export const BALL_REBOUND_Y_MULTIPLIER: number = 2;
+export const BALL_REBOUND_Y_MULTIPLIER: number = 1.75;
 export const BALL_SPAWN_X_SPEED_MULTIPLIER: number = 1;
 export const BALL_1ST_REBOUND_X_SPEED_MULTIPLIER: number = 2;

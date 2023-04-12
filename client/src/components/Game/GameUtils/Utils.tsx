@@ -1,4 +1,4 @@
-import { BALL_X_SPEED } from "../Constant";
+import { BALL_X_SPEED } from "./Constant";
 
 export function randomBallDir(): { x: number; y: number } {
 	return {

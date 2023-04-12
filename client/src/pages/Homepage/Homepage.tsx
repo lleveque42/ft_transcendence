@@ -39,10 +39,20 @@ export default function Homepage() {
 		}
 	}
 
+	function handlePlay(): void {
+
+	}
+
 	return (
 		<div className="container d-flex flex-column justify-content align-items">
 			<div className="title">PONG</div>
 			<h2 className="underTitle mb-20">Homepage</h2>
+			<button
+					className={`btn-primary ${styles.removeCookieButton} mb-20`}
+					onClick={handlePlay}
+				>
+					Play
+				</button>
 			<div
 				className={`${styles.btnContainer} d-flex justify-content-space-between align-items mb-30`}
 			>

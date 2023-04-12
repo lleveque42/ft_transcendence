@@ -10,18 +10,19 @@ import {
 	PADDLE_SPEED,
 	PADDLE_WIDTH,
 	PADDLE_X,
-} from "../Constant";
-import { ceilToDecimal, floorToDecimal } from "./Utils";
+} from "../GameUtils/Constant";
+import { ceilToDecimal, floorToDecimal } from "../GameUtils/Utils";
 import { Socket } from "socket.io-client";
+import { ClientToWebsocketEvents } from "../OwnerViewComponents/OwnerGameRender";
 
-interface RightPaddleProps {
+interface PlayerPaddleProps {
 	paddle: React.MutableRefObject<
 		THREE.Mesh<THREE.BufferGeometry, THREE.Material | THREE.Material[]>
 	>;
-	socket: React.MutableRefObject<Socket>;
+	socket: React.MutableRefObject<Socket<ClientToWebsocketEvents>>;
 }
 
-export default function RightPaddle({ paddle, socket }: RightPaddleProps) {
+export default function PlayerPaddle({ paddle, socket }: PlayerPaddleProps) {
 	const [move, setMove] = useState({ up: false, down: false });
 
 	useFrame((state, delta) => {
@@ -30,17 +31,17 @@ export default function RightPaddle({ paddle, socket }: RightPaddleProps) {
 			ceilToDecimal(paddle.current.position.y + PADDLE_HALF_SIZE) < CEILING
 		) {
 			paddle.current.position.y += delta * PADDLE_SPEED;
-			socket.current.emit("updateRightPaddlePos", paddle.current.position.y);
+			socket.current.emit("updatePlayerPaddlePos", paddle.current.position.y);
 		} else if (
 			move.down &&
 			floorToDecimal(paddle.current.position.y - PADDLE_HALF_SIZE) > FLOOR
 		) {
 			paddle.current.position.y -= delta * PADDLE_SPEED;
-			socket.current.emit("updateRightPaddlePos", paddle.current.position.y);
+			socket.current.emit("updatePlayerPaddlePos", paddle.current.position.y);
 		}
 	});
 
-	function handleKeyDown(e: KeyboardEvent): void {
+	function handleKeyDown(e: KeyboardEvent): any {
 		switch (e.key) {
 			case "ArrowUp":
 				setMove({ up: true, down: false });
@@ -51,7 +52,7 @@ export default function RightPaddle({ paddle, socket }: RightPaddleProps) {
 		}
 	}
 
-	function handleKeyUp(e: KeyboardEvent): void {
+	function handleKeyUp(e: KeyboardEvent): any {
 		switch (e.key) {
 			case "ArrowUp":
 				setMove({ up: false, down: false });
@@ -68,7 +69,7 @@ export default function RightPaddle({ paddle, socket }: RightPaddleProps) {
 	}, []);
 
 	return (
-		<mesh position={[PADDLE_X + BALL_RADIUS, 0, 0]} ref={paddle}>
+		<mesh position={[-PADDLE_X - BALL_RADIUS, 0, 0]} ref={paddle}>
 			<boxGeometry args={[PADDLE_WIDTH, PADDLE_HEIGHT, MAP_DEPTH]} />
 			<meshStandardMaterial color="#74b9ff" />
 		</mesh>

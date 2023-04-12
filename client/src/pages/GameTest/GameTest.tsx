@@ -1,10 +1,12 @@
 import { useState } from "react";
-import GameRender from "../../components/Game/GameRender";
+import OwnerGameRender from "../../components/Game/OwnerViewComponents/OwnerGameRender";
+import PlayerGameRender from "../../components/Game/PlayerViewComponents/PlayerGameRender";
 import styles from "./GameTest.module.scss";
 
 export default function GameTest() {
 	const [points, setPoints] = useState({ left: 0, right: 0 });
 	const [ballStopped, setBallStopped] = useState(true);
+	const owner: boolean = false;
 
 	function handleClick() {
 		setBallStopped(!ballStopped);
@@ -27,11 +29,19 @@ export default function GameTest() {
 					<div className={styles.rightPoints}>player2 {points.right}</div>
 				</div>
 				<div className={`container ${styles.gameContainer} mb-30`}>
-					<GameRender
-						ballStopped={ballStopped}
-						points={points}
-						setPoints={setPoints}
-					/>
+					{owner ? (
+						<OwnerGameRender
+							ballStopped={ballStopped}
+							points={points}
+							setPoints={setPoints}
+						/>
+					) : (
+						<PlayerGameRender
+							ballStopped={ballStopped}
+							points={points}
+							setPoints={setPoints}
+						/>
+					)}
 				</div>
 			</div>
 			<button className="btn-danger" onClick={handleClick}>

@@ -12,16 +12,17 @@ import {
 	BALL_REBOUND_Y_MULTIPLIER,
 	BALL_1ST_REBOUND_X_SPEED_MULTIPLIER,
 	BALL_SPAWN_X_SPEED_MULTIPLIER,
-} from "../Constant";
+} from "../GameUtils/Constant";
 import {
 	randomBallDir,
 	inRange,
 	outOfRange,
 	ceilToDecimal,
 	floorToDecimal,
-} from "./Utils";
+} from "../GameUtils/Utils";
 import { useTimer } from "use-timer";
 import { Socket } from "socket.io-client";
+import { ClientToWebsocketEvents } from "./OwnerGameRender";
 
 const enum Collision {
 	NO_HIT,
@@ -41,23 +42,23 @@ const enum Paddle {
 
 interface BallProps {
 	ballStopped: boolean;
-	leftPaddleRef: React.MutableRefObject<
+	playerPaddle: React.MutableRefObject<
 		THREE.Mesh<THREE.BufferGeometry, THREE.Material | THREE.Material[]>
 	>;
-	rightPaddleRef: React.MutableRefObject<
+	ownerPaddle: React.MutableRefObject<
 		THREE.Mesh<THREE.BufferGeometry, THREE.Material | THREE.Material[]>
 	>;
 	points: { left: number; right: number };
 	setPoints: React.Dispatch<
 		React.SetStateAction<{ left: number; right: number }>
 	>;
-	socket: React.MutableRefObject<Socket>;
+	socket: React.MutableRefObject<Socket<ClientToWebsocketEvents>>;
 }
 
 export default function Ball({
 	ballStopped,
-	leftPaddleRef,
-	rightPaddleRef,
+	playerPaddle,
+	ownerPaddle,
 	points,
 	setPoints,
 	socket,
@@ -79,8 +80,8 @@ export default function Ball({
 	}
 
 	function resetPaddles(): void {
-		rightPaddleRef.current.position.y = 0;
-		leftPaddleRef.current.position.y = 0;
+		ownerPaddle.current.position.y = 0;
+		playerPaddle.current.position.y = 0;
 	}
 
 	function resetPoint(): void {
@@ -97,7 +98,7 @@ export default function Ball({
 				return {
 					x: -dirVector.x,
 					y:
-						((ball.current.position.y - rightPaddleRef.current.position.y) /
+						((ball.current.position.y - ownerPaddle.current.position.y) /
 							PADDLE_HALF_SIZE) *
 						dirVector.x *
 						BALL_REBOUND_Y_MULTIPLIER,
@@ -108,7 +109,7 @@ export default function Ball({
 				return {
 					x: -dirVector.x,
 					y:
-						((ball.current.position.y - leftPaddleRef.current.position.y) /
+						((ball.current.position.y - playerPaddle.current.position.y) /
 							PADDLE_HALF_SIZE) *
 						dirVector.x *
 						-BALL_REBOUND_Y_MULTIPLIER,
@@ -146,7 +147,7 @@ export default function Ball({
 				RIGHT_PADDLE + PADDLE_WIDTH,
 			)
 		) {
-			return onPaddle(rightPaddleRef.current.position.y, Paddle.RIGHT)
+			return onPaddle(ownerPaddle.current.position.y, Paddle.RIGHT)
 				? Collision.RIGHT_PADDLE_HIT
 				: Collision.RIGHT_PADDLE_MISSED;
 		} else if (
@@ -156,7 +157,7 @@ export default function Ball({
 				LEFT_PADDLE + delta * 1.5,
 			)
 		) {
-			return onPaddle(leftPaddleRef.current.position.y, Paddle.LEFT)
+			return onPaddle(playerPaddle.current.position.y, Paddle.LEFT)
 				? Collision.LEFT_PADDLE_HIT
 				: Collision.LEFT_PADDLE_MISSED;
 		}
