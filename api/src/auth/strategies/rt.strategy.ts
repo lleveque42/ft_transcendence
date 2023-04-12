@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { PassportStrategy } from "@nestjs/passport";
 import { Request } from "express";
@@ -12,14 +12,19 @@ export class RtStrategy extends PassportStrategy(Strategy, "jwt-refresh") {
 				RtStrategy.extractFromCookie,
 				ExtractJwt.fromAuthHeaderAsBearerToken(),
 			]),
-			ignoreExpiation: false,
-			secretOrKey: config.get("JWT_SECRET"),
+			ignoreExpiration: false,
+			secretOrKey: config.get<string>("JWT_SECRET"),
 		});
 	}
 
 	// This func assign req.user
 	validate(payload: any) {
-		// Need to change param type and check payload
+		if (!payload) {
+			throw new HttpException(
+				"No payload provided in jwt-refresh strategy",
+				HttpStatus.UNAUTHORIZED,
+			);
+		}
 		return payload;
 	}
 

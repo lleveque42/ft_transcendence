@@ -42,12 +42,13 @@ export class AuthService {
 			console.log("SIGNUP USER CREATED : ", user.userName);
 			res.status(HttpStatus.CREATED);
 		}
-		const token = await this.signRefreshToken(
-			user.id,
-			user.email,
-			user.createdAt,
-		);
-		this.createAuthCookie(token.refresh_token, res);
+		// const token = await this.signRefreshToken(
+		// 	user.id,
+		// 	user.email,
+		// 	user.createdAt,
+		// );
+		// this.createAuthCookie(token.refresh_token, res);
+		await this.updateRefreshToken(user, res);
 	}
 
 	async login(dto: SigninDto, res: Response): Promise<void> {
@@ -55,24 +56,16 @@ export class AuthService {
 		if (user) {
 			const match = await argon.verify(user.hash, dto.password);
 			if (!match) throw new ForbiddenException("Credentials incorrect.");
-			const token = await this.signRefreshToken(
-				user.id,
-				user.email,
-				user.createdAt,
-			);
-			this.createAuthCookie(token.refresh_token, res);
+			// const token = await this.signRefreshToken(
+			// 	user.id,
+			// 	user.email,
+			// 	user.createdAt,
+			// );
+			// this.createAuthCookie(token.refresh_token, res);
+			await this.updateRefreshToken(user, res);
 		} else {
 			throw new ForbiddenException("Credentials incorrect.");
 		}
-	}
-
-	async login42(user: User, res: Response): Promise<void> {
-		const token = await this.signRefreshToken(
-			user.id,
-			user.email,
-			user.createdAt,
-		);
-		this.createAuthCookie(token.refresh_token, res);
 	}
 
 	logout(res: Response): void {
@@ -122,47 +115,29 @@ export class AuthService {
 			console.log("USER CREATED : ", user.userName);
 			res.status(HttpStatus.CREATED);
 		}
-		await this.login42(user, res);
+		await this.updateRefreshToken(user, res);
 	}
 
-
-
-	async test(header: string, userRt: any) {
-		const decode: any = this.jwt.decode(header);
-		console.log("DECODE", decode);
-		console.log("USERRT", userRt);
-		const user = await this.userService.getUserByEmail(userRt.email);
-		console.log("USER", user);
-		if (decode && user.firstName != decode.firstName) {
-			console.log("BLOUP");
-		} else {
-			console.log("BLOUuuuuuuuP");
-
-		}
-
-		return decode;
+	async newTokens(userClaimEmail: string): Promise<{ access_token: string }> {
+		const user = await this.userService.getUserByEmail(userClaimEmail);
+		if (!user)
+			throw new HttpException("Bad code request", HttpStatus.UNAUTHORIZED);
+		return await this.signAccessToken(
+			user.userName,
+			user.firstName,
+			user.lastName,
+		);
 	}
-
-
-
 
 	////////////////////////////////// JWT
 
-	async signRefreshToken(
-		userId: number,
-		email: string,
-		createdAt: Date,
-	): Promise<{ refresh_token: string }> {
-		const payload = {
-			sub: userId,
-			email,
-			createdAt,
-		};
-		const token = await this.jwt.signAsync(payload, {
-			expiresIn: "1d",
-			secret: this.config.get<string>("JWT_SECRET"),
-		});
-		return { refresh_token: token };
+	async updateRefreshToken(user: User, res: Response): Promise<void> {
+		const token = await this.signRefreshToken(
+			user.id,
+			user.email,
+			user.createdAt,
+		);
+		this.createAuthCookie(token.refresh_token, res);
 	}
 
 	async signAccessToken(
@@ -175,6 +150,23 @@ export class AuthService {
 			secret: this.config.get<string>("JWT_SECRET"),
 		});
 		return { access_token: token };
+	}
+
+	async signRefreshToken(
+		userId: number,
+		email: string,
+		createdAt: Date,
+	): Promise<{ refresh_token: string }> {
+		const payload = {
+			sub: userId,
+			email,
+			createdAt,
+		};
+		const token = await this.jwt.signAsync(payload, {
+			expiresIn: "0.1m",
+			secret: this.config.get<string>("JWT_SECRET"),
+		});
+		return { refresh_token: token };
 	}
 
 	createAuthCookie(token: string, res: Response) {
