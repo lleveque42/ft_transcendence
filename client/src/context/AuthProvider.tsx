@@ -23,18 +23,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 		try {
 			const res = await fetch("http://localhost:3000/auth/refresh", {
 				credentials: "include",
-				headers: {
-					Authorization: `Bearer ${accessToken}`
-				},
 			});
 			const data = await res.json();
-			if (data.statusCode === 401){
-				return false;
-			}
-			if (data.access_token) {
+			if (res.ok) {
 				setAccessToken(data.access_token);
 				return true;
 			} else {
+				if (accessToken) logout();
+				setAccessToken("");
 				return false;
 			}
 		} catch (e) {
@@ -48,6 +44,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 			await fetch("http://localhost:3000/auth/logout", {
 				method: "POST",
 				credentials: "include",
+				headers: {
+					Authorization: `Bearer ${accessToken}`,
+				},
 			});
 			setAccessToken("");
 		} catch (e) {

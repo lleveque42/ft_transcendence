@@ -1,13 +1,9 @@
 import LoginForm from "../../components/Forms/LoginForm/LoginForm";
 import { useState } from "react";
 import styles from "./Login.module.scss";
-import { useCookies } from "react-cookie";
-import { useAuth } from "../../context/AuthProvider";
 
 export default function Login() {
 	const [hasBeenClicked, setHasBeenClicked] = useState<Boolean>(false);
-	const { accessToken } = useAuth();
-
 
 	function handleLoginFortyTwoClick(e: React.MouseEvent) {
 		setHasBeenClicked(!hasBeenClicked);
@@ -25,7 +21,6 @@ export default function Login() {
 			>
 				<div className="title mb-30">
 					PONG<h2 className="underTitle">Login</h2>
-					<h3>AT{accessToken}</h3>
 				</div>
 				<div
 					className={`${styles.card} d-flex flex-column align-items justify-content`}

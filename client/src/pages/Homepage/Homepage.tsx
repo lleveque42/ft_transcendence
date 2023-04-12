@@ -3,7 +3,7 @@ import styles from "./Homepage.module.scss";
 import { useAuth } from "../../context/AuthProvider";
 
 export default function Homepage() {
-	const { logout, accessToken } = useAuth();
+	const { logout } = useAuth();
 	const navigate = useNavigate();
 
 	const signout = () => {
@@ -30,7 +30,6 @@ export default function Homepage() {
 		<div className="container d-flex flex-column justify-content align-items">
 			<div className="title">PONG</div>
 			<h2 className="underTitle mb-20">Homepage</h2>
-			<small>AT: {accessToken}</small>
 			<div
 				className={`${styles.btnContainer} d-flex justify-content-space-between align-items mb-30`}
 			>
