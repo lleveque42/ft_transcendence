@@ -22,7 +22,7 @@ export class AuthService {
 		private userService: UserService,
 	) {}
 
-	async signup(dto: SignupDto, res: Response) {
+	async signup(dto: SignupDto, res: Response): Promise<void> {
 		let user = await this.userService.getUserByEmail(dto.email);
 		if (user) {
 			console.log("SIGNUP USER ALREADY EXIST : ", user.email);
@@ -42,28 +42,23 @@ export class AuthService {
 			console.log("SIGNUP USER CREATED : ", user.userName);
 			res.status(HttpStatus.CREATED);
 		}
-		const token = await this.signToken(user.id, user.email);
-		this.createCookieAuth(token.access_token, res);
+		await this.updateRefreshToken(user, res);
 	}
 
-	async login(dto: SigninDto, res: Response) {
+	async login(dto: SigninDto, res: Response): Promise<void> {
 		const user = await this.userService.getUserByUserName(dto.userName);
 		if (user) {
+			if (user.email.includes("@student.42.fr"))
+				throw new ForbiddenException("42 user, use Login with 42");
 			const match = await argon.verify(user.hash, dto.password);
 			if (!match) throw new ForbiddenException("Credentials incorrect.");
-			const token = await this.signToken(user.id, user.email);
-			this.createCookieAuth(token.access_token, res);
+			await this.updateRefreshToken(user, res);
 		} else {
 			throw new ForbiddenException("Credentials incorrect.");
 		}
 	}
 
-	async login42(user: User, res: Response) {
-		const token = await this.signToken(user.id, user.email);
-		this.createCookieAuth(token.access_token, res);
-	}
-
-	logout(res: Response) {
+	logout(res: Response): void {
 		res.clearCookie("_jwt");
 	}
 
@@ -97,7 +92,7 @@ export class AuthService {
 		return { login, email, first_name, last_name };
 	}
 
-	async manageNewAuth42(newUser: userInfo42Dto, res: Response) {
+	async manageNewAuth42(newUser: userInfo42Dto, res: Response): Promise<void> {
 		let user = await this.userService.getUserByEmail(newUser.email);
 		if (user) {
 			console.log("USER ALREADY EXIST : ", user.userName);
@@ -110,33 +105,66 @@ export class AuthService {
 			console.log("USER CREATED : ", user.userName);
 			res.status(HttpStatus.CREATED);
 		}
-		await this.login42(user, res);
+		await this.updateRefreshToken(user, res);
+	}
+
+	async newTokens(userClaimEmail: string): Promise<{ access_token: string }> {
+		const user = await this.userService.getUserByEmail(userClaimEmail);
+		if (!user)
+			throw new HttpException("Bad code request", HttpStatus.UNAUTHORIZED);
+		return await this.signAccessToken(
+			user.userName,
+			user.firstName,
+			user.lastName,
+		);
 	}
 
 	////////////////////////////////// JWT
 
-	async signToken(
-		userId: number,
-		email: string,
-	): Promise<{ access_token: string }> {
-		const payload = {
-			sub: userId,
-			email,
-		};
-		const secret = this.config.get("JWT_SECRET");
+	async updateRefreshToken(user: User, res: Response): Promise<void> {
+		const token = await this.signRefreshToken(
+			user.id,
+			user.email,
+			user.createdAt,
+		);
+		this.createAuthCookie(token.refresh_token, res);
+	}
 
+	async signAccessToken(
+		userName: string,
+		firstName: string,
+		lastName: string,
+	): Promise<{ access_token: string }> {
+		const payload = { sub: userName, firstName, lastName };
 		const token = await this.jwt.signAsync(payload, {
-			expiresIn: "1d",
-			secret,
+			secret: this.config.get<string>("JWT_SECRET"),
 		});
 		return { access_token: token };
 	}
 
-	createCookieAuth(token: string, res: Response) {
+	async signRefreshToken(
+		userId: number,
+		email: string,
+		createdAt: Date,
+	): Promise<{ refresh_token: string }> {
+		const payload = {
+			sub: userId,
+			email,
+			createdAt,
+		};
+		const token = await this.jwt.signAsync(payload, {
+			expiresIn: "1d",
+			secret: this.config.get<string>("JWT_SECRET"),
+		});
+		return { refresh_token: token };
+	}
+
+	createAuthCookie(token: string, res: Response) {
 		res.cookie("_jwt", token, {
 			sameSite: "strict",
 			secure: true,
-			maxAge: 36000000, // 10h
+			httpOnly: true,
+			maxAge: 36000000, // 1h=3600000 | 10h=36000000
 		});
 	}
 }

@@ -35,8 +35,11 @@ export default function SignupForm() {
 				},
 				body: JSON.stringify(formValues),
 			});
-			if (res.ok) navigate("/");
-			else alert("Email taken");
+			if (res.status === 201) {
+				navigate("/editprofile");
+			} else if (res.ok) {
+				navigate("/");
+			} else alert("Email taken");
 		} catch (e) {
 			console.error("Error Signup");
 		}
@@ -72,7 +75,9 @@ export default function SignupForm() {
 					value={formValues.password}
 					onChange={handleInputChange}
 				/>
-				<div className={`${styles.buttonContainer} d-flex flex-row justify-content-space-between mb-30`}>
+				<div
+					className={`${styles.buttonContainer} d-flex flex-row justify-content-space-between mb-30`}
+				>
 					<button
 						className="btn-reverse-primary"
 						type="button"

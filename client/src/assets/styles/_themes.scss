@@ -1,3 +1,5 @@
+@import "loaders.css/src/animations/line-scale-pulse-out.scss";
+
 .btn {
 	text-decoration: none;
 	cursor: pointer;
@@ -44,4 +46,19 @@
 	@extend .title;
 	margin-top: 0.5rem;
 	font-size: 1rem;
+}
+
+.loader-active {
+	background-color: var(--primary-dark);
+	height: 100vh;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	.loader-inner > div {
+		margin: 0.5rem;
+		height: 15vh;
+		width: 0.8vw;
+		background: var(--primary);
+	}
 }

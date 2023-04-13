@@ -8,10 +8,14 @@ import {
 	HttpException,
 	HttpCode,
 	HttpStatus,
+	UseGuards,
+	Req,
 } from "@nestjs/common";
-import { Response } from "express";
+import { Request, Response } from "express";
 import { AuthService } from "./auth.service";
 import { SignupDto, SigninDto, getAuthToken42Dto } from "./dto";
+import { GetCurrentUser } from "../common/decorators";
+import { AtGuard, RtGuard } from "./guards";
 
 @Controller("auth")
 export class AuthController {
@@ -21,11 +25,10 @@ export class AuthController {
 	async signup(
 		@Body() dto: SignupDto,
 		@Res({ passthrough: true }) res: Response,
-	) {
+	): Promise<void> {
 		try {
 			await this.authService.signup(dto, res);
 		} catch (e) {
-			// handle user email already exist
 			throw new HttpException(e.message, e.status);
 		}
 	}
@@ -34,7 +37,7 @@ export class AuthController {
 	async login(
 		@Body() dto: SigninDto,
 		@Res({ passthrough: true }) res: Response,
-	) {
+	): Promise<void> {
 		try {
 			await this.authService.login(dto, res);
 		} catch (e) {
@@ -42,17 +45,29 @@ export class AuthController {
 		}
 	}
 
+	@UseGuards(AtGuard)
 	@Post("logout")
 	@HttpCode(HttpStatus.NO_CONTENT)
-	logout(@Res({ passthrough: true }) res: Response) {
+	logout(@Res({ passthrough: true }) res: Response): void {
 		this.authService.logout(res);
+	}
+
+	// add decorator to have req.headers ?
+	@UseGuards(RtGuard)
+	@Get("refresh")
+	async refresh(
+		@GetCurrentUser("email") userEmail: string,
+		@Req() req: Request,
+	): Promise<{ access_token: string }> {
+		const access_token = await this.authService.newTokens(userEmail);
+		return { access_token: access_token.access_token };
 	}
 
 	@Get("callback42/:code")
 	async getAuthToken42(
 		@Param() params: getAuthToken42Dto,
 		@Res({ passthrough: true }) res: Response,
-	) {
+	): Promise<void> {
 		try {
 			const token42 = await this.authService.getAuthToken42(params.code);
 			const newUser42 = await this.authService.userInfo42(token42);

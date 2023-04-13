@@ -1,46 +1,33 @@
 import { useNavigate } from "react-router-dom";
 import styles from "./Homepage.module.scss";
-import { useCookies } from "react-cookie";
-import { useEffect } from "react";
+import { useAuth } from "../../context/AuthProvider";
 
 export default function Homepage() {
-	const [cookie, , ] = useCookies(["_jwt"]);
+	const { logout } = useAuth();
 	const navigate = useNavigate();
 
-	useEffect(() => {
-		if (!cookie["_jwt"]) navigate("/login");
-	});
+	const signout = () => {
+		logout();
+		navigate("/login");
+	};
 
-	async function handleClickDeleteAllDatabase() {
-		// Need to logout user
+	async function handleClickDeleteAllDatabase() {	// To del
+
 		try {
 			const res = await fetch("http://localhost:3000/user/temporary_dropdb", {
 				method: "DELETE",
 				credentials: "include",
 			});
 			if (res.status === 410) {
-				logout();
-				// navigate("/login");
+				signout();
 			}
 		} catch (e) {
 			console.error("Error remove users DB: ", e);
 		}
 	}
 
-	async function logout() {
-		try {
-			const res = await fetch("http://localhost:3000/auth/logout", {
-				method: "POST",
-				credentials: "include",
-			});
-			if (res.status === 204) navigate("/login");
-		} catch (e) {
-			console.error("Error logout: ", e);
-		}
-	}
-
-	function handlePlay(): void {
-
+	function handlePlay() {
+		// CREATE GAME OR JOIN GAME
 	}
 
 	return (
@@ -58,7 +45,7 @@ export default function Homepage() {
 			>
 				<button
 					className={`btn-danger ${styles.removeCookieButton}`}
-					onClick={logout}
+					onClick={signout}
 				>
 					Logout
 				</button>
@@ -67,6 +54,14 @@ export default function Homepage() {
 					onClick={handleClickDeleteAllDatabase}
 				>
 					Empty users db
+				</button>
+				<button
+					className={`btn-danger ${styles.removeCookieButton}`}
+					onClick={() => {
+						navigate("/editprofile");
+					}}
+				>
+					Edit Profile
 				</button>
 			</div>
 		</div>

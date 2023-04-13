@@ -2,15 +2,20 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import reportWebVitals from "./reportWebVitals";
 import "./assets/styles/index.scss";
-import { RouterProvider } from "react-router-dom";
-import { router } from "./router";
+import Router from "./router";
+import { AuthProvider } from "./context/AuthProvider";
+import { BrowserRouter } from "react-router-dom";
 
 const root = ReactDOM.createRoot(
 	document.getElementById("root") as HTMLElement,
 );
 root.render(
 	<React.StrictMode>
-		<RouterProvider router={router} />
+		<BrowserRouter>
+			<AuthProvider>
+				<Router />
+			</AuthProvider>
+		</BrowserRouter>
 	</React.StrictMode>,
 );
 

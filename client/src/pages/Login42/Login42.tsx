@@ -19,7 +19,7 @@ export default function Login42() {
 					},
 				);
 				if (res.status === 201) {
-					navigate("/editprofile"); // Redirect to user edit profile when its first co
+					navigate("/editprofile");
 				} else if (res.ok) {
 					navigate("/");
 				} else {
