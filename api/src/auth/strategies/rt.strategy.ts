@@ -32,6 +32,6 @@ export class RtStrategy extends PassportStrategy(Strategy, "jwt-refresh") {
 		if (req.cookies && "_jwt" in req.cookies && req.cookies._jwt.length > 0) {
 			return req.cookies._jwt;
 		}
-		return null;
+		throw new HttpException("extractFromCookie guard err", HttpStatus.NO_CONTENT);
 	}
 }

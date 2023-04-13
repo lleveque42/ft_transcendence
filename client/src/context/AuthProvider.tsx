@@ -24,8 +24,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 			const res = await fetch("http://localhost:3000/auth/refresh", {
 				credentials: "include",
 			});
-			const data = await res.json();
 			if (res.ok) {
+				if (res.status === 204) {
+					return false;
+				}
+				const data = await res.json();
 				setAccessToken(data.access_token);
 				return true;
 			} else {

@@ -6,15 +6,18 @@ import Loader from "react-loaders";
 export default function PublicRoute(props: {
 	element: ReactElement;
 }): ReactElement {
-	const { accessToken } = useAuth();
+	const { isAuth } = useAuth();
 	const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
 	useEffect(() => {
-		accessToken !== "" ? setIsAuthenticated(true) : setIsAuthenticated(false);
-	}, [isAuthenticated, accessToken]);
-
+		const checkAuth = async () => {
+			const auth = await isAuth();
+			setIsAuthenticated(auth);
+		};
+		checkAuth();
+	});
 	if (isAuthenticated === null) {
 		return <Loader type="line-scale-pulse-out" active />;
 	}
-	return !isAuthenticated ? props.element : <Navigate to="/" />;
+	return isAuthenticated ? <Navigate to="/" /> : props.element;
 }
