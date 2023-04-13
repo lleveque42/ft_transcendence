@@ -17,7 +17,7 @@ export default function PublicRoute(props: {
 		checkAuth();
 	});
 	if (isAuthenticated === null) {
-		return <Loader type="line-scale-pulse-out" active />;
+		return <Loader type="line-scale-pulse-out" innerClassName="container d-flex align-items" active />;
 	}
 	return isAuthenticated ? <Navigate to="/" /> : props.element;
 }

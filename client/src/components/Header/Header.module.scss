@@ -1,9 +1,29 @@
 .headerContainer {
 	height: 4rem;
-	background-color: white;
+	background-color: var(--dark-primary);
 	box-shadow: var(--box-shadow-nav);
 }
 
 .title {
 	color: var(--primary);
 }
+
+// .menuContainer {
+
+// }
+
+.menuTrigger img {
+	// position: absolute;
+	// top: 20px;
+	// right: 20px;
+	// left: 20px;
+	cursor: pointer;
+	margin: 1rem;
+	height: 3.5rem;
+	width: 3.5rem;
+	border-radius: 50%;
+}
+
+// .menuItems {
+
+// }
