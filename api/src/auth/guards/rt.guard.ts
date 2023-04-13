@@ -4,7 +4,6 @@ import { AuthGuard } from "@nestjs/passport";
 @Injectable()
 export class RtGuard extends AuthGuard("jwt-refresh") {
 	throwError(error: any, user: any) {
-		console.log("Handle request rt guard");
 		if (error || !user) {
 			if (error) throw error;
 			throw new HttpException("RT guard error", HttpStatus.UNAUTHORIZED);

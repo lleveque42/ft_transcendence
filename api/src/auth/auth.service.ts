@@ -42,26 +42,16 @@ export class AuthService {
 			console.log("SIGNUP USER CREATED : ", user.userName);
 			res.status(HttpStatus.CREATED);
 		}
-		// const token = await this.signRefreshToken(
-		// 	user.id,
-		// 	user.email,
-		// 	user.createdAt,
-		// );
-		// this.createAuthCookie(token.refresh_token, res);
 		await this.updateRefreshToken(user, res);
 	}
 
 	async login(dto: SigninDto, res: Response): Promise<void> {
 		const user = await this.userService.getUserByUserName(dto.userName);
 		if (user) {
+			if (user.email.includes("@student.42.fr"))
+				throw new ForbiddenException("42 user, use Login with 42");
 			const match = await argon.verify(user.hash, dto.password);
 			if (!match) throw new ForbiddenException("Credentials incorrect.");
-			// const token = await this.signRefreshToken(
-			// 	user.id,
-			// 	user.email,
-			// 	user.createdAt,
-			// );
-			// this.createAuthCookie(token.refresh_token, res);
 			await this.updateRefreshToken(user, res);
 		} else {
 			throw new ForbiddenException("Credentials incorrect.");

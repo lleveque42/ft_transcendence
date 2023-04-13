@@ -27,7 +27,7 @@ export class UserService {
 			data: {
 				email: newUser.email,
 				userName: newUser.login,
-				hash: "sdfgsfgsdfgsfg",
+				hash: "", // to del ?
 				firstName: newUser.first_name,
 				lastName: newUser.last_name,
 			},

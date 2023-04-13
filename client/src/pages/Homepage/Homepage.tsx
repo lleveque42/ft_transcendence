@@ -11,8 +11,8 @@ export default function Homepage() {
 		navigate("/login");
 	};
 
-	async function handleClickDeleteAllDatabase() {
-		// To del
+	async function handleClickDeleteAllDatabase() {	// To del
+
 		try {
 			const res = await fetch("http://localhost:3000/user/temporary_dropdb", {
 				method: "DELETE",
