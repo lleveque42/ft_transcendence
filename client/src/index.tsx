@@ -3,7 +3,7 @@ import ReactDOM from "react-dom/client";
 import reportWebVitals from "./reportWebVitals";
 import "./assets/styles/index.scss";
 import Router from "./router";
-import { AuthProvider } from "./context/AuthProvider";
+import { UserProvider } from "./context/UserProvider";
 import { BrowserRouter } from "react-router-dom";
 
 const root = ReactDOM.createRoot(
@@ -12,9 +12,9 @@ const root = ReactDOM.createRoot(
 root.render(
 	<React.StrictMode>
 		<BrowserRouter>
-			<AuthProvider>
+			<UserProvider>
 				<Router />
-			</AuthProvider>
+			</UserProvider>
 		</BrowserRouter>
 	</React.StrictMode>,
 );

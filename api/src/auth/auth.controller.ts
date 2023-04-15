@@ -13,13 +13,17 @@ import {
 } from "@nestjs/common";
 import { Request, Response } from "express";
 import { AuthService } from "./auth.service";
+import { UserService } from "../user/user.service";
 import { SignupDto, SigninDto, getAuthToken42Dto } from "./dto";
 import { GetCurrentUser } from "../common/decorators";
 import { AtGuard, RtGuard } from "./guards";
 
 @Controller("auth")
 export class AuthController {
-	constructor(private authService: AuthService) {}
+	constructor(
+		private authService: AuthService,
+		private readonly userService: UserService,
+	) {}
 
 	@Post("signup") // To del at the end
 	async signup(
@@ -52,15 +56,23 @@ export class AuthController {
 		this.authService.logout(res);
 	}
 
-	// add decorator to have req.headers ?
+	// NEED TO TYPE PROPELLY !!
 	@UseGuards(RtGuard)
 	@Get("refresh")
 	async refresh(
 		@GetCurrentUser("email") userEmail: string,
 		@Req() req: Request,
-	): Promise<{ access_token: string }> {
-		const access_token = await this.authService.newTokens(userEmail);
-		return { access_token: access_token.access_token };
+	): Promise<{ accessToken: string; userData: any }> {
+		const accessToken = await this.authService.newTokens(userEmail);
+		const user = await this.userService.getUserByEmail(userEmail);
+		const userData = {
+			userName: user.userName,
+			email: user.email,
+			firstName: user.firstName,
+			lastName: user.lastName,
+		};
+
+		return { accessToken: accessToken.access_token, userData };
 	}
 
 	@Get("callback42/:code")

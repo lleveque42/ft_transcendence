@@ -1,12 +1,12 @@
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../context/AuthProvider";
+import { useUser } from "../../context/UserProvider";
 import styles from "./Header.module.scss";
 import photo from "../../assets/images/punk.png";
 import { useEffect, useRef, useState } from "react";
 
 export default function Header() {
 	const navigate = useNavigate();
-	const { logout } = useAuth();
+	const { logout } = useUser();
 	const [openMenu, setOpenMenu] = useState<boolean>(false);
 	const menuRef = useRef<HTMLDivElement>(null);
 

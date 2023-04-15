@@ -1,11 +1,11 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../context/AuthProvider";
+import { useUser } from "../../context/UserProvider";
 // import styles from "./Footer.module.scss";
 
 export default function Footer() {
 	const navigate = useNavigate();
-	const { logout } = useAuth();
+	const { logout } = useUser();
 
 	const signout = () => {
 		logout();

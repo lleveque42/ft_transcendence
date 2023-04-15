@@ -1,25 +1,39 @@
 import { createContext, useContext, useState } from "react";
 
-interface AuthContextValue {
+interface UsercontextValue {
 	isAuth: () => Promise<boolean>;
 	logout: () => void;
 	accessToken: string;
+	user: {
+		userName: string;
+		email: string;
+		firstName: string;
+		lastName: string;
+	};
 }
 
-const AuthContext = createContext<AuthContextValue>({
+const UserContext = createContext<UsercontextValue>({
 	isAuth: async () => false,
 	logout: () => {},
 	accessToken: "",
+	user: { userName: "", email: "", firstName: "", lastName: "" },
 });
 
-interface AuthProviderProps {
+interface UserProviderProps {
 	children: React.ReactNode;
 }
 
-export const AuthProvider = ({ children }: AuthProviderProps) => {
+export const UserProvider = ({ children }: UserProviderProps) => {
 	const [accessToken, setAccessToken] = useState<string>("");
+	const [user, setUser] = useState({
+		userName: "",
+		email: "",
+		firstName: "",
+		lastName: "",
+	});
 
 	const isAuth = async (): Promise<boolean> => {
+		if (accessToken !== "") return true;
 		try {
 			const res = await fetch("http://localhost:3000/auth/refresh", {
 				credentials: "include",
@@ -29,7 +43,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 					return false;
 				}
 				const data = await res.json();
-				setAccessToken(data.access_token);
+				setAccessToken(data.accessToken);
+				setUser(data.userData);
 				return true;
 			} else {
 				if (accessToken) logout();
@@ -57,9 +72,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 		}
 	};
 	return (
-		<AuthContext.Provider value={{ isAuth, logout, accessToken }}>
+		<UserContext.Provider value={{ isAuth, logout, accessToken, user }}>
 			{children}
-		</AuthContext.Provider>
+		</UserContext.Provider>
 	);
 };
-export const useAuth = () => useContext(AuthContext);
+export const useUser = () => useContext(UserContext);
