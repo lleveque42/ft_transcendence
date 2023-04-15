@@ -8,6 +8,8 @@ import Signup from "./pages/Signup/Signup";
 import EditProfile from "./pages/User/EditProfile";
 import PrivateRoute from "./components/Routes/PrivateRoute";
 import PublicRoute from "./components/Routes/PublicRoute";
+import Chat from "./pages/Chat/Chat";
+import DirectMessages from "./pages/DirectMessages/DirectMessages";
 
 export default function Router() {
 	return (
@@ -24,7 +26,26 @@ export default function Router() {
 					path="/editprofile"
 					element={<PrivateRoute element={<EditProfile />} />}
 				/>
-
+				<Route 
+					path="/chat"
+					element={<PrivateRoute element={<Chat />} />}
+				/>
+				<Route
+					path="/chat/direct_messages"
+					element={<PrivateRoute element={<DirectMessages/>} />}					
+				/>
+				<Route
+					path="/chat/direct_messages/:id"
+					element={<PrivateRoute element={<DirectMessages/>} />}					
+				/>
+				<Route
+					path="/chat/channels"
+					element={<PrivateRoute element={<Chat />} />}					
+				/>
+				<Route
+					path="/chat/friends"
+					element={<PrivateRoute element={<Chat />} />}					
+				/>
 				<Route path="*" element={<NotFound />} />
 			</Route>
 		</Routes>
