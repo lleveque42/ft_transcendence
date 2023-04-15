@@ -21,4 +21,6 @@ model User {
   firstName String?
   lastName  String?
   avatar    String?
+  socket    String?
+  camenbert String?
 }
