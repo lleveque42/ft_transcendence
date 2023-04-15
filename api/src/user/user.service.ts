@@ -6,16 +6,16 @@ import { userInfo42Dto } from "../auth/dto";
 export class UserService {
 	constructor(private prisma: PrismaService) {}
 
-	// async setUserSocket(userName: string, socket: string) {
-	// 	await this.prisma.user.update({
-	// 		// where: {
-	// 		// 	userName: userName,
-	// 		// },
-	// 		data: {
-	// 			socket: socket,
-	// 		},
-	// 	});
-	// }
+	async setUserSocket(userName: string, socket: string) {
+		await this.prisma.user.update({
+			where: {
+				userName: userName,
+			},
+			data: {
+				socket: socket,
+			},
+		});
+	}
 
 	async getUserByEmail(email: string) {
 		return await this.prisma.user.findUnique({
@@ -41,6 +41,7 @@ export class UserService {
 				hash: "sdfgsfgsdfgsfg",
 				firstName: newUser.first_name,
 				lastName: newUser.last_name,
+				socket: "",
 			},
 		});
 	}

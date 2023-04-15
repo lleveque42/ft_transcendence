@@ -13,23 +13,21 @@ export default function DirectMessages() {
 
 	const [socket, setSocket] = useState<Socket>();
 	const [value, setValue] = useState("");
-
 	
 	const [messages, setMessages] = useState([
 		{
 			username: 'gilbert',
+			socket: "",
 			content: 'Salut toi'
 		},
 		{
-			username: 'lorie',
+			username: 'wakka',
+			socket : "",
 			content: 'Bonjour'
 		}
 	]);
 	
-	
 	const { id } = useParams();
-	
-	
 	
 	const messagesList = messages.map(({ username, content }) => (
 		<li key={username}>
@@ -44,7 +42,7 @@ export default function DirectMessages() {
 	  
 
 	  const messageListener = (message: string) => {
-		setMessages([...messages, { username: "BLABLA", content: "BLABLA"}]);
+		setMessages([...messages, { username: "user", socket:"", content: message}]);
 	  }
 	  
 	useEffect(() => {
@@ -62,7 +60,7 @@ export default function DirectMessages() {
 
 	const handleKeyDown =  (event : KeyboardEvent<HTMLInputElement>) => {
 		if (event.key === "Enter"){
-			socket?.emit("private_message", {message: value, id: socket.id});
+			socket?.emit("private_message", {sender: "aasli", message: value, socket: socket.id, receiver: id});
 		}
 	};
 
