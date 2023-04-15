@@ -34,6 +34,7 @@ services:
     ports:
       - 3000:3000
       - 5555:5555
+      - 8001:8001
     env_file:
       - .env
     depends_on:

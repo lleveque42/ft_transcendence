@@ -5,10 +5,16 @@ import { useEffect, useState } from "react";
 import Message from "../../components/Message/Message";
 import { useParams } from "react-router-dom";
 import MessageDisplay from "../../components/Message/MessageDisplay/MessageDisplay";
+import { KeyboardEvent } from "react"
+import { Socket, io } from "socket.io-client";
 
 
 export default function DirectMessages() {
 
+	const [socket, setSocket] = useState<Socket>();
+	const [value, setValue] = useState("");
+
+	
 	const [messages, setMessages] = useState([
 		{
 			username: 'gilbert',
@@ -19,9 +25,12 @@ export default function DirectMessages() {
 			content: 'Bonjour'
 		}
 	]);
-
+	
+	
 	const { id } = useParams();
-
+	
+	
+	
 	const messagesList = messages.map(({ username, content }) => (
 		<li key={username}>
 		  <Message
@@ -29,18 +38,38 @@ export default function DirectMessages() {
 			removeMessages={setMessages}
 			username ={username}
 			content={content}
-		  />
+			/>
 		</li>
 	  ));
+	  
 
-	useEffect(() => {		
-	});
+	  const messageListener = (message: string) => {
+		setMessages([...messages, { username: "BLABLA", content: "BLABLA"}]);
+	  }
+	  
+	useEffect(() => {
+	  const newSocket = io("http://localhost:8001");
+	  setSocket(newSocket);
+	}, [setSocket])
+
+	useEffect(() => {
+		socket?.on("private_message", messageListener);
+		return () => {
+		  socket?.off("private_message", messageListener);
+		}
+	  // eslint-disable-next-line react-hooks/exhaustive-deps
+	  }, [messageListener])
+
+	const handleKeyDown =  (event : KeyboardEvent<HTMLInputElement>) => {
+		if (event.key === "Enter"){
+			socket?.emit("private_message", {message: value, id: socket.id});
+		}
+	};
 
 	return (
 		<div className="container d-flex flex-column justify-content align-items">
 			<div className="title">Chat messages</div>
-			<div
-				>
+			<div>
 					<ChatNav/>
 					{
 						(id ?
@@ -49,7 +78,10 @@ export default function DirectMessages() {
 							<MessageDisplay></MessageDisplay>
 							<button>See profile</button>
 							<button>Delete conversations</button>
-							<input type="text" placeholder={`Reply to ${id}`}/>
+							<input onKeyDown={handleKeyDown}
+								onChange={(e)=>{setValue(e.target.value)}} 
+								type="text" 
+								placeholder={`Reply to ${id}`}/>
 						</> 
 						:<>
 							<h1>Messages ({messages.length})</h1>
