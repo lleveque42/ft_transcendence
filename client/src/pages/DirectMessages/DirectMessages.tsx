@@ -7,10 +7,12 @@ import { useParams } from "react-router-dom";
 import MessageDisplay from "../../components/Message/MessageDisplay/MessageDisplay";
 import { KeyboardEvent } from "react"
 import { Socket, io } from "socket.io-client";
+import { useUser } from "../../context/UserProvider";
 
 
 export default function DirectMessages() {
-
+  
+	const { accessToken, user } = useUser();
 	const [socket, setSocket] = useState<Socket>();
 	const [value, setValue] = useState("");
 	
@@ -41,8 +43,8 @@ export default function DirectMessages() {
 	  ));
 	  
 
-	  const messageListener = (message: string) => {
-		setMessages([...messages, { username: "user", socket:"", content: message}]);
+	  const messageListener = (sender: string, message: string) => {
+		setMessages([...messages, { username: sender, socket:"", content: message}]);
 	  }
 	  
 	useEffect(() => {
@@ -60,7 +62,7 @@ export default function DirectMessages() {
 
 	const handleKeyDown =  (event : KeyboardEvent<HTMLInputElement>) => {
 		if (event.key === "Enter"){
-			socket?.emit("private_message", {sender: "aasli", message: value, socket: socket.id, receiver: id});
+			socket?.emit("private_message", {sender: user.userName, message: value, socket: socket.id, receiver: id});
 		}
 	};
 

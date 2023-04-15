@@ -42,11 +42,11 @@ export class ServerGateway {
 			} else {
 				console.log("No user found");
 			}
+			this.server.emit("private_message", sender.userName, data.message);
 		} catch (e) {
 			throw new HttpException(e.message, e.status);
 		}
 
 		//		this.server.to("").emit("private_message", data.message);
-		this.server.emit("private_message", data.message);
 	}
 }
