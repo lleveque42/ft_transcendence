@@ -48,14 +48,11 @@ export class UserService {
 
 	async updateUserName(userName: string, newUserName: string) {
 		const user = await this.getUserByUserName(userName);
-		if (!user) {
-			throw new ForbiddenException("Can't find user, try again");
-		}
+		if (!user) throw new ForbiddenException("Can't find user, try again");
 		const userWithSameUserName = await this.getUserByUserName(newUserName);
-		if (userWithSameUserName) {
+		if (userWithSameUserName)
 			throw new ForbiddenException("This username is already taken");
-		}
-		await this.prisma.user.update({
+		return await this.prisma.user.update({
 			where: {
 				email: user.email,
 			},

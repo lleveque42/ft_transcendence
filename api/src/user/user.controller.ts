@@ -36,7 +36,6 @@ export class UserController {
 		@GetCurrentUser("sub") userName: string,
 		@Body() dto: updateUserNameDto,
 	) {
-		console.log("Patch settings", dto, userName);
 		try {
 			await this.userService.updateUserName(userName, dto.newUserName)
 		} catch (e) {

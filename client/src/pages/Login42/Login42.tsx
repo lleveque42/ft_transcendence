@@ -20,7 +20,7 @@ export default function Login42() {
 					},
 				);
 				if (res.status === 201) {
-					navigate("/editprofile");
+					navigate("/settings");
 				} else if (res.ok) {
 					navigate("/");
 				} else {

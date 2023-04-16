@@ -27,7 +27,7 @@ export default function Router() {
 					path="/settings"
 					element={<PrivateRoute element={<Settings />} />}
 				/>
-				<Route // will become /users/userName 
+				<Route // will become /user/userName
 					path="/editprofile"
 					element={<PrivateRoute element={<EditProfile />} />}
 				/>
