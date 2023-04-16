@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { ForbiddenException, Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { userInfo42Dto } from "../auth/dto";
 
@@ -42,6 +42,25 @@ export class UserService {
 				firstName: newUser.first_name,
 				lastName: newUser.last_name,
 				socket: "",
+			},
+		});
+	}
+
+	async updateUserName(userName: string, newUserName: string) {
+		const user = await this.getUserByUserName(userName);
+		if (!user) {
+			throw new ForbiddenException("Can't find user, try again");
+		}
+		const userWithSameUserName = await this.getUserByUserName(newUserName);
+		if (userWithSameUserName) {
+			throw new ForbiddenException("This username is already taken");
+		}
+		await this.prisma.user.update({
+			where: {
+				email: user.email,
+			},
+			data: {
+				userName: newUserName,
 			},
 		});
 	}

@@ -43,18 +43,21 @@
 		padding: 0.5rem 0;
 		border-top: 1px solid rgba(0, 0, 0, 0.1);
 
-		a {
-			color: var(--danger);
+		button {
+			text-decoration: none;
+			color: var(--black);
+			border: none;
+			background: inherit;
 			max-width: 10rem;
 			margin-left: 1rem;
 			transition: 500ms;
 		}
 
-		&:first-child a {
-			color: var(--black);
+		&:nth-child(3) button {
+			color: var(--danger);
 		}
 
-		&:hover a {
+		&:hover button {
 			color: var(--primary);
 			cursor: pointer;
 		}

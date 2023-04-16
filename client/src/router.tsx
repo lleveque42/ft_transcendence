@@ -10,6 +10,7 @@ import PrivateRoute from "./components/Routes/PrivateRoute";
 import PublicRoute from "./components/Routes/PublicRoute";
 import Chat from "./pages/Chat/Chat";
 import DirectMessages from "./pages/DirectMessages/DirectMessages";
+import Settings from "./pages/User/Settings/Settings";
 
 export default function Router() {
 	return (
@@ -23,28 +24,32 @@ export default function Router() {
 				/>
 				<Route path="/" element={<PrivateRoute element={<Homepage />} />} />
 				<Route
+					path="/settings"
+					element={<PrivateRoute element={<Settings />} />}
+				/>
+				<Route // will become /users/userName 
 					path="/editprofile"
 					element={<PrivateRoute element={<EditProfile />} />}
 				/>
-				<Route 
+				<Route
 					path="/chat"
 					element={<PrivateRoute element={<Chat />} />}
 				/>
 				<Route
 					path="/chat/direct_messages"
-					element={<PrivateRoute element={<DirectMessages/>} />}					
+					element={<PrivateRoute element={<DirectMessages/>} />}
 				/>
 				<Route
 					path="/chat/direct_messages/:id"
-					element={<PrivateRoute element={<DirectMessages/>} />}					
+					element={<PrivateRoute element={<DirectMessages/>} />}
 				/>
 				<Route
 					path="/chat/channels"
-					element={<PrivateRoute element={<Chat />} />}					
+					element={<PrivateRoute element={<Chat />} />}
 				/>
 				<Route
 					path="/chat/friends"
-					element={<PrivateRoute element={<Chat />} />}					
+					element={<PrivateRoute element={<Chat />} />}
 				/>
 				<Route path="*" element={<NotFound />} />
 			</Route>

@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
 
 export default function Header() {
 	const navigate = useNavigate();
-	const { logout } = useUser();
+	const { logout, user } = useUser();
 	const [openMenu, setOpenMenu] = useState<boolean>(false);
 	const menuRef = useRef<HTMLDivElement>(null);
 
@@ -44,14 +44,14 @@ export default function Header() {
 						className={`${styles.menuTrigger} d-flex align-items`}
 						onClick={() => setOpenMenu(!openMenu)}
 					>
-						<img src={photo} />
+						<img src={photo} alt="Avatar" />
 					</div>
 					<div
 						className={`${styles.dropdownMenu} ${
 							openMenu ? styles.active : styles.inactive
 						}`}
 					>
-						<h3>Hey Username</h3>
+						<h3>Hey {user.userName}!</h3>
 						<ul>
 							<li
 								className={`${styles.dropdownItem}`}
@@ -59,10 +59,18 @@ export default function Header() {
 									navigate("/editprofile");
 								}}
 							>
-								<a>My Profile</a>
+								<button>My Profile</button>
+							</li>
+							<li
+								className={`${styles.dropdownItem}`}
+								onClick={() => {
+									navigate("/settings");
+								}}
+							>
+								<button>Settings</button>
 							</li>
 							<li className={`${styles.dropdownItem}`} onClick={signout}>
-								<a>Logout</a>
+								<button>Logout</button>
 							</li>
 						</ul>
 					</div>
