@@ -90,4 +90,18 @@ export class AuthController {
 			throw new HttpException(e.message, e.status);
 		}
 	}
+
+	@UseGuards(AtGuard)
+	@Get("/tfa/generate")
+	async generateTfaQrCode(@GetCurrentUser("sub") userName: string,) {
+		console.log(userName);
+
+		try {
+			const otpAuthUrl = await this.authService.generateTfaSecret(userName);
+			return await this.authService.generateQrCodeDataUrl(otpAuthUrl);
+		} catch (e) {
+			throw new HttpException(e.message, e.status);
+		}
+	}
+
 }

@@ -12,6 +12,8 @@ import { ConfigService } from "@nestjs/config";
 import { Response } from "express";
 import { UserService } from "../user/user.service";
 import { User } from "@prisma/client";
+import { authenticator } from "otplib";
+import { toDataURL } from 'qrcode';
 
 @Injectable()
 export class AuthService {
@@ -117,6 +119,25 @@ export class AuthService {
 			user.firstName,
 			user.lastName,
 		);
+	}
+
+	async generateTfaSecret(userName: string): Promise<string> {
+		// console.log(userEmail);
+
+		const user = await this.userService.getUserByUserName(userName);
+		if (!user) throw new ForbiddenException("Can't find user, try again");
+		const secret = authenticator.generateSecret();
+		const otpAuthUrl = authenticator.keyuri(
+			user.email,
+			"Ft_Transcendence-" + user.userName,
+			secret,
+		);
+		await this.userService.setTfaSecret(user.email, secret);
+		return otpAuthUrl;
+	}
+
+	async generateQrCodeDataUrl(otpAuthUrl: string) {
+		return toDataURL(otpAuthUrl);
 	}
 
 	////////////////////////////////// JWT

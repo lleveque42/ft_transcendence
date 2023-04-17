@@ -63,6 +63,17 @@ export class UserService {
 		});
 	}
 
+	async setTfaSecret(userEmail: string, secret: string) {
+		await this.prisma.user.update({
+			where: {
+				email: userEmail,
+			},
+			data: {
+				tfaSecret: secret,
+			},
+		});
+	}
+
 	async dropdb(): Promise<void> {
 		await this.prisma.user.deleteMany({});
 	}

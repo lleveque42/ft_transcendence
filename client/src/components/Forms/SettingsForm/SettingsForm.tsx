@@ -35,11 +35,23 @@ export default function SettingsForm() {
 	}
 
 	async function generateQrCode() {
-		// try {
-		// 	const res = await fetch("")
-		// } catch (e) {
-		// 	console.error("Error generate Qr Code: ", e);
-		// }
+		try {
+			const res = await fetch("http://localhost:3000/auth/tfa/generate", {
+				method: "GET",
+				credentials: "include",
+				headers: {
+					Authorization: `Bearer ${accessToken}`,
+					"Content-Type": "application/json",
+				},
+			});
+			if (res.ok) {
+				setQrCodecontent(await res.text());
+			} else {
+				alert("Try again later");
+			}
+		} catch (e) {
+			console.error("Error generate Qr Code: ", e);
+		}
 		setTfaModal(true);
 	}
 
@@ -92,7 +104,7 @@ export default function SettingsForm() {
 					)}
 				</div>
 			</form>
-			{tfaModal && <TfaModal closeModal={() => setTfaModal(false)} />}
+			{tfaModal && <TfaModal closeModal={() => setTfaModal(false)} qrCodeUrl={qrCodeContent} />}
 		</>
 	);
 }

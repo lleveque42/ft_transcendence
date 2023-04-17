@@ -22,6 +22,17 @@
 	background-color: var(--light-grey);
 	border-radius: 5px;
 	box-shadow: var(--box-shadow);
+
+	img {
+		width: 15rem;
+		height: auto;
+	}
+
+	small {
+		color: var(--black);
+		width: 20rem;
+	}
+
 	h3 {
 		color: var(--primary);
 	}
