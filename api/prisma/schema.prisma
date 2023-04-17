@@ -15,12 +15,14 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  email     String @unique
-  hash      String
-  userName  String @unique
-  firstName String?
-  lastName  String?
-  avatar    String?
-  socket    String?
-  camenbert String?
+  email       String  @unique
+  hash        String
+  userName    String  @unique
+  firstName   String?
+  lastName    String?
+  avatar      String?
+  socket      String?
+  tfaSecret   String?
+  isTfaEnable Boolean @default(false)
+  camenbert   String?
 }

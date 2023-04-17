@@ -4,10 +4,13 @@ import Input from "../../Input/Input";
 import styles from "./SettingsForm.module.scss";
 import { useNavigate } from "react-router-dom";
 import { settingsRequest } from "../../../api";
+import TfaModal from "../../../pages/User/Settings/TfaModal";
 
 export default function SettingsForm() {
 	const { accessToken, user } = useUser();
 	const [newUserName, setNewUserName] = useState<string>(user.userName);
+	const [tfaModal, setTfaModal] = useState<boolean>(false);
+	const [qrCodeContent, setQrCodecontent] = useState<string>("");
 	const navigate = useNavigate();
 
 	async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -29,6 +32,15 @@ export default function SettingsForm() {
 
 	async function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
 		setNewUserName(e.target.value);
+	}
+
+	async function generateQrCode() {
+		// try {
+		// 	const res = await fetch("")
+		// } catch (e) {
+		// 	console.error("Error generate Qr Code: ", e);
+		// }
+		setTfaModal(true);
 	}
 
 	return (
@@ -65,11 +77,22 @@ export default function SettingsForm() {
 					<button className="btn-primary p-5 m-5" type="submit">
 						Update changes
 					</button>
-					<button className="btn-reverse-primary p-5 m-5" type="button">
-						Enable 2FA
-					</button>
+					{user.isTfaEnable ? (
+						<button className="btn-reverse-primary p-5 m-5" type="button">
+							Disable 2FA
+						</button>
+					) : (
+						<button
+							className="btn-reverse-primary p-5 m-5"
+							type="button"
+							onClick={generateQrCode}
+						>
+							Enable 2FA
+						</button>
+					)}
 				</div>
 			</form>
+			{tfaModal && <TfaModal closeModal={() => setTfaModal(false)} />}
 		</>
 	);
 }

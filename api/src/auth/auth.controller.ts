@@ -72,6 +72,7 @@ export class AuthController {
 				email: user.email,
 				firstName: user.firstName,
 				lastName: user.lastName,
+				isTfaEnable: user.isTfaEnable
 			},
 		};
 	}
