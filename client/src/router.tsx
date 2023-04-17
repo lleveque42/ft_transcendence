@@ -8,6 +8,7 @@ import Signup from "./pages/Signup/Signup";
 import EditProfile from "./pages/User/EditProfile";
 import PrivateRoute from "./components/Routes/PrivateRoute";
 import PublicRoute from "./components/Routes/PublicRoute";
+import GameTest from "./pages/GameTest/GameTest";
 
 export default function Router() {
 	return (
@@ -23,6 +24,15 @@ export default function Router() {
 				<Route
 					path="/editprofile"
 					element={<PrivateRoute element={<EditProfile />} />}
+				/>
+				{/* <Route
+					path="/game"
+					element={<PrivateRoute element={<GameTest />} />}
+				/> */}
+
+				<Route
+					path="/game"
+					element={<PublicRoute element={<GameTest />} />}
 				/>
 
 				<Route path="*" element={<NotFound />} />

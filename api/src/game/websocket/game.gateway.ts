@@ -1,5 +1,6 @@
 import { Logger } from "@nestjs/common";
 import {
+	ConnectedSocket,
 	MessageBody,
 	OnGatewayConnection,
 	OnGatewayDisconnect,
@@ -30,12 +31,14 @@ export class GameGateway
 		this.logger.log("New disconnection.");
 	}
 
-	// @SubscribeMessage("newGame")
-	// handleNewGame(@MessageBody() message: string): void {
-	// 	this.io.emit("message", message);
-	// 	console.log("new message")
-	// }
-	// @
+	@SubscribeMessage("joinGame")
+	handleNewGame(
+		@ConnectedSocket() client: Socket,
+		@MessageBody() message: string,
+	): void {
+		// this.io.emit("message", message);
+		// console.log("new message")
+	}
 
 	@SubscribeMessage("updatePlayerPaddlePos")
 	handleLeftPaddlePosUpdate(@MessageBody() position: number): void {

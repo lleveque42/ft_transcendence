@@ -6,7 +6,7 @@ import styles from "./GameTest.module.scss";
 export default function GameTest() {
 	const [points, setPoints] = useState({ left: 0, right: 0 });
 	const [ballStopped, setBallStopped] = useState(true);
-	const owner: boolean = false;
+	const owner: boolean = true;
 
 	function handleClick() {
 		setBallStopped(!ballStopped);
