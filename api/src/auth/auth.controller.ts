@@ -17,6 +17,7 @@ import { UserService } from "../user/user.service";
 import { SignupDto, SigninDto, getAuthToken42Dto } from "./dto";
 import { GetCurrentUser } from "../common/decorators";
 import { AtGuard, RtGuard } from "./guards";
+import { UserDataRefresh } from "../common/types";
 
 @Controller("auth")
 export class AuthController {
@@ -56,23 +57,23 @@ export class AuthController {
 		this.authService.logout(res);
 	}
 
-	// NEED TO TYPE PROPELLY !!
 	@UseGuards(RtGuard)
 	@Get("refresh")
 	async refresh(
 		@GetCurrentUser("email") userEmail: string,
-		@Req() req: Request,
-	): Promise<{ accessToken: string; userData: any }> {
+	): Promise<{ accessToken: string; userData: UserDataRefresh }> {
 		const accessToken = await this.authService.newTokens(userEmail);
 		const user = await this.userService.getUserByEmail(userEmail);
-		const userData = {
-			userName: user.userName,
-			email: user.email,
-			firstName: user.firstName,
-			lastName: user.lastName,
-		};
 
-		return { accessToken: accessToken.access_token, userData };
+		return {
+			accessToken: accessToken.access_token,
+			userData: {
+				userName: user.userName,
+				email: user.email,
+				firstName: user.firstName,
+				lastName: user.lastName,
+			},
+		};
 	}
 
 	@Get("callback42/:code")

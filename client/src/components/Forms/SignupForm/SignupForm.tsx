@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Input from "../../Input/Input";
 import styles from "./SignupForm.module.scss";
+import { signupRequest } from "../../../api";
 
 type FormValues = {
 	userName: string;
@@ -27,14 +28,7 @@ export default function SignupForm() {
 	async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
 		event.preventDefault();
 		try {
-			const res = await fetch("http://localhost:3000/auth/signup", {
-				method: "POST",
-				credentials: "include",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify(formValues),
-			});
+			const res = await signupRequest(formValues);
 			if (res.status === 201) {
 				navigate("/settings");
 			} else if (res.ok) {

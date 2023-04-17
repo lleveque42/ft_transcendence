@@ -1,6 +1,7 @@
 import { ForbiddenException, Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { userInfo42Dto } from "../auth/dto";
+import { User } from "@prisma/client";
 
 @Injectable()
 export class UserService {
@@ -17,7 +18,7 @@ export class UserService {
 		});
 	}
 
-	async getUserByEmail(email: string) {
+	async getUserByEmail(email: string): Promise<User> {
 		return await this.prisma.user.findUnique({
 			where: {
 				email: email,
@@ -25,7 +26,7 @@ export class UserService {
 		});
 	}
 
-	async getUserByUserName(userName: string) {
+	async getUserByUserName(userName: string): Promise<User> {
 		return await this.prisma.user.findUnique({
 			where: {
 				userName,
@@ -33,7 +34,7 @@ export class UserService {
 		});
 	}
 
-	async createUser(newUser: userInfo42Dto) {
+	async createUser(newUser: userInfo42Dto): Promise<User> {
 		return await this.prisma.user.create({
 			data: {
 				email: newUser.email,
@@ -46,7 +47,7 @@ export class UserService {
 		});
 	}
 
-	async updateUserName(userName: string, newUserName: string) {
+	async updateUserName(userName: string, newUserName: string): Promise<User> {
 		const user = await this.getUserByUserName(userName);
 		if (!user) throw new ForbiddenException("Can't find user, try again");
 		const userWithSameUserName = await this.getUserByUserName(newUserName);
@@ -62,7 +63,7 @@ export class UserService {
 		});
 	}
 
-	async dropdb() {
+	async dropdb(): Promise<void> {
 		await this.prisma.user.deleteMany({});
 	}
 }

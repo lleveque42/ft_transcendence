@@ -3,6 +3,7 @@ import { useUser } from "../../../context/UserProvider";
 import Input from "../../Input/Input";
 import styles from "./SettingsForm.module.scss";
 import { useNavigate } from "react-router-dom";
+import { settingsRequest } from "../../../api";
 
 export default function SettingsForm() {
 	const { accessToken, user } = useUser();
@@ -11,18 +12,10 @@ export default function SettingsForm() {
 
 	async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
-		// Need some more check of userName before sending req ?
+		// Need more checks for userName before sending req ?
 		if (newUserName === user.userName || !newUserName.length) return;
 		try {
-			const res = await fetch("http://localhost:3000/user/settings", {
-				method: "PATCH",
-				credentials: "include",
-				headers: {
-					Authorization: `Bearer ${accessToken}`,
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({ newUserName }),
-			});
+			const res = await settingsRequest(accessToken, newUserName);
 			if (!res.ok) {
 				const data = await res.json();
 				alert(data.message);

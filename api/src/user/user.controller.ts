@@ -18,13 +18,13 @@ import { updateUserNameDto } from "./dto";
 export class UserController {
 	constructor(private userService: UserService) {}
 
-	@Delete("temporary_dropdb")
+	@Delete("temporary_dropdb") // To del
 	@HttpCode(HttpStatus.GONE)
-	async dropdb() {
+	async dropdb(): Promise<void> {
 		await this.userService.dropdb();
 	}
 
-	@UseGuards(AtGuard)
+	@UseGuards(AtGuard) // To del
 	@Get("test")
 	test(@GetCurrentUser("sub") userName: string): string {
 		return userName;
@@ -35,7 +35,7 @@ export class UserController {
 	async updateSettings(
 		@GetCurrentUser("sub") userName: string,
 		@Body() dto: updateUserNameDto,
-	) {
+	): Promise<void> {
 		try {
 			await this.userService.updateUserName(userName, dto.newUserName)
 		} catch (e) {
