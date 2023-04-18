@@ -52,11 +52,3 @@ export class userInfo42Dto {
 	@IsNotEmpty()
 	last_name: string;
 }
-
-export class qrCodeVerifDto {
-	@IsNotEmpty()
-	@IsNumberString(null, {
-		message: "Verification code must only contains digits",
-	})
-	code: string;
-}

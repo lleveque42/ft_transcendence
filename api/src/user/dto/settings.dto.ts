@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, NotContains } from "class-validator";
+import { IsString, IsNotEmpty, NotContains, IsNumberString } from "class-validator";
 
 export class updateUserNameDto {
 	@IsNotEmpty()
@@ -7,4 +7,13 @@ export class updateUserNameDto {
 		message: "New username should not include spaces"
 	})
 	newUserName: string;
+}
+
+
+export class qrCodeVerifDto {
+	@IsNotEmpty()
+	@IsNumberString(null, {
+		message: "Verification code must only contains digits",
+	})
+	code: string;
 }

@@ -3,7 +3,11 @@ import { useUser } from "../../../context/UserProvider";
 import Input from "../../Input/Input";
 import styles from "./SettingsForm.module.scss";
 import { useNavigate } from "react-router-dom";
-import { settingsRequest } from "../../../api";
+import {
+	disableTfaRequest,
+	generateQrCodeRequest,
+	settingsRequest,
+} from "../../../api";
 import TfaModal from "../../../pages/User/Settings/TfaModal";
 
 export default function SettingsForm() {
@@ -15,7 +19,6 @@ export default function SettingsForm() {
 
 	async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
-		// Need more checks for userName before sending req ?
 		if (newUserName === user.userName || !newUserName.length) return;
 		try {
 			const res = await settingsRequest(accessToken, newUserName);
@@ -36,14 +39,7 @@ export default function SettingsForm() {
 
 	async function generateQrCode() {
 		try {
-			const res = await fetch("http://localhost:3000/auth/tfa/generate", {
-				method: "GET",
-				credentials: "include",
-				headers: {
-					Authorization: `Bearer ${accessToken}`,
-					"Content-Type": "application/json",
-				},
-			});
+			const res = await generateQrCodeRequest(accessToken);
 			if (res.ok) {
 				setQrCodecontent(await res.text());
 			} else {
@@ -57,16 +53,9 @@ export default function SettingsForm() {
 
 	async function disableTfa() {
 		try {
-			const res = await fetch("http://localhost:3000/auth/tfa/disable", {
-				method: "PATCH",
-				credentials: "include",
-				headers: {
-					Authorization: `Bearer ${accessToken}`,
-				},
-			});
-			if (res.ok) {
-				navigate(0);
-			} else {
+			const res = await disableTfaRequest(accessToken);
+			if (res.ok) navigate(0);
+			else {
 				alert("Try again later");
 			}
 		} catch (e) {
@@ -110,7 +99,7 @@ export default function SettingsForm() {
 					</button>
 					{user.isTfaEnable ? (
 						<button
-							className="btn-reverse-primary p-5 m-5"
+							className="btn-danger p-5 m-5"
 							type="button"
 							onClick={disableTfa}
 						>

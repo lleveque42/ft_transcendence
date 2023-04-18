@@ -3,6 +3,7 @@ import Input from "../../../components/Input/Input";
 import styles from "./TfaModal.module.scss";
 import { useUser } from "../../../context/UserProvider";
 import { useNavigate } from "react-router-dom";
+import { enableTfaRequest } from "../../../api";
 
 interface ModalProps {
 	closeModal: () => void;
@@ -21,22 +22,12 @@ export default function TfaModal({ closeModal, qrCodeUrl }: ModalProps) {
 	async function handleSubmit() {
 		if (inputValue === "") return;
 		const verificationCode = inputValue.replace(/\s/g, "");
-
 		try {
-			const res = await fetch("http://localhost:3000/auth/tfa/enable", {
-				method: "PATCH",
-				credentials: "include",
-				headers: {
-					Authorization: `Bearer ${accessToken}`,
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({ code: verificationCode }),
-			});
-			if (!res.ok) {
+			const res = await enableTfaRequest(accessToken, verificationCode);
+			if (res.ok) navigate(0);
+			else {
 				const body = await res.json();
 				alert(body.message);
-			} else {
-				navigate(0);
 			}
 		} catch (e) {
 			console.error("Error sending qrCode verification values", e);
@@ -78,16 +69,18 @@ export default function TfaModal({ closeModal, qrCodeUrl }: ModalProps) {
 					value={inputValue}
 					onChange={handleInputChange}
 				/>
-				<button
-					className="btn btn-primary p-5"
-					type="submit"
-					onClick={handleSubmit}
-				>
-					Validate
-				</button>
-				<button className="btn btn-reverse-primary" onClick={closeModal}>
-					Close
-				</button>
+				<div className="d-flex flex-row mt-5">
+					<button
+						className="btn btn-primary p-5"
+						type="submit"
+						onClick={handleSubmit}
+					>
+						Validate
+					</button>
+					<button className="btn btn-reverse-danger p-5 ml-10" onClick={closeModal}>
+						Close
+					</button>
+				</div>
 			</div>
 		</div>
 	);

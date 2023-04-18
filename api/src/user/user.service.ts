@@ -2,6 +2,8 @@ import { ForbiddenException, Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { userInfo42Dto } from "../auth/dto";
 import { User } from "@prisma/client";
+import { authenticator } from "otplib";
+import { toDataURL } from "qrcode";
 
 @Injectable()
 export class UserService {
@@ -63,7 +65,7 @@ export class UserService {
 		});
 	}
 
-	async setTfaSecret(userName: string, secret: string) {
+	async setTfaSecret(userName: string, secret: string): Promise<void>  {
 		await this.prisma.user.update({
 			where: {
 				userName,
@@ -74,14 +76,7 @@ export class UserService {
 		});
 	}
 
-	async removeTfa(userName: string) {
-		const user = await this.getUserByUserName(userName);
-		if (!user) throw new ForbiddenException("Can't find user, try again");
-		await this.setTfaSecret(user.userName, "");
-		await this.toggleTfa(user.userName, false);
-	}
-
-	async toggleTfa(userName: string, value: boolean) {
+	async toggleTfa(userName: string, value: boolean): Promise<void> {
 		await this.prisma.user.update({
 			where: {
 				userName,
@@ -92,7 +87,37 @@ export class UserService {
 		});
 	}
 
-	async dropdb(): Promise<void> {
+	async removeTfa(userName: string): Promise<void> {
+		const user = await this.getUserByUserName(userName);
+		if (!user) throw new ForbiddenException("Can't find user, try again");
+		await this.setTfaSecret(user.userName, "");
+		await this.toggleTfa(user.userName, false);
+	}
+
+	async generateTfaSecret(userName: string): Promise<string> {
+		const user = await this.getUserByUserName(userName);
+		if (!user) throw new ForbiddenException("Can't find user, try again");
+		const secret = authenticator.generateSecret();
+		const otpAuthUrl = authenticator.keyuri(
+			user.email,
+			"Trans-" + user.userName,
+			secret,
+		);
+		await this.setTfaSecret(user.userName, secret);
+		return otpAuthUrl;
+	}
+
+	generateQrCodeDataUrl(otpAuthUrl: string): any {
+		return toDataURL(otpAuthUrl);
+	}
+
+	async isTfaCodeValid(userName: string, code: string): Promise<boolean> {
+		const user = await this.getUserByUserName(userName);
+		if (!user) throw new ForbiddenException("Can't find user, try again");
+		return authenticator.verify({ token: code, secret: user.tfaSecret });
+	}
+
+	async dropdb(): Promise<void> { // to del
 		await this.prisma.user.deleteMany({});
 	}
 }
