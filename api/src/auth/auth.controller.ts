@@ -10,11 +10,12 @@ import {
 	HttpStatus,
 	UseGuards,
 	Req,
+	Patch,
 } from "@nestjs/common";
 import { Request, Response } from "express";
 import { AuthService } from "./auth.service";
 import { UserService } from "../user/user.service";
-import { SignupDto, SigninDto, getAuthToken42Dto } from "./dto";
+import { SignupDto, SigninDto, getAuthToken42Dto, qrCodeVerifDto } from "./dto";
 import { GetCurrentUser } from "../common/decorators";
 import { AtGuard, RtGuard } from "./guards";
 import { UserDataRefresh } from "../common/types";
@@ -72,7 +73,7 @@ export class AuthController {
 				email: user.email,
 				firstName: user.firstName,
 				lastName: user.lastName,
-				isTfaEnable: user.isTfaEnable
+				isTfaEnable: user.isTfaEnable,
 			},
 		};
 	}
@@ -93,9 +94,7 @@ export class AuthController {
 
 	@UseGuards(AtGuard)
 	@Get("/tfa/generate")
-	async generateTfaQrCode(@GetCurrentUser("sub") userName: string,) {
-		console.log(userName);
-
+	async generateTfaQrCode(@GetCurrentUser("sub") userName: string) {
 		try {
 			const otpAuthUrl = await this.authService.generateTfaSecret(userName);
 			return await this.authService.generateQrCodeDataUrl(otpAuthUrl);
@@ -104,4 +103,33 @@ export class AuthController {
 		}
 	}
 
+	@UseGuards(AtGuard)
+	@Patch("/tfa/enable")
+	async enableTfa(
+		@GetCurrentUser("sub") userName: string,
+		@Body() dto: qrCodeVerifDto,
+	) {
+		const isCodeValid = await this.authService.isTfaCodeValid(
+			userName,
+			dto.code,
+		);
+		if (!isCodeValid)
+			throw new HttpException(
+				"Invalid authentication code",
+				HttpStatus.UNAUTHORIZED,
+			);
+		await this.userService.toggleTfa(userName, true);
+	}
+
+	@UseGuards(AtGuard)
+	@Patch("/tfa/disable")
+	async disableTfa(
+		@GetCurrentUser("sub") userName: string,
+	) {
+		try {
+			await this.userService.removeTfa(userName);
+		} catch (e) {
+			throw new HttpException(e.message, e.status);
+		}
+	}
 }

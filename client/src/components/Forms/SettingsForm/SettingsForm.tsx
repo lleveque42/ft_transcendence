@@ -55,6 +55,25 @@ export default function SettingsForm() {
 		setTfaModal(true);
 	}
 
+	async function disableTfa() {
+		try {
+			const res = await fetch("http://localhost:3000/auth/tfa/disable", {
+				method: "PATCH",
+				credentials: "include",
+				headers: {
+					Authorization: `Bearer ${accessToken}`,
+				},
+			});
+			if (res.ok) {
+				navigate(0);
+			} else {
+				alert("Try again later");
+			}
+		} catch (e) {
+			console.error("Error disable tfa: ", e);
+		}
+	}
+
 	return (
 		<>
 			<form
@@ -90,7 +109,11 @@ export default function SettingsForm() {
 						Update changes
 					</button>
 					{user.isTfaEnable ? (
-						<button className="btn-reverse-primary p-5 m-5" type="button">
+						<button
+							className="btn-reverse-primary p-5 m-5"
+							type="button"
+							onClick={disableTfa}
+						>
 							Disable 2FA
 						</button>
 					) : (
@@ -104,7 +127,12 @@ export default function SettingsForm() {
 					)}
 				</div>
 			</form>
-			{tfaModal && <TfaModal closeModal={() => setTfaModal(false)} qrCodeUrl={qrCodeContent} />}
+			{tfaModal && (
+				<TfaModal
+					closeModal={() => setTfaModal(false)}
+					qrCodeUrl={qrCodeContent}
+				/>
+			)}
 		</>
 	);
 }

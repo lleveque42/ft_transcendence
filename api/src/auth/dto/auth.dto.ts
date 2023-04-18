@@ -1,4 +1,10 @@
-import { IsEmail, IsString, IsNotEmpty } from "class-validator";
+import {
+	IsEmail,
+	IsString,
+	IsNotEmpty,
+	IsNumberString,
+	Length,
+} from "class-validator";
 
 export class SignupDto {
 	@IsNotEmpty()
@@ -45,4 +51,12 @@ export class userInfo42Dto {
 	@IsString()
 	@IsNotEmpty()
 	last_name: string;
+}
+
+export class qrCodeVerifDto {
+	@IsNotEmpty()
+	@IsNumberString(null, {
+		message: "Verification code must only contains digits",
+	})
+	code: string;
 }

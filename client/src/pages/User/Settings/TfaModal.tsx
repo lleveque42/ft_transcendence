@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Input from "../../../components/Input/Input";
 import styles from "./TfaModal.module.scss";
+import { useUser } from "../../../context/UserProvider";
+import { useNavigate } from "react-router-dom";
 
 interface ModalProps {
 	closeModal: () => void;
@@ -9,14 +11,49 @@ interface ModalProps {
 
 export default function TfaModal({ closeModal, qrCodeUrl }: ModalProps) {
 	const [inputValue, setInputValue] = useState<string>("");
+	const { accessToken } = useUser();
+	const navigate = useNavigate();
 
 	async function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
 		setInputValue(e.target.value);
 	}
 
 	async function handleSubmit() {
-		console.log("VALUES: ", inputValue);
+		if (inputValue === "") return;
+		const verificationCode = inputValue.replace(/\s/g, "");
+
+		try {
+			const res = await fetch("http://localhost:3000/auth/tfa/enable", {
+				method: "PATCH",
+				credentials: "include",
+				headers: {
+					Authorization: `Bearer ${accessToken}`,
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({ code: verificationCode }),
+			});
+			if (!res.ok) {
+				const body = await res.json();
+				alert(body.message);
+			} else {
+				navigate(0);
+			}
+		} catch (e) {
+			console.error("Error sending qrCode verification values", e);
+		}
 	}
+
+	useEffect(() => {
+		function handleKeyPress(event: KeyboardEvent) {
+			if (event.key === "Enter") {
+				handleSubmit();
+			}
+		}
+		window.addEventListener("keypress", handleKeyPress);
+		return () => {
+			window.removeEventListener("keypress", handleKeyPress);
+		};
+	}, [handleSubmit]);
 
 	return (
 		<div className={styles.modalContainer} onClick={closeModal}>

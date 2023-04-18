@@ -63,13 +63,31 @@ export class UserService {
 		});
 	}
 
-	async setTfaSecret(userEmail: string, secret: string) {
+	async setTfaSecret(userName: string, secret: string) {
 		await this.prisma.user.update({
 			where: {
-				email: userEmail,
+				userName,
 			},
 			data: {
 				tfaSecret: secret,
+			},
+		});
+	}
+
+	async removeTfa(userName: string) {
+		const user = await this.getUserByUserName(userName);
+		if (!user) throw new ForbiddenException("Can't find user, try again");
+		await this.setTfaSecret(user.userName, "");
+		await this.toggleTfa(user.userName, false);
+	}
+
+	async toggleTfa(userName: string, value: boolean) {
+		await this.prisma.user.update({
+			where: {
+				userName,
+			},
+			data: {
+				isTfaEnable: value,
 			},
 		});
 	}
