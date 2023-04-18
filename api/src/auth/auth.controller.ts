@@ -85,6 +85,7 @@ export class AuthController {
 			const token42 = await this.authService.getAuthToken42(params.code);
 			const newUser42 = await this.authService.userInfo42(token42);
 			await this.authService.manageNewAuth42(newUser42, res);
+			res.setHeader("WWW-Authenticate", "TFA");
 		} catch (e) {
 			throw new HttpException(e.message, e.status);
 		}

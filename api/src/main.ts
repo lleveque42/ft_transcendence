@@ -14,6 +14,7 @@ async function bootstrap() {
 	app.enableCors({
 		origin: "http://localhost:3001",
 		credentials: true,
+		exposedHeaders: ["WWW-Authenticate"],
 	});
 	await app.listen(3000);
 }

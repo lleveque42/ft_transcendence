@@ -22,7 +22,11 @@ export default function Login42() {
 				if (res.status === 201) {
 					navigate("/settings");
 				} else if (res.ok) {
-					navigate("/");
+					// Need to dig header
+					if (res.headers.get("WWW-Authenticate") === "TFA")
+						navigate("/verify");
+					else
+						navigate("/");
 				} else {
 					const body = await res.json();
 					console.error("Error login42:", res.status, body.message);
