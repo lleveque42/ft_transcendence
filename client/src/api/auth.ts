@@ -54,3 +54,16 @@ export async function signupRequest(formValues: {
 	});
 	return res;
 }
+
+export async function verifyTfaRequest(code: string, accessToken: string) {
+	const res = await fetch("http://localhost:3000/auth/tfa", {
+		method: "POST",
+		credentials: "include",
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: `Bearer ${accessToken}`,
+		},
+		body: JSON.stringify({ code }),
+	});
+	return res;
+}

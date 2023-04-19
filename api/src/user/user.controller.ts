@@ -13,7 +13,7 @@ import { UserService } from "./user.service";
 import { GetCurrentUser } from "../common/decorators";
 import { AtGuard } from "../auth/guards";
 import { updateUserNameDto } from "./dto";
-import { qrCodeVerifDto } from "./dto";
+import { tfaVerificationCode } from "./dto";
 
 @Controller("user")
 export class UserController {
@@ -61,7 +61,7 @@ export class UserController {
 	@Patch("/tfa/enable")
 	async enableTfa(
 		@GetCurrentUser("sub") userName: string,
-		@Body() dto: qrCodeVerifDto,
+		@Body() dto: tfaVerificationCode,
 	): Promise<void> {
 		const isCodeValid = await this.userService.isTfaCodeValid(
 			userName,

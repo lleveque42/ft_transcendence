@@ -31,7 +31,10 @@ export default function LoginForm() {
 			if (!res.ok) {
 				alert("Credentials incorrect");
 			} else {
-				navigate("/");
+				if (res.headers.get("WWW-Authenticate") === "TFA") {
+					const data = await res.json();
+					navigate("/verify", { state: { accessToken: data.access_token } });
+				} else navigate("/");
 			}
 		} catch (e) {
 			console.error("Error login classic");

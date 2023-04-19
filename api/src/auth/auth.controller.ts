@@ -17,6 +17,7 @@ import { SignupDto, SigninDto, getAuthToken42Dto } from "./dto";
 import { GetCurrentUser } from "../common/decorators";
 import { AtGuard, RtGuard } from "./guards";
 import { UserDataRefresh } from "../common/types";
+import { tfaVerificationCode } from "../user/dto";
 
 @Controller("auth")
 export class AuthController {
@@ -41,9 +42,11 @@ export class AuthController {
 	async login(
 		@Body() dto: SigninDto,
 		@Res({ passthrough: true }) res: Response,
-	): Promise<void> {
+	): Promise<void | {
+		access_token: string;
+	}> {
 		try {
-			await this.authService.login(dto, res);
+			return await this.authService.login(dto, res);
 		} catch (e) {
 			throw new HttpException(e.message, e.status);
 		}
@@ -76,16 +79,36 @@ export class AuthController {
 		};
 	}
 
+	@UseGuards(AtGuard)
+	@Post("tfa")
+	async validateTfaAuth(
+		@GetCurrentUser("sub") userName: string,
+		@Body() dto: tfaVerificationCode,
+		@Res({ passthrough: true }) res: Response,
+	): Promise<void> {
+		const isCodeValid = await this.userService.isTfaCodeValid(
+			userName,
+			dto.code,
+		);
+		if (!isCodeValid)
+			throw new HttpException(
+				"Invalid authentication code",
+				HttpStatus.UNAUTHORIZED,
+			);
+		await this.authService.logintfa(userName, res);
+	}
+
 	@Get("callback42/:code")
 	async getAuthToken42(
 		@Param() params: getAuthToken42Dto,
 		@Res({ passthrough: true }) res: Response,
-	): Promise<void> {
+	): Promise<void | {
+		access_token: string;
+	}> {
 		try {
 			const token42 = await this.authService.getAuthToken42(params.code);
 			const newUser42 = await this.authService.userInfo42(token42);
-			await this.authService.manageNewAuth42(newUser42, res);
-			res.setHeader("WWW-Authenticate", "TFA");
+			return await this.authService.manageNewAuth42(newUser42, res);
 		} catch (e) {
 			throw new HttpException(e.message, e.status);
 		}

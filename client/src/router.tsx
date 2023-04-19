@@ -11,7 +11,7 @@ import PublicRoute from "./components/Routes/PublicRoute";
 import Chat from "./pages/Chat/Chat";
 import DirectMessages from "./pages/DirectMessages/DirectMessages";
 import Settings from "./pages/User/Settings/Settings";
-import VerifyTfa from "./pages/Login/VerifyTfa";
+import VerifyTfa from "./pages/Login/VerifyTfa/VerifyTfa";
 
 export default function Router() {
 	return (
