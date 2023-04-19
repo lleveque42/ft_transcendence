@@ -6,6 +6,7 @@ import styles from "./GameTest.module.scss";
 export default function GameTest() {
 	const [points, setPoints] = useState({ left: 0, right: 0 });
 	const [ballStopped, setBallStopped] = useState(true);
+	// const owner: boolean = false;
 	const owner: boolean = true;
 
 	function handleClick() {
@@ -16,7 +17,7 @@ export default function GameTest() {
 		<div
 			className={`container ${styles.gamePage} d-flex flex-column align-items justify-content`}
 		>
-			<div className="title mb-30">
+			<div className="title">
 				Pong <h2 className="underTitle">Game</h2>
 			</div>
 			<div
@@ -28,7 +29,7 @@ export default function GameTest() {
 					<div className={styles.leftPoints}>{points.left} player1</div>
 					<div className={styles.rightPoints}>player2 {points.right}</div>
 				</div>
-				<div className={`container ${styles.gameContainer} mb-30`}>
+				<div className={`${styles.gameContainer}`}>
 					{owner ? (
 						<OwnerGameRender
 							ballStopped={ballStopped}
@@ -43,11 +44,10 @@ export default function GameTest() {
 						/>
 					)}
 				</div>
+				<button className="btn-danger" onClick={handleClick}>
+					{ballStopped ? "Resume" : "Pause"}
+				</button>
 			</div>
-			<button className="btn-danger" onClick={handleClick}>
-				{" "}
-				{ballStopped ? "Resume" : "Pause"}
-			</button>
 		</div>
 	);
 }

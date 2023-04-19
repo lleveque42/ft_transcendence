@@ -1,22 +1,21 @@
 .gamePage {
 	background-color: var(--primary-dark);
-	padding: 4rem;
+	// padding: 4rem;
 }
 
 .sizeContainer {
 	width: 100%;
-	max-width: 1000px;
+	max-width: calc(0.45 * 100vw);
 }
 
 .gameContainer {
-	// border: 2px solid var(--primary);
 	width: 100%;
-	max-height: 800px;
-	height: calc(0.8 * 100vw - 8rem);
+	// max-height: calc(0.61560451 * 100vh);
+	max-height: calc(0.8 * 0.45 * 100vw);
 	border-radius: 4px;
 	aspect-ratio: 5 / 4;
-	// padding-top: 56.25%;
 	box-shadow: var(--box-shadow-nav);
+	// scale: 0.9;
 }
 
 .pointContainer {
@@ -25,13 +24,13 @@
 }
 
 .rightPoints {
-	font-size: 2rem;
+	font-size: 1.5rem;
 	font-family: var(--game-font);
 	color: var(--primary);
 }
 
 .leftPoints {
-	font-size: 2rem;
+	font-size: 1.5rem;
 	font-family: var(--game-font);
 	color: var(--primary);
 }
