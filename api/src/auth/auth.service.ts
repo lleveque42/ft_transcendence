@@ -104,8 +104,9 @@ export class AuthService {
 		if (!res.ok) {
 			throw new HttpException("Can't find 42 user", HttpStatus.NOT_FOUND);
 		}
-		const { login, email, first_name, last_name } = await res.json(); // Add avatar link ?
-		return { login, email, first_name, last_name };
+		const { login, email, first_name, last_name, image } = await res.json(); // Add avatar link ?
+		const imageUrl = image["link"];
+		return { login, email, first_name, last_name, image: imageUrl };
 	}
 
 	async manageNewAuth42(

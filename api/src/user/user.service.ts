@@ -44,6 +44,7 @@ export class UserService {
 				hash: "", // to del ?
 				firstName: newUser.first_name,
 				lastName: newUser.last_name,
+				avatar: newUser.image,
 				socket: "",
 			},
 		});

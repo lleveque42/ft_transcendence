@@ -11,6 +11,7 @@ interface UserContextValue {
 		firstName: string;
 		lastName: string;
 		isTfaEnable: boolean;
+		avatar: string;
 	};
 }
 
@@ -24,6 +25,7 @@ const UserContext = createContext<UserContextValue>({
 		firstName: "",
 		lastName: "",
 		isTfaEnable: false,
+		avatar: "",
 	},
 });
 
@@ -39,10 +41,11 @@ export const UserProvider = ({ children }: UserProviderProps) => {
 		firstName: "",
 		lastName: "",
 		isTfaEnable: false,
+		avatar: "",
 	});
 
 	const isAuth = async (): Promise<boolean> => {
-		if (accessToken !== "") return true;
+		// if (accessToken !== "") return true; Recheck
 		const res = await isAuthRequest();
 		if (res && res.ok) {
 			if (res.status === 204) {

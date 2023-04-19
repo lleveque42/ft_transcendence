@@ -74,6 +74,7 @@ export class AuthController {
 				firstName: user.firstName,
 				lastName: user.lastName,
 				isTfaEnable: user.isTfaEnable,
+				avatar: user.avatar,
 			},
 		};
 	}

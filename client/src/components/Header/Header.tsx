@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../../context/UserProvider";
 import styles from "./Header.module.scss";
-import photo from "../../assets/images/punk.png";
+import default_avatar from "../../assets/images/punk.png";
 import { useEffect, useRef, useState } from "react";
 
 export default function Header() {
@@ -44,7 +44,14 @@ export default function Header() {
 						className={`${styles.menuTrigger} d-flex align-items`}
 						onClick={() => setOpenMenu(!openMenu)}
 					>
-						<img src={photo} alt="Avatar" />
+						<img
+							src={
+								user.avatar === "" || !user.avatar
+									? default_avatar
+									: user.avatar
+							}
+							alt="Avatar"
+						/>
 					</div>
 					<div
 						className={`${styles.dropdownMenu} ${

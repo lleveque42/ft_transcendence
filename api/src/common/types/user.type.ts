@@ -4,4 +4,5 @@ export type UserDataRefresh = {
 	firstName: string;
 	lastName: string;
 	isTfaEnable: boolean;
+	avatar: string
 };

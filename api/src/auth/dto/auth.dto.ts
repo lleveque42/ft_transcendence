@@ -51,4 +51,8 @@ export class userInfo42Dto {
 	@IsString()
 	@IsNotEmpty()
 	last_name: string;
+
+	@IsString()
+	@IsNotEmpty()
+	image: string;
 }
