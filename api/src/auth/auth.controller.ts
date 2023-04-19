@@ -66,7 +66,6 @@ export class AuthController {
 	): Promise<{ accessToken: string; userData: UserDataRefresh }> {
 		const accessToken = await this.authService.newTokens(userEmail);
 		const user = await this.userService.getUserByEmail(userEmail);
-
 		return {
 			accessToken: accessToken.access_token,
 			userData: {
@@ -95,7 +94,7 @@ export class AuthController {
 				"Invalid authentication code",
 				HttpStatus.UNAUTHORIZED,
 			);
-		await this.authService.logintfa(userName, res);
+		await this.authService.loginTfa(userName, res);
 	}
 
 	@Get("callback42/:code")

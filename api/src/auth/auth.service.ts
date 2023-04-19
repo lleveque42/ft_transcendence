@@ -62,13 +62,13 @@ export class AuthService {
 					user.firstName,
 					user.lastName,
 				);
-			} else await this.updateRefreshToken(user, res);
+			} else return await this.updateRefreshToken(user, res);
 		} else {
 			throw new ForbiddenException("Credentials incorrect.");
 		}
 	}
 
-	async logintfa(userName: string, res: Response): Promise<void> {
+	async loginTfa(userName: string, res: Response): Promise<void> {
 		const user = await this.userService.getUserByUserName(userName);
 		if (!user) throw new ForbiddenException("Can't find user, try again");
 		await this.updateRefreshToken(user, res);
@@ -131,7 +131,7 @@ export class AuthService {
 				user.firstName,
 				user.lastName,
 			);
-		} else await this.updateRefreshToken(user, res);
+		} else return await this.updateRefreshToken(user, res);
 	}
 
 	async newTokens(userClaimEmail: string): Promise<{ access_token: string }> {

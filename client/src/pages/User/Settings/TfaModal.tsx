@@ -44,7 +44,7 @@ export default function TfaModal({ closeModal, qrCodeUrl }: ModalProps) {
 		return () => {
 			window.removeEventListener("keypress", handleKeyPress);
 		};
-	}, [handleSubmit]);
+	});
 
 	return (
 		<div className={styles.modalContainer} onClick={closeModal}>
