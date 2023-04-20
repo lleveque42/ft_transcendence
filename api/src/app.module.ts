@@ -20,6 +20,12 @@ import { UserService } from "./user/user.service";
 		AuthModule,
 	],
 	controllers: [AppController],
-	providers: [AppService, PrismaService,  GameGateway, ServerGateway, UserService],
+	providers: [
+		AppService,
+		PrismaService,
+		GameGateway,
+		ServerGateway,
+		UserService,
+	],
 })
 export class AppModule {}
