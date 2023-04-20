@@ -17,7 +17,7 @@ export default function PrivateRoute(props: {
 			setIsAuthenticated(auth);
 		};
 		checkAuth();
-	});
+	}, [isAuthenticated]);
 
 	if (isAuthenticated === null) {
 		return (
