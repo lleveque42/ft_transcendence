@@ -50,6 +50,19 @@ export class UserService {
 		});
 	}
 
+	async testavatar(user: User, fileUrl: string) {
+		console.log({ fileUrl });
+
+		await this.prisma.user.update({
+			where: {
+				email: user.email,
+			},
+			data: {
+				avatar: fileUrl,
+			},
+		});
+	}
+
 	async updateUserName(userName: string, newUserName: string): Promise<User> {
 		const user = await this.getUserByUserName(userName);
 		if (!user) throw new ForbiddenException("Can't find user, try again");
@@ -66,7 +79,7 @@ export class UserService {
 		});
 	}
 
-	async setTfaSecret(userName: string, secret: string): Promise<void>  {
+	async setTfaSecret(userName: string, secret: string): Promise<void> {
 		await this.prisma.user.update({
 			where: {
 				userName,
@@ -118,7 +131,8 @@ export class UserService {
 		return authenticator.verify({ token: code, secret: user.tfaSecret });
 	}
 
-	async dropdb(): Promise<void> { // to del
+	async dropdb(): Promise<void> {
+		// to del
 		await this.prisma.user.deleteMany({});
 	}
 }
