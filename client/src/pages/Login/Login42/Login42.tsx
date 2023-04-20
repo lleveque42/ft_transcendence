@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import Loader from "react-loaders";
 import { useNavigate } from "react-router-dom";
 import { useSearchParams } from "react-router-dom";
 
@@ -19,9 +20,12 @@ export default function Login42() {
 					},
 				);
 				if (res.status === 201) {
-					navigate("/editprofile");
+					navigate("/settings");
 				} else if (res.ok) {
-					navigate("/");
+					if (res.headers.get("WWW-Authenticate") === "TFA") {
+						const data = await res.json();
+						navigate("/verify", {state: {accessToken: data.access_token}});
+					} else navigate("/");
 				} else {
 					const body = await res.json();
 					console.error("Error login42:", res.status, body.message);
@@ -43,7 +47,7 @@ export default function Login42() {
 	return (
 		<div className="container d-flex flex-column align-items justify-content">
 			<h2 className="mb-20">Asking Xav for 42 connexion</h2>
-			<p>Waiting...</p>
+			<Loader type="line-scale-pulse-out" active />
 		</div>
 	);
 }

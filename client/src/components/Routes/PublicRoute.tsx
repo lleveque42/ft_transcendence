@@ -1,12 +1,12 @@
 import { ReactElement, useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
-import { useAuth } from "../../context/AuthProvider";
+import { useUser } from "../../context/UserProvider";
 import Loader from "react-loaders";
 
 export default function PublicRoute(props: {
 	element: ReactElement;
 }): ReactElement {
-	const { isAuth } = useAuth();
+	const { isAuth } = useUser();
 	const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
 	useEffect(() => {
@@ -17,7 +17,13 @@ export default function PublicRoute(props: {
 		checkAuth();
 	});
 	if (isAuthenticated === null) {
-		return <Loader type="line-scale-pulse-out" active />;
+		return (
+			<Loader
+				type="line-scale-pulse-out"
+				innerClassName="container d-flex align-items"
+				active
+			/>
+		);
 	}
 	return isAuthenticated ? <Navigate to="/" /> : props.element;
 }

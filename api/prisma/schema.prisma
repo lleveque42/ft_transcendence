@@ -23,6 +23,10 @@ model User {
   avatar    String?
   ownedGames Game[] @relation("owner")
   playerGames Game[] @relation("player")
+  socket      String?
+  tfaSecret   String?
+  isTfaEnable Boolean @default(false)
+  camenbert   String?
 }
 
 model Game {
