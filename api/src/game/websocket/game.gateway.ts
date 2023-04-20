@@ -20,7 +20,7 @@ export class GameGateway
 	io: Namespace;
 
 	afterInit(): any {
-		this.logger.log("Websocket gateway initialized.");
+		this.logger.log("Websocket GameGateway initialized.");
 	}
 
 	handleConnection(client: Socket, ...args: any) {

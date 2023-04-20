@@ -27,6 +27,7 @@ export default function Homepage() {
 	}
 
 	function handlePlay() {
+		navigate("/game");
 		// CREATE GAME OR JOIN GAME
 	}
 
