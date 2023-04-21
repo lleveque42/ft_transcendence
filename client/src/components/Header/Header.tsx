@@ -44,14 +44,7 @@ export default function Header() {
 						className={`${styles.menuTrigger} d-flex align-items`}
 						onClick={() => setOpenMenu(!openMenu)}
 					>
-						<img
-							src={
-								user.avatar === "" || !user.avatar
-									? default_avatar
-									: user.avatar
-							}
-							alt="Avatar"
-						/>
+						<img src={default_avatar} alt="Avatar" />
 					</div>
 					<div
 						className={`${styles.dropdownMenu} ${

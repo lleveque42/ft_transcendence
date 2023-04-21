@@ -2,11 +2,12 @@ import SettingsForm from "../../../components/Forms/SettingsForm/SettingsForm";
 import { useUser } from "../../../context/UserProvider";
 import default_avatar from "../../../assets/images/punk.png";
 import styles from "./Settings.module.scss";
-import { ChangeEvent, FormEvent, useState } from "react";
+import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 
 export default function Settings() {
 	const { user, accessToken } = useUser();
 	const [selectedFile, setSelectedFile] = useState<File | null>(null);
+	const [userAvatar, setUserAvatar] = useState<string>("");
 
 	function handleFileSelect(e: ChangeEvent<HTMLInputElement>) {
 		const files = e.target.files;
@@ -22,11 +23,10 @@ export default function Settings() {
 		formData.append("file", selectedFile);
 
 		try {
-			const res = await fetch("http://localhost:3000/user/avatar", {
+			const res = await fetch("http://localhost:3000/user/upload/avatar", {
 				method: "PATCH",
 				credentials: "include",
 				headers: {
-					// "Content-Type": "multipart/form-data",
 					Authorization: `Bearer ${accessToken}`,
 				},
 				body: formData,
@@ -42,8 +42,28 @@ export default function Settings() {
 		}
 	}
 
-	console.log("AVATAR:", user.avatar);
-
+	useEffect(() => {
+		async function getAvatar() {
+			try {
+				const res = await fetch("http://localhost:3000/user/avatar", {
+					credentials: "include",
+					headers: {
+						Authorization: `Bearer ${accessToken}`,
+					},
+				});
+				if (res.ok) {
+					const data = await res.blob();
+					setUserAvatar(URL.createObjectURL(data));
+				} else {
+					console.error("Can't load avatar, default avatar is used");
+					setUserAvatar(default_avatar);
+				}
+			} catch (e) {
+				console.error("Error get User Avatar", e);
+			}
+		}
+		getAvatar();
+	}, [accessToken]);
 
 	return (
 		<>
@@ -60,12 +80,7 @@ export default function Settings() {
 				<div
 					className={`${styles.avatarContainer} d-flex flex-column align-items justify-content`}
 				>
-					<img
-						src={
-							user.avatar === "" || !user.avatar ? default_avatar : user.avatar
-						}
-						alt="Avatar"
-					/>
+					<img src={userAvatar} alt="Avatar" />
 					<div>
 						<form onSubmit={handleSubmitAvatar}>
 							<label>

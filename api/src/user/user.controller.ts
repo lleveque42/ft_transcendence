@@ -2,11 +2,15 @@ import {
 	Body,
 	Controller,
 	Delete,
+	FileTypeValidator,
 	Get,
 	HttpCode,
 	HttpException,
 	HttpStatus,
+	MaxFileSizeValidator,
+	ParseFilePipe,
 	Patch,
+	StreamableFile,
 	UploadedFile,
 	UseGuards,
 	UseInterceptors,
@@ -19,6 +23,20 @@ import { tfaVerificationCode } from "./dto";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { diskStorage } from "multer";
 import { extname } from "path";
+import { createReadStream } from "fs";
+
+export const storageOptions = {
+	storage: diskStorage({
+		destination: "./files/avatars",
+		filename: (req, file, cb) => {
+			const randomName = Array(32)
+				.fill(null)
+				.map(() => Math.round(Math.random() * 16).toString(16))
+				.join("");
+			return cb(null, `${randomName}${extname(file.originalname)}`);
+		},
+	}),
+};
 
 @Controller("user")
 export class UserController {
@@ -50,28 +68,33 @@ export class UserController {
 	}
 
 	@UseGuards(AtGuard)
-	@Patch("avatar")
-	@UseInterceptors(
-		FileInterceptor("file", {
-			storage: diskStorage({
-				destination: "./avatars",
-				filename: (req, file, cb) => {
-					const randomName = Array(32)
-						.fill(null)
-						.map(() => Math.round(Math.random() * 16).toString(16))
-						.join("");
-					return cb(null, `${randomName}${extname(file.originalname)}`);
-				},
-			}),
-		}),
-	)
+	@Patch("upload/avatar")
+	@UseInterceptors(FileInterceptor("file", storageOptions))
 	async updateAvatar(
 		@GetCurrentUser("sub") userName: string,
-		@UploadedFile() file: Express.Multer.File,
+		@UploadedFile(
+			new ParseFilePipe({
+				validators: [
+					new MaxFileSizeValidator({ maxSize: 1000000 }),
+					new FileTypeValidator({
+						fileType: ".(png|jpeg|jpg)",
+					}),
+				],
+			}),
+		)
+		file: Express.Multer.File,
 	): Promise<void> {
-		console.log("Avatar user: ", userName);
+		await this.userService.uploadAvatar(userName, file);
+	}
+
+	@UseGuards(AtGuard)
+	@Get("avatar")
+	async getUserAvatar(
+		@GetCurrentUser("sub") userName: string,
+	): Promise<StreamableFile> {
 		const user = await this.userService.getUserByUserName(userName);
-		await this.userService.testavatar(user, `http://localhost:3000/avatars/${file.filename}`);
+		if (!user) throw new HttpException("Error get user avatar", 403);
+		return new StreamableFile(createReadStream(user.avatar));
 	}
 
 	@UseGuards(AtGuard)

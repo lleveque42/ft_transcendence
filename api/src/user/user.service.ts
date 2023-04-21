@@ -4,6 +4,7 @@ import { userInfo42Dto } from "../auth/dto";
 import { User } from "@prisma/client";
 import { authenticator } from "otplib";
 import { toDataURL } from "qrcode";
+import * as fs from "fs";
 
 @Injectable()
 export class UserService {
@@ -37,6 +38,7 @@ export class UserService {
 	}
 
 	async createUser(newUser: userInfo42Dto): Promise<User> {
+		if (!newUser.image) newUser.image = "";
 		return await this.prisma.user.create({
 			data: {
 				email: newUser.email,
@@ -50,9 +52,14 @@ export class UserService {
 		});
 	}
 
-	async testavatar(user: User, fileUrl: string) {
+	async uploadAvatar(userName: string, file: Express.Multer.File) {
+		const user = await this.getUserByUserName(userName);
+		if (!user) throw new ForbiddenException("Can't find user, try again");
+		try {
+			await fs.promises.unlink(user.avatar);
+		} catch (e) {}
+		const fileUrl = process.cwd() + `./files/avatars/${file.filename}`;
 		console.log({ fileUrl });
-
 		await this.prisma.user.update({
 			where: {
 				email: user.email,

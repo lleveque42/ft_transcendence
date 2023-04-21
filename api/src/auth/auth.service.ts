@@ -37,6 +37,7 @@ export class AuthService {
 					hash,
 					email: dto.email,
 					userName: dto.userName,
+					avatar: ""
 				},
 			});
 			console.log("SIGNUP USER CREATED : ", user.userName);
