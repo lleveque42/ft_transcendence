@@ -59,7 +59,6 @@ export class UserService {
 			await fs.promises.unlink(user.avatar);
 		} catch (e) {}
 		const fileUrl = process.cwd() + `./files/avatars/${file.filename}`;
-		console.log({ fileUrl });
 		await this.prisma.user.update({
 			where: {
 				email: user.email,

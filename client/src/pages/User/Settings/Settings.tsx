@@ -3,8 +3,10 @@ import { useUser } from "../../../context/UserProvider";
 import default_avatar from "../../../assets/images/punk.png";
 import styles from "./Settings.module.scss";
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function Settings() {
+	const navigate = useNavigate();
 	const { user, accessToken } = useUser();
 	const [selectedFile, setSelectedFile] = useState<File | null>(null);
 	const [userAvatar, setUserAvatar] = useState<string>("");
@@ -16,12 +18,9 @@ export default function Settings() {
 
 	async function handleSubmitAvatar(e: FormEvent<HTMLFormElement>) {
 		e.preventDefault();
-		console.log(selectedFile);
 		if (!selectedFile) return;
-
 		const formData = new FormData();
 		formData.append("file", selectedFile);
-
 		try {
 			const res = await fetch("http://localhost:3000/user/upload/avatar", {
 				method: "PATCH",
@@ -32,7 +31,7 @@ export default function Settings() {
 				body: formData,
 			});
 			if (res.ok) {
-				console.log("RES OK");
+				navigate(0);
 			} else {
 				const body = await res.json();
 				alert(body.message);
@@ -52,8 +51,16 @@ export default function Settings() {
 					},
 				});
 				if (res.ok) {
-					const data = await res.blob();
-					setUserAvatar(URL.createObjectURL(data));
+					if (res.headers.get("content-type") === "application/octet-stream") {
+						const data = await res.blob();
+						setUserAvatar(URL.createObjectURL(data));
+					} else if (res.headers.get("content-type")?.includes("text/html")) {
+						const data = await res.text();
+						setUserAvatar(data);
+					} else {
+						console.error("Can't load avatar, default avatar is used");
+						setUserAvatar(default_avatar);
+					}
 				} else {
 					console.error("Can't load avatar, default avatar is used");
 					setUserAvatar(default_avatar);

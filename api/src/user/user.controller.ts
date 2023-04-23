@@ -91,10 +91,19 @@ export class UserController {
 	@Get("avatar")
 	async getUserAvatar(
 		@GetCurrentUser("sub") userName: string,
-	): Promise<StreamableFile> {
+	): Promise<StreamableFile | String> {
 		const user = await this.userService.getUserByUserName(userName);
 		if (!user) throw new HttpException("Error get user avatar", 403);
-		return new StreamableFile(createReadStream(user.avatar));
+		if (user.avatar.includes("/files/avatars/")) {
+			return new StreamableFile(createReadStream(user.avatar));
+		} else if (user.avatar.includes("https://cdn.intra.42.fr/users/")) {
+			return user.avatar;
+		} else {
+			throw new HttpException(
+				"Can't provide avatar",
+				HttpStatus.NOT_FOUND,
+			);
+		}
 	}
 
 	@UseGuards(AtGuard)
