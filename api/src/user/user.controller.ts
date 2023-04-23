@@ -101,7 +101,7 @@ export class UserController {
 		} else {
 			throw new HttpException(
 				"Can't provide avatar",
-				HttpStatus.NOT_FOUND,
+				HttpStatus.NO_CONTENT,
 			);
 		}
 	}

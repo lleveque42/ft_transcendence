@@ -56,3 +56,30 @@ export async function enableTfaRequest(
 	});
 	return res;
 }
+
+export async function userUploadAvatar(
+	accessToken: string,
+	formData: FormData,
+): Promise<Response> {
+	const res = await fetch("http://localhost:3000/user/upload/avatar", {
+		method: "PATCH",
+		credentials: "include",
+		headers: {
+			Authorization: `Bearer ${accessToken}`,
+		},
+		body: formData,
+	});
+	return res;
+}
+
+export async function userAvatarRequest(
+	accessToken: string,
+): Promise<Response> {
+	const res = await fetch("http://localhost:3000/user/avatar", {
+		credentials: "include",
+		headers: {
+			Authorization: `Bearer ${accessToken}`,
+		},
+	});
+	return res;
+}

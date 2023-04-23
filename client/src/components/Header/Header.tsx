@@ -3,11 +3,13 @@ import { useUser } from "../../context/UserProvider";
 import styles from "./Header.module.scss";
 import default_avatar from "../../assets/images/punk.png";
 import { useEffect, useRef, useState } from "react";
+import useAvatar from "../../hooks/useAvatar";
 
 export default function Header() {
 	const navigate = useNavigate();
-	const { logout, user } = useUser();
+	const { logout, user, accessToken } = useUser();
 	const [openMenu, setOpenMenu] = useState<boolean>(false);
+	const [userAvatar, setUserAvatar] = useState<string>("");
 	const menuRef = useRef<HTMLDivElement>(null);
 
 	const signout = () => {
@@ -24,6 +26,8 @@ export default function Header() {
 		document.addEventListener("mousedown", handle);
 		return () => document.removeEventListener("mousedown", handle);
 	});
+
+	useAvatar(accessToken, setUserAvatar);
 
 	return (
 		<header>
@@ -44,7 +48,7 @@ export default function Header() {
 						className={`${styles.menuTrigger} d-flex align-items`}
 						onClick={() => setOpenMenu(!openMenu)}
 					>
-						<img src={default_avatar} alt="Avatar" />
+						<img src={userAvatar} alt="Avatar" />
 					</div>
 					<div
 						className={`${styles.dropdownMenu} ${

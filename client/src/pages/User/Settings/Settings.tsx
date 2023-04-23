@@ -4,6 +4,8 @@ import default_avatar from "../../../assets/images/punk.png";
 import styles from "./Settings.module.scss";
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import useAvatar from "../../../hooks/useAvatar";
+import { userUploadAvatar } from "../../../api";
 
 export default function Settings() {
 	const navigate = useNavigate();
@@ -22,14 +24,7 @@ export default function Settings() {
 		const formData = new FormData();
 		formData.append("file", selectedFile);
 		try {
-			const res = await fetch("http://localhost:3000/user/upload/avatar", {
-				method: "PATCH",
-				credentials: "include",
-				headers: {
-					Authorization: `Bearer ${accessToken}`,
-				},
-				body: formData,
-			});
+			const res = await userUploadAvatar(accessToken, formData);
 			if (res.ok) {
 				navigate(0);
 			} else {
@@ -41,36 +36,7 @@ export default function Settings() {
 		}
 	}
 
-	useEffect(() => {
-		async function getAvatar() {
-			try {
-				const res = await fetch("http://localhost:3000/user/avatar", {
-					credentials: "include",
-					headers: {
-						Authorization: `Bearer ${accessToken}`,
-					},
-				});
-				if (res.ok) {
-					if (res.headers.get("content-type") === "application/octet-stream") {
-						const data = await res.blob();
-						setUserAvatar(URL.createObjectURL(data));
-					} else if (res.headers.get("content-type")?.includes("text/html")) {
-						const data = await res.text();
-						setUserAvatar(data);
-					} else {
-						console.error("Can't load avatar, default avatar is used");
-						setUserAvatar(default_avatar);
-					}
-				} else {
-					console.error("Can't load avatar, default avatar is used");
-					setUserAvatar(default_avatar);
-				}
-			} catch (e) {
-				console.error("Error get User Avatar", e);
-			}
-		}
-		getAvatar();
-	}, [accessToken]);
+	useAvatar(accessToken, setUserAvatar);
 
 	return (
 		<>

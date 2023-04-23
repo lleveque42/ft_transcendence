@@ -11,7 +11,6 @@ interface UserContextValue {
 		firstName: string;
 		lastName: string;
 		isTfaEnable: boolean;
-		avatar: string;
 	};
 }
 
@@ -25,7 +24,6 @@ const UserContext = createContext<UserContextValue>({
 		firstName: "",
 		lastName: "",
 		isTfaEnable: false,
-		avatar: "",
 	},
 });
 
@@ -41,7 +39,6 @@ export const UserProvider = ({ children }: UserProviderProps) => {
 		firstName: "",
 		lastName: "",
 		isTfaEnable: false,
-		avatar: "",
 	});
 
 	const isAuth = async (): Promise<boolean> => {
