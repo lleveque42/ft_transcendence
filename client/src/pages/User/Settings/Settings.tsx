@@ -1,7 +1,7 @@
 import SettingsForm from "../../../components/Forms/SettingsForm/SettingsForm";
 import { useUser } from "../../../context/UserProvider";
 import styles from "./Settings.module.scss";
-import { ChangeEvent, FormEvent, useState } from "react";
+import { ChangeEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useAvatar from "../../../hooks/useAvatar";
 import { userUploadAvatar } from "../../../api";
@@ -9,19 +9,15 @@ import { userUploadAvatar } from "../../../api";
 export default function Settings() {
 	const navigate = useNavigate();
 	const { user, accessToken } = useUser();
-	const [selectedFile, setSelectedFile] = useState<File | null>(null);
 	const [userAvatar, setUserAvatar] = useState<string>("");
 
-	function handleFileSelect(e: ChangeEvent<HTMLInputElement>) {
-		const files = e.target.files;
-		if (files && files[0]) setSelectedFile(files[0]);
-	}
-
-	async function handleSubmitAvatar(e: FormEvent<HTMLFormElement>) {
+	async function handleSubmitAvatar(e: ChangeEvent<HTMLInputElement>) {
 		e.preventDefault();
-		if (!selectedFile) return;
+		const files = e.target.files;
+		if (!files || !files[0]) return;
+
 		const formData = new FormData();
-		formData.append("file", selectedFile);
+		formData.append("file", files[0]);
 		try {
 			const res = await userUploadAvatar(accessToken, formData);
 			if (res.ok) {
@@ -52,18 +48,11 @@ export default function Settings() {
 				<div
 					className={`${styles.avatarContainer} d-flex flex-column align-items justify-content`}
 				>
+					<label className={styles.avatarLabel} htmlFor="file">
+						<span>Change your profile picture</span>
+					</label>
+					<input id="file" type="file" onChange={handleSubmitAvatar} />
 					<img src={userAvatar} alt="Avatar" />
-					<div>
-						<form onSubmit={handleSubmitAvatar}>
-							<label>
-								Select a new pp
-								<input type="file" onChange={handleFileSelect} />
-							</label>
-							<button type="submit" className="d-flex btn btn-primary p-5">
-								Send
-							</button>
-						</form>
-					</div>
 				</div>
 			</div>
 		</>

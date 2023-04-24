@@ -5,10 +5,40 @@
 .avatarContainer {
 	flex: 50%;
 
+	input {
+		display: none;
+	}
+
 	img {
-		height: 50vh;
-		width: 50vh;
+		height: 30vw;
+		width: 30vw;
 		border-radius: 50%;
 		background: var(--secondary-dark);
+		position: absolute;
+	}
+
+	.avatarLabel {
+		cursor: pointer;
+		height: 30vw;
+		width: 30vw;
+		border-radius: 50%;
+		z-index: 1;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		transition: all 0.3s ease-in-out;
+
+		&:hover {
+			background-color: rgba(0, 0, 0, 0.8);
+			transition: all 0.3s ease-in-out;
+
+			span {
+				transition: all 0.3s ease-in-out;
+				opacity: 100;
+			}
+		}
+	}
+	span {
+		opacity: 0;
 	}
 }
