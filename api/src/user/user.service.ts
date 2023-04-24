@@ -142,7 +142,7 @@ export class UserService {
 		const secret = authenticator.generateSecret();
 		const otpAuthUrl = authenticator.keyuri(
 			user.email,
-			"Trans-" + user.userName,
+			"Transcendence",
 			secret,
 		);
 		await this.setTfaSecret(user.userName, secret);

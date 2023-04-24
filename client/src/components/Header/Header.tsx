@@ -9,6 +9,7 @@ export default function Header() {
 	const { logout, user, accessToken } = useUser();
 	const [openMenu, setOpenMenu] = useState<boolean>(false);
 	const [userAvatar, setUserAvatar] = useState<string>("");
+	const [displayUserName, setDisplayUserName] = useState<string>(user.userName);
 	const menuRef = useRef<HTMLDivElement>(null);
 	const [isLoading, setIsLoading] = useState<boolean>(true);
 
@@ -26,6 +27,12 @@ export default function Header() {
 		document.addEventListener("mousedown", handle);
 		return () => document.removeEventListener("mousedown", handle);
 	});
+
+	useEffect(() => {
+		displayUserName.length > 10
+			? setDisplayUserName(displayUserName.substring(0, 10) + "...")
+			: setDisplayUserName(displayUserName);
+	}, [displayUserName]);
 
 	useAvatar(accessToken, setUserAvatar, setIsLoading);
 
@@ -59,12 +66,13 @@ export default function Header() {
 									openMenu ? styles.active : styles.inactive
 								}`}
 							>
-								<h3>Hey {user.userName}!</h3>
+								<h3>Hey {displayUserName}</h3>
 								<ul>
 									<li
 										className={`${styles.dropdownItem}`}
 										onClick={() => {
 											navigate("/editprofile");
+											setOpenMenu(false);
 										}}
 									>
 										<button>My Profile</button>
@@ -73,6 +81,7 @@ export default function Header() {
 										className={`${styles.dropdownItem}`}
 										onClick={() => {
 											navigate("/settings");
+											setOpenMenu(false);
 										}}
 									>
 										<button>Settings</button>

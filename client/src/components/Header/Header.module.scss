@@ -43,6 +43,7 @@
 	ul li {
 		padding: 0.5rem 0;
 		border-top: 1px solid rgba(0, 0, 0, 0.1);
+		cursor: pointer;
 
 		button {
 			text-decoration: none;
@@ -60,7 +61,6 @@
 
 		&:hover button {
 			color: var(--primary);
-			cursor: pointer;
 		}
 	}
 }
