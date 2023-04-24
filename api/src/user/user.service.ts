@@ -1,7 +1,14 @@
-import { ForbiddenException, Injectable } from "@nestjs/common";
+import {
+	ForbiddenException,
+	HttpException,
+	HttpStatus,
+	Injectable,
+	StreamableFile,
+} from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { userInfo42Dto } from "../auth/dto";
 import { User } from "@prisma/client";
+import { createReadStream } from "fs";
 import { authenticator } from "otplib";
 import { toDataURL } from "qrcode";
 import * as fs from "fs";
@@ -37,7 +44,7 @@ export class UserService {
 		});
 	}
 
-	async createUser(newUser: userInfo42Dto): Promise<User> {
+	async createUser42(newUser: userInfo42Dto): Promise<User> {
 		if (!newUser.image) newUser.image = "";
 		return await this.prisma.user.create({
 			data: {
@@ -67,6 +74,21 @@ export class UserService {
 				avatar: fileUrl,
 			},
 		});
+	}
+
+	async getAvatar(user: User): Promise<StreamableFile | String> {
+		if (!user.avatar || user.avatar === "") {
+			throw new HttpException("Can't provide avatar", HttpStatus.NO_CONTENT);
+		} else if (
+			user.avatar.includes("/files/avatars/") &&
+			fs.existsSync(user.avatar)
+		) {
+			return new StreamableFile(createReadStream(user.avatar));
+		} else if (user.avatar.includes("https://cdn.intra.42.fr/users/")) {
+			return user.avatar;
+		} else {
+			throw new HttpException("Can't provide avatar", HttpStatus.NO_CONTENT);
+		}
 	}
 
 	async updateUserName(userName: string, newUserName: string): Promise<User> {

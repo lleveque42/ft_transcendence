@@ -12,6 +12,7 @@ import {
 	Patch,
 	StreamableFile,
 	UploadedFile,
+	UseFilters,
 	UseGuards,
 	UseInterceptors,
 } from "@nestjs/common";
@@ -23,13 +24,13 @@ import { tfaVerificationCode } from "./dto";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { diskStorage } from "multer";
 import { extname } from "path";
-import { createReadStream } from "fs";
+import { NotImageExeptionFilter } from "../common/filters/notImageExeptionFilter.filter";
 
-export const storageOptions = {
+const storageOptions = {
 	storage: diskStorage({
 		destination: "./files/avatars",
 		filename: (req, file, cb) => {
-			const randomName = Array(32)
+			const randomName = Array(16)
 				.fill(null)
 				.map(() => Math.round(Math.random() * 16).toString(16))
 				.join("");
@@ -37,6 +38,16 @@ export const storageOptions = {
 		},
 	}),
 };
+
+const parseFileOptions = new ParseFilePipe({
+	validators: [
+		new MaxFileSizeValidator({ maxSize: 1000000 }),
+		new FileTypeValidator({
+			fileType: ".(png|jpeg|jpg)",
+		}),
+	],
+	errorHttpStatusCode: HttpStatus.UNSUPPORTED_MEDIA_TYPE,
+});
 
 @Controller("user")
 export class UserController {
@@ -70,18 +81,10 @@ export class UserController {
 	@UseGuards(AtGuard)
 	@Patch("upload/avatar")
 	@UseInterceptors(FileInterceptor("file", storageOptions))
+	@UseFilters(NotImageExeptionFilter)
 	async updateAvatar(
 		@GetCurrentUser("sub") userName: string,
-		@UploadedFile(
-			new ParseFilePipe({
-				validators: [
-					new MaxFileSizeValidator({ maxSize: 1000000 }),
-					new FileTypeValidator({
-						fileType: ".(png|jpeg|jpg)",
-					}),
-				],
-			}),
-		)
+		@UploadedFile(parseFileOptions)
 		file: Express.Multer.File,
 	): Promise<void> {
 		await this.userService.uploadAvatar(userName, file);
@@ -94,16 +97,7 @@ export class UserController {
 	): Promise<StreamableFile | String> {
 		const user = await this.userService.getUserByUserName(userName);
 		if (!user) throw new HttpException("Error get user avatar", 403);
-		if (user.avatar.includes("/files/avatars/")) {
-			return new StreamableFile(createReadStream(user.avatar));
-		} else if (user.avatar.includes("https://cdn.intra.42.fr/users/")) {
-			return user.avatar;
-		} else {
-			throw new HttpException(
-				"Can't provide avatar",
-				HttpStatus.NO_CONTENT,
-			);
-		}
+		return await this.userService.getAvatar(user);
 	}
 
 	@UseGuards(AtGuard)

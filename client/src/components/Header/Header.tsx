@@ -1,7 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../../context/UserProvider";
 import styles from "./Header.module.scss";
-import default_avatar from "../../assets/images/punk.png";
 import { useEffect, useRef, useState } from "react";
 import useAvatar from "../../hooks/useAvatar";
 

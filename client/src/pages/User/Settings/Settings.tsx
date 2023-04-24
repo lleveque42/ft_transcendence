@@ -1,8 +1,7 @@
 import SettingsForm from "../../../components/Forms/SettingsForm/SettingsForm";
 import { useUser } from "../../../context/UserProvider";
-import default_avatar from "../../../assets/images/punk.png";
 import styles from "./Settings.module.scss";
-import { ChangeEvent, FormEvent, useEffect, useState } from "react";
+import { ChangeEvent, FormEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useAvatar from "../../../hooks/useAvatar";
 import { userUploadAvatar } from "../../../api";
