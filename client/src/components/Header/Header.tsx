@@ -3,7 +3,6 @@ import { useUser } from "../../context/UserProvider";
 import styles from "./Header.module.scss";
 import { useEffect, useRef, useState } from "react";
 import useAvatar from "../../hooks/useAvatar";
-import Loader from "react-loaders";
 
 export default function Header() {
 	const navigate = useNavigate();
