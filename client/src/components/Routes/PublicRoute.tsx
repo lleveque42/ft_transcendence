@@ -16,6 +16,7 @@ export default function PublicRoute(props: {
 		};
 		checkAuth();
 	});
+	
 	if (isAuthenticated === null) {
 		return (
 			<Loader
@@ -25,5 +26,6 @@ export default function PublicRoute(props: {
 			/>
 		);
 	}
+
 	return isAuthenticated ? <Navigate to="/" /> : props.element;
 }

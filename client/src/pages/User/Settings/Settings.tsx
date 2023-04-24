@@ -5,11 +5,13 @@ import { ChangeEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useAvatar from "../../../hooks/useAvatar";
 import { userUploadAvatar } from "../../../api";
+import Loader from "react-loaders";
 
 export default function Settings() {
 	const navigate = useNavigate();
 	const { user, accessToken } = useUser();
 	const [userAvatar, setUserAvatar] = useState<string>("");
+	const [isLoading, setIsLoading] = useState<boolean>(true);
 
 	async function handleSubmitAvatar(e: ChangeEvent<HTMLInputElement>) {
 		e.preventDefault();
@@ -31,30 +33,40 @@ export default function Settings() {
 		}
 	}
 
-	useAvatar(accessToken, setUserAvatar);
+	useAvatar(accessToken, setUserAvatar, setIsLoading);
 
 	return (
 		<>
-			<div className="d-flex flex-column mt-20">
-				<div className="title">Settings</div>
-				<h2 className="underTitle mb-20">{user.userName}</h2>
-			</div>
-			<div className="d-flex flex-row flex-1">
-				<div
-					className={`${styles.formContainer} d-flex flex-column align-items justify-content`}
-				>
-					<SettingsForm />
-				</div>
-				<div
-					className={`${styles.avatarContainer} d-flex flex-column align-items justify-content`}
-				>
-					<label className={styles.avatarLabel} htmlFor="file">
-						<span>Change your profile picture</span>
-					</label>
-					<input id="file" type="file" onChange={handleSubmitAvatar} />
-					<img src={userAvatar} alt="Avatar" />
-				</div>
-			</div>
+			{isLoading ? (
+				<Loader
+					type="line-scale-pulse-out"
+					innerClassName="container d-flex align-items private-loader"
+					active
+				/>
+			) : (
+				<>
+					<div className="d-flex flex-column mt-20">
+						<div className="title">Settings</div>
+						<h2 className="underTitle mb-20">{user.userName}</h2>
+					</div>
+					<div className="d-flex flex-row flex-1">
+						<div
+							className={`${styles.formContainer} d-flex flex-column align-items justify-content`}
+						>
+							<SettingsForm />
+						</div>
+						<div
+							className={`${styles.avatarContainer} d-flex flex-column align-items justify-content`}
+						>
+							<label className={styles.avatarLabel} htmlFor="file">
+								<span>Change your profile picture</span>
+							</label>
+							<input id="file" type="file" onChange={handleSubmitAvatar} />
+							<img src={userAvatar} alt="Avatar" />
+						</div>
+					</div>
+				</>
+			)}
 		</>
 	);
 }

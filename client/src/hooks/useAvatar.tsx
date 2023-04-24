@@ -5,6 +5,7 @@ import { userAvatarRequest } from "../api";
 export default function useAvatar(
 	accessToken: string,
 	setUserAvatar: React.Dispatch<React.SetStateAction<string>>,
+	setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
 ) {
 	useEffect(() => {
 		async function getAvatar() {
@@ -28,7 +29,8 @@ export default function useAvatar(
 			} catch (e) {
 				console.error("Error get User Avatar", e);
 			}
+			setIsLoading(false);
 		}
 		getAvatar();
-	}, [accessToken]);
+	}, [accessToken, setUserAvatar, setIsLoading]);
 }
