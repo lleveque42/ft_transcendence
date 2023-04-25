@@ -45,10 +45,8 @@ export const AlertProvider = ({ children }: AlertProviderProps) => {
 			setIsHidden(false);
 			timeoutId = setTimeout(() => {
 				setIsHidden(true);
-				setTimeout(() => {
-					setAlert(null);
-					localStorage.removeItem("alert");
-				}, 500);
+				setAlert(null);
+				localStorage.removeItem("alert");
 			}, 3000);
 		}
 
@@ -59,10 +57,8 @@ export const AlertProvider = ({ children }: AlertProviderProps) => {
 
 	return (
 		<AlertContext.Provider value={{ showAlert }}>
-			{alert && (
-				<div
-					className={`alert alert-${alert.type} ${isHidden ? "hide" : ""}`}
-				>
+			{alert && !isHidden && (
+				<div className={`alert alert-${alert.type} ${isHidden ? "hide" : ""}`}>
 					{alert.message}
 				</div>
 			)}
