@@ -31,19 +31,25 @@ export const AlertProvider = ({ children }: AlertProviderProps) => {
 		if (storedAlert) return JSON.parse(storedAlert);
 		return null;
 	});
+	const [isHidden, setIsHidden] = useState<boolean>(true);
 
 	const showAlert = (type: AlertType, message: string) => {
 		setAlert({ type, message });
+		setIsHidden(false);
 		localStorage.setItem("alert", JSON.stringify({ type, message }));
 	};
 
 	useEffect(() => {
 		let timeoutId: NodeJS.Timeout;
 		if (alert) {
+			setIsHidden(false);
 			timeoutId = setTimeout(() => {
-				setAlert(null);
-				localStorage.removeItem("alert");
-			}, 5000); // 5sec
+				setIsHidden(true);
+				setTimeout(() => {
+					setAlert(null);
+					localStorage.removeItem("alert");
+				}, 500);
+			}, 3000);
 		}
 
 		return () => {
@@ -54,7 +60,11 @@ export const AlertProvider = ({ children }: AlertProviderProps) => {
 	return (
 		<AlertContext.Provider value={{ showAlert }}>
 			{alert && (
-				<div className={`alert alert-${alert.type}`}>{alert.message}</div>
+				<div
+					className={`alert alert-${alert.type} ${isHidden ? "hide" : ""}`}
+				>
+					{alert.message}
+				</div>
 			)}
 			{children}
 		</AlertContext.Provider>

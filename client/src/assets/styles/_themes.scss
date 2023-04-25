@@ -76,12 +76,14 @@
 
 .alert {
 	position: fixed;
-	z-index: 1000;
-	top: 2rem;
-	right: 2rem;
+	z-index: 10;
+	top: -20rem;
+	right: -4rem;
 	border-radius: 5px;
 	padding: 2rem;
 	box-shadow: var(--box-shadow);
+	transform: translateX(-50%);
+	animation: slide-in 0.5s forwards;
 }
 
 .alert-error {
@@ -98,4 +100,26 @@
 
 .alert-warning {
 	background: var(--success);
+}
+
+@keyframes slide-in {
+	0% {
+		top: -20rem;
+	}
+	100% {
+		top: 2rem;
+	}
+}
+
+@keyframes slide-out {
+	0% {
+		top: 2rem;
+	}
+	100% {
+		top: -20rem;
+	}
+}
+
+.hide {
+	animation: slide-out 0.5s forwards;
 }

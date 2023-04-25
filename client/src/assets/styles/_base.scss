@@ -9,9 +9,7 @@
 body {
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
-	// color: var(--text-color);
-	background-color: black;
-	background-color: white;
+	background-color: var(--primary-dark);
 }
 
 h1,

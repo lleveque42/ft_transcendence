@@ -44,9 +44,7 @@ export default function SettingsForm() {
 			const res = await generateQrCodeRequest(accessToken);
 			if (res.ok) {
 				setQrCodecontent(await res.text());
-			} else {
-				alert("Try again later");
-			}
+			} else showAlert("error", "Can't generate QrCode, try again later");
 		} catch (e) {
 			console.error("Error generate Qr Code: ", e);
 		}
@@ -56,10 +54,11 @@ export default function SettingsForm() {
 	async function disableTfa() {
 		try {
 			const res = await disableTfaRequest(accessToken);
-			if (res.ok) navigate(0);
-			else {
-				alert("Try again later");
+			if (res.ok) {
+				navigate(0);
+				showAlert("info", "TFA is now disable")
 			}
+			else showAlert("error", "Can't disable TFA, try again later");
 		} catch (e) {
 			console.error("Error disable tfa: ", e);
 		}

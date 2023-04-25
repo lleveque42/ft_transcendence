@@ -3,9 +3,11 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Input from "../../../components/Input/Input";
 import { verifyTfaRequest } from "../../../api";
 import Loader from "react-loaders";
+import { useAlert } from "../../../context";
 
 export default function VerifyTfa() {
 	const location = useLocation();
+	const { showAlert } = useAlert();
 	const navigate = useNavigate();
 	const [inputValue, setInputValue] = useState<string>("");
 	const [isLoading, setIsLoading] = useState(true);
@@ -20,11 +22,13 @@ export default function VerifyTfa() {
 		const verificationCode = inputValue.replace(/\s/g, "");
 		try {
 			const res = await verifyTfaRequest(verificationCode, tmp_accessToken);
-			if (res.ok) navigate("/");
-			else {
+			if (res.ok) {
+				navigate("/");
+				showAlert("success", "Welcome back !")
+			} else {
 				const body = await res.json();
-				alert(body.message);
 				navigate("/login");
+				showAlert("error", body.message);
 			}
 		} catch (e) {
 			console.error("Error sending qrCode verification values", e);
