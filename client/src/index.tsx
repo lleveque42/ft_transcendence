@@ -3,8 +3,8 @@ import ReactDOM from "react-dom/client";
 import reportWebVitals from "./reportWebVitals";
 import "./assets/styles/index.scss";
 import Router from "./router";
-import { UserProvider } from "./context/UserProvider";
 import { BrowserRouter } from "react-router-dom";
+import { AlertProvider, UserProvider } from "./context";
 
 const root = ReactDOM.createRoot(
 	document.getElementById("root") as HTMLElement,
@@ -12,9 +12,11 @@ const root = ReactDOM.createRoot(
 root.render(
 	<React.StrictMode>
 		<BrowserRouter>
+		<AlertProvider>
 			<UserProvider>
 				<Router />
 			</UserProvider>
+		</AlertProvider>
 		</BrowserRouter>
 	</React.StrictMode>,
 );

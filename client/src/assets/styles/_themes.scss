@@ -73,3 +73,29 @@
 .private-loader {
 	height: 88vh;
 }
+
+.alert {
+	position: fixed;
+	z-index: 1000;
+	top: 2rem;
+	right: 2rem;
+	border-radius: 5px;
+	padding: 2rem;
+	box-shadow: var(--box-shadow);
+}
+
+.alert-error {
+	background: var(--danger);
+}
+
+.alert-success {
+	background: var(--success);
+}
+
+.alert-info {
+	background: var(--primary);
+}
+
+.alert-warning {
+	background: var(--success);
+}

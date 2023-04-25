@@ -1,8 +1,8 @@
 import { useNavigate } from "react-router-dom";
-import { useUser } from "../../context/UserProvider";
 import styles from "./Header.module.scss";
 import { useEffect, useRef, useState } from "react";
 import useAvatar from "../../hooks/useAvatar";
+import { useUser } from "../../context";
 
 export default function Header() {
 	const navigate = useNavigate();

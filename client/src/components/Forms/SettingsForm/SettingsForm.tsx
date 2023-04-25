@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useUser } from "../../../context/UserProvider";
 import Input from "../../Input/Input";
 import styles from "./SettingsForm.module.scss";
 import { useNavigate } from "react-router-dom";
@@ -9,9 +8,11 @@ import {
 	settingsRequest,
 } from "../../../api";
 import TfaModal from "../../../pages/User/Settings/TfaModal";
+import { useAlert, useUser } from "../../../context";
 
 export default function SettingsForm() {
 	const { accessToken, user } = useUser();
+	const { showAlert } = useAlert();
 	const [newUserName, setNewUserName] = useState<string>(user.userName);
 	const [tfaModal, setTfaModal] = useState<boolean>(false);
 	const [qrCodeContent, setQrCodecontent] = useState<string>("");
@@ -24,9 +25,10 @@ export default function SettingsForm() {
 			const res = await settingsRequest(accessToken, newUserName);
 			if (!res.ok) {
 				const data = await res.json();
-				alert(data.message);
+				showAlert("error", data.message);
 			} else {
 				navigate(0);
+				showAlert("success", "Profile updated");
 			}
 		} catch (e) {
 			console.error("Error update userName", e);

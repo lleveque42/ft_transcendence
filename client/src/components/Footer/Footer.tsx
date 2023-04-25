@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { useUser } from "../../context/UserProvider";
+import { useUser } from "../../context";
 // import styles from "./Footer.module.scss";
 
 export default function Footer() {

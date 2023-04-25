@@ -1,14 +1,15 @@
 import SettingsForm from "../../../components/Forms/SettingsForm/SettingsForm";
-import { useUser } from "../../../context/UserProvider";
 import styles from "./Settings.module.scss";
 import { ChangeEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useAvatar from "../../../hooks/useAvatar";
 import { userUploadAvatar } from "../../../api";
 import Loader from "react-loaders";
+import { useAlert, useUser } from "../../../context";
 
 export default function Settings() {
 	const navigate = useNavigate();
+	const { showAlert } = useAlert();
 	const { user, accessToken } = useUser();
 	const [userAvatar, setUserAvatar] = useState<string>("");
 	const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -24,9 +25,10 @@ export default function Settings() {
 			const res = await userUploadAvatar(accessToken, formData);
 			if (res.ok) {
 				navigate(0);
+				showAlert("success", "Avatar updated");
 			} else {
 				const body = await res.json();
-				alert(body.message);
+				showAlert("error", body.message);
 			}
 		} catch (e) {
 			console.error("Error submit new avatar", e);
