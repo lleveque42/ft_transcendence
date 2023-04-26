@@ -1,16 +1,16 @@
-
+import React from "react";
 
 import ChatNav from "../../components/Chat/ChatNav/ChatNav";
 import { useEffect, useState } from "react";
 import Message from "../../components/Message/Message";
-import { useParams } from "react-router-dom";
+import { NavLink, useParams } from "react-router-dom";
 import MessageDisplay from "../../components/Message/MessageDisplay/MessageDisplay";
 import { KeyboardEvent } from "react"
 import { Socket, io } from "socket.io-client";
 import { useUser } from "../../context/UserProvider";
 
 
-export default function DirectMessages() {
+export default function Channels() {
   
 	const { accessToken, user } = useUser();
 	const [socket, setSocket] = useState<Socket>();
@@ -18,15 +18,10 @@ export default function DirectMessages() {
 	
 	const [messages, setMessages] = useState([
 		{
-			username: 'gilbert',
+			username: '',
 			socket: "",
-			content: 'Salut toi'
+			content: ''
 		},
-		{
-			username: 'wakka',
-			socket : "",
-			content: 'Bonjour'
-		}
 	]);
 	
 	const { id } = useParams();
@@ -42,15 +37,12 @@ export default function DirectMessages() {
 		</li>
 	  ));
 	  
-
 	  const messageListener = (sender: string, message: string) => {
 		setMessages([...messages, { username: sender, socket:"", content: message}]);
 	  }
 	  
-
-	// Put this shit in a context
 	useEffect(() => {
-	  const newSocket = io(`${process.env.REACT_APP_CHAT_URL}`);
+	  const newSocket = io("http://localhost:8001");
 	  setSocket(newSocket);
 	}, [setSocket])
 
@@ -70,26 +62,22 @@ export default function DirectMessages() {
 
 	return (
 		<div className="container d-flex flex-column justify-content align-items">
-			<div className="title">Chat messages</div>
+			<div className="title">Chat channels</div>
 			<div>
 					<ChatNav/>
 					{
 						(id ?
 						<>
-							<p>Display {id} conversation</p>
-							<MessageDisplay></MessageDisplay>
-							<button>See profile</button>
-							<button>Delete conversations</button>
-							<input onKeyDown={handleKeyDown}
-								onChange={(e)=>{setValue(e.target.value)}} 
-								type="text" 
-								placeholder={`Reply to ${id}`}/>
+							<p>Display {id} channel</p>
 						</> 
 						:<>
-							<h1>Messages ({messages.length})</h1>
+							<h1>Channels ({messages.length})</h1>
 						  <ul className="List">{messagesList}</ul>
 						</>)
 					}
+					<NavLink className={``}  to='/chat/channels/new_channel' >
+						New Channel
+            		</NavLink>
 			</div>
 		</div>
 	);

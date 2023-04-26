@@ -1,13 +1,46 @@
-import { useNavigate } from "react-router-dom";
+import { useInRouterContext, useNavigate } from "react-router-dom";
 import styles from "./Chat.module.scss";
 import ChatNav from "../../components/Chat/ChatNav/ChatNav";
 import ChatEmptyContainer from "../../components/Chat/ChatEmptyContainer/ChatEmptyContainer";
+import { useUser } from "../../context/UserProvider";
+import { useEffect, useState } from "react";
+import { log } from "console";
 
 export default function Chathome() {
 	const navigate = useNavigate();
+    const [error, setError] = useState(false);
+    const [userState, setUserState] = useState({
+		email:''
+	});
 
+	const { accessToken, user } = useUser();
 
+	useEffect(() => {
+        (async () => {
+            try {
+                await fetch(`http://localhost:3000/user/${user.userName}`, {
+				credentials: "include",
+				headers: {
+					Authorization: `Bearer ${accessToken}`,
+				},
+			})
+			.then((res) => res.json())
+			.then(
+				(user) => {
+					setUserState(user);
+				}
+			);
+            } catch (e) {
+                setError(true);
+            }
+        })();
+    }, []);
+
+	const {email} = userState;
+	// console.log("email " + email);
+	
 	const bool = true;
+	
 	return (
 		<div className="container d-flex flex-column justify-content align-items">
 			<div className="title">Chat</div>

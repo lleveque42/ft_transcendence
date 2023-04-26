@@ -11,16 +11,43 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
-  email     String @unique
+  email     String    @unique
   hash      String
-  userName  String @unique
+  userName  String    @unique
   firstName String?
   lastName  String?
   avatar    String?
   socket    String?
-  camenbert String?
+
+  chanOp    Channel[] @relation("channel_ops")
+  chanOwner Channel[]
+  channels  Channel[] @relation("channel_members")
+
+  messages  Message[]
+}
+
+model Channel {
+  id        Int       @id @default(autoincrement())
+  title     String?    @unique
+  password  String?
+  type      String
+  owner     User?     @relation(fields:[ownerId], references:[id])
+  ownerId   Int?
+  operators User[]    @relation("channel_ops")
+  members   User[]    @relation("channel_members")
+  messages  Message[]
+}
+
+model Message{
+  id        Int     @id @default(autoincrement())
+  content   String
+  author    User ?   @relation(fields: [authorId], references:[id])
+  authorId  Int?
+  channel   Channel? @relation(fields: [channelId], references:[id])
+  channelId Int?
+
 }

@@ -10,6 +10,8 @@ import PrivateRoute from "./components/Routes/PrivateRoute";
 import PublicRoute from "./components/Routes/PublicRoute";
 import Chat from "./pages/Chat/Chat";
 import DirectMessages from "./pages/DirectMessages/DirectMessages";
+import Channels from "./pages/Channels/Channels";
+import NewChannel from "./pages/Channels/NewChannel";
 
 export default function Router() {
 	return (
@@ -40,7 +42,15 @@ export default function Router() {
 				/>
 				<Route
 					path="/chat/channels"
-					element={<PrivateRoute element={<Chat />} />}					
+					element={<PrivateRoute element={<Channels />} />}					
+				/>
+				<Route
+					path="/chat/channels/new_channel"
+					element={<PrivateRoute element={<NewChannel/>} />}					
+				/>
+				<Route
+					path="/chat/channels/:id"
+					element={<PrivateRoute element={<Channels/>} />}					
 				/>
 				<Route
 					path="/chat/friends"
