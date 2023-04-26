@@ -5,13 +5,13 @@ import Homepage from "./pages/Homepage/Homepage";
 import Login from "./pages/Login/Login";
 import Login42 from "./pages/Login/Login42/Login42";
 import Signup from "./pages/Signup/Signup";
-import EditProfile from "./pages/User/EditProfile";
 import PrivateRoute from "./components/Routes/PrivateRoute";
 import PublicRoute from "./components/Routes/PublicRoute";
 import Chat from "./pages/Chat/Chat";
 import DirectMessages from "./pages/DirectMessages/DirectMessages";
 import Settings from "./pages/User/Settings/Settings";
 import VerifyTfa from "./pages/Login/VerifyTfa/VerifyTfa";
+import Profile from "./pages/User/Profile/Profile";
 
 export default function Router() {
 	return (
@@ -29,9 +29,9 @@ export default function Router() {
 					path="/settings"
 					element={<PrivateRoute element={<Settings />} />}
 				/>
-				<Route // will become /user/userName
-					path="/editprofile"
-					element={<PrivateRoute element={<EditProfile />} />}
+				<Route
+					path="/user/:username"
+					element={<PrivateRoute element={<Profile />} />}
 				/>
 				<Route
 					path="/chat"

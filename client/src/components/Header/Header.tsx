@@ -71,7 +71,7 @@ export default function Header() {
 									<li
 										className={`${styles.dropdownItem}`}
 										onClick={() => {
-											navigate("/editprofile");
+											navigate("/user/" + user.userName);
 											setOpenMenu(false);
 										}}
 									>
