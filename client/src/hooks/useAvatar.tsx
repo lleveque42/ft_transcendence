@@ -6,11 +6,14 @@ export default function useAvatar(
 	accessToken: string,
 	setUserAvatar: React.Dispatch<React.SetStateAction<string>>,
 	setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
+	username: string
 ) {
+	console.log({username});
+	
 	useEffect(() => {
 		async function getAvatar() {
 			try {
-				const res = await userAvatarRequest(accessToken);
+				const res = await userAvatarRequest(accessToken, username);
 				if (res.ok) {
 					if (res.headers.get("content-type") === "application/octet-stream") {
 						const data = await res.blob();

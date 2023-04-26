@@ -35,7 +35,7 @@ export default function Settings() {
 		}
 	}
 
-	useAvatar(accessToken, setUserAvatar, setIsLoading);
+	useAvatar(accessToken, setUserAvatar, setIsLoading, user.userName);
 
 	return (
 		<>

@@ -34,7 +34,7 @@ export default function Header() {
 			: setDisplayUserName(displayUserName);
 	}, [displayUserName]);
 
-	useAvatar(accessToken, setUserAvatar, setIsLoading);
+	useAvatar(accessToken, setUserAvatar, setIsLoading, user.userName);
 
 	return (
 		<>

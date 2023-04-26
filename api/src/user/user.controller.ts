@@ -8,6 +8,7 @@ import {
 	HttpException,
 	HttpStatus,
 	MaxFileSizeValidator,
+	Param,
 	ParseFilePipe,
 	Patch,
 	StreamableFile,
@@ -19,7 +20,7 @@ import {
 import { UserService } from "./user.service";
 import { GetCurrentUser } from "../common/decorators";
 import { AtGuard } from "../auth/guards";
-import { updateUserNameDto } from "./dto";
+import { UserNameDto, updateUserNameDto } from "./dto";
 import { tfaVerificationCode } from "./dto";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { diskStorage } from "multer";
@@ -91,13 +92,23 @@ export class UserController {
 	}
 
 	@UseGuards(AtGuard)
-	@Get("avatar")
+	@Get("avatar/:username")
 	async getUserAvatar(
-		@GetCurrentUser("sub") userName: string,
+		@Param() params: UserNameDto,
 	): Promise<StreamableFile | String> {
-		const user = await this.userService.getUserByUserName(userName);
+		const user = await this.userService.getUserByUserName(params.username);
 		if (!user) throw new HttpException("Error get user avatar", 403);
 		return await this.userService.getAvatar(user);
+	}
+
+	@UseGuards(AtGuard)
+	@Get("infos/:username")
+	async getUserInfos(
+		@Param() params: UserNameDto,
+	): Promise<{ firstName: string }> {
+		const user = await this.userService.getUserByUserName(params.username);
+		if (!user) throw new HttpException("Error get user avatar", 404);
+		return { firstName: user.firstName };
 	}
 
 	@UseGuards(AtGuard)

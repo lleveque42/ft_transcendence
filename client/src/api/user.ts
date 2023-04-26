@@ -74,8 +74,9 @@ export async function userUploadAvatar(
 
 export async function userAvatarRequest(
 	accessToken: string,
+	username: string,
 ): Promise<Response> {
-	const res = await fetch("http://localhost:3000/user/avatar", {
+	const res = await fetch(`http://localhost:3000/user/avatar/${username}`, {
 		credentials: "include",
 		headers: {
 			Authorization: `Bearer ${accessToken}`,
