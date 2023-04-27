@@ -3,7 +3,24 @@ import styles from "./Profile.module.scss";
 import { useEffect, useState } from "react";
 import { useAlert, useUser } from "../../../context";
 import Loader from "react-loaders";
-import useAvatar from "../../../hooks/useAvatar";
+import default_avatar from "../../../assets/images/punk.png";
+import { userAvatarRequest, userProfileInfosRequest } from "../../../api";
+import UserStats from "./components/UserStats/UserStats";
+import UserPresentation from "./components/UserPresentation/UserPresentation";
+
+type UserProfileType = {
+	userName: string;
+	firstName: string;
+	lastName: string;
+	email: string;
+};
+
+const UserProfileValues: UserProfileType = {
+	userName: "",
+	firstName: "",
+	lastName: "",
+	email: "",
+};
 
 export default function Profile() {
 	const { accessToken } = useUser();
@@ -11,24 +28,17 @@ export default function Profile() {
 	const navigate = useNavigate();
 	const { username } = useParams();
 	const [isLoading, setIsLoading] = useState<boolean>(true);
-	const [userProfile, setUserProfile] = useState<any>(null);
-	const [userAvatar, setUserAvatar] = useState<string>("");
+	const [userProfile, setUserProfile] =
+		useState<UserProfileType>(UserProfileValues);
+	const [userProfileAvatar, setUserProfileAvatar] = useState<string>("");
 
 	useEffect(() => {
 		const getUserProfile = async () => {
 			try {
-				const res = await fetch(
-					`http://localhost:3000/user/infos/${username}`,
-					{
-						credentials: "include",
-						headers: {
-							Authorization: `Bearer ${accessToken}`,
-						},
-					},
-				);
+				const res = await userProfileInfosRequest(accessToken, username);
 				if (res.ok) {
-					console.log("RES OK");
-					setUserProfile(username);
+					const data = await res.json();
+					setUserProfile(data);
 				} else {
 					navigate("/");
 					showAlert("error", "User not found");
@@ -36,12 +46,37 @@ export default function Profile() {
 			} catch (e) {
 				console.error("Error user profile", e);
 			}
-			setIsLoading(false);
+			// setIsLoading(false);
 		};
 		getUserProfile();
-	});
+	}, [username, accessToken, showAlert, navigate]);
 
-	useAvatar(accessToken, setUserAvatar, setIsLoading, userProfile);
+	useEffect(() => {
+		const getUserAvatar = async () => {
+			try {
+				const res = await userAvatarRequest(accessToken, userProfile.userName);
+				if (res.ok) {
+					if (res.headers.get("content-type") === "application/octet-stream") {
+						const data = await res.blob();
+						setUserProfileAvatar(URL.createObjectURL(data));
+					} else if (res.headers.get("content-type")?.includes("text/html")) {
+						const data = await res.text();
+						setUserProfileAvatar(data);
+					} else {
+						console.log("Can't load avatar, default avatar is used");
+						setUserProfileAvatar(default_avatar);
+					}
+				} else {
+					console.error("Can't load avatar, default avatar is used");
+					setUserProfileAvatar(default_avatar);
+				}
+			} catch (e) {
+				console.error("Error get User Avatar", e);
+			}
+			setIsLoading(false);
+		};
+		if (userProfile.userName) getUserAvatar();
+	}, [userProfile, accessToken]);
 
 	return (
 		<>
@@ -55,19 +90,21 @@ export default function Profile() {
 				<>
 					<div className="d-flex flex-column mt-20">
 						<div className="title">Profile</div>
-						<h2 className="underTitle mb-20">{username}</h2>
+						<h2 className="underTitle">{userProfile.userName}</h2>
 					</div>
 					<div className="d-flex flex-row flex-1">
 						<div
-							className={`${styles.userPresentationContainer} d-flex flex-column align-items justify-content`}
+							className={`${styles.userPresentationContainer} d-flex flex-column align-items`}
 						>
-							<h1>Coucou</h1>
+							<UserPresentation
+								userProfile={userProfile}
+								userProfileAvatar={userProfileAvatar}
+							/>
 						</div>
 						<div
-							className={`${styles.userStatsContainer} d-flex flex-column align-items justify-content`}
+							className={`${styles.userStatsContainer} d-flex flex-column align-items justify-content b2`}
 						>
-							<h1>Ca va</h1>
-							{/* <img src={} alt="Avatar" /> */}
+							<UserStats />
 						</div>
 					</div>
 				</>

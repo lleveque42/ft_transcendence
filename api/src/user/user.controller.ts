@@ -26,6 +26,7 @@ import { FileInterceptor } from "@nestjs/platform-express";
 import { diskStorage } from "multer";
 import { extname } from "path";
 import { NotImageExeptionFilter } from "../common/filters/notImageExeptionFilter.filter";
+import { UserInfosType } from "./types";
 
 const storageOptions = {
 	storage: diskStorage({
@@ -105,10 +106,15 @@ export class UserController {
 	@Get("infos/:username")
 	async getUserInfos(
 		@Param() params: UserNameDto,
-	): Promise<{ firstName: string }> {
+	): Promise<UserInfosType> {
 		const user = await this.userService.getUserByUserName(params.username);
 		if (!user) throw new HttpException("Error get user avatar", 404);
-		return { firstName: user.firstName };
+		return {
+			userName: user.userName,
+			firstName: user.firstName,
+			lastName: user.lastName,
+			email: user.email
+		};
 	}
 
 	@UseGuards(AtGuard)

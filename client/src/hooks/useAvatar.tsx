@@ -8,8 +8,6 @@ export default function useAvatar(
 	setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
 	username: string
 ) {
-	console.log({username});
-	
 	useEffect(() => {
 		async function getAvatar() {
 			try {
@@ -35,5 +33,5 @@ export default function useAvatar(
 			setIsLoading(false);
 		}
 		getAvatar();
-	}, [accessToken, setUserAvatar, setIsLoading]);
+	}, [accessToken, setUserAvatar, setIsLoading, username]);
 }

@@ -84,3 +84,16 @@ export async function userAvatarRequest(
 	});
 	return res;
 }
+
+export async function userProfileInfosRequest(
+	accessToken: string,
+	username: string | undefined,
+): Promise<Response> {
+	const res = await fetch(`http://localhost:3000/user/infos/${username}`, {
+		credentials: "include",
+		headers: {
+			Authorization: `Bearer ${accessToken}`,
+		},
+	});
+	return res;
+}

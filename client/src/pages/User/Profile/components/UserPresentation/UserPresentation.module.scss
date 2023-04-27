@@ -1,0 +1,45 @@
+.leftSide {
+	.avatarContainer {
+		position: relative;
+
+		img {
+			height: 20vw;
+			width: 20vw;
+			border-radius: 50%;
+			border: var(--border);
+			background: var(--secondary-dark);
+		}
+
+		.statusBadge {
+			position: absolute;
+			top: 15vw;
+			left: 1vw;
+			width: 2.5vw;
+			height: 2.5vw;
+			border: var(--border);
+			border-radius: 50%;
+		}
+
+		.online {
+			background-color: var(--success);
+		}
+
+		.offline {
+			background-color: var(--danger);
+		}
+	}
+
+	h1 {
+		color: var(--light-grey);
+	}
+
+	h3 {
+		// margin-top: 0.5rem;
+		color: var(--light-grey);
+		opacity: 0.8;
+	}
+
+	button {
+		width: 90%;
+	}
+}
