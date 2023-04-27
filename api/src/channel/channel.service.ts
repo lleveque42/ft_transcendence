@@ -39,7 +39,8 @@ export class ChannelService {
 	}
 
 	async getAllChannels() {
-		return await this.prisma.channel.findMany();
+		const chans = await this.prisma.channel.findMany();
+		return chans;
 	}
 
 	async dropdb() {

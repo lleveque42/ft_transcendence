@@ -42,7 +42,6 @@ export default function Newhannel() {
 	
 	const { id } = useParams();
 
-	  
 	useEffect(() => {
 	  const newSocket = io("http://localhost:8001");
 	  setSocket(newSocket);

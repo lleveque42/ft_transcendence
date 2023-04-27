@@ -32,6 +32,19 @@ export class ChannelController {
 	test(@GetCurrentUser("sub") userName: string): string {
 		return userName;
 	}
+
+	@Get("")
+	async getAll(): // @Param() params: UserLoginDto,
+	// @Res({ passthrough: true }) res: Response,
+	Promise<Channel[] | null> {
+		try {
+			const channels = await this.channelService.getAllChannels();
+			return channels;
+		} catch (e) {
+			throw new HttpException(e.message, e.status);
+		}
+	}
+
 	@Post("create_channel")
 	async createChannel(
 		@Body() body,

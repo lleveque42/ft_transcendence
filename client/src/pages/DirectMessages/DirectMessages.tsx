@@ -42,11 +42,9 @@ export default function DirectMessages() {
 		</li>
 	  ));
 	  
-
 	  const messageListener = (sender: string, message: string) => {
 		setMessages([...messages, { username: sender, socket:"", content: message}]);
 	  }
-	  
 
 	// Put this shit in a context
 	useEffect(() => {
