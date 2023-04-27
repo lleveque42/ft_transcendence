@@ -4,4 +4,9 @@
 
 .userStatsContainer {
 	flex: 70%;
+	margin-top: 1rem;
+	margin-right: 2rem;
+	border: 1px solid var(--secondary-dark);
+	border-radius: 5px;
+	box-shadow: var(--box-shadow);
 }

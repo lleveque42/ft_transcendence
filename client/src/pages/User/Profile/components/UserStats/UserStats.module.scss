@@ -1,0 +1,17 @@
+.statsContainer {
+	height: 7vw;
+	border-bottom: 1px solid var(--secondary-dark);
+
+	div {
+		border-right: 1px solid var(--secondary-dark);
+
+		p {
+			color: var(--light-grey);
+			opacity: 0.8;
+		}
+
+		h2 {
+			color: var(--light-grey);
+		}
+	}
+}
