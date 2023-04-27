@@ -102,7 +102,7 @@ export default function Profile() {
 							/>
 						</div>
 						<div
-							className={`${styles.userStatsContainer} d-flex flex-column align-items`}
+							className={`${styles.userStatsContainer} d-flex flex-column`}
 						>
 							<UserStats />
 						</div>
