@@ -1,5 +1,23 @@
+@use "../../../assets/styles/mixins" as mixin;
+
+.titleContainer {
+	@include mixin.sm-lt {
+		margin-top: 1.5rem;
+	}
+}
+
+.profileContainer {
+	@include mixin.sm-lt {
+		flex-direction: column;
+	}
+}
+
 .userPresentationContainer {
 	flex: 30%;
+
+	@include mixin.sm-lt {
+		flex: 0;
+	}
 }
 
 .userStatsContainer {
@@ -10,4 +28,10 @@
 	border: 1px solid var(--secondary-dark);
 	border-radius: 5px;
 	box-shadow: var(--box-shadow);
+
+	@include mixin.sm-lt {
+		margin: 1rem;
+		margin-top: 2rem;
+		max-height: 38vh;
+	}
 }

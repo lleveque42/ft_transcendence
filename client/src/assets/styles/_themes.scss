@@ -1,3 +1,4 @@
+@use "./mixins" as mixin;
 @import "loaders.css/src/animations/line-scale-pulse-out.scss";
 
 .btn {
@@ -47,12 +48,20 @@
 	font-family: "Press Start 2P", cursive;
 	color: var(--primary);
 	font-size: 3rem;
+
+	@include mixin.sm-lt {
+		font-size: 2rem;
+	}
 }
 
 .underTitle {
 	@extend .title;
 	margin-top: 0.5rem;
 	font-size: 1rem;
+
+	@include mixin.sm-lt {
+		font-size: 0.8rem;
+	}
 }
 
 .loader-active {

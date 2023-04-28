@@ -47,11 +47,11 @@ export default function Settings() {
 				/>
 			) : (
 				<>
-					<div className="d-flex flex-column mt-20">
+					<div className={`${styles.titleContainer} d-flex flex-column mt-20`}>
 						<div className="title">Settings</div>
 						<h2 className="underTitle mb-20">{user.userName}</h2>
 					</div>
-					<div className="d-flex flex-row flex-1">
+					<div className={`${styles.settingsContainer} d-flex flex-row flex-1`}>
 						<div
 							className={`${styles.formContainer} d-flex flex-column align-items justify-content`}
 						>

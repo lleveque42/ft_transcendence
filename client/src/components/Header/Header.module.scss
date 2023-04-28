@@ -1,12 +1,22 @@
+@use "../../assets/styles/mixins" as mixin;
+
 .headerContainer {
 	height: 4rem;
 	background-color: var(--dark-primary);
 	box-shadow: var(--box-shadow-nav);
+
+	@include mixin.sm-lt {
+		height: 3rem;
+	}
 }
 
 .title {
 	color: var(--primary);
 	cursor: pointer;
+
+	@include mixin.sm-lt {
+		font-size: 1rem;
+	}
 }
 
 .menuTrigger img {
@@ -17,6 +27,11 @@
 	cursor: pointer;
 	margin-right: 1rem;
 	background: var(--secondary-dark);
+
+	@include mixin.sm-lt {
+		height: 2.5rem;
+		width: 2.5rem;
+	}
 }
 
 .dropdownMenu {
@@ -28,6 +43,12 @@
 	padding: 1rem 1.5rem;
 	width: 12rem;
 	z-index: 2;
+
+	@include mixin.sm-lt {
+		top: 4rem;
+		right: 0.5rem;
+		padding: 0.5rem 1rem;
+	}
 
 	h3 {
 		width: 100%;

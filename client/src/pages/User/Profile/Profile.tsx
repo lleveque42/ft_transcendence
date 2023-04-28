@@ -88,11 +88,11 @@ export default function Profile() {
 				/>
 			) : (
 				<>
-					<div className="d-flex flex-column mt-20">
+					<div className={`${styles.titleContainer} d-flex flex-column mt-20`}>
 						<div className="title">Profile</div>
 						<h2 className="underTitle">{userProfile.userName}</h2>
 					</div>
-					<div className="d-flex flex-row flex-1">
+					<div className={`${styles.profileContainer} d-flex flex-row flex-1`}>
 						<div
 							className={`${styles.userPresentationContainer} d-flex flex-column align-items`}
 						>
@@ -101,9 +101,7 @@ export default function Profile() {
 								userProfileAvatar={userProfileAvatar}
 							/>
 						</div>
-						<div
-							className={`${styles.userStatsContainer} d-flex flex-column`}
-						>
+						<div className={`${styles.userStatsContainer} d-flex flex-column`}>
 							<UserStats />
 						</div>
 					</div>
