@@ -80,9 +80,12 @@ export class ServerGateway
 		console.log("Room :" + data.room);
 		console.log("Sender :" + data.sender);
 		console.log("Content :" + data.message);
-		this.io
-			.to("chan" + data.room)
-			.emit("receivedMessage", data.sender, data.message);
+		// this.io
+		// 	.to("chan" + data.room)
+		// 	.emit("receivedMessage", data.sender, data.message);
+		// this.io
+		// .to("chan" + data.room)
+		// .emit("receivedMessage", message);
 		try {
 			const msg = await this.messageService.createNewNessage(
 				{
@@ -101,15 +104,15 @@ export class ServerGateway
 						msg.content +
 						"*",
 				);
-				// this.io
-				// 	.to("chan" + data.room)
-				// 	.emit(
-				// 		"receivedMessage",
-				// 		msg.id,
-				// 		msg.authorId,
-				// 		msg.channelId,
-				// 		msg.content,
-				// 	);
+				this.io
+					.to("chan" + data.room)
+					.emit(
+						"receivedMessage",
+						msg.id,
+						msg.authorId,
+						msg.channelId,
+						msg.content,
+					);
 			} else {
 				console.log("No msg created");
 			}

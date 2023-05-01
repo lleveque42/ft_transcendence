@@ -56,17 +56,17 @@ export class ChannelController {
 		}
 	}
 
-	// @Get("/chan/:title")
-	// async getChanMessages(@Param("title") title: string): Promise<Message[]> {
-	// 	try {
-	// 		console.log("Enter getChanMEssages");
+	@Get("/chan/:title")
+	async getChanMessages(@Param("title") title: string): Promise<Message[]> {
+		try {
+			console.log("Enter getChanMEssages");
 
-	// 		const msgs = await this.channelService.getChanMessages(title);
-	// 		return msgs;
-	// 	} catch (e) {
-	// 		throw new HttpException(e.message, e.status);
-	// 	}
-	// }
+			const msgs = await this.channelService.getChanMessages(title);
+			return msgs;
+		} catch (e) {
+			throw new HttpException(e.message, e.status);
+		}
+	}
 
 	@Post("create_channel")
 	async createChannel(

@@ -51,7 +51,7 @@ export default function Router() {
 				/>
 				<Route
 					path="/chat/channels/:id"
-					element={<PrivateRoute element={<Channels/>} />}					
+					element={<PrivateRoute element={<Channel/>} />}					
 				/>
 				<Route
 					path="/chat/friends"

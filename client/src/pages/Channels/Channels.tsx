@@ -80,14 +80,14 @@ export default function Channels() {
         })();
     }, []);
 	
-	useEffect(() => {
-		(async () => {
-			try {
-				setMembersState(channelsState.map(({members}) => {return members}));
-            } catch (e) {
-			}
-        })();
-    }, []);
+	// useEffect(() => {
+	// 	(async () => {
+	// 		try {
+	// 			setMembersState(channelsState.map(({members}) => {return members}));
+    //         } catch (e) {
+	// 		}
+    //     })();
+    // }, []);
 	
 	useEffect(() => {
 		(async () => {
@@ -130,8 +130,7 @@ export default function Channels() {
 		}
 	};
 	
-	const channelsMembers = channelsState.map(({members}) => {return members});
-
+	// const channelsMembers = channelsState.map(({members}) => {return members});
 	// const channelMessages = setMessages(channelsState.map(({message}) => {return message}));
 	
 	const channelsList = channelsState.map(({ title , messages}) => (
@@ -155,21 +154,23 @@ export default function Channels() {
 			<div>
 					<ChatNav/>
 					{
-						(id ?
+						// (id ?
+						// <>
+						// 	<p>Display {id} channel</p>
+						// 	<h1>Messages ({messages.length})</h1>
+						// 	<ul className="List">{messagesList}</ul>
+						// 	<input onKeyDown={handleKeyDown}
+						// 		onChange={(e)=>{setValue(e.target.value)}}  type="text" placeholder="Write a message" />
+						// </> 
+						// :
 						<>
-							<p>Display {id} channel</p>
-							<h1>Messages ({messages.length})</h1>
-							<ul className="List">{messagesList}</ul>
-							<input onKeyDown={handleKeyDown}
-								onChange={(e)=>{setValue(e.target.value)}}  type="text" placeholder="Write a message" />
-						</> 
-						:<>
 							<h1>Channels ({channelsState.length})</h1>
 							<ul className="List">{channelsList}</ul>
 							<NavLink className={``}  to='/chat/channels/new_channel' >
 								New Channel
             				</NavLink>
-						</>)
+						</>
+						// )
 					}
 			</div>
 		</div>

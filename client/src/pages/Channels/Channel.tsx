@@ -10,13 +10,14 @@ import Message from "../../components/Message/Message";
 
 class messageBlueprint{
 	id: string;
-	authorId! : string;
+	authorId : string;
 	username: string;
 	channel: string;
 	content: string;
 
 	constructor(){;
 		this.id = "";
+		this.authorId = "";
 		this.username = "";
 		this.content = "";
 		this.channel = ""
@@ -32,28 +33,11 @@ export default function Channel() {
 	const [channelsState, setChannelsState] = useState([]);
 	const [messagesState, setMessagesState] = useState<Array<messageBlueprint>>([]);
 	
-	// const [messages, setMessages] = useState([
-		// 	{
-			// 		username: 'gilbert',
-			// 		content: 'Salut toi'
-	// 	},
-	// 	{
-	// 		username: 'wakka',
-	// 		content: 'Bonjour'
-	// 	}
-	// ]);
-	
 	const { id } = useParams();
 	
-	// Make the user to join the rooms of his channels
-	
-	const channelNames = channelsState.map(({ title}) => (title));
-	
-	for (const chan of channelNames){
-		socket?.emit('joinChatRoom', chan)
-	}
-	
-	// Put this shit in a context
+	socket?.emit('joinChatRoom', id)
+
+	//	Put this shit in a context
 	useEffect(() => {
 		const newSocket = io(`${process.env.REACT_APP_CHAT_URL}`);
 		setSocket(newSocket);
@@ -80,11 +64,6 @@ export default function Channel() {
         })();
     }, []);
 
-	 const messageListener = (id : string, authorId: string, channel: string, content: string) => {
-		console.log(messagesState);
-		let username = "Test";
-		setMessagesState([...messagesState, {id, authorId, channel, content, username}]);
-	 }
 	
 	const messagesList = messagesState.map(({ id, authorId, content }) => (
 		<li key={id}>
@@ -96,8 +75,13 @@ export default function Channel() {
 			/>
 		</li>
 	  ));
-
-
+	  
+	  const messageListener = (id : string, authorId: string, channel: string, content: string) => {
+		  let username = "Test";
+		  setMessagesState([...messagesState, {id, authorId, channel, content, username}]);
+		  console.log(messagesState);
+	  }
+	  
 	useEffect(() => {
 		socket?.on("receivedMessage", messageListener);
 		return () => {
