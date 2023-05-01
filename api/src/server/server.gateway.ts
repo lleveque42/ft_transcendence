@@ -9,6 +9,7 @@ import {
 } from "@nestjs/websockets";
 import { Namespace, Socket } from "socket.io";
 import { UserService } from "./../user/user.service";
+import { MessageService } from "./../message/message.service";
 import { ChannelService } from "./../channel/channel.service";
 import { HttpException, Logger } from "@nestjs/common";
 
@@ -19,6 +20,7 @@ export class ServerGateway
 	constructor(
 		private userService: UserService,
 		private channelService: ChannelService,
+		private messageService: MessageService,
 	) {}
 	private readonly logger = new Logger(ServerGateway.name);
 	@WebSocketServer()
@@ -37,7 +39,7 @@ export class ServerGateway
 	}
 
 	@SubscribeMessage("private_message")
-	async handleMessage(
+	async handlePrivateMessage(
 		@MessageBody() data: { sender; message; socket; receiver },
 	): Promise<void> {
 		console.log("Sender :" + data.sender);
@@ -69,6 +71,63 @@ export class ServerGateway
 		}
 
 		//	this.io.to("").emit("private_message", data.message);
+	}
+
+	@SubscribeMessage("chanMessage")
+	async handleChanMessage(
+		@MessageBody() data: { room; sender; message; value },
+	): Promise<void> {
+		console.log("Room :" + data.room);
+		console.log("Sender :" + data.sender);
+		console.log("Content :" + data.message);
+		this.io
+			.to("chan" + data.room)
+			.emit("receivedMessage", data.sender, data.message);
+		try {
+			const msg = await this.messageService.createNewNessage(
+				{
+					content: data.message,
+				},
+				data.sender,
+				data.room,
+			);
+			if (msg) {
+				console.log(
+					"Sender " +
+						msg.authorId +
+						" in channel : *" +
+						msg.channelId +
+						"* content: *" +
+						msg.content +
+						"*",
+				);
+				// this.io
+				// 	.to("chan" + data.room)
+				// 	.emit(
+				// 		"receivedMessage",
+				// 		msg.id,
+				// 		msg.authorId,
+				// 		msg.channelId,
+				// 		msg.content,
+				// 	);
+			} else {
+				console.log("No msg created");
+			}
+		} catch (e) {
+			throw new HttpException(e.message, e.status);
+		}
+	}
+
+	@SubscribeMessage("joinChatRoom")
+	handleJoinRoom(socket: Socket, chanName: string): void {
+		console.log(
+			"The socket " +
+				socket.id +
+				" trying to connect to the chan " +
+				chanName +
+				".",
+		);
+		socket.join("chan" + chanName);
 	}
 
 	@SubscribeMessage("new_channel")

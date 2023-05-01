@@ -10,6 +10,8 @@ import { ConfigModule } from "@nestjs/config";
 import { UserService } from "./user/user.service";
 import { ChannelModule } from "./channel/channel.module";
 import { ChannelService } from "./channel/channel.service";
+import { MessageService } from "./message/message.service";
+import { MessageModule } from "./message/message.module";
 
 @Module({
 	imports: [
@@ -20,6 +22,7 @@ import { ChannelService } from "./channel/channel.service";
 		UserModule,
 		AuthModule,
 		ChannelModule,
+		MessageModule,
 	],
 	controllers: [AppController],
 	providers: [
@@ -28,6 +31,7 @@ import { ChannelService } from "./channel/channel.service";
 		ServerGateway,
 		UserService,
 		ChannelService,
+		MessageService,
 	],
 })
 export class AppModule {}

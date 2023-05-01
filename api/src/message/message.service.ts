@@ -1,15 +1,33 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
-import { ChannelDto } from "../auth/dto/channel.dto";
 import { UserService } from "../user/user.service";
+import { ChannelService } from "../channel/channel.service";
 import { Prisma } from "@prisma/client";
 
 @Injectable()
-export class ChannelService {
+export class MessageService {
 	constructor(
 		private prisma: PrismaService,
 		private userService: UserService,
+		private channelService: ChannelService,
 	) {}
+
+	async createNewNessage(
+		newMessage: Prisma.MessageCreateInput,
+		userName: string,
+		chanTitle: string,
+	) {
+		const user = await this.userService.getUserByUserName(userName);
+		const chan = await this.channelService.getChannelByTitle(chanTitle);
+		const msg = await this.prisma.message.create({
+			data: {
+				content: newMessage.content,
+				authorId: user.id,
+				channelId: chan.id,
+			},
+		});
+		return msg;
+	}
 
 	async createChannel(newChannel: Prisma.ChannelCreateInput, userName: string) {
 		const user = await this.userService.getUserByUserName(userName);
@@ -65,24 +83,6 @@ export class ChannelService {
 			},
 			where: {
 				owner: user,
-			},
-		});
-		return chans;
-	}
-
-	async getChanMessages(title) {
-		const chan = await this.prisma.channel.findUnique({
-			where: {
-				title: title,
-			},
-		});
-		const chans = await this.prisma.message.findMany({
-			include: {
-				author: true,
-				channel: true,
-			},
-			where: {
-				channel: chan,
 			},
 		});
 		return chans;

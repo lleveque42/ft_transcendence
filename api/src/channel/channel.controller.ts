@@ -15,7 +15,7 @@ import { ChannelService } from "./channel.service";
 import { AtGuard } from "../auth/guards";
 import { GetCurrentUser } from "../common/decorators";
 import { ChannelDto } from "./../auth/dto/channel.dto";
-import { Channel } from "@prisma/client";
+import { Channel, Message } from "@prisma/client";
 
 @Controller("channels")
 export class ChannelController {
@@ -36,7 +36,7 @@ export class ChannelController {
 	@Get("")
 	async getAll(): // @Param() params: UserLoginDto,
 	// @Res({ passthrough: true }) res: Response,
-	Promise<Channel[] | null> {
+	Promise<Channel[]> {
 		try {
 			const channels = await this.channelService.getAllChannels();
 			return channels;
@@ -45,14 +45,35 @@ export class ChannelController {
 		}
 	}
 
+	@Get("/:chanName")
+	async getUserChans(@Param("chanName") chanName: string): Promise<Channel[]> {
+		try {
+			console.log("Enter getuserChans");
+			const channels = await this.channelService.getUsersChannels(chanName);
+			return channels;
+		} catch (e) {
+			throw new HttpException(e.message, e.status);
+		}
+	}
+
+	// @Get("/chan/:title")
+	// async getChanMessages(@Param("title") title: string): Promise<Message[]> {
+	// 	try {
+	// 		console.log("Enter getChanMEssages");
+
+	// 		const msgs = await this.channelService.getChanMessages(title);
+	// 		return msgs;
+	// 	} catch (e) {
+	// 		throw new HttpException(e.message, e.status);
+	// 	}
+	// }
+
 	@Post("create_channel")
 	async createChannel(
 		@Body() body,
 		@Res({ passthrough: true }) res: Response,
 	): Promise<Channel> {
 		try {
-			console.log("Title : " + body.title);
-
 			const channel = await this.channelService.createChannel(
 				{
 					title: body.title,

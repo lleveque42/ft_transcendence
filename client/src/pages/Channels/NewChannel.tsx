@@ -47,14 +47,6 @@ export default function Newhannel() {
 	  setSocket(newSocket);
 	}, [setSocket])
 
-	// useEffect(() => {
-	// 	socket?.on("new_channel", );
-	// 	return () => {
-	// 	  socket?.off("new_channel", messageListener);
-	// 	}
-	//   // eslint-disable-next-line react-hooks/exhaustive-deps
-	//   }, [messageListener])
-
       async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
 		event.preventDefault();
         formValues.username = user.userName;
@@ -69,9 +61,9 @@ export default function Newhannel() {
 				body: JSON.stringify(formValues),
 			});
 			if (res.status === 201) {
-				navigate("/chat");
+				navigate("/chat/channels");
 			} else if (res.ok) {
-				navigate("/chat");
+				navigate("/chat/channels");
             }
 		} catch (e) {
 			console.error("Error create channel");

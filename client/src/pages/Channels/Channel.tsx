@@ -7,40 +7,41 @@ import { Socket, io } from "socket.io-client";
 import { useUser } from "../../context/UserProvider";
 import { KeyboardEvent } from "react"
 import Message from "../../components/Message/Message";
-import { channel } from "diagnostics_channel";
 
 class messageBlueprint{
+	id: string;
+	authorId! : string;
 	username: string;
+	channel: string;
 	content: string;
 
-	constructor(){
+	constructor(){;
+		this.id = "";
 		this.username = "";
 		this.content = "";
+		this.channel = ""
 	}
 }
 
-export default function Channels() {
+export default function Channel() {
   
 	const { accessToken, user } = useUser();
 	const [socket, setSocket] = useState<Socket>();
 	const [value, setValue] = useState("");
 	
 	const [channelsState, setChannelsState] = useState([]);
-	const [membersState, setMembersState] = useState([]);
-	const [messagesState, setMessagesState] = useState([]);
-
-	// const [messages, setMessages] = useState<messageBlueprint[]>([]);
+	const [messagesState, setMessagesState] = useState<Array<messageBlueprint>>([]);
 	
-	const [messages, setMessages] = useState([
-			{
-					username: 'gilbert',
-					content: 'Salut toi'
-		},
-		{
-			username: 'wakka',
-			content: 'Bonjour'
-		}
-	]);
+	// const [messages, setMessages] = useState([
+		// 	{
+			// 		username: 'gilbert',
+			// 		content: 'Salut toi'
+	// 	},
+	// 	{
+	// 		username: 'wakka',
+	// 		content: 'Bonjour'
+	// 	}
+	// ]);
 	
 	const { id } = useParams();
 	
@@ -61,7 +62,7 @@ export default function Channels() {
 	useEffect(() => {
 		(async () => {
 			try {
-				await fetch(`http://localhost:3000/channels/${user.userName}`, {
+				await fetch(`http://localhost:3000/channels/chan/${id}`, {
 					credentials: "include",
 					headers: {
 						Authorization: `Bearer ${accessToken}`,
@@ -69,52 +70,33 @@ export default function Channels() {
 				})
 				.then((res) => res.json())
 				.then(
-				(chans) => {
-					setChannelsState(chans);
-					console.log(chans);
-					
+				(messages) => {
+					setMessagesState(messages);
+					console.log(messages);
 				}
 				);
             } catch (e) {
 			}
         })();
     }, []);
+
+	 const messageListener = (id : string, authorId: string, channel: string, content: string) => {
+		console.log(messagesState);
+		let username = "Test";
+		setMessagesState([...messagesState, {id, authorId, channel, content, username}]);
+	 }
 	
-	useEffect(() => {
-		(async () => {
-			try {
-				setMembersState(channelsState.map(({members}) => {return members}));
-            } catch (e) {
-			}
-        })();
-    }, []);
-	
-	useEffect(() => {
-		(async () => {
-			try {
-				setMessagesState(channelsState.map(({message}) => {return message}));
-            } catch (e) {
-			}
-        })();
-    }, []);
-	
-	const channelMessages = channelsState.map(({messages}) => {return messages});
-	//console.log(channelMessages);
-	
-	const messagesList = messages.map(({ username, content }) => (
-		<li key={username}>
+	const messagesList = messagesState.map(({ id, authorId, content }) => (
+		<li key={id}>
 		  <Message
-			allMessages={channelMessages}
-			removeMessages={setMessages}
-			username ={username}
+			allMessages={messagesState}
+			removeMessages={setMessagesState}
+			username ={authorId}
 			content={content}
 			/>
 		</li>
 	  ));
 
-	const messageListener = (sender: string, message: string) => {
-		setMessages([...messages, { username: sender, content: message}]);
-	  }
 
 	useEffect(() => {
 		socket?.on("receivedMessage", messageListener);
@@ -130,46 +112,20 @@ export default function Channels() {
 		}
 	};
 	
-	const channelsMembers = channelsState.map(({members}) => {return members});
-
-	// const channelMessages = setMessages(channelsState.map(({message}) => {return message}));
-	
-	const channelsList = channelsState.map(({ title , messages}) => (
-		<li key={title}>
-			<div>
-			<NavLink className={``}  to={`/chat/channels/${title}`} >
-				<span>
-					{title}
-				</span>
-			</NavLink>
-				<button>
-					Delete
-				</button>
-			</div>
-		</li>
-	));
-	
 	return (
 		<div className="container d-flex flex-column justify-content align-items">
 			<div className="title">Chat channels</div>
 			<div>
 					<ChatNav/>
 					{
-						(id ?
+						(
 						<>
-							<p>Display {id} channel</p>
-							<h1>Messages ({messages.length})</h1>
+							<h1>Messages ({messagesList.length})</h1>
 							<ul className="List">{messagesList}</ul>
 							<input onKeyDown={handleKeyDown}
 								onChange={(e)=>{setValue(e.target.value)}}  type="text" placeholder="Write a message" />
 						</> 
-						:<>
-							<h1>Channels ({channelsState.length})</h1>
-							<ul className="List">{channelsList}</ul>
-							<NavLink className={``}  to='/chat/channels/new_channel' >
-								New Channel
-            				</NavLink>
-						</>)
+						)
 					}
 			</div>
 		</div>

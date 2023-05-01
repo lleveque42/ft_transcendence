@@ -11,6 +11,7 @@ import PublicRoute from "./components/Routes/PublicRoute";
 import Chat from "./pages/Chat/Chat";
 import DirectMessages from "./pages/DirectMessages/DirectMessages";
 import Channels from "./pages/Channels/Channels";
+import Channel from "./pages/Channels/Channel";
 import NewChannel from "./pages/Channels/NewChannel";
 
 export default function Router() {
