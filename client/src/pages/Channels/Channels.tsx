@@ -5,42 +5,31 @@ import { useEffect, useState } from "react";
 import { NavLink, useParams } from "react-router-dom";
 import { Socket, io } from "socket.io-client";
 import { useUser } from "../../context/UserProvider";
-import { KeyboardEvent } from "react"
-import Message from "../../components/Message/Message";
-import { channel } from "diagnostics_channel";
-
-class messageBlueprint{
-	username: string;
-	content: string;
-
-	constructor(){
-		this.username = "";
-		this.content = "";
-	}
-}
+// import { KeyboardEvent } from "react"
+// import Message from "../../components/Message/Message";
 
 export default function Channels() {
   
 	const { accessToken, user } = useUser();
 	const [socket, setSocket] = useState<Socket>();
-	const [value, setValue] = useState("");
+	// const [value, setValue] = useState("");
 	
 	const [channelsState, setChannelsState] = useState([]);
-	const [membersState, setMembersState] = useState([]);
-	const [messagesState, setMessagesState] = useState([]);
+	// const [membersState, setMembersState] = useState([]);
+	// const [messagesState, setMessagesState] = useState([]);
 
 	// const [messages, setMessages] = useState<messageBlueprint[]>([]);
 	
-	const [messages, setMessages] = useState([
-			{
-					username: 'gilbert',
-					content: 'Salut toi'
-		},
-		{
-			username: 'wakka',
-			content: 'Bonjour'
-		}
-	]);
+	// const [messages, setMessages] = useState([
+	// 		{
+	// 				username: 'gilbert',
+	// 				content: 'Salut toi'
+	// 	},
+	// 	{
+	// 		username: 'wakka',
+	// 		content: 'Bonjour'
+	// 	}
+	// ]);
 	
 	const { id } = useParams();
 	
@@ -72,13 +61,12 @@ export default function Channels() {
 				(chans) => {
 					setChannelsState(chans);
 					console.log(chans);
-					
 				}
 				);
             } catch (e) {
 			}
         })();
-    }, []);
+    }, [user.userName, accessToken]);
 	
 	// useEffect(() => {
 	// 	(async () => {
@@ -89,46 +77,46 @@ export default function Channels() {
     //     })();
     // }, []);
 	
-	useEffect(() => {
-		(async () => {
-			try {
-				setMessagesState(channelsState.map(({message}) => {return message}));
-            } catch (e) {
-			}
-        })();
-    }, []);
+	// useEffect(() => {
+	// 	(async () => {
+	// 		try {
+	// 			setMessagesState(channelsState.map(({message}) => {return message}));
+    //         } catch (e) {
+	// 		}
+    //     })();
+    // }, [channelsState]);
 	
-	const channelMessages = channelsState.map(({messages}) => {return messages});
+	// const channelMessages = channelsState.map(({messages}) => {return messages});
 	//console.log(channelMessages);
 	
-	const messagesList = messages.map(({ username, content }) => (
-		<li key={username}>
-		  <Message
-			allMessages={channelMessages}
-			removeMessages={setMessages}
-			username ={username}
-			content={content}
-			/>
-		</li>
-	  ));
+	// const messagesList = messages.map(({ username, content }) => (
+	// 	<li key={username}>
+	// 	  <Message
+	// 		allMessages={channelMessages}
+	// 		removeMessages={setMessages}
+	// 		username ={username}
+	// 		content={content}
+	// 		/>
+	// 	</li>
+	//   ));
 
-	const messageListener = (sender: string, message: string) => {
-		setMessages([...messages, { username: sender, content: message}]);
-	  }
+	// const messageListener = (sender: string, message: string) => {
+	// 	setMessages([...messages, { username: sender, content: message}]);
+	//   }
 
-	useEffect(() => {
-		socket?.on("receivedMessage", messageListener);
-		return () => {
-		  socket?.off("receivedMessage", messageListener);
-		}
-	  // eslint-disable-next-line react-hooks/exhaustive-deps
-	  }, [messageListener])
+	// useEffect(() => {
+	// 	socket?.on("receivedMessage", messageListener);
+	// 	return () => {
+	// 	  socket?.off("receivedMessage", messageListener);
+	// 	}
+	//   // eslint-disable-next-line react-hooks/exhaustive-deps
+	//   }, [messageListener])
 
-	const handleKeyDown =  (event : KeyboardEvent<HTMLInputElement>) => {
-		if (event.key === "Enter"){
-			socket?.emit("chanMessage", {room: id, sender: user.userName, message: value});
-		}
-	};
+	// const handleKeyDown =  (event : KeyboardEvent<HTMLInputElement>) => {
+	// 	if (event.key === "Enter"){
+	// 		socket?.emit("chanMessage", {room: id, sender: user.userName, message: value});
+	// 	}
+	// };
 	
 	// const channelsMembers = channelsState.map(({members}) => {return members});
 	// const channelMessages = setMessages(channelsState.map(({message}) => {return message}));

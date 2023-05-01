@@ -29,6 +29,15 @@ export class MessageService {
 		return msg;
 	}
 
+	async deleteMessageById(id: number) {
+		const msg = await this.prisma.message.delete({
+			where: {
+				id,
+			},
+		});
+		return msg;
+	}
+
 	async createChannel(newChannel: Prisma.ChannelCreateInput, userName: string) {
 		const user = await this.userService.getUserByUserName(userName);
 		const chan = await this.prisma.channel.create({
@@ -89,6 +98,6 @@ export class MessageService {
 	}
 
 	async dropdb() {
-		await this.prisma.channel.deleteMany({});
+		await this.prisma.message.deleteMany({});
 	}
 }

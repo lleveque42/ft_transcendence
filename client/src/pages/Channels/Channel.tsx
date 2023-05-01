@@ -62,7 +62,7 @@ export default function Channel() {
             } catch (e) {
 			}
         })();
-    }, []);
+    }, [accessToken, id]);
 
 	
 	const messagesList = messagesState.map(({ id, authorId, content }) => (

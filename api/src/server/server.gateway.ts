@@ -133,23 +133,22 @@ export class ServerGateway
 		socket.join("chan" + chanName);
 	}
 
-	@SubscribeMessage("new_channel")
-	async newChannel(
-		@MessageBody() data: { title; password; type; username },
-	): Promise<void> {
-		// this.io.to(`${data.id}`).emit("private_message", data.message);
-		try {
-			this.channelService.createChannel(
-				{
-					title: data.title,
-					type: data.type,
-				},
-				data.username,
-			);
-
-			//	this.io.to("").emit("private_message", data.message);
-		} catch (e) {
-			throw new HttpException(e.message, e.status);
-		}
-	}
+	// @SubscribeMessage("new_channel")
+	// async newChannel(
+	// 	@MessageBody() data: { title; password; type; username },
+	// ): Promise<void> {
+	// 	// this.io.to(`${data.id}`).emit("private_message", data.message);
+	// 	try {
+	// 		this.channelService.createChannel(
+	// 			{
+	// 				title: data.title,
+	// 				type: data.type,
+	// 			},
+	// 			data.username,
+	// 		);
+	// 		//	this.io.to("").emit("private_message", data.message);
+	// 	} catch (e) {
+	// 		throw new HttpException(e.message, e.status);
+	// 	}
+	// }
 }
