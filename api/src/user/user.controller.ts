@@ -61,12 +61,6 @@ export class UserController {
 		await this.userService.dropdb();
 	}
 
-	@UseGuards(AtGuard) // To del
-	@Get("test")
-	test(@GetCurrentUser("sub") userName: string): string {
-		return userName;
-	}
-
 	@UseGuards(AtGuard)
 	@Patch("settings")
 	async updateSettings(
@@ -75,6 +69,7 @@ export class UserController {
 	): Promise<void> {
 		try {
 			await this.userService.updateUserName(userName, dto.newUserName);
+			
 		} catch (e) {
 			throw new HttpException(e.message, e.status);
 		}
@@ -115,6 +110,19 @@ export class UserController {
 			lastName: user.lastName,
 			email: user.email
 		};
+	}
+
+	@UseGuards(AtGuard)
+	@Patch("friend")
+	async addToFriend(
+		@GetCurrentUser("sub") userName: string,
+		@Body() dto: UserNameDto,
+	): Promise<void> {
+		try {
+			await this.userService.addToFriend(userName, dto.username);
+		} catch (e) {
+			throw new HttpException(e.message, e.status);
+		}
 	}
 
 	@UseGuards(AtGuard)

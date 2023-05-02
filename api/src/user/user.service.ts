@@ -107,6 +107,35 @@ export class UserService {
 		});
 	}
 
+	async addToFriend(userName: string, newFriendUserName: string) {
+		const user = await this.getUserByUserName(userName);
+		const userFriend = await this.getUserByUserName(newFriendUserName);
+		if (!user || !userFriend)
+			throw new ForbiddenException("Can't find user friend, try again");
+		if (userName === newFriendUserName)
+			throw new ForbiddenException("Can't add friend, try again");
+		await this.prisma.user.update({
+			where: { id: user.id },
+			data: { friends: { connect: { id: userFriend.id } } },
+			include: { friends: true },
+		});
+
+		const friends = await this.prisma.user.findUnique({
+			where: {
+				id: user.id,
+			},
+			select: {
+				friends: {
+					select: {
+						id: true,
+						userName: true,
+					},
+				},
+			},
+		});
+		console.log("USER FRIEND", friends);
+	}
+
 	async setTfaSecret(userName: string, secret: string): Promise<void> {
 		await this.prisma.user.update({
 			where: {
