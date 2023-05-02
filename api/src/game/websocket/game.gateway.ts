@@ -16,6 +16,7 @@ export class GameGateway
 	implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
 	private readonly logger = new Logger(GameGateway.name);
+	users: number = 0;
 	@WebSocketServer()
 	io: Namespace;
 
@@ -24,11 +25,15 @@ export class GameGateway
 	}
 
 	handleConnection(client: Socket, ...args: any) {
+		this.users++;
 		this.logger.log(`WS Client ${client.id} connected !`);
+		this.logger.log(`${this.users} users connected !`);
 	}
 
 	handleDisconnect(client: Socket) {
+		this.users--;
 		this.logger.log(`WS Client ${client.id} disconnected !`);
+		this.logger.log(`${this.users} users connected !`);
 	}
 
 	@SubscribeMessage("joinGame")
