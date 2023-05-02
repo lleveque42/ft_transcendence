@@ -1,0 +1,14 @@
+@use "../../assets/styles/mixins" as mixin;
+
+.footerContainer {
+	@include mixin.sm-lt {
+		p {
+			font-size: 0.7rem;
+			padding-bottom: 0;
+		}
+
+		button {
+			margin: 0;
+		}
+	}
+}

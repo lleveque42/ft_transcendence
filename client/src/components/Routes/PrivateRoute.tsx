@@ -1,9 +1,9 @@
 import { ReactElement, useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
-import { useUser } from "../../context/UserProvider";
 import Loader from "react-loaders";
 import Header from "../Header/Header";
 import Footer from "../Footer/Footer";
+import { useUser } from "../../context";
 
 export default function PrivateRoute(props: {
 	element: ReactElement;
@@ -17,7 +17,8 @@ export default function PrivateRoute(props: {
 			setIsAuthenticated(auth);
 		};
 		checkAuth();
-	});
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [isAuthenticated]);
 
 	if (isAuthenticated === null) {
 		return (

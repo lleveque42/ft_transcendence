@@ -1,7 +1,74 @@
+@use "../../../assets/styles/mixins" as mixin;
+
+.settingsContainer {
+	@include mixin.sm-lt {
+		flex-direction: column-reverse;
+		margin-bottom: 1rem;
+	}
+}
+
+.titleContainer {
+	@include mixin.sm-lt {
+		margin-top: 1.5rem;
+
+		h2 {
+			margin-bottom: 0;
+		}
+	}
+}
+
 .formContainer {
 	flex: 50%;
 }
 
 .avatarContainer {
 	flex: 50%;
+
+	input {
+		display: none;
+	}
+
+	img {
+		height: 30vw;
+		width: 30vw;
+		border-radius: 50%;
+		background: var(--secondary-dark);
+		position: absolute;
+
+		@include mixin.sm-lt {
+			width: 25vh;
+			height: 25vh;
+		}
+	}
+
+	.avatarLabel {
+		cursor: pointer;
+		height: 30vw;
+		width: 30vw;
+		border-radius: 50%;
+		z-index: 1;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		transition: all 0.3s ease-in-out;
+
+		@include mixin.sm-lt {
+			width: 25vh;
+			height: 25vh;
+			text-align: center;
+		}
+
+		&:hover {
+			background-color: rgba(0, 0, 0, 0.8);
+			transition: all 0.3s ease-in-out;
+
+			span {
+				transition: all 0.3s ease-in-out;
+				opacity: 100;
+			}
+		}
+	}
+	span {
+		opacity: 0;
+	}
 }

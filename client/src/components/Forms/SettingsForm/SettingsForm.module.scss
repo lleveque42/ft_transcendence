@@ -1,3 +1,5 @@
+@use "../../../assets/styles/mixins" as mixin;
+
 .settingsForm {
 	.disabledField {
 		width: 20rem;
@@ -5,6 +7,12 @@
 		margin-bottom: 1rem;
 		background-color: var(--primary-dark);
 		position: relative;
+
+		@include mixin.sm-lt {
+			width: 15rem;
+			margin: 0;
+			// margin-bottom: 0.5rem;
+		}
 
 		input {
 			height: 100%;
@@ -23,6 +31,20 @@
 			left: 1.2rem;
 			top: 1rem;
 			width: 1rem;
+		}
+	}
+
+	div {
+		@include mixin.sm-lt {
+			margin-top: 0;
+			// margin-bottom: 0.5rem;
+		}
+	}
+
+	label {
+		@include mixin.sm-lt {
+			// margin-top: 0;
+			margin-bottom: 0.5rem;
 		}
 	}
 }

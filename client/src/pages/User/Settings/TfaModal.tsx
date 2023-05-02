@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import Input from "../../../components/Input/Input";
 import styles from "./TfaModal.module.scss";
-import { useUser } from "../../../context/UserProvider";
 import { useNavigate } from "react-router-dom";
 import { enableTfaRequest } from "../../../api";
+import { useAlert, useUser } from "../../../context";
 
 interface ModalProps {
 	closeModal: () => void;
@@ -14,6 +14,7 @@ export default function TfaModal({ closeModal, qrCodeUrl }: ModalProps) {
 	const [inputValue, setInputValue] = useState<string>("");
 	const { accessToken } = useUser();
 	const navigate = useNavigate();
+	const { showAlert } = useAlert();
 
 	async function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
 		setInputValue(e.target.value);
@@ -24,10 +25,12 @@ export default function TfaModal({ closeModal, qrCodeUrl }: ModalProps) {
 		const verificationCode = inputValue.replace(/\s/g, "");
 		try {
 			const res = await enableTfaRequest(accessToken, verificationCode);
-			if (res.ok) navigate(0);
-			else {
+			if (res.ok) {
+				navigate(0);
+				showAlert("info", "TFA is now enable");
+			} else {
 				const body = await res.json();
-				alert(body.message);
+				showAlert("error", body.message);
 			}
 		} catch (e) {
 			console.error("Error sending qrCode verification values", e);
@@ -77,7 +80,10 @@ export default function TfaModal({ closeModal, qrCodeUrl }: ModalProps) {
 					>
 						Validate
 					</button>
-					<button className="btn btn-reverse-danger p-5 ml-10" onClick={closeModal}>
+					<button
+						className="btn btn-reverse-danger p-5 ml-10"
+						onClick={closeModal}
+					>
 						Close
 					</button>
 				</div>

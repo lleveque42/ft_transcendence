@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import styles from "./LoginForm.module.scss";
 import Input from "../../Input/Input";
 import { loginRequest } from "../../../api";
+import { useAlert } from "../../../context";
 
 type FormValues = {
 	userName: string;
@@ -17,6 +18,8 @@ const initialFormValues: FormValues = {
 export default function LoginForm() {
 	const [formValues, setFormValues] = useState<FormValues>(initialFormValues);
 	const navigate = useNavigate();
+	const { showAlert } = useAlert();
+
 
 	function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
 		const { name, value } = event.target;
@@ -29,12 +32,15 @@ export default function LoginForm() {
 		try {
 			const res = await loginRequest(formValues);
 			if (!res.ok) {
-				alert("Credentials incorrect");
+				showAlert("error", "Password or username incorrect")
 			} else {
 				if (res.headers.get("WWW-Authenticate") === "TFA") {
 					const data = await res.json();
 					navigate("/verify", { state: { accessToken: data.access_token } });
-				} else navigate("/");
+				} else {
+					navigate("/");
+					showAlert("success", "Welcome back !")
+				}
 			}
 		} catch (e) {
 			console.error("Error login classic");

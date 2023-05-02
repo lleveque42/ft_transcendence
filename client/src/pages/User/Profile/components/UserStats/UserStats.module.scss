@@ -1,0 +1,113 @@
+@use "../../../../../assets/styles/mixins" as mixin;
+
+.statsContainer {
+	height: 7rem;
+	border-bottom: 1px solid var(--secondary-dark);
+
+	div {
+		border-right: 1px solid var(--secondary-dark);
+
+		p {
+			color: var(--light-grey);
+			opacity: 0.8;
+		}
+
+		h2 {
+			color: var(--light-grey);
+		}
+	}
+
+	div:first-child {
+		background: linear-gradient(
+			350deg,
+			var(--success) 0%,
+			var(--primary-dark) 30%
+		);
+	}
+
+	div:nth-child(2) {
+		background: linear-gradient(
+			350deg,
+			var(--danger) 0%,
+			var(--primary-dark) 30%
+		);
+	}
+
+	div:nth-child(3) {
+		border-right: none;
+	}
+
+	@include mixin.sm-lt {
+		height: 2.5rem;
+
+		div {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+		}
+
+		p {
+			font-size: 0.7rem;
+			padding-left: 1rem;
+		}
+
+		h2 {
+			font-size: 0.8rem;
+			padding: 0;
+			padding-right: 1rem;
+		}
+	}
+}
+
+.titleStats {
+	color: var(--light-grey);
+	border-bottom: 1px solid var(--secondary-dark);
+	background: rgba(0, 0, 0, 0.1);
+
+	@include mixin.sm-lt {
+		font-size: 1rem;
+		padding: 0.5rem;
+		padding-left: 1rem;
+	}
+}
+
+.listTitle {
+	@include mixin.sm-lt {
+		font-size: 0.6rem;
+	}
+}
+
+.listContainer {
+	height: 100%;
+	overflow-y: scroll;
+}
+
+.listElem {
+	border-bottom: 1px solid var(--secondary-dark);
+
+	p:first-of-type {
+		cursor: pointer;
+		text-decoration: none;
+		text-decoration-color: transparent;
+		transition: color 0.3s ease-in-out, text-decoration-color 0.3s ease-in-out;
+
+		&:hover {
+			color: var(--primary);
+			text-decoration: underline;
+			text-underline-offset: 0.3em;
+			text-decoration-color: var(--primary);
+		}
+	}
+
+	.winColor {
+		color: var(--success);
+	}
+
+	.loseColor {
+		color: var(--danger);
+	}
+
+	@include mixin.sm-lt {
+		font-size: 0.6rem;
+	}
+}

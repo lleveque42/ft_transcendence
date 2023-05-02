@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Input from "../../Input/Input";
 import styles from "./SignupForm.module.scss";
 import { signupRequest } from "../../../api";
+import { useAlert } from "../../../context";
 
 type FormValues = {
 	userName: string;
@@ -19,6 +20,7 @@ const initialFormValues: FormValues = {
 export default function SignupForm() {
 	const [formValues, setFormValues] = useState<FormValues>(initialFormValues);
 	const navigate = useNavigate();
+	const { showAlert } = useAlert();
 
 	function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
 		const { name, value } = event.target;
@@ -31,9 +33,16 @@ export default function SignupForm() {
 			const res = await signupRequest(formValues);
 			if (res.status === 201) {
 				navigate("/settings");
+				showAlert(
+					"success",
+					"Welcome ! You can customize your profile on this page",
+				);
 			} else if (res.ok) {
 				navigate("/");
-			} else alert("Email taken");
+				showAlert("success", "Welcome back !");
+			} else {
+				showAlert("error", "Email already used")
+			}
 		} catch (e) {
 			console.error("Error Signup");
 		}

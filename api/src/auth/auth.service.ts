@@ -37,6 +37,7 @@ export class AuthService {
 					hash,
 					email: dto.email,
 					userName: dto.userName,
+					avatar: ""
 				},
 			});
 			console.log("SIGNUP USER CREATED : ", user.userName);
@@ -104,8 +105,9 @@ export class AuthService {
 		if (!res.ok) {
 			throw new HttpException("Can't find 42 user", HttpStatus.NOT_FOUND);
 		}
-		const { login, email, first_name, last_name } = await res.json(); // Add avatar link ?
-		return { login, email, first_name, last_name };
+		const { login, email, first_name, last_name, image } = await res.json();
+		const imageUrl = image["link"];
+		return { login, email, first_name, last_name, image: imageUrl };
 	}
 
 	async manageNewAuth42(
@@ -120,7 +122,7 @@ export class AuthService {
 			if ((await this.userService.getUserByUserName(newUser.login)) != null) {
 				newUser.login += "_";
 			}
-			user = await this.userService.createUser(newUser);
+			user = await this.userService.createUser42(newUser);
 			console.log("USER CREATED : ", user.userName);
 			res.status(HttpStatus.CREATED);
 		}

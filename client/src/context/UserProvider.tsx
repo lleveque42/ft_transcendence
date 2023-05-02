@@ -42,7 +42,6 @@ export const UserProvider = ({ children }: UserProviderProps) => {
 	});
 
 	const isAuth = async (): Promise<boolean> => {
-		if (accessToken !== "") return true;
 		const res = await isAuthRequest();
 		if (res && res.ok) {
 			if (res.status === 204) {

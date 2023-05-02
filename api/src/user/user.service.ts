@@ -1,9 +1,17 @@
-import { ForbiddenException, Injectable } from "@nestjs/common";
+import {
+	ForbiddenException,
+	HttpException,
+	HttpStatus,
+	Injectable,
+	StreamableFile,
+} from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { userInfo42Dto } from "../auth/dto";
 import { User } from "@prisma/client";
+import { createReadStream } from "fs";
 import { authenticator } from "otplib";
 import { toDataURL } from "qrcode";
+import * as fs from "fs";
 
 @Injectable()
 export class UserService {
@@ -36,7 +44,8 @@ export class UserService {
 		});
 	}
 
-	async createUser(newUser: userInfo42Dto): Promise<User> {
+	async createUser42(newUser: userInfo42Dto): Promise<User> {
+		if (!newUser.image) newUser.image = "";
 		return await this.prisma.user.create({
 			data: {
 				email: newUser.email,
@@ -44,9 +53,42 @@ export class UserService {
 				hash: "", // to del ?
 				firstName: newUser.first_name,
 				lastName: newUser.last_name,
+				avatar: newUser.image,
 				socket: "",
 			},
 		});
+	}
+
+	async uploadAvatar(userName: string, file: Express.Multer.File) {
+		const user = await this.getUserByUserName(userName);
+		if (!user) throw new ForbiddenException("Can't find user, try again");
+		try {
+			await fs.promises.unlink(user.avatar);
+		} catch (e) {}
+		const fileUrl = process.cwd() + `./files/avatars/${file.filename}`;
+		await this.prisma.user.update({
+			where: {
+				email: user.email,
+			},
+			data: {
+				avatar: fileUrl,
+			},
+		});
+	}
+
+	async getAvatar(user: User): Promise<StreamableFile | String> {
+		if (!user.avatar || user.avatar === "") {
+			throw new HttpException("Can't provide avatar", HttpStatus.NO_CONTENT);
+		} else if (
+			user.avatar.includes("/files/avatars/") &&
+			fs.existsSync(user.avatar)
+		) {
+			return new StreamableFile(createReadStream(user.avatar));
+		} else if (user.avatar.includes("https://cdn.intra.42.fr/users/")) {
+			return user.avatar;
+		} else {
+			throw new HttpException("Can't provide avatar", HttpStatus.NO_CONTENT);
+		}
 	}
 
 	async updateUserName(userName: string, newUserName: string): Promise<User> {
@@ -65,7 +107,7 @@ export class UserService {
 		});
 	}
 
-	async setTfaSecret(userName: string, secret: string): Promise<void>  {
+	async setTfaSecret(userName: string, secret: string): Promise<void> {
 		await this.prisma.user.update({
 			where: {
 				userName,
@@ -100,7 +142,7 @@ export class UserService {
 		const secret = authenticator.generateSecret();
 		const otpAuthUrl = authenticator.keyuri(
 			user.email,
-			"Trans-" + user.userName,
+			"Transcendence",
 			secret,
 		);
 		await this.setTfaSecret(user.userName, secret);
@@ -117,7 +159,8 @@ export class UserService {
 		return authenticator.verify({ token: code, secret: user.tfaSecret });
 	}
 
-	async dropdb(): Promise<void> { // to del
+	async dropdb(): Promise<void> {
+		// to del
 		await this.prisma.user.deleteMany({});
 	}
 }

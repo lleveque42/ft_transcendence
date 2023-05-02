@@ -1,0 +1,91 @@
+@use "../../../../../assets/styles/mixins" as mixin;
+
+.presentationContainer {
+	@include mixin.sm-lt {
+		margin-top: 1rem;
+	}
+
+	.avatarContainer {
+		position: relative;
+
+		@include mixin.sm-lt {
+			display: flex;
+			flex-direction: row;
+			margin-top: 1rem;
+		}
+
+		img {
+			height: 20vw;
+			width: 20vw;
+			border-radius: 50%;
+			border: var(--border);
+			background: var(--secondary-dark);
+
+			@include mixin.sm-lt {
+				height: 35vw;
+				width: 35vw;
+			}
+		}
+
+		.statusBadge {
+			position: absolute;
+			top: 15vw;
+			left: 1vw;
+			width: 2.5vw;
+			height: 2.5vw;
+			border: var(--border);
+			border-radius: 50%;
+
+			@include mixin.sm-lt {
+				top: 30vw;
+				left: 5vw;
+				width: 5vw;
+				height: 5vw;
+			}
+		}
+
+		.online {
+			background-color: var(--success);
+		}
+
+		.offline {
+			background-color: var(--danger);
+		}
+	}
+
+	.userInfosTextContainer {
+		h1 {
+			color: var(--light-grey);
+		}
+
+		h3 {
+			color: var(--light-grey);
+			opacity: 0.8;
+		}
+
+		@include mixin.sm-lt {
+			display: flex;
+			flex-direction: column;
+			padding-left: 1.2rem;
+			// justify-content: center;
+
+			h1 {
+				font-size: 1.5rem;
+			}
+
+			h3 {
+				font-size: 0.8rem;
+			}
+		}
+	}
+
+	button {
+		width: 90%;
+
+		@include mixin.sm-lt {
+			width: 50%;
+			margin-left: 50%;
+			margin-top: -1rem;
+		}
+	}
+}
