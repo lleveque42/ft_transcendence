@@ -24,11 +24,11 @@ export class GameGateway
 	}
 
 	handleConnection(client: Socket, ...args: any) {
-		this.logger.log(`WS Client with id: ${client.id} connected !`);
+		this.logger.log(`WS Client ${client.id} connected !`);
 	}
 
 	handleDisconnect(client: Socket) {
-		this.logger.log("New disconnection.");
+		this.logger.log(`WS Client ${client.id} disconnected !`);
 	}
 
 	@SubscribeMessage("joinGame")
