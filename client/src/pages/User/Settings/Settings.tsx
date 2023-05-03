@@ -50,6 +50,9 @@ export default function Settings() {
 					<div className={`${styles.titleContainer} d-flex flex-column mt-20`}>
 						<div className="title">Settings</div>
 						<h2 className="underTitle mb-20">{user.userName}</h2>
+						{user.friends.map((f, i) => (
+							<li key={i}>{f.userName}</li>
+						))}
 					</div>
 					<div className={`${styles.settingsContainer} d-flex flex-row flex-1`}>
 						<div

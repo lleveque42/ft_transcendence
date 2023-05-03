@@ -107,6 +107,25 @@ export class UserService {
 		});
 	}
 
+	async getUserFriends(user: User): Promise<{
+		friends: {
+			userName: string;
+		}[];
+	}> {
+		return await this.prisma.user.findUnique({
+			where: {
+				id: user.id,
+			},
+			select: {
+				friends: {
+					select: {
+						userName: true,
+					},
+				},
+			},
+		});
+	}
+
 	async addToFriend(userName: string, newFriendUserName: string) {
 		const user = await this.getUserByUserName(userName);
 		const userFriend = await this.getUserByUserName(newFriendUserName);
@@ -114,26 +133,31 @@ export class UserService {
 			throw new ForbiddenException("Can't find user friend, try again");
 		if (userName === newFriendUserName)
 			throw new ForbiddenException("Can't add friend, try again");
+
+		const friends = await this.getUserFriends(user);
+		if (friends.friends.some((f) => f.userName === newFriendUserName)) return;
 		await this.prisma.user.update({
 			where: { id: user.id },
 			data: { friends: { connect: { id: userFriend.id } } },
 			include: { friends: true },
 		});
+	}
 
-		const friends = await this.prisma.user.findUnique({
-			where: {
-				id: user.id,
-			},
-			select: {
-				friends: {
-					select: {
-						id: true,
-						userName: true,
-					},
-				},
-			},
-		});
-		console.log("USER FRIEND", friends);
+	async removeFromFriend(userName: string, newFriendUserName: string) {
+		const user = await this.getUserByUserName(userName);
+		const userFriend = await this.getUserByUserName(newFriendUserName);
+		if (!user || !userFriend)
+			throw new ForbiddenException("Can't find user friend, try again");
+		if (userName === newFriendUserName)
+			throw new ForbiddenException("Can't remove friend, try again");
+		const friends = await this.getUserFriends(user);
+		if (friends.friends.some((f) => f.userName === newFriendUserName)) {
+			await this.prisma.user.update({
+				where: { id: user.id },
+				data: { friends: { disconnect: { id: userFriend.id } } },
+				include: { friends: true },
+			});
+		}
 	}
 
 	async setTfaSecret(userName: string, secret: string): Promise<void> {

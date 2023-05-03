@@ -23,7 +23,7 @@ const UserProfileValues: UserProfileType = {
 };
 
 export default function Profile() {
-	const { accessToken } = useUser();
+	const { accessToken, user } = useUser();
 	const { showAlert } = useAlert();
 	const navigate = useNavigate();
 	const { username } = useParams();
@@ -31,6 +31,7 @@ export default function Profile() {
 	const [userProfile, setUserProfile] =
 		useState<UserProfileType>(UserProfileValues);
 	const [userProfileAvatar, setUserProfileAvatar] = useState<string>("");
+	const [isFriend, setIsFriend] = useState<boolean>(false);
 
 	useEffect(() => {
 		const getUserProfile = async () => {
@@ -39,6 +40,8 @@ export default function Profile() {
 				if (res.ok) {
 					const data = await res.json();
 					setUserProfile(data);
+					if (user.friends.some((f) => f.userName === data.userName))
+						setIsFriend(true);
 				} else {
 					navigate("/");
 					showAlert("error", "User not found");
@@ -46,10 +49,9 @@ export default function Profile() {
 			} catch (e) {
 				console.error("Error user profile", e);
 			}
-			// setIsLoading(false);
 		};
 		getUserProfile();
-	}, [username, accessToken, showAlert, navigate]);
+	}, [username, accessToken, user.friends, showAlert, navigate, isFriend]);
 
 	useEffect(() => {
 		const getUserAvatar = async () => {
@@ -62,10 +64,7 @@ export default function Profile() {
 					} else if (res.headers.get("content-type")?.includes("text/html")) {
 						const data = await res.text();
 						setUserProfileAvatar(data);
-					} else {
-						console.log("Can't load avatar, default avatar is used");
-						setUserProfileAvatar(default_avatar);
-					}
+					} else setUserProfileAvatar(default_avatar);
 				} else {
 					console.error("Can't load avatar, default avatar is used");
 					setUserProfileAvatar(default_avatar);
@@ -99,6 +98,8 @@ export default function Profile() {
 							<UserPresentation
 								userProfile={userProfile}
 								userProfileAvatar={userProfileAvatar}
+								isFriend={isFriend}
+								setIsFriend={setIsFriend}
 							/>
 						</div>
 						<div className={`${styles.userStatsContainer} d-flex flex-column`}>

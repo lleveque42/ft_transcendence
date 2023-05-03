@@ -69,7 +69,7 @@ export class UserController {
 	): Promise<void> {
 		try {
 			await this.userService.updateUserName(userName, dto.newUserName);
-			
+
 		} catch (e) {
 			throw new HttpException(e.message, e.status);
 		}
@@ -120,6 +120,20 @@ export class UserController {
 	): Promise<void> {
 		try {
 			await this.userService.addToFriend(userName, dto.username);
+		} catch (e) {
+			throw new HttpException(e.message, e.status);
+		}
+	}
+
+	@UseGuards(AtGuard)
+	@Delete("friend")
+	@HttpCode(HttpStatus.NO_CONTENT)
+	async removeFromFriend(
+		@GetCurrentUser("sub") userName: string,
+		@Body() dto: UserNameDto,
+	): Promise<void> {
+		try {
+			await this.userService.removeFromFriend(userName, dto.username);
 		} catch (e) {
 			throw new HttpException(e.message, e.status);
 		}

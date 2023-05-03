@@ -1,7 +1,7 @@
 import { createContext, useContext, useState } from "react";
 import { isAuthRequest, logoutRequest } from "../api";
 
-interface UserContextValue {
+type UserContextValue = {
 	isAuth: () => Promise<boolean>;
 	logout: () => void;
 	accessToken: string;
@@ -11,8 +11,9 @@ interface UserContextValue {
 		firstName: string;
 		lastName: string;
 		isTfaEnable: boolean;
+		friends: { userName: string }[];
 	};
-}
+};
 
 const UserContext = createContext<UserContextValue>({
 	isAuth: async () => false,
@@ -24,21 +25,32 @@ const UserContext = createContext<UserContextValue>({
 		firstName: "",
 		lastName: "",
 		isTfaEnable: false,
+		friends: [],
 	},
 });
 
-interface UserProviderProps {
+type UserProviderProps = {
 	children: React.ReactNode;
-}
+};
+
+type UserDataState = {
+	userName: string;
+	email: string;
+	firstName: string;
+	lastName: string;
+	isTfaEnable: boolean;
+	friends: { userName: string }[];
+};
 
 export const UserProvider = ({ children }: UserProviderProps) => {
 	const [accessToken, setAccessToken] = useState<string>("");
-	const [user, setUser] = useState({
+	const [user, setUser] = useState<UserDataState>({
 		userName: "",
 		email: "",
 		firstName: "",
 		lastName: "",
 		isTfaEnable: false,
+		friends: [],
 	});
 
 	const isAuth = async (): Promise<boolean> => {

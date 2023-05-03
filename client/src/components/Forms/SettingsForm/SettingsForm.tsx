@@ -56,9 +56,8 @@ export default function SettingsForm() {
 			const res = await disableTfaRequest(accessToken);
 			if (res.ok) {
 				navigate(0);
-				showAlert("info", "TFA is now disable")
-			}
-			else showAlert("error", "Can't disable TFA, try again later");
+				showAlert("info", "TFA is now disable");
+			} else showAlert("error", "Can't disable TFA, try again later");
 		} catch (e) {
 			console.error("Error disable tfa: ", e);
 		}
