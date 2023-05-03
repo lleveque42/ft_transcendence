@@ -5,11 +5,6 @@ import Ball from "./BallOwnerView";
 import { useRef } from "react";
 import Background from "../GameComponents/Background";
 import { Socket } from "socket.io-client";
-import {
-	gameSocketContext,
-	gameSocket,
-	useGameSocketContext,
-} from "../../../context/GameSocketContext";
 
 interface OwnerGameRenderProps {
 	ballStopped: boolean;
@@ -35,27 +30,24 @@ export default function OwnerGameRender({
 	const playerPaddle = useRef<THREE.Mesh>(null!);
 	const ownerPaddle = useRef<THREE.Mesh>(null!);
 	const socket = useRef<Socket<ClientToWebsocketEvents>>(null!);
-	socket.current = useGameSocketContext();
 
 	return (
-		<gameSocketContext.Provider value={gameSocket}>
-			<Canvas camera={{ position: [0, 0, 2] }}>
-				<ambientLight intensity={0.2} />
-				<pointLight position={[0, 0.75, 1]} />
-				<group>
-					<Background />
-					<LeftPaddle paddle={playerPaddle} socket={socket} />
-					<Ball
-						ballStopped={ballStopped}
-						playerPaddle={playerPaddle}
-						ownerPaddle={ownerPaddle}
-						points={points}
-						setPoints={setPoints}
-						socket={socket}
-					/>
-					<RightPaddle paddle={ownerPaddle} socket={socket} />
-				</group>
-			</Canvas>
-		</gameSocketContext.Provider>
+		<Canvas camera={{ position: [0, 0, 2] }}>
+			<ambientLight intensity={0.2} />
+			<pointLight position={[0, 0.75, 1]} />
+			<group>
+				<Background />
+				<LeftPaddle paddle={playerPaddle} socket={socket} />
+				<Ball
+					ballStopped={ballStopped}
+					playerPaddle={playerPaddle}
+					ownerPaddle={ownerPaddle}
+					points={points}
+					setPoints={setPoints}
+					socket={socket}
+				/>
+				<RightPaddle paddle={ownerPaddle} socket={socket} />
+			</group>
+		</Canvas>
 	);
 }

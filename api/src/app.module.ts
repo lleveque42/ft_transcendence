@@ -9,6 +9,7 @@ import { AuthModule } from "./auth/auth.module";
 import { ConfigModule } from "@nestjs/config";
 import { GameGateway } from "./game/websocket/game.gateway";
 import { UserService } from "./user/user.service";
+import { AppGateway } from "./app.gateway";
 
 @Module({
 	imports: [
@@ -23,6 +24,7 @@ import { UserService } from "./user/user.service";
 	providers: [
 		AppService,
 		PrismaService,
+		AppGateway,
 		GameGateway,
 		ServerGateway,
 		UserService,

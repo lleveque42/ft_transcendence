@@ -5,11 +5,6 @@ import Ball from "./BallPlayerView";
 import { useRef } from "react";
 import Background from "../GameComponents/Background";
 import { Socket } from "socket.io-client";
-import {
-	gameSocketContext,
-	gameSocket,
-	useGameSocketContext,
-} from "../../../context/GameSocketContext";
 
 interface PlayerGameRenderProps {
 	ballStopped: boolean;
@@ -35,10 +30,8 @@ export default function PlayerGameRender({
 	const playerPaddle = useRef<THREE.Mesh>(null!);
 	const ownerPaddle = useRef<THREE.Mesh>(null!);
 	const socket = useRef<Socket<ClientToWebsocketEvents>>(null!);
-	socket.current = useGameSocketContext();
 
 	return (
-		<gameSocketContext.Provider value={gameSocket}>
 			<Canvas camera={{ position: [0, 0, 2] }}>
 				<ambientLight intensity={0.2} />
 				<pointLight position={[0, 0.75, 1]} />
@@ -56,6 +49,5 @@ export default function PlayerGameRender({
 					<RightPaddle paddle={ownerPaddle} socket={socket} />
 				</group>
 			</Canvas>
-		</gameSocketContext.Provider>
 	);
 }

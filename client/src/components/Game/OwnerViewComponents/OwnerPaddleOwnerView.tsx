@@ -31,13 +31,11 @@ export default function OwnerPaddle({ paddle, socket }: OwnerPaddleProps) {
 			ceilToDecimal(paddle.current.position.y + PADDLE_HALF_SIZE) < CEILING
 		) {
 			paddle.current.position.y += delta * PADDLE_SPEED;
-			socket.current.emit("updateOwnerPaddlePos", paddle.current.position.y);
 		} else if (
 			move.down &&
 			floorToDecimal(paddle.current.position.y - PADDLE_HALF_SIZE) > FLOOR
 		) {
 			paddle.current.position.y -= delta * PADDLE_SPEED;
-			socket.current.emit("updateOwnerPaddlePos", paddle.current.position.y);
 		}
 	});
 

@@ -10,7 +10,7 @@ import {
 	WebSocketServer,
 } from "@nestjs/websockets";
 import { Namespace, Socket } from "socket.io";
-import { UserService } from "./../../user/user.service";
+import { UserService } from "./user/user.service";
 import { User } from "@prisma/client";
 
 interface Pair {
@@ -18,11 +18,11 @@ interface Pair {
 	user: User;
 }
 
-@WebSocketGateway(8001, { namespace: "game", cors: "*" })
-export class GameGateway
+@WebSocketGateway(8001, { cors: "*" })
+export class AppGateway
 	implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
-	private readonly logger = new Logger(GameGateway.name);
+	private readonly logger = new Logger(AppGateway.name);
 	@WebSocketServer()
 	io: Namespace;
 	socketToUser: Map<string, Pair> = new Map<string, Pair>();
@@ -31,7 +31,7 @@ export class GameGateway
 	constructor(private userService: UserService) {}
 
 	afterInit(): any {
-		this.logger.log("Websocket GameGateway initialized.");
+		this.logger.log("Websocket AppGateway initialized.");
 	}
 
 	handleDisconnect(client: Socket) {
@@ -52,10 +52,8 @@ export class GameGateway
 
 		// si un user est déjà connecté sur une autre page, on le reco sur cette page
 		// comme si de rien était mais on le comptabilise pas comme un nouveau user
-		if (this.userToSocket.has(user.id)) {
-			const oldClient = this.userToSocket.get(user.id).client;
+		if (this.userToSocket.has(user.id))
 			return;
-		}
 
 		this.logger.log(`WS Client ${client.id} (${user.userName}) connected !`);
 		this.socketToUser.set(client.id, {
@@ -73,32 +71,5 @@ export class GameGateway
 		// 	console.log("new user");
 		// 	console.log(value.user);
 		// });
-	}
-
-	@SubscribeMessage("joinGame")
-	handleNewGame(
-		@ConnectedSocket() client: Socket,
-		@MessageBody() message: string,
-	): void {
-		// this.io.emit("message", message);
-		// console.log("new message")
-	}
-
-	@SubscribeMessage("updatePlayerPaddlePos")
-	handleLeftPaddlePosUpdate(@MessageBody() position: number): void {
-		this.io.emit("leftPaddlePosUpdate", position);
-		this.logger.log("left paddle pos update: ", position);
-	}
-
-	@SubscribeMessage("updateOwnerPaddlePos")
-	handleRightPaddlePosUpdate(@MessageBody() position: number): void {
-		this.io.emit("rightPaddlePosUpdate", position);
-		this.logger.log("right paddle pos update: ", position);
-	}
-
-	@SubscribeMessage("updateBallPos")
-	handleBallPosUpdate(@MessageBody() position: { x: number; y: number }): void {
-		this.io.emit("ballPosUpdate", { x: position.x, y: position.y });
-		this.logger.log("ball pos update: x: ", position.x, " y: ", position.y);
 	}
 }
