@@ -65,6 +65,28 @@ export class ChannelService {
 			},
 			where: {
 				owner: user,
+				type: "Channel",
+			},
+		});
+		return chans;
+	}
+
+	async getUserDirectMessages(username) {
+		const user = await this.prisma.user.findUnique({
+			where: {
+				userName: username,
+			},
+		});
+		const chans = await this.prisma.channel.findMany({
+			include: {
+				owner: true,
+				members: true,
+				operators: true,
+				messages: true,
+			},
+			where: {
+				owner: user,
+				type: "DM",
 			},
 		});
 		return chans;

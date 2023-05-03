@@ -45,11 +45,24 @@ export class ChannelController {
 		}
 	}
 
-	@Get("/:chanName")
-	async getUserChans(@Param("chanName") chanName: string): Promise<Channel[]> {
+	@Get("/:username")
+	async getUserChans(@Param("username") username: string): Promise<Channel[]> {
 		try {
-			console.log("Enter getuserChans");
-			const channels = await this.channelService.getUsersChannels(chanName);
+			console.log("Enter getUserChans");
+			const channels = await this.channelService.getUsersChannels(username);
+			return channels;
+		} catch (e) {
+			throw new HttpException(e.message, e.status);
+		}
+	}
+
+	@Get("/:username")
+	async getUserDirectMessages(
+		@Param("username") username: string,
+	): Promise<Channel[]> {
+		try {
+			console.log("Enter getUserDirectMessages");
+			const channels = await this.channelService.getUsersChannels(username);
 			return channels;
 		} catch (e) {
 			throw new HttpException(e.message, e.status);
