@@ -12,6 +12,7 @@ import {
 import { Namespace, Socket } from "socket.io";
 import { UserService } from "./../../user/user.service";
 import { User } from "@prisma/client";
+import { OnlineUsers } from "src/classes/OnlineUsers";
 
 interface Pair {
 	client: Socket;
@@ -25,8 +26,7 @@ export class GameGateway
 	private readonly logger = new Logger(GameGateway.name);
 	@WebSocketServer()
 	io: Namespace;
-	socketToUser: Map<string, Pair> = new Map<string, Pair>();
-	userToSocket: Map<number, Pair> = new Map<number, Pair>();
+	users: OnlineUsers = new OnlineUsers();
 
 	constructor(private userService: UserService) {}
 
@@ -35,70 +35,54 @@ export class GameGateway
 	}
 
 	handleDisconnect(client: Socket) {
-		const pair = this.socketToUser.get(client.id);
-		if (!pair) return;
-		this.logger.log(
-			`WS Client ${client.id} (${pair.user.userName}) disconnected !`,
-		);
-		this.userToSocket.delete(pair.user.id);
-		this.socketToUser.delete(client.id);
-		this.logger.log(`${this.socketToUser.size} user(s) connected !`);
+		const user: User = this.users.getUserByClientId(client.id);
+		if (!user) return;
+		this.logger.log(`WS Client ${client.id} (${user.userName}) disconnected !`);
+		this.users.removeClientId(client.id);
+		this.logger.log(`${this.users.size} user(s) connected !`);
 	}
 
 	async handleConnection(@ConnectedSocket() client: Socket) {
 		const user = await this.userService.getUserByEmail(
 			`${client.handshake.query.email}`,
 		);
-
-		// si un user est déjà connecté sur une autre page, on le reco sur cette page
-		// comme si de rien était mais on le comptabilise pas comme un nouveau user
-		if (this.userToSocket.has(user.id)) {
-			const oldClient = this.userToSocket.get(user.id).client;
-			return;
-		}
-
+		if (this.users.hasByUserId(user.id))
+			this.users.addClientToUserId(user.id, client);
+		else this.users.addNewUser(user, client);
 		this.logger.log(`WS Client ${client.id} (${user.userName}) connected !`);
-		this.socketToUser.set(client.id, {
-			client,
-			user,
-		});
-		this.userToSocket.set(user.id, {
-			client,
-			user,
-		});
-		this.logger.log(`${this.socketToUser.size} user(s) connected !`);
-
-		// // afficher tous les users
-		// this.socketToUser.forEach((value) => {
-		// 	console.log("new user");
-		// 	console.log(value.user);
-		// });
+		this.logger.log(`${this.users.size} user(s) connected !`);
 	}
 
-	@SubscribeMessage("joinGame")
-	handleNewGame(
-		@ConnectedSocket() client: Socket,
-		@MessageBody() message: string,
-	): void {
-		// this.io.emit("message", message);
-		// console.log("new message")
-	}
+	// @SubscribeMessage("showUsers")
+	// showUsers(@ConnectedSocket() client: Socket) {
+	// }
 
-	@SubscribeMessage("updatePlayerPaddlePos")
-	handleLeftPaddlePosUpdate(@MessageBody() position: number): void {
-		this.io.emit("leftPaddlePosUpdate", position);
-		this.logger.log("left paddle pos update: ", position);
-	}
+	// @SubscribeMessage("joinGame")
+	// handleNewGame(
+	// 	@ConnectedSocket() client: Socket,
+	// 	@MessageBody() message: string,
+	// ): void {
+	// 	const pair = this.socketToUser.get(client.id);
+	// 	this.logger.log("")
+	// 	// this.io.emit("message", message);
+	// 	// console.log("new message")
+	// }
 
-	@SubscribeMessage("updateOwnerPaddlePos")
-	handleRightPaddlePosUpdate(@MessageBody() position: number): void {
-		this.io.emit("rightPaddlePosUpdate", position);
-		this.logger.log("right paddle pos update: ", position);
-	}
+	// @SubscribeMessage("updatePlayerPaddlePos")
+	// handleLeftPaddlePosUpdate(@MessageBody() position: number): void {
+	// 	this.io.emit("leftPaddlePosUpdate", position);
+	// 	this.logger.log("left paddle pos update: ", position);
+	// }
 
-	@SubscribeMessage("updateBallPos")
-	handleBallPosUpdate(@MessageBody() position: { x: number; y: number }): void {
-		this.io.emit("ballPosUpdate", { x: position.x, y: position.y });
-		this.logger.log("ball pos update: x: ", position.x, " y: ", position.y);
-	}
+	// @SubscribeMessage("updateOwnerPaddlePos")
+	// handleRightPaddlePosUpdate(@MessageBody() position: number): void {
+	// 	this.io.emit("rightPaddlePosUpdate", position);
+	// 	this.logger.log("right paddle pos update: ", position);
+	// }
+
+	// @SubscribeMessage("updateBallPos")
+	// handleBallPosUpdate(@MessageBody() position: { x: number; y: number }): void {
+	// 	this.io.emit("ballPosUpdate", { x: position.x, y: position.y });
+	// 	this.logger.log("ball pos update: x: ", position.x, " y: ", position.y);
+	// }
 }
