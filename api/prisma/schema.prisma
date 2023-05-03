@@ -26,7 +26,8 @@ model User {
   socket      String?
   tfaSecret   String?
   isTfaEnable Boolean @default(false)
-  camenbert   String?
+  friends    User[]   @relation("Friends")
+  friendsOf  User[]   @relation("Friends")
 }
 
 model Game {

@@ -66,6 +66,7 @@ export class AuthController {
 	): Promise<{ accessToken: string; userData: UserDataRefresh }> {
 		const accessToken = await this.authService.newTokens(userEmail);
 		const user = await this.userService.getUserByEmail(userEmail);
+		const { friends } = await this.userService.getUserFriends(user);
 		return {
 			accessToken: accessToken.access_token,
 			userData: {
@@ -74,6 +75,7 @@ export class AuthController {
 				firstName: user.firstName,
 				lastName: user.lastName,
 				isTfaEnable: user.isTfaEnable,
+				friends: friends,
 			},
 		};
 	}

@@ -6,7 +6,7 @@ export default function useAvatar(
 	accessToken: string,
 	setUserAvatar: React.Dispatch<React.SetStateAction<string>>,
 	setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
-	username: string
+	username: string,
 ) {
 	useEffect(() => {
 		async function getAvatar() {
@@ -19,10 +19,7 @@ export default function useAvatar(
 					} else if (res.headers.get("content-type")?.includes("text/html")) {
 						const data = await res.text();
 						setUserAvatar(data);
-					} else {
-						console.log("Can't load avatar, default avatar is used");
-						setUserAvatar(default_avatar);
-					}
+					} else setUserAvatar(default_avatar);
 				} else {
 					console.error("Can't load avatar, default avatar is used");
 					setUserAvatar(default_avatar);

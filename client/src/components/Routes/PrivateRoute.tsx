@@ -20,7 +20,8 @@ export default function PrivateRoute(props: {
 			setIsAuthenticated(auth);
 		};
 		checkAuth();
-	}, [isAuth]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [isAuthenticated]);
 
 	useEffect(() => {
 		let appSocket: Socket;
