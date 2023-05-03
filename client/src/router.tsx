@@ -11,6 +11,7 @@ import Chat from "./pages/Chat/Chat";
 import DirectMessages from "./pages/DirectMessages/DirectMessages";
 import Settings from "./pages/User/Settings/Settings";
 import VerifyTfa from "./pages/Login/VerifyTfa/VerifyTfa";
+import GameTest from "./pages/GameTest/GameTest";
 import Profile from "./pages/User/Profile/Profile";
 
 export default function Router() {
@@ -19,7 +20,10 @@ export default function Router() {
 			<Route element={<App />}>
 				<Route path="/login" element={<PublicRoute element={<Login />} />} />
 				<Route path="/signup" element={<PublicRoute element={<Signup />} />} />
-				<Route path="/verify" element={<PublicRoute element={<VerifyTfa />} />} />
+				<Route
+					path="/verify"
+					element={<PublicRoute element={<VerifyTfa />} />}
+				/>
 				<Route
 					path="/login42"
 					element={<PublicRoute element={<Login42 />} />}
@@ -33,17 +37,15 @@ export default function Router() {
 					path="/user/:username"
 					element={<PrivateRoute element={<Profile />} />}
 				/>
-				<Route
-					path="/chat"
-					element={<PrivateRoute element={<Chat />} />}
-				/>
+				<Route path="/play" element={<PrivateRoute element={<GameTest />} />} />
+				<Route path="/chat" element={<PrivateRoute element={<Chat />} />} />
 				<Route
 					path="/chat/direct_messages"
-					element={<PrivateRoute element={<DirectMessages/>} />}
+					element={<PrivateRoute element={<DirectMessages />} />}
 				/>
 				<Route
 					path="/chat/direct_messages/:id"
-					element={<PrivateRoute element={<DirectMessages/>} />}
+					element={<PrivateRoute element={<DirectMessages />} />}
 				/>
 				<Route
 					path="/chat/channels"

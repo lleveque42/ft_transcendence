@@ -7,7 +7,9 @@ import { PrismaModule } from "./prisma/prisma.module";
 import { UserModule } from "./user/user.module";
 import { AuthModule } from "./auth/auth.module";
 import { ConfigModule } from "@nestjs/config";
+import { GameGateway } from "./game/websocket/game.gateway";
 import { UserService } from "./user/user.service";
+import { AppGateway } from "./app.gateway";
 
 @Module({
 	imports: [
@@ -19,6 +21,13 @@ import { UserService } from "./user/user.service";
 		AuthModule,
 	],
 	controllers: [AppController],
-	providers: [AppService, PrismaService, ServerGateway, UserService],
+	providers: [
+		AppService,
+		PrismaService,
+		AppGateway,
+		GameGateway,
+		ServerGateway,
+		UserService,
+	],
 })
 export class AppModule {}
