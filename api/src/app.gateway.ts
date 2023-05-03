@@ -50,5 +50,6 @@ export class AppGateway
 
 	@SubscribeMessage("showUsers")
 	showUsers(@ConnectedSocket() client: Socket) {
+		this.users.showOnlineUsers();
 	}
 }
