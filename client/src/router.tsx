@@ -11,7 +11,7 @@ import Chat from "./pages/Chat/Chat";
 import DirectMessages from "./pages/DirectMessages/DirectMessages";
 import Settings from "./pages/User/Settings/Settings";
 import VerifyTfa from "./pages/Login/VerifyTfa/VerifyTfa";
-import GameTest from "./pages/GameTest/GameTest";
+import GameTest from "./pages/Play/Play";
 import Profile from "./pages/User/Profile/Profile";
 
 export default function Router() {
@@ -37,7 +37,10 @@ export default function Router() {
 					path="/user/:username"
 					element={<PrivateRoute element={<Profile />} />}
 				/>
-				<Route path="/play" element={<PrivateRoute element={<GameTest />} />} />
+				<Route
+					path="/play"
+					element={<PrivateRoute element={<GameTest />} play={true} />}
+				/>
 				<Route path="/chat" element={<PrivateRoute element={<Chat />} />} />
 				<Route
 					path="/chat/direct_messages"

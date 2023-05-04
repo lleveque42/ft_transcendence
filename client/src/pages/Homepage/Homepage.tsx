@@ -14,7 +14,6 @@ export default function Homepage() {
 	}
 
 	function handlePlay() {
-
 		navigate("/play");
 	}
 

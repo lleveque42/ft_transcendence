@@ -6,13 +6,16 @@ import Footer from "../Footer/Footer";
 import { useUser } from "../../context";
 import { Socket, io } from "socket.io-client";
 import { PrivateRouteSocketContext } from "../../context/PrivateRouteProvider";
+import { GameSocketContext } from "../../pages/Play/context/GameSocketProvider";
 
 export default function PrivateRoute(props: {
 	element: ReactElement;
+	play?: boolean | false;
 }): ReactElement {
 	const { user, isAuth } = useUser();
 	const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 	const [socket, setSocket] = useState<Socket | null>(null);
+	const [gameSocket, setGameSocket] = useState<Socket | null>(null);
 
 	useEffect(() => {
 		const checkAuth = async () => {
@@ -38,6 +41,21 @@ export default function PrivateRoute(props: {
 		};
 	}, [isAuthenticated, user.email]);
 
+	useEffect(() => {
+		let gameSocket: Socket;
+		if (isAuthenticated !== null && isAuthenticated && props.play) {
+			gameSocket = io(`${process.env.REACT_APP_GAME_GATEWAY_URL}`, {
+				query: {
+					email: user.email,
+				},
+			});
+			setGameSocket(gameSocket);
+		}
+		return () => {
+			if (gameSocket) gameSocket.disconnect();
+		};
+	}, [isAuthenticated, user.email, props.play]);
+
 	if (isAuthenticated === null) {
 		return (
 			<Loader
@@ -48,15 +66,23 @@ export default function PrivateRoute(props: {
 		);
 	}
 
-	const privateRouteSocketContextValue = { socket };
+	const elem = (
+		<div className="container d-flex justify-content flex-column">
+			<Header />
+			{props.element}
+			<Footer />
+		</div>
+	);
 
 	return isAuthenticated ? (
-		<PrivateRouteSocketContext.Provider value={privateRouteSocketContextValue}>
-			<div className="container d-flex justify-content flex-column">
-				<Header />
-				{props.element}
-				<Footer />
-			</div>
+		<PrivateRouteSocketContext.Provider value={{ socket }}>
+			{props.play ? (
+				<GameSocketContext.Provider value={{ gameSocket }}>
+					{elem}
+				</GameSocketContext.Provider>
+			) : (
+				elem
+			)}
 		</PrivateRouteSocketContext.Provider>
 	) : (
 		<Navigate to="/login" />

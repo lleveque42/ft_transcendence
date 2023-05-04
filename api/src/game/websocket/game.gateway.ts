@@ -53,6 +53,11 @@ export class GameGateway
 		this.logger.log(`${this.users.size} user(s) connected !`);
 	}
 
+	@SubscribeMessage("showUsers")
+	showUsers(@ConnectedSocket() client: Socket) {
+		this.users.showOnlineUsers();
+	}
+
 	// @SubscribeMessage("showUsers")
 	// showUsers(@ConnectedSocket() client: Socket) {
 	// }
