@@ -2,36 +2,25 @@ import React from "react";
 
 import ChatNav from "../../components/Chat/ChatNav/ChatNav";
 import { useEffect, useState } from "react";
-import { NavLink, useParams } from "react-router-dom";
+import { NavLink} from "react-router-dom";
 import { Socket, io } from "socket.io-client";
 import { useUser } from "../../context/UserProvider";
 // import { KeyboardEvent } from "react"
 // import Message from "../../components/Message/Message";
 
+
+// Create interfaces for channels, users and messages
+
 export default function Channels() {
   
 	const { accessToken, user } = useUser();
 	const [socket, setSocket] = useState<Socket>();
-	// const [value, setValue] = useState("");
 	
 	const [channelsState, setChannelsState] = useState([]);
 	// const [membersState, setMembersState] = useState([]);
-	// const [messagesState, setMessagesState] = useState([]);
-
-	// const [messages, setMessages] = useState<messageBlueprint[]>([]);
+	//const [messagesState, setMessagesState] = useState([]);
 	
-	// const [messages, setMessages] = useState([
-	// 		{
-	// 				username: 'gilbert',
-	// 				content: 'Salut toi'
-	// 	},
-	// 	{
-	// 		username: 'wakka',
-	// 		content: 'Bonjour'
-	// 	}
-	// ]);
-	
-	const { id } = useParams();
+	// const { id } = useParams();
 	
 	// Make the user to join the rooms of his channels
 	
@@ -119,10 +108,13 @@ export default function Channels() {
 	// };
 	
 	// const channelsMembers = channelsState.map(({members}) => {return members});
-	// const channelMessages = setMessages(channelsState.map(({message}) => {return message}));
+	// console.log(channelsMembers);
+	// console.log(channelsMembers[0]);
 	
-	const channelsList = channelsState.map(({ title , messages}) => (
-		<li key={title}>
+	//const channelMessages = setMessages(channelsState.map(({message}) => {return message}));
+	
+	const channelsList = channelsState.map(({ id, title }) => (
+		<li key={id}>
 			<div>
 			<NavLink className={``}  to={`/chat/channels/${title}`} >
 				<span>

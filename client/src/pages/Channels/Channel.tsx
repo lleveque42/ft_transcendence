@@ -7,44 +7,31 @@ import { Socket, io } from "socket.io-client";
 import { useUser } from "../../context/UserProvider";
 import { KeyboardEvent } from "react"
 import Message from "../../components/Message/Message";
-
-class messageBlueprint{
-	id: string;
-	authorId : string;
-	username: string;
-	channel: string;
-	content: string;
-
-	constructor(){;
-		this.id = "";
-		this.authorId = "";
-		this.username = "";
-		this.content = "";
-		this.channel = ""
-	}
-}
+import { MessageModel, UserModel } from "../../entities/entities";
 
 export default function Channel() {
   
 	const { accessToken, user } = useUser();
 	const [socket, setSocket] = useState<Socket>();
 	const [value, setValue] = useState("");
-	
-	const [channelsState, setChannelsState] = useState([]);
-	const [messagesState, setMessagesState] = useState<Array<messageBlueprint>>([]);
+	const [messagesState, setMessagesState] = useState<Array<MessageModel>>([]);
 	
 	const { id } = useParams();
 	
-	socket?.emit('joinChatRoom', id)
-
+	
 	//	Put this shit in a context
 	useEffect(() => {
 		const newSocket = io(`${process.env.REACT_APP_CHAT_URL}`);
 		setSocket(newSocket);
 	}, [setSocket])
 	
+	//	Put this shit in a context
 	useEffect(() => {
-		(async () => {
+		socket?.emit('joinChatRoom', id)
+	}, [socket, id])
+	
+	useEffect(() => {
+	(async () => {
 			try {
 				await fetch(`http://localhost:3000/channels/chan/${id}`, {
 					credentials: "include",
@@ -56,7 +43,6 @@ export default function Channel() {
 				.then(
 				(messages) => {
 					setMessagesState(messages);
-					console.log(messages);
 				}
 				);
             } catch (e) {
@@ -65,21 +51,19 @@ export default function Channel() {
     }, [accessToken, id]);
 
 	
-	const messagesList = messagesState.map(({ id, authorId, content }) => (
+	const messagesList = messagesState.map(({ id, author, content }) => (
 		<li key={id}>
 		  <Message
 			allMessages={messagesState}
 			removeMessages={setMessagesState}
-			username ={authorId}
+			username ={author.userName}
 			content={content}
 			/>
 		</li>
 	  ));
 	  
-	  const messageListener = (id : string, authorId: string, channel: string, content: string) => {
-		  let username = "Test";
-		  setMessagesState([...messagesState, {id, authorId, channel, content, username}]);
-		  console.log(messagesState);
+	  const messageListener = (id : number, date: Date, authorId: number, author: UserModel, content: string) => {
+		  setMessagesState([...messagesState, {id, date, authorId, author, content}]);
 	  }
 	  
 	useEffect(() => {

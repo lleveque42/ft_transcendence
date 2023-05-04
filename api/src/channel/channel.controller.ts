@@ -56,13 +56,15 @@ export class ChannelController {
 		}
 	}
 
-	@Get("/:username")
+	@Get("/dm/:username")
 	async getUserDirectMessages(
 		@Param("username") username: string,
 	): Promise<Channel[]> {
 		try {
 			console.log("Enter getUserDirectMessages");
-			const channels = await this.channelService.getUsersChannels(username);
+			const channels = await this.channelService.getUserDirectMessages(
+				username,
+			);
 			return channels;
 		} catch (e) {
 			throw new HttpException(e.message, e.status);

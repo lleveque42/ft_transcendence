@@ -98,7 +98,7 @@ export class ChannelService {
 				title: title,
 			},
 		});
-		const chans = await this.prisma.message.findMany({
+		const msgs = await this.prisma.message.findMany({
 			include: {
 				author: true,
 				channel: true,
@@ -107,7 +107,7 @@ export class ChannelService {
 				channel: chan,
 			},
 		});
-		return chans;
+		return msgs;
 	}
 
 	async dropdb() {

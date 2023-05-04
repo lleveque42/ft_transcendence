@@ -42,6 +42,10 @@ export default function Router() {
 					element={<PrivateRoute element={<DirectMessages/>} />}					
 				/>
 				<Route
+					path="/chat/direct_messages/new_dm"
+					element={<PrivateRoute element={<DirectMessages/>} />}					
+				/>
+				<Route
 					path="/chat/channels"
 					element={<PrivateRoute element={<Channels />} />}					
 				/>
