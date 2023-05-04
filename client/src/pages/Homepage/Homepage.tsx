@@ -22,7 +22,7 @@ export default function Homepage() {
 				<h2 className="underTitle mb-20">Homepage</h2>
 			</div>
 			<div className="d-flex flex-row flex-1">
-				<div className={`${styles.friendsListContainer} d-flex flex-column`}>
+				<div className={`${styles.friendsContainer} d-flex flex-column`}>
 					<FriendsList />
 				</div>
 				<div className={`${styles.homepageButtonContainer} d-flex flex-column align-items justify-content`}>
