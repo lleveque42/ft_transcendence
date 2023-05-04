@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import Input from "../../../components/Input/Input";
+import Input from "../../../../../components/Input/Input";
 import styles from "./TfaModal.module.scss";
 import { useNavigate } from "react-router-dom";
-import { enableTfaRequest } from "../../../api";
-import { useAlert, useUser } from "../../../context";
+import { enableTfaRequest } from "../../../../../api";
+import { useAlert, useUser } from "../../../../../context";
 
 interface ModalProps {
 	closeModal: () => void;

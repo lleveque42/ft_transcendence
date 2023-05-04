@@ -1,4 +1,3 @@
-import SettingsForm from "../../../components/Forms/SettingsForm/SettingsForm";
 import styles from "./Settings.module.scss";
 import { ChangeEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -6,6 +5,7 @@ import useAvatar from "../../../hooks/useAvatar";
 import { userUploadAvatar } from "../../../api";
 import Loader from "react-loaders";
 import { useAlert, useUser } from "../../../context";
+import SettingsForm from "./components/SettingsForm/SettingsForm";
 
 export default function Settings() {
 	const navigate = useNavigate();

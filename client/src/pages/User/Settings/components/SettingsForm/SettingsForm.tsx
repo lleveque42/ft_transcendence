@@ -1,14 +1,10 @@
 import { useState } from "react";
-import Input from "../../Input/Input";
 import styles from "./SettingsForm.module.scss";
 import { useNavigate } from "react-router-dom";
-import {
-	disableTfaRequest,
-	generateQrCodeRequest,
-	settingsRequest,
-} from "../../../api";
-import TfaModal from "../../../pages/User/Settings/TfaModal";
-import { useAlert, useUser } from "../../../context";
+import Input from "../../../../../components/Input/Input";
+import TfaModal from "../TfaModal/TfaModal";
+import { useAlert, useUser } from "../../../../../context";
+import { disableTfaRequest, generateQrCodeRequest, settingsRequest } from "../../../../../api";
 
 export default function SettingsForm() {
 	const { accessToken, user } = useUser();
