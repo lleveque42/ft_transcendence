@@ -3,7 +3,6 @@ import React, { ReactElement } from "react";
 import ChatNav from "../../components/Chat/ChatNav/ChatNav";
 import { useEffect, useState } from "react";
 import { NavLink, useParams } from "react-router-dom";
-import { Socket, io } from "socket.io-client";
 import { useUser } from "../../context/UserProvider";
 import { KeyboardEvent } from "react"
 import Message from "../../components/Message/Message";
@@ -13,16 +12,18 @@ import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
 export default function Channel() {
   
 	const { accessToken, user } = useUser();
-	// const [socket, setSocket] = useState<Socket>();
+	//const [socket, setSocket] = useState<Socket>();
 	const {chatSocket} = usePrivateRouteSocket();
+	
 	
 	const [value, setValue] = useState("");
 	const [messagesState, setMessagesState] = useState<Array<MessageModel>>([]);
 	const [ messagesList, setMessagesList] = useState<JSX.Element[]>([]);
 	 
 	const { id } = useParams();
-	
-	
+
+	chatSocket?.emit('joinChatRoom', id);
+
 	//	Put this shit in a context
 	// useEffect(() => {
 	// 	const newSocket = io(`${process.env.REACT_APP_CHAT_URL}`);
@@ -34,7 +35,6 @@ export default function Channel() {
 	// 	chatSocket?.emit('joinChatRoom', id)
 	// }, [chatSocket, id])
 	
-
 	useEffect(() => {
 	(async () => {
 			try {
@@ -69,8 +69,9 @@ export default function Channel() {
 	  )));
 	},[messagesState]);
 
-	const messageListener = (id : number, authorId: number, author: UserModel, content: string) => {
-	console.log("Content of received message " + content);
+	const messageListener = (msg: MessageModel) => {
+	// console.log("Content of received message " + msg.author.userName);
+	const {id, authorId, author, content} = msg
 	setMessagesState([...messagesState, {id, authorId, author, content}]);
 	}
 

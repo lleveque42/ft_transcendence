@@ -30,7 +30,7 @@ export class UserModel implements User {
 
 interface Message {
 	id: number;
-	date?: Date;
+	// date?: Date;
 	content: string;
 	authorId?: number;
 	author: UserModel;
@@ -38,14 +38,14 @@ interface Message {
 
 export class MessageModel implements Message {
 	id: number;
-	date?: Date;
+	// date?: Date;
 	content: string;
 	authorId?: number;
 	author: UserModel;
 
 	constructor(data: Message) {
 		this.id = data.id;
-		this.date = data.date;
+		// this.date = data.date;
 		this.content = data.content;
 		this.authorId = data.authorId;
 		this.author = data.author;

@@ -25,9 +25,18 @@ export class MessageService {
 				authorId: user.id,
 				channelId: chan.id,
 			},
+			// include: {
+			// 	author: true,
+			// },
+			include: {
+				author: {
+					select: {
+						userName: true,
+					},
+				},
+			},
 		});
 		console.log(msg);
-
 		return msg;
 	}
 

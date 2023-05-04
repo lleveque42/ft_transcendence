@@ -120,6 +120,7 @@ export class ServerGateway
 				this.users.getUserByClientId(client.id).userName,
 				data.room,
 			);
+			console.log(msg);
 			if (msg) {
 				console.log(
 					"Sender " +
@@ -133,15 +134,7 @@ export class ServerGateway
 						"*" +
 						" ",
 				);
-				this.io
-					.to("chan" + data.room)
-					.emit(
-						"receivedMessage",
-						msg.id,
-						msg.authorId,
-						msg.channelId,
-						msg.content,
-					);
+				this.io.to("chan" + data.room).emit("receivedMessage", msg);
 			} else {
 				console.log("No msg created");
 			}
@@ -162,6 +155,7 @@ export class ServerGateway
 		const sockets = this.users.getClientsByClientId(socket.id);
 		for (const socket of sockets) {
 			socket[1].join("chan" + chanName);
+			// Send a confirmation to client
 		}
 		//console.log(socket.rooms);
 	}
