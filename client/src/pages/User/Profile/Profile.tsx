@@ -1,10 +1,10 @@
-import { useNavigate, useParams } from "react-router-dom";
 import styles from "./Profile.module.scss";
+import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useAlert, useUser } from "../../../context";
+import { userAvatarRequest, userProfileInfosRequest } from "../../../api";
 import Loader from "react-loaders";
 import default_avatar from "../../../assets/images/punk.png";
-import { userAvatarRequest, userProfileInfosRequest } from "../../../api";
 import UserStats from "./components/UserStats/UserStats";
 import UserPresentation from "./components/UserPresentation/UserPresentation";
 
@@ -42,6 +42,7 @@ export default function Profile() {
 					setUserProfile(data);
 					if (user.friends.some((f) => f.userName === data.userName))
 						setIsFriend(true);
+					else setIsFriend(false);
 				} else {
 					navigate("/");
 					showAlert("error", "User not found");
@@ -71,6 +72,7 @@ export default function Profile() {
 				}
 			} catch (e) {
 				console.error("Error get User Avatar", e);
+				setUserProfileAvatar(default_avatar);
 			}
 			setIsLoading(false);
 		};
@@ -99,7 +101,6 @@ export default function Profile() {
 								userProfile={userProfile}
 								userProfileAvatar={userProfileAvatar}
 								isFriend={isFriend}
-								setIsFriend={setIsFriend}
 							/>
 						</div>
 						<div className={`${styles.userStatsContainer} d-flex flex-column`}>

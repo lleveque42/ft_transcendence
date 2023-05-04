@@ -1,25 +1,26 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import styles from "./LoginForm.module.scss";
-import Input from "../../Input/Input";
-import { loginRequest } from "../../../api";
+import styles from "./SignupForm.module.scss";
+import { signupRequest } from "../../../api";
 import { useAlert } from "../../../context";
+import Input from "../../../components/Input/Input";
 
 type FormValues = {
 	userName: string;
+	email: string;
 	password: string;
 };
 
 const initialFormValues: FormValues = {
 	userName: "",
+	email: "",
 	password: "",
 };
 
-export default function LoginForm() {
+export default function SignupForm() {
 	const [formValues, setFormValues] = useState<FormValues>(initialFormValues);
 	const navigate = useNavigate();
 	const { showAlert } = useAlert();
-
 
 	function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
 		const { name, value } = event.target;
@@ -28,22 +29,22 @@ export default function LoginForm() {
 
 	async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
 		event.preventDefault();
-		if (formValues.password === "" || formValues.userName === "") return;
 		try {
-			const res = await loginRequest(formValues);
-			if (!res.ok) {
-				showAlert("error", "Password or username incorrect")
+			const res = await signupRequest(formValues);
+			if (res.status === 201) {
+				navigate("/settings");
+				showAlert(
+					"success",
+					"Welcome ! You can customize your profile on this page",
+				);
+			} else if (res.ok) {
+				navigate("/");
+				showAlert("success", "Welcome back !");
 			} else {
-				if (res.headers.get("WWW-Authenticate") === "TFA") {
-					const data = await res.json();
-					navigate("/verify", { state: { accessToken: data.access_token } });
-				} else {
-					navigate("/");
-					showAlert("success", "Welcome back !")
-				}
+				showAlert("error", "Email already used")
 			}
 		} catch (e) {
-			console.error("Error login classic");
+			console.error("Error Signup");
 		}
 	}
 
@@ -62,6 +63,14 @@ export default function LoginForm() {
 					onChange={handleInputChange}
 				/>
 				<Input
+					icon="fa-solid fa-envelope"
+					type="email"
+					name="email"
+					placeholder="Email"
+					value={formValues.email}
+					onChange={handleInputChange}
+				/>
+				<Input
 					icon="fa-solid fa-lock"
 					type="password"
 					name="password"
@@ -70,19 +79,19 @@ export default function LoginForm() {
 					onChange={handleInputChange}
 				/>
 				<div
-					className={`${styles.buttonContainer} d-flex flex-row justify-content-space-between mb-10`}
+					className={`${styles.buttonContainer} d-flex flex-row justify-content-space-between mb-30`}
 				>
 					<button
 						className="btn-reverse-primary"
 						type="button"
 						onClick={() => {
-							navigate("/signup");
+							navigate("/login");
 						}}
 					>
-						Signup
+						Back to Login
 					</button>
 					<button className="btn-primary" type="submit">
-						Login
+						Signup
 					</button>
 				</div>
 			</form>

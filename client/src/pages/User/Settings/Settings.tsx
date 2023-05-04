@@ -1,4 +1,3 @@
-import SettingsForm from "../../../components/Forms/SettingsForm/SettingsForm";
 import styles from "./Settings.module.scss";
 import { ChangeEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -6,6 +5,7 @@ import useAvatar from "../../../hooks/useAvatar";
 import { userUploadAvatar } from "../../../api";
 import Loader from "react-loaders";
 import { useAlert, useUser } from "../../../context";
+import SettingsForm from "./components/SettingsForm/SettingsForm";
 
 export default function Settings() {
 	const navigate = useNavigate();
@@ -50,9 +50,6 @@ export default function Settings() {
 					<div className={`${styles.titleContainer} d-flex flex-column mt-20`}>
 						<div className="title">Settings</div>
 						<h2 className="underTitle mb-20">{user.userName}</h2>
-						{user.friends.map((f, i) => (
-							<li key={i}>{f.userName}</li>
-						))}
 					</div>
 					<div className={`${styles.settingsContainer} d-flex flex-row flex-1`}>
 						<div

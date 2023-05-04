@@ -1,9 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import { useAlert, useUser } from "../../../../../context";
 import styles from "./UserPresentation.module.scss";
-import { Dispatch, SetStateAction } from "react";
+import { toggleFriendshipRequest } from "../../../../../api";
 
-type UserProfileType = {
+type UserProfileProps = {
 	userProfile: {
 		userName: string;
 		firstName: string;
@@ -12,66 +12,37 @@ type UserProfileType = {
 	};
 	userProfileAvatar: string;
 	isFriend: boolean;
-	setIsFriend: Dispatch<SetStateAction<boolean>>;
 };
 
 const UserPresentation = ({
 	userProfile,
 	userProfileAvatar,
 	isFriend,
-	setIsFriend,
-}: UserProfileType) => {
-	const { accessToken, isAuth } = useUser();
-	const { userName, firstName, lastName, email } = userProfile;
+}: UserProfileProps) => {
+	const { accessToken, isAuth, user } = useUser();
 	const { showAlert } = useAlert();
-	const { user } = useUser();
 	const navigate = useNavigate();
+	const { userName, firstName, lastName, email } = userProfile;
 	const isOnline = true; // To del
 
-	async function addToFriend() {
+	async function toggleFriendship() {
+		const method = isFriend ? "DELETE" : "PATCH";
 		try {
-			const res = await fetch("http://localhost:3000/user/friend", {
-				credentials: "include",
-				method: "PATCH",
-				headers: {
-					Authorization: `Bearer ${accessToken}`,
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({ username: userName }),
-			});
-			if (res.ok) {
-				showAlert("info", "Added to friends");
-				isAuth(); // Not sure
-			} else {
-				const data = await res.json();
-				console.log("Error add to friend: ", data.status);
-			}
-		} catch (e) {
-			console.error("Error add to friend: ", e);
-		}
-	}
-
-	async function removeFromFriend() {
-		try {
-			const res = await fetch("http://localhost:3000/user/friend", {
-				credentials: "include",
-				method: "DELETE",
-				headers: {
-					Authorization: `Bearer ${accessToken}`,
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify({ username: userName }),
-			});
-			if (res.status === 204) {
+			const res = await toggleFriendshipRequest(accessToken, userName, method);
+			if (method === "DELETE" && res.status === 204) {
+				isAuth();
 				showAlert("warning", "Removed from friends");
-				isAuth(); // Not sure
-				setIsFriend(false);
+			} else if (res.ok) {
+				isAuth();
+				showAlert("info", "Added to friends");
 			} else {
 				const data = await res.json();
-				console.log("Error remove from friend: ", data.status);
+				console.log("Error toggle friendship: ", data.message);
+				showAlert("error", "A problem occured, try again later");
 			}
 		} catch (e) {
 			console.error("Error remove from friend: ", e);
+			showAlert("error", "A problem occured, try again later");
 		}
 	}
 
@@ -85,26 +56,26 @@ const UserPresentation = ({
 					}`}
 				></div>
 				<div className={`${styles.userInfosTextContainer}`}>
-					{firstName !== "" && lastName !== "" && (
+					{firstName && lastName && (
 						<h1 className="mt-10">
 							{firstName} {lastName}
 						</h1>
 					)}
-					<h3>{email}</h3>
+					<h3 className="mt-5">{email}</h3>
 				</div>
 			</div>
 			{user.userName !== userName ? (
 				isFriend ? (
 					<button
 						className="btn btn-reverse-danger p-5 mt-20"
-						onClick={removeFromFriend}
+						onClick={toggleFriendship}
 					>
 						Remove from friends
 					</button>
 				) : (
 					<button
 						className="btn btn-reverse-primary p-5 mt-20"
-						onClick={addToFriend}
+						onClick={toggleFriendship}
 					>
 						Add to friends
 					</button>
