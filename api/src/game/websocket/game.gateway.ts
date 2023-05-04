@@ -12,7 +12,7 @@ import {
 import { Namespace, Socket } from "socket.io";
 import { UserService } from "./../../user/user.service";
 import { User } from "@prisma/client";
-import { OnlineUsers } from "src/classes/OnlineUsers";
+import { OnlineUsers } from "../../classes/OnlineUsers";
 
 interface Pair {
 	client: Socket;

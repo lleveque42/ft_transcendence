@@ -97,3 +97,20 @@ export async function userProfileInfosRequest(
 	});
 	return res;
 }
+
+export async function toggleFriendshipRequest(
+	accessToken: string,
+	username: string,
+	method: string,
+) {
+	const res = await fetch("http://localhost:3000/user/friend", {
+		credentials: "include",
+		method: method,
+		headers: {
+			Authorization: `Bearer ${accessToken}`,
+			"Content-Type": "application/json",
+		},
+		body: JSON.stringify({ username }),
+	});
+	return res;
+}
