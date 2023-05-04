@@ -15,6 +15,7 @@ import { ChannelService } from "./../channel/channel.service";
 import { HttpException, Logger } from "@nestjs/common";
 import { OnlineUsers } from "../classes/OnlineUsers";
 import { User } from "@prisma/client";
+import { log } from "console";
 
 @WebSocketGateway(8001, { namespace: "chat", cors: "*" })
 export class ServerGateway
@@ -98,29 +99,25 @@ export class ServerGateway
 		} catch (e) {
 			throw new HttpException(e.message, e.status);
 		}
-
-		//	this.io.to("").emit("private_message", data.message);
 	}
 
 	@SubscribeMessage("chanMessage")
 	async handleChanMessage(
-		@MessageBody() data: { room; sender; message; value },
+		@ConnectedSocket() client: Socket,
+		@MessageBody()
+		data: {
+			room: string;
+			message: string;
+			value: string;
+		},
 	): Promise<void> {
-		console.log("Room :" + data.room);
-		console.log("Sender :" + data.sender);
-		console.log("Content :" + data.message);
-		// this.io
-		// 	.to("chan" + data.room)
-		// 	.emit("receivedMessage", data.sender, data.message);
-		// this.io
-		// .to("chan" + data.room)
-		// .emit("receivedMessage", message);
 		try {
+			console.log("Room = " + data.room);
 			const msg = await this.messageService.createNewNessage(
 				{
 					content: data.message,
 				},
-				data.sender,
+				this.users.getUserByClientId(client.id).userName,
 				data.room,
 			);
 			if (msg) {
@@ -131,7 +128,10 @@ export class ServerGateway
 						msg.channelId +
 						"* content: *" +
 						msg.content +
-						"*",
+						"* at *" +
+						data.room +
+						"*" +
+						" ",
 				);
 				this.io
 					.to("chan" + data.room)
@@ -151,7 +151,7 @@ export class ServerGateway
 	}
 
 	@SubscribeMessage("joinChatRoom")
-	handleJoinRoom(socket: Socket, chanName: string): void {
+	async handleJoinRoom(socket: Socket, chanName: string): Promise<void> {
 		console.log(
 			"The socket " +
 				socket.id +
@@ -159,7 +159,11 @@ export class ServerGateway
 				chanName +
 				".",
 		);
-		socket.join("chan" + chanName);
+		const sockets = this.users.getClientsByClientId(socket.id);
+		for (const socket of sockets) {
+			socket[1].join("chan" + chanName);
+		}
+		//console.log(socket.rooms);
 	}
 
 	// @SubscribeMessage("new_channel")

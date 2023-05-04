@@ -49,6 +49,7 @@ export class AppGateway
 						: "user does not exist."
 				}`,
 			);
+			client.emit("connectionFailed");
 			client.disconnect();
 			return;
 		}

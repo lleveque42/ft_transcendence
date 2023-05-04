@@ -1,12 +1,9 @@
-
-
 import ChatNav from "../../components/Chat/ChatNav/ChatNav";
 import { useEffect, useState } from "react";
 import Message from "../../components/Message/Message";
 import { NavLink, useParams } from "react-router-dom";
 import { Socket, io } from "socket.io-client";
 import { useUser } from "../../context/UserProvider";
-
 
 export default function DirectMessages() {
 

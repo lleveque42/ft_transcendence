@@ -1,4 +1,4 @@
-import React from "react";
+import React, { ReactElement } from "react";
 
 import ChatNav from "../../components/Chat/ChatNav/ChatNav";
 import { useEffect, useState } from "react";
@@ -8,28 +8,33 @@ import { useUser } from "../../context/UserProvider";
 import { KeyboardEvent } from "react"
 import Message from "../../components/Message/Message";
 import { MessageModel, UserModel } from "../../entities/entities";
+import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
 
 export default function Channel() {
   
 	const { accessToken, user } = useUser();
-	const [socket, setSocket] = useState<Socket>();
+	// const [socket, setSocket] = useState<Socket>();
+	const {chatSocket} = usePrivateRouteSocket();
+	
 	const [value, setValue] = useState("");
 	const [messagesState, setMessagesState] = useState<Array<MessageModel>>([]);
-	
+	const [ messagesList, setMessagesList] = useState<JSX.Element[]>([]);
+	 
 	const { id } = useParams();
 	
 	
 	//	Put this shit in a context
-	useEffect(() => {
-		const newSocket = io(`${process.env.REACT_APP_CHAT_URL}`);
-		setSocket(newSocket);
-	}, [setSocket])
+	// useEffect(() => {
+	// 	const newSocket = io(`${process.env.REACT_APP_CHAT_URL}`);
+	// 	setSocket(newSocket);
+	// }, [setSocket])
 	
 	//	Put this shit in a context
-	useEffect(() => {
-		socket?.emit('joinChatRoom', id)
-	}, [socket, id])
+	// useEffect(() => {
+	// 	chatSocket?.emit('joinChatRoom', id)
+	// }, [chatSocket, id])
 	
+
 	useEffect(() => {
 	(async () => {
 			try {
@@ -50,8 +55,9 @@ export default function Channel() {
         })();
     }, [accessToken, id]);
 
-	
-	const messagesList = messagesState.map(({ id, author, content }) => (
+
+	useEffect(() => {
+	setMessagesList(messagesState.map(({ id, author, content }) => (
 		<li key={id}>
 		  <Message
 			allMessages={messagesState}
@@ -60,23 +66,25 @@ export default function Channel() {
 			content={content}
 			/>
 		</li>
-	  ));
-	  
-	  const messageListener = (id : number, date: Date, authorId: number, author: UserModel, content: string) => {
-		  setMessagesState([...messagesState, {id, date, authorId, author, content}]);
-	  }
-	  
+	  )));
+	},[messagesState]);
+
+	const messageListener = (id : number, authorId: number, author: UserModel, content: string) => {
+	console.log("Content of received message " + content);
+	setMessagesState([...messagesState, {id, authorId, author, content}]);
+	}
+
 	useEffect(() => {
-		socket?.on("receivedMessage", messageListener);
+		chatSocket?.on("receivedMessage", messageListener);
 		return () => {
-		  socket?.off("receivedMessage", messageListener);
+		  chatSocket?.off("receivedMessage", messageListener);
 		}
 	  // eslint-disable-next-line react-hooks/exhaustive-deps
-	  }, [messageListener])
+	  }, [messageListener, messagesList, messagesState])
 
 	const handleKeyDown =  (event : KeyboardEvent<HTMLInputElement>) => {
 		if (event.key === "Enter"){
-			socket?.emit("chanMessage", {room: id, sender: user.userName, message: value});
+			chatSocket?.emit("chanMessage", {room: id, message: value});
 		}
 	};
 	

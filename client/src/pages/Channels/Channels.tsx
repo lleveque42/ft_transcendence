@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { NavLink} from "react-router-dom";
 import { Socket, io } from "socket.io-client";
 import { useUser } from "../../context/UserProvider";
+import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
 // import { KeyboardEvent } from "react"
 // import Message from "../../components/Message/Message";
 
@@ -14,7 +15,8 @@ import { useUser } from "../../context/UserProvider";
 export default function Channels() {
   
 	const { accessToken, user } = useUser();
-	const [socket, setSocket] = useState<Socket>();
+	// const [socket, setSocket] = useState<Socket>();
+	const {chatSocket} = usePrivateRouteSocket();
 	
 	const [channelsState, setChannelsState] = useState([]);
 	// const [membersState, setMembersState] = useState([]);
@@ -26,15 +28,19 @@ export default function Channels() {
 	
 	const channelNames = channelsState.map(({ title}) => (title));
 	
-	for (const chan of channelNames){
-		socket?.emit('joinChatRoom', chan)
-	}
-	
-	// Put this shit in a context
 	useEffect(() => {
-		const newSocket = io(`${process.env.REACT_APP_CHAT_URL}, ${user.email}`);
-		setSocket(newSocket);
-	}, [setSocket])
+		for (const chan of channelNames){
+			console.log(chan);
+			chatSocket?.emit('joinChatRoom', chan)
+		}
+	}, [channelNames, chatSocket])
+
+
+	// Put this shit in a context
+	// useEffect(() => {
+	// 	const newSocket = io(`${process.env.REACT_APP_CHAT_URL}, ${user.email}`);
+	// 	setSocket(newSocket);
+	// }, [setSocket])
 	
 	useEffect(() => {
 		(async () => {

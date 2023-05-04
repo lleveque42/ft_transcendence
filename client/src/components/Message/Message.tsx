@@ -11,12 +11,12 @@ export default function Message ({ allMessages, username, content,removeMessages
   
   return (
     <>
-    <NavLink to={`/chat/direct_messages/${username}`}>
+    {/* <NavLink to={`/chat/direct_messages/${username}`}> */}
         <span>
         {(username && content ? `${username} : ${content} ` : "Empty")}
         </span>
-    </NavLink>
-        <button onClick={handleRemove}>Delete</button>
+    {/* </NavLink>
+        <button onClick={handleRemove}>Delete</button> */}
     </>
     );
 };

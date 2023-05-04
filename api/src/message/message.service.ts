@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { UserService } from "../user/user.service";
 import { ChannelService } from "../channel/channel.service";
-import { Prisma } from "@prisma/client";
+import { Message, Prisma } from "@prisma/client";
 
 @Injectable()
 export class MessageService {
@@ -19,13 +19,15 @@ export class MessageService {
 	) {
 		const user = await this.userService.getUserByUserName(userName);
 		const chan = await this.channelService.getChannelByTitle(chanTitle);
-		const msg = await this.prisma.message.create({
+		const msg: Message = await this.prisma.message.create({
 			data: {
 				content: newMessage.content,
 				authorId: user.id,
 				channelId: chan.id,
 			},
 		});
+		console.log(msg);
+
 		return msg;
 	}
 

@@ -14,7 +14,6 @@ export default function Chathome() {
     const [userState, setUserState] = useState({
 		email:''
 	});
-	const [socket, setSocket] = useState<Socket | null>(null);
 
 
 	const { accessToken, user } = useUser();
@@ -39,15 +38,13 @@ export default function Chathome() {
             }
         })();
     }, [accessToken, user.userName]);
-
-	const chatSocketValue = { socket };
 	const {email} = userState;
 	// console.log("email " + email);
 	
 	const bool = true;
 	
 	return (
-		<ChatSocketContext.Provider value={chatSocketValue}>
+		
 		<div className="container d-flex flex-column justify-content align-items">
 			<div className="title">Chat</div>
 			<div
@@ -68,6 +65,5 @@ export default function Chathome() {
 				</div>
 			</div>
 		</div>
-		</ChatSocketContext.Provider>
 	);
 }
