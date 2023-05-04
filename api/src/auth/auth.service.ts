@@ -37,6 +37,7 @@ export class AuthService {
 					hash,
 					email: dto.email,
 					userName: dto.userName,
+					avatar: ""
 				},
 			});
 			console.log("SIGNUP USER CREATED : ", user.userName);
@@ -45,17 +46,33 @@ export class AuthService {
 		await this.updateRefreshToken(user, res);
 	}
 
-	async login(dto: SigninDto, res: Response): Promise<void> {
+	async login(
+		dto: SigninDto,
+		res: Response,
+	): Promise<void | { access_token: string }> {
 		const user = await this.userService.getUserByUserName(dto.userName);
 		if (user) {
 			if (user.email.includes("@student.42.fr"))
 				throw new ForbiddenException("42 user, use Login with 42");
 			const match = await argon.verify(user.hash, dto.password);
 			if (!match) throw new ForbiddenException("Credentials incorrect.");
-			await this.updateRefreshToken(user, res);
+			if (user.isTfaEnable) {
+				res.setHeader("WWW-Authenticate", "TFA");
+				return await this.signAccessToken(
+					user.userName,
+					user.firstName,
+					user.lastName,
+				);
+			} else return await this.updateRefreshToken(user, res);
 		} else {
 			throw new ForbiddenException("Credentials incorrect.");
 		}
+	}
+
+	async loginTfa(userName: string, res: Response): Promise<void> {
+		const user = await this.userService.getUserByUserName(userName);
+		if (!user) throw new ForbiddenException("Can't find user, try again");
+		await this.updateRefreshToken(user, res);
 	}
 
 	logout(res: Response): void {
@@ -88,11 +105,15 @@ export class AuthService {
 		if (!res.ok) {
 			throw new HttpException("Can't find 42 user", HttpStatus.NOT_FOUND);
 		}
-		const { login, email, first_name, last_name } = await res.json(); // Add avatar link ?
-		return { login, email, first_name, last_name };
+		const { login, email, first_name, last_name, image } = await res.json();
+		const imageUrl = image["link"];
+		return { login, email, first_name, last_name, image: imageUrl };
 	}
 
-	async manageNewAuth42(newUser: userInfo42Dto, res: Response): Promise<void> {
+	async manageNewAuth42(
+		newUser: userInfo42Dto,
+		res: Response,
+	): Promise<void | { access_token: string }> {
 		let user = await this.userService.getUserByEmail(newUser.email);
 		if (user) {
 			console.log("USER ALREADY EXIST : ", user.userName);
@@ -101,11 +122,18 @@ export class AuthService {
 			if ((await this.userService.getUserByUserName(newUser.login)) != null) {
 				newUser.login += "_";
 			}
-			user = await this.userService.createUser(newUser);
+			user = await this.userService.createUser42(newUser);
 			console.log("USER CREATED : ", user.userName);
 			res.status(HttpStatus.CREATED);
 		}
-		await this.updateRefreshToken(user, res);
+		if (user.isTfaEnable) {
+			res.setHeader("WWW-Authenticate", "TFA");
+			return await this.signAccessToken(
+				user.userName,
+				user.firstName,
+				user.lastName,
+			);
+		} else return await this.updateRefreshToken(user, res);
 	}
 
 	async newTokens(userClaimEmail: string): Promise<{ access_token: string }> {

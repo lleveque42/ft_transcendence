@@ -1,7 +1,7 @@
 import { ReactElement, useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
-import { useUser } from "../../context/UserProvider";
 import Loader from "react-loaders";
+import { useUser } from "../../context";
 
 export default function PublicRoute(props: {
 	element: ReactElement;
@@ -16,6 +16,7 @@ export default function PublicRoute(props: {
 		};
 		checkAuth();
 	});
+
 	if (isAuthenticated === null) {
 		return (
 			<Loader
@@ -25,5 +26,6 @@ export default function PublicRoute(props: {
 			/>
 		);
 	}
+
 	return isAuthenticated ? <Navigate to="/" /> : props.element;
 }

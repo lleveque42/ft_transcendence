@@ -1,12 +1,22 @@
+@use "../../assets/styles/mixins" as mixin;
+
 .headerContainer {
 	height: 4rem;
 	background-color: var(--dark-primary);
 	box-shadow: var(--box-shadow-nav);
+
+	@include mixin.sm-lt {
+		height: 3rem;
+	}
 }
 
 .title {
 	color: var(--primary);
 	cursor: pointer;
+
+	@include mixin.sm-lt {
+		font-size: 1rem;
+	}
 }
 
 .menuTrigger img {
@@ -16,7 +26,12 @@
 	overflow: hidden;
 	cursor: pointer;
 	margin-right: 1rem;
-	background: var(--light-grey);
+	background: var(--secondary-dark);
+
+	@include mixin.sm-lt {
+		height: 2.5rem;
+		width: 2.5rem;
+	}
 }
 
 .dropdownMenu {
@@ -27,6 +42,13 @@
 	border-radius: 8px;
 	padding: 1rem 1.5rem;
 	width: 12rem;
+	z-index: 2;
+
+	@include mixin.sm-lt {
+		top: 4rem;
+		right: 0.5rem;
+		padding: 0.5rem 1rem;
+	}
 
 	h3 {
 		width: 100%;
@@ -42,21 +64,24 @@
 	ul li {
 		padding: 0.5rem 0;
 		border-top: 1px solid rgba(0, 0, 0, 0.1);
+		cursor: pointer;
 
-		a {
-			color: var(--danger);
+		button {
+			text-decoration: none;
+			color: var(--black);
+			border: none;
+			background: inherit;
 			max-width: 10rem;
 			margin-left: 1rem;
 			transition: 500ms;
 		}
 
-		&:first-child a {
-			color: var(--black);
+		&:nth-child(3) button {
+			color: var(--danger);
 		}
 
-		&:hover a {
+		&:hover button {
 			color: var(--primary);
-			cursor: pointer;
 		}
 	}
 }

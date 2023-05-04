@@ -32,7 +32,7 @@ export default function Channels() {
 	
 	// Put this shit in a context
 	useEffect(() => {
-		const newSocket = io(`${process.env.REACT_APP_CHAT_URL}`);
+		const newSocket = io(`${process.env.REACT_APP_CHAT_URL}, ${user.email}`);
 		setSocket(newSocket);
 	}, [setSocket])
 	

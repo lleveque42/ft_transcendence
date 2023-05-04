@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./LoginForm.module.scss";
-import Input from "../../Input/Input";
+import { loginRequest } from "../../../api";
+import { useAlert } from "../../../context";
+import Input from "../../../components/Input/Input";
 
 type FormValues = {
 	userName: string;
@@ -16,6 +18,8 @@ const initialFormValues: FormValues = {
 export default function LoginForm() {
 	const [formValues, setFormValues] = useState<FormValues>(initialFormValues);
 	const navigate = useNavigate();
+	const { showAlert } = useAlert();
+
 
 	function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
 		const { name, value } = event.target;
@@ -26,18 +30,17 @@ export default function LoginForm() {
 		event.preventDefault();
 		if (formValues.password === "" || formValues.userName === "") return;
 		try {
-			const response = await fetch("http://localhost:3000/auth/login", {
-				method: "POST",
-				credentials: "include",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify(formValues),
-			});
-			if (!response.ok) {
-				alert("Credentials incorrect");
+			const res = await loginRequest(formValues);
+			if (!res.ok) {
+				showAlert("error", "Password or username incorrect")
 			} else {
-				navigate("/");
+				if (res.headers.get("WWW-Authenticate") === "TFA") {
+					const data = await res.json();
+					navigate("/verify", { state: { accessToken: data.access_token } });
+				} else {
+					navigate("/");
+					showAlert("success", "Welcome back !")
+				}
 			}
 		} catch (e) {
 			console.error("Error login classic");

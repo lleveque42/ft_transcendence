@@ -21,13 +21,22 @@ model User {
   firstName String?
   lastName  String?
   avatar    String?
-  socket    String?
+  ownedGames Game[] @relation("owner")
+  playerGames Game[] @relation("player")
+  socket      String?
+  tfaSecret   String?
+  isTfaEnable Boolean @default(false)
+  friends    User[]   @relation("Friends")
+  friendsOf  User[]   @relation("Friends")
 
   chanOp    Channel[] @relation("channel_ops")
   chanOwner Channel[]
   channels  Channel[] @relation("channel_members")
 
   messages  Message[]
+
+
+
 }
 
 model Channel {
@@ -51,4 +60,17 @@ model Message{
   channel   Channel?  @relation(fields: [channelId], references:[id])
   channelId Int?
 
+}
+
+model Game {
+  id Int @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  owner User @relation("owner", fields: [ownerId], references: [id])
+  ownerId Int
+  player User @relation("player", fields: [playerId], references: [id])
+  playerId Int
+  ownerScore Int
+  playerScore Int
 }

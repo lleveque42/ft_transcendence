@@ -9,8 +9,8 @@ import { useUser } from "../../context/UserProvider";
 
 
 export default function DirectMessages() {
-  
-	const { accessToken, user } = useUser();
+
+	const { user , accessToken} = useUser();
 	const [socket, setSocket] = useState<Socket>();
 	
 	const [directMessagesState, setDirectMessagesState] = useState([]);

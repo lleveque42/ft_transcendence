@@ -2,10 +2,12 @@ import { useEffect, useRef } from "react";
 import Loader from "react-loaders";
 import { useNavigate } from "react-router-dom";
 import { useSearchParams } from "react-router-dom";
+import { useAlert } from "../../../context";
 
 export default function Login42() {
 	const [searchParams] = useSearchParams();
 	const code = searchParams.get("code");
+	const { showAlert } = useAlert();
 	const navigate = useNavigate();
 	const ref = useRef(false);
 
@@ -20,13 +22,24 @@ export default function Login42() {
 					},
 				);
 				if (res.status === 201) {
-					navigate("/editprofile");
+					navigate("/settings");
+					showAlert(
+						"success",
+						"Welcome ! You can customize your profile on this page",
+					);
 				} else if (res.ok) {
-					navigate("/");
+					if (res.headers.get("WWW-Authenticate") === "TFA") {
+						const data = await res.json();
+						navigate("/verify", { state: { accessToken: data.access_token } });
+					} else {
+						navigate("/");
+						showAlert("success", "Welcome back !");
+					}
 				} else {
 					const body = await res.json();
 					console.error("Error login42:", res.status, body.message);
 					navigate("/login");
+					showAlert("error", "Can't log with 42 account, try again later");
 				}
 			} catch (e) {
 				console.error("Error login42: ", e);

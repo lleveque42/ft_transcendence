@@ -1,0 +1,1 @@
+export * from "./userInfos.type"

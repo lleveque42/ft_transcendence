@@ -1,3 +1,5 @@
+@use "../../assets/styles/mixins" as mixin;
+
 .inputContainer {
 	width: 20rem;
 	height: 3rem;
@@ -7,6 +9,10 @@
 	border-radius: 4px;
 	position: relative;
 	transition: 0.3s;
+
+	@include mixin.sm-lt {
+		width: 15rem;
+	}
 
 	input {
 		border-radius: 4px;

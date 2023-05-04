@@ -1,4 +1,5 @@
 import {
+	ConnectedSocket,
 	MessageBody,
 	OnGatewayConnection,
 	OnGatewayDisconnect,
@@ -12,30 +13,58 @@ import { UserService } from "./../user/user.service";
 import { MessageService } from "./../message/message.service";
 import { ChannelService } from "./../channel/channel.service";
 import { HttpException, Logger } from "@nestjs/common";
+import { OnlineUsers } from "../classes/OnlineUsers";
+import { User } from "@prisma/client";
 
 @WebSocketGateway(8001, { namespace: "chat", cors: "*" })
 export class ServerGateway
 	implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
+	private readonly logger = new Logger(ServerGateway.name);
+	@WebSocketServer()
+	io: Namespace;
+	users: OnlineUsers = new OnlineUsers();
+
 	constructor(
 		private userService: UserService,
 		private channelService: ChannelService,
 		private messageService: MessageService,
 	) {}
-	private readonly logger = new Logger(ServerGateway.name);
-	@WebSocketServer()
-	io: Namespace;
 
 	afterInit(): any {
-		this.logger.log("Websocket GameGateway initialized.");
-	}
-
-	handleConnection(client: Socket, ...args: any) {
-		this.logger.log(`WS Client ${client.id} connected !`);
+		this.logger.log("Websocket ChatGateway initialized.");
 	}
 
 	handleDisconnect(client: Socket) {
-		this.logger.log(`WS Client ${client.id} disconnected !`);
+		const user: User = this.users.getUserByClientId(client.id);
+		if (!user) return;
+		this.logger.log(`WS Client ${client.id} (${user.userName}) disconnected !`);
+		this.users.removeClientId(client.id);
+		this.logger.log(`${this.users.size} user(s) connected !`);
+	}
+
+	async handleConnection(@ConnectedSocket() client: Socket) {
+		const user = await this.userService.getUserByEmail(
+			`${client.handshake.query.email}`,
+		);
+		if (!user) {
+			this.logger.log(
+				`Could not connect: ${
+					client.handshake.query.email === undefined
+						? "no email provided"
+						: "user does not exist."
+				}`,
+			);
+			client.emit("connectionFailed");
+			client.disconnect();
+			return;
+		}
+
+		if (this.users.hasByUserId(user.id))
+			this.users.addClientToUserId(user.id, client);
+		else this.users.addNewUser(user, client);
+		this.logger.log(`WS Client ${client.id} (${user.userName}) connected !`);
+		this.logger.log(`${this.users.size} user(s) connected !`);
 	}
 
 	@SubscribeMessage("private_message")

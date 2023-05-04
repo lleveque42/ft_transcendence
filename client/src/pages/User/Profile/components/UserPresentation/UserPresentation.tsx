@@ -1,0 +1,95 @@
+import { useNavigate } from "react-router-dom";
+import { useAlert, useUser } from "../../../../../context";
+import styles from "./UserPresentation.module.scss";
+import { toggleFriendshipRequest } from "../../../../../api";
+
+type UserProfileProps = {
+	userProfile: {
+		userName: string;
+		firstName: string;
+		lastName: string;
+		email: string;
+	};
+	userProfileAvatar: string;
+	isFriend: boolean;
+};
+
+const UserPresentation = ({
+	userProfile,
+	userProfileAvatar,
+	isFriend,
+}: UserProfileProps) => {
+	const { accessToken, isAuth, user } = useUser();
+	const { showAlert } = useAlert();
+	const navigate = useNavigate();
+	const { userName, firstName, lastName, email } = userProfile;
+	const isOnline = true; // To del
+
+	async function toggleFriendship() {
+		const method = isFriend ? "DELETE" : "PATCH";
+		try {
+			const res = await toggleFriendshipRequest(accessToken, userName, method);
+			if (method === "DELETE" && res.status === 204) {
+				isAuth();
+				showAlert("warning", "Removed from friends");
+			} else if (res.ok) {
+				isAuth();
+				showAlert("info", "Added to friends");
+			} else {
+				const data = await res.json();
+				console.log("Error toggle friendship: ", data.message);
+				showAlert("error", "A problem occured, try again later");
+			}
+		} catch (e) {
+			console.error("Error remove from friend: ", e);
+			showAlert("error", "A problem occured, try again later");
+		}
+	}
+
+	return (
+		<div className={`${styles.presentationContainer} d-flex flex-column`}>
+			<div className={styles.avatarContainer}>
+				<img src={userProfileAvatar} alt="" />
+				<div
+					className={`${styles.statusBadge} ${
+						isOnline ? styles.online : styles.offline
+					}`}
+				></div>
+				<div className={`${styles.userInfosTextContainer}`}>
+					{firstName && lastName && (
+						<h1 className="mt-10">
+							{firstName} {lastName}
+						</h1>
+					)}
+					<h3 className="mt-5">{email}</h3>
+				</div>
+			</div>
+			{user.userName !== userName ? (
+				isFriend ? (
+					<button
+						className="btn btn-reverse-danger p-5 mt-20"
+						onClick={toggleFriendship}
+					>
+						Remove from friends
+					</button>
+				) : (
+					<button
+						className="btn btn-reverse-primary p-5 mt-20"
+						onClick={toggleFriendship}
+					>
+						Add to friends
+					</button>
+				)
+			) : (
+				<button
+					className="btn btn-reverse-primary p-5 mt-20"
+					onClick={() => navigate("/settings")}
+				>
+					Go to settings
+				</button>
+			)}
+		</div>
+	);
+};
+
+export default UserPresentation;

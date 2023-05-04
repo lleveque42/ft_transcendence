@@ -1,3 +1,4 @@
+@use "./mixins" as mixin;
 @import "loaders.css/src/animations/line-scale-pulse-out.scss";
 
 .btn {
@@ -29,6 +30,13 @@
 		border: 2px solid var(--danger);
 	}
 
+	&-reverse-danger {
+		@extend .btn;
+		color: var(--danger);
+		background-color: var(--dark-grey);
+		border: 2px solid var(--danger);
+	}
+
 	&:hover {
 		transition: 0.3s;
 		box-shadow: var(--box-shadow-login42);
@@ -37,15 +45,23 @@
 
 .title {
 	text-align: center;
-	font-family: "Press Start 2P", cursive;
+	font-family: var(--game-font);
 	color: var(--primary);
 	font-size: 3rem;
+
+	@include mixin.sm-lt {
+		font-size: 2rem;
+	}
 }
 
 .underTitle {
 	@extend .title;
 	margin-top: 0.5rem;
 	font-size: 1rem;
+
+	@include mixin.sm-lt {
+		font-size: 0.8rem;
+	}
 }
 
 .loader-active {
@@ -63,6 +79,56 @@
 	}
 }
 
-.loader-login42 {
-	border: 1px red;
+.private-loader {
+	height: 88vh;
+}
+
+.alert {
+	position: fixed;
+	z-index: 10;
+	top: -20rem;
+	margin-left: 50%;
+	border-radius: 5px;
+	padding: 1rem 2rem;
+	box-shadow: var(--box-shadow);
+	transform: translateX(-50%);
+	animation: slide-in 0.5s forwards;
+}
+
+.alert-error {
+	background: var(--danger);
+}
+
+.alert-success {
+	background: var(--success);
+}
+
+.alert-info {
+	background: var(--primary);
+}
+
+.alert-warning {
+	background: var(--warning);
+}
+
+@keyframes slide-in {
+	0% {
+		top: -20rem;
+	}
+	100% {
+		top: 2rem;
+	}
+}
+
+@keyframes slide-out {
+	0% {
+		top: 2rem;
+	}
+	100% {
+		top: -20rem;
+	}
+}
+
+.hide {
+	animation: slide-out 0.5s forwards;
 }

@@ -1,6 +1,7 @@
 import { createContext, useContext, useState } from "react";
+import { isAuthRequest, logoutRequest } from "../api";
 
-interface UsercontextValue {
+type UserContextValue = {
 	isAuth: () => Promise<boolean>;
 	logout: () => void;
 	accessToken: string;
@@ -9,72 +10,76 @@ interface UsercontextValue {
 		email: string;
 		firstName: string;
 		lastName: string;
+		isTfaEnable: boolean;
+		friends: { userName: string }[];
 	};
-}
+};
 
-const UserContext = createContext<UsercontextValue>({
+const UserContext = createContext<UserContextValue>({
 	isAuth: async () => false,
 	logout: () => {},
 	accessToken: "",
-	user: { userName: "", email: "", firstName: "", lastName: "" },
-});
-
-interface UserProviderProps {
-	children: React.ReactNode;
-}
-
-export const UserProvider = ({ children }: UserProviderProps) => {
-	const [accessToken, setAccessToken] = useState<string>("");
-	const [user, setUser] = useState({
+	user: {
 		userName: "",
 		email: "",
 		firstName: "",
 		lastName: "",
+		isTfaEnable: false,
+		friends: [],
+	},
+});
+
+type UserProviderProps = {
+	children: React.ReactNode;
+};
+
+type UserDataState = {
+	userName: string;
+	email: string;
+	firstName: string;
+	lastName: string;
+	isTfaEnable: boolean;
+	friends: { userName: string }[];
+};
+
+export const UserProvider = ({ children }: UserProviderProps) => {
+	const [accessToken, setAccessToken] = useState<string>("");
+	const [user, setUser] = useState<UserDataState>({
+		userName: "",
+		email: "",
+		firstName: "",
+		lastName: "",
+		isTfaEnable: false,
+		friends: [],
 	});
 
 	const isAuth = async (): Promise<boolean> => {
-		if (accessToken !== "") return true;
-		try {
-			const res = await fetch("http://localhost:3000/auth/refresh", {
-				credentials: "include",
-			});
-			if (res.ok) {
-				if (res.status === 204) {
-					return false;
-				}
-				const data = await res.json();
-				setAccessToken(data.accessToken);
-				setUser(data.userData);
-				return true;
-			} else {
-				if (accessToken) logout();
-				setAccessToken("");
+		const res = await isAuthRequest();
+		if (res && res.ok) {
+			if (res.status === 204) {
 				return false;
 			}
-		} catch (e) {
-			console.error("Error refresh: ", e);
+			const data = await res.json();
+			setAccessToken(data.accessToken);
+			setUser(data.userData);
+			return true;
+		} else {
+			if (accessToken) logout();
+			setAccessToken("");
+			return false;
 		}
-		return false;
 	};
 
 	const logout = async (): Promise<void> => {
-		try {
-			await fetch("http://localhost:3000/auth/logout", {
-				method: "POST",
-				credentials: "include",
-				headers: {
-					Authorization: `Bearer ${accessToken}`,
-				},
-			});
-			setAccessToken("");
-		} catch (e) {
-			console.error("Error logout: ", e);
-		}
+		logoutRequest(accessToken);
+		setAccessToken("");
 	};
+
 	return (
 		<UserContext.Provider value={{ isAuth, logout, accessToken, user }}>
 			{children}
 		</UserContext.Provider>
 	);
 };
+
 export const useUser = () => useContext(UserContext);
