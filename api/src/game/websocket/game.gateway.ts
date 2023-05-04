@@ -46,6 +46,18 @@ export class GameGateway
 		const user = await this.userService.getUserByEmail(
 			`${client.handshake.query.email}`,
 		);
+		if (!user) {
+			this.logger.log(
+				`Could not connect: ${
+					client.handshake.query.email === undefined
+						? "no email provided"
+						: "user does not exist."
+				}`,
+			);
+			client.emit("connectionFailed");
+			client.disconnect();
+			return;
+		}
 		if (this.users.hasByUserId(user.id))
 			this.users.addClientToUserId(user.id, client);
 		else this.users.addNewUser(user, client);

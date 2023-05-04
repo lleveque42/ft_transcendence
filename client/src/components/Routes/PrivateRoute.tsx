@@ -1,5 +1,5 @@
 import { ReactElement, useEffect, useState } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import Loader from "react-loaders";
 import Header from "../Header/Header";
 import Footer from "../Footer/Footer";
@@ -12,6 +12,7 @@ export default function PrivateRoute(props: {
 	element: ReactElement;
 	play?: boolean | false;
 }): ReactElement {
+	const navigate = useNavigate();
 	const { user, isAuth } = useUser();
 	const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 	const [socket, setSocket] = useState<Socket | null>(null);
@@ -34,11 +35,15 @@ export default function PrivateRoute(props: {
 					email: user.email,
 				},
 			});
+			appSocket.on("connectionFailed", () => {
+				navigate("/login");
+			});
 			setSocket(appSocket);
 		}
 		return () => {
 			if (appSocket) appSocket.disconnect();
 		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [isAuthenticated, user.email]);
 
 	useEffect(() => {
@@ -49,11 +54,15 @@ export default function PrivateRoute(props: {
 					email: user.email,
 				},
 			});
+			gameSocket.on("connectionFailed", () => {
+				navigate("/login");
+			});
 			setGameSocket(gameSocket);
 		}
 		return () => {
 			if (gameSocket) gameSocket.disconnect();
 		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [isAuthenticated, user.email, props.play]);
 
 	if (isAuthenticated === null) {
