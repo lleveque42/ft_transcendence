@@ -1,0 +1,22 @@
+.friendsListContainer {
+	flex: 15%;
+	margin-top: -5rem;
+	margin-bottom: 3rem;
+	margin-left: 0.5rem;
+	border: 1px solid var(--secondary-dark);
+	border-radius: 5px;
+	box-shadow: var(--box-shadow);
+}
+
+.homepageButtonContainer {
+	flex: 85%;
+
+	button:nth-child(1) {
+		margin-top: -10rem;
+		margin-left: -10rem;
+	}
+
+	button:nth-child(2) {
+		margin-left: -10rem;
+	}
+}
