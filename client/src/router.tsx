@@ -16,6 +16,7 @@ import Settings from "./pages/User/Settings/Settings";
 import VerifyTfa from "./pages/Login/VerifyTfa/VerifyTfa";
 import GameTest from "./pages/Play/Play";
 import Profile from "./pages/User/Profile/Profile";
+import JoinChannel from "./pages/Channels/JoinChannel";
 
 export default function Router() {
 	return (
@@ -68,6 +69,10 @@ export default function Router() {
 				<Route
 					path="/chat/channels/new_channel"
 					element={<PrivateRoute element={<NewChannel/>} />}
+				/>
+				<Route
+					path="/chat/channels/join_channel"
+					element={<PrivateRoute element={<JoinChannel/>} />}
 				/>
 				<Route
 					path="/chat/friends"

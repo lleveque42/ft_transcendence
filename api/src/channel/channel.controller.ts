@@ -34,11 +34,11 @@ export class ChannelController {
 	}
 
 	@Get("")
-	async getAll(): // @Param() params: UserLoginDto,
+	async getAllPublicChannels(): // @Param() params: UserLoginDto,
 	// @Res({ passthrough: true }) res: Response,
 	Promise<Channel[]> {
 		try {
-			const channels = await this.channelService.getAllChannels();
+			const channels = await this.channelService.getAllPublicChannels();
 			return channels;
 		} catch (e) {
 			throw new HttpException(e.message, e.status);

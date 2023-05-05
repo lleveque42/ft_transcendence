@@ -1,4 +1,5 @@
 export type UserDataRefresh = {
+	id: number;
 	userName: string;
 	email: string;
 	firstName: string;

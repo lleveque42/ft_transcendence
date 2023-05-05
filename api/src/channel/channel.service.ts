@@ -39,13 +39,10 @@ export class ChannelService {
 		});
 	}
 
-	async getAllChannels() {
+	async getAllPublicChannels() {
 		const chans = await this.prisma.channel.findMany({
-			include: {
-				owner: true,
-				members: true,
-				operators: true,
-				messages: true,
+			where: {
+				mode: "Public",
 			},
 		});
 		return chans;

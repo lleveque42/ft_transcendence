@@ -24,7 +24,7 @@ const initialFormValues: FormValues = {
 };
 
 
-export default function Newhannel() {
+export default function NewChannel() {
   
 	const { user } = useUser();
 	const [radioValue, setRadioValue] = useState("Public");
@@ -44,7 +44,7 @@ export default function Newhannel() {
 		setRadioValue(value);
 	}
 
-      async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
 		event.preventDefault();
         formValues.username = user.userName;
         formValues.type = "Channel";

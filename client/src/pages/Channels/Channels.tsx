@@ -3,26 +3,17 @@ import React from "react";
 import ChatNav from "../../components/Chat/ChatNav/ChatNav";
 import { useEffect, useState } from "react";
 import { NavLink} from "react-router-dom";
-import { Socket, io } from "socket.io-client";
 import { useUser } from "../../context/UserProvider";
 import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
-// import { KeyboardEvent } from "react"
-// import Message from "../../components/Message/Message";
-
-
-// Create interfaces for channels, users and messages
 
 export default function Channels() {
   
 	const { accessToken, user } = useUser();
-	// const [socket, setSocket] = useState<Socket>();
 	const {chatSocket} = usePrivateRouteSocket();
 	
 	const [channelsState, setChannelsState] = useState([]);
-	// const [membersState, setMembersState] = useState([]);
+	//const [membersState, setMembersState] = useState([]);
 	//const [messagesState, setMessagesState] = useState([]);
-	
-	// const { id } = useParams();
 	
 	// Make the user to join the rooms of his channels
 	
@@ -30,17 +21,9 @@ export default function Channels() {
 	
 	useEffect(() => {
 		for (const chan of channelNames){
-			console.log(chan);
 			chatSocket?.emit('joinChatRoom', chan)
 		}
 	}, [channelNames, chatSocket])
-
-
-	// Put this shit in a context
-	// useEffect(() => {
-	// 	const newSocket = io(`${process.env.REACT_APP_CHAT_URL}, ${user.email}`);
-	// 	setSocket(newSocket);
-	// }, [setSocket])
 	
 	useEffect(() => {
 		(async () => {
@@ -55,7 +38,6 @@ export default function Channels() {
 				.then(
 				(chans) => {
 					setChannelsState(chans);
-					console.log(chans);
 				}
 				);
             } catch (e) {
@@ -119,7 +101,9 @@ export default function Channels() {
 	
 	//const channelMessages = setMessages(channelsState.map(({message}) => {return message}));
 	
-	const channelsList = channelsState.map(({ id, title }) => (
+	console.log(user.id);
+
+	const channelsList = channelsState.map(({ id, title, ownerId}) => (
 		<li key={id}>
 			<div>
 			<NavLink className={``}  to={`/chat/channels/${title}`} >
@@ -127,9 +111,13 @@ export default function Channels() {
 					{title}
 				</span>
 			</NavLink>
-				<button>
-					Delete
-				</button>
+			{ user.id === ownerId &&
+				<>
+					<button>
+						Delete
+					</button>
+				</>
+			}
 			</div>
 		</li>
 	));
@@ -140,23 +128,16 @@ export default function Channels() {
 			<div>
 					<ChatNav/>
 					{
-						// (id ?
-						// <>
-						// 	<p>Display {id} channel</p>
-						// 	<h1>Messages ({messages.length})</h1>
-						// 	<ul className="List">{messagesList}</ul>
-						// 	<input onKeyDown={handleKeyDown}
-						// 		onChange={(e)=>{setValue(e.target.value)}}  type="text" placeholder="Write a message" />
-						// </> 
-						// :
 						<>
 							<h1>Channels ({channelsState.length})</h1>
 							<ul className="List">{channelsList}</ul>
 							<NavLink className={``}  to='/chat/channels/new_channel' >
 								New Channel
             				</NavLink>
+							<NavLink className={``}  to='/chat/channels/join_channel' >
+								Join Channel
+            				</NavLink>
 						</>
-						// )
 					}
 			</div>
 		</div>
