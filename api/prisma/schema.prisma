@@ -34,9 +34,6 @@ model User {
   channels  Channel[] @relation("channel_members")
 
   messages  Message[]
-
-
-
 }
 
 model Channel {
@@ -44,6 +41,7 @@ model Channel {
   title     String?   @unique
   password  String?
   type      String
+  mode      String
   owner     User?     @relation(fields:[ownerId], references:[id])
   ownerId   Int?
   operators User[]    @relation("channel_ops")

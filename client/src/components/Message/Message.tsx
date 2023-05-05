@@ -1,13 +1,14 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
+import { MessageModel } from "../../entities/entities";
 
 // Destructuring props in the function arguments.
-export default function Message ({ allMessages, username, content,removeMessages }: {allMessages: any; username :any; content:any, removeMessages:any}){
+export default function Message ({ allMessages, username, content }: {allMessages: MessageModel[]; username :string; content:string}){
   
-    const handleRemove = () => {
-    const filteredPlayers = allMessages.filter((message:any) => message.username !== username);
-    removeMessages(filteredPlayers);
-  };
+    // const handleRemove = () => {
+    // const filteredPlayers = allMessages.filter((message:any) => message.username !== username);
+    // removeMessages(filteredPlayers);
+//   };
   
   return (
     <>

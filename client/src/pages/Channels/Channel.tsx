@@ -61,7 +61,7 @@ export default function Channel() {
 		<li key={id}>
 		  <Message
 			allMessages={messagesState}
-			removeMessages={setMessagesState}
+			// removeMessages={setMessagesState}
 			username ={author.userName}
 			content={content}
 			/>

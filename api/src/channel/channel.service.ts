@@ -16,8 +16,9 @@ export class ChannelService {
 		const chan = await this.prisma.channel.create({
 			data: {
 				title: newChannel.title,
-				password: "",
+				password: newChannel.password,
 				type: newChannel.type,
+				mode: newChannel.mode,
 				ownerId: user.id,
 				operators: {
 					connect: { id: user.id },
@@ -27,7 +28,7 @@ export class ChannelService {
 				},
 			},
 		});
-		return chan;
+		return null;
 	}
 
 	async getChannelByTitle(title: any) {

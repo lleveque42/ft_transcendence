@@ -93,6 +93,8 @@ export class ChannelController {
 				{
 					title: body.title,
 					type: body.type,
+					mode: body.mode,
+					password: body.password,
 				},
 				body.username,
 			);

@@ -27,7 +27,7 @@ export class MessageService {
 			},
 			// include: {
 			// 	author: true,
-			// },
+			// }
 			include: {
 				author: {
 					select: {
@@ -56,6 +56,7 @@ export class MessageService {
 				title: newChannel.title,
 				password: "",
 				type: newChannel.type,
+				mode: newChannel.mode,
 				ownerId: user.id,
 				operators: {
 					connect: { id: user.id },
