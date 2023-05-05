@@ -6,71 +6,48 @@ export default function FriendsList() {
 	const { user } = useUser();
 	const navigate = useNavigate();
 
-	const friends = [
-		{ userName: "aefgh" },
-		{ userName: "abcdefgh" },
-		{ userName: "abcdefgh" },
-		{ userName: "abcdefgh" },
-		{ userName: "abcdefgh" },
-		{ userName: "abcdefgh" },
-		{ userName: "abcdefgh" },
-		{ userName: "abcdefgh" },
-		{ userName: "abcdefgh" },
-		{ userName: "abcdefgh" },
-		{ userName: "abcdefgh" },
-		{ userName: "abcdefgh" },
-		{ userName: "abcdefgh" },
-		{ userName: "abcdefgh" },
-		{ userName: "abcdefgh" },
-		{ userName: "abcdefgh" },
-		{ userName: "abcdefgh" },
-		{ userName: "abcdefgh" },
-		{ userName: "abcdefgh" },
-		{ userName: "abcdefgh" },
-		{ userName: "abcdefgh" },
-		{ userName: "abcdefgh" },
-		{ userName: "abcdefgh" },
-		{ userName: "abcdefgh" },
-		{ userName: "abcdefgh" },
-		{ userName: "abcdefgh" },
-	];
+	// ${f.isOnline ? styles.online : styles.offline}
+	// Add this in the span when online user is managed
+
+	function trimUserName(userName: string): string {
+		let displayUserName: string = userName;
+		if (displayUserName.length > 10)
+			displayUserName = displayUserName.substring(0, 10) + "...";
+		return displayUserName;
+	}
 
 	return (
 		<>
 			<h3 className="underTitle mt-10">My Friends</h3>
 			<div className={styles.friendsList}>
-				{friends.length !== 0 ? (
+				{user.friends.length !== 0 ? (
 					<>
-						<div
-							// className={`${styles.listTitle} d-flex justify-content-space-between mb-5 pr-5`}
-						>
-							<li
-								className={` ${styles.listElem} d-flex justify-content-space-between p-5`}
-							>
-								<p>Login</p>
-								<p>|</p>
-								<p>Play</p>
-								<p>Dm</p>
+						<ul className={`pl-5 pr-5`}>
+							<li className={`${styles.listElem} d-flex p-5 mb-10`}>
+								<span className={`${styles.titleStatusBadge}`} />
+								<h4 className="flex-1 pl-5">Login</h4>
+								<h4 className="pr-10 pl-5">|</h4>
+								<h4 className="d-flex flex-1 justify-content mr-5">Play</h4>
+								<h4 className="d-flex flex-1 justify-content">Dm</h4>
 							</li>
-						</div>
-						<ul className={`${styles.listElem} pl-5 pr-5`}>
-							{friends.map((f, i) => (
-								<li
-									className={` ${styles.listElem} d-flex justify-content-space-between p-5`}
-									key={i}
-								>
-									<p className="flex-1" onClick={() => navigate(`/user/${f.userName}`)}>
-										{f.userName}
+							{user.friends.map((f, i) => (
+								<li className={` ${styles.listElem} d-flex p-5`} key={i}>
+									<span className={`${styles.statusBadge}`} />
+									<p
+										className="flex-1 pl-5"
+										onClick={() => navigate(`/user/${f.userName}`)}
+									>
+										{trimUserName(f.userName)}
 									</p>
-									<p className="flex-1" >|</p>
+									<p className="pr-10 pl-5">|</p>
 									<i
-										className="flex-1 fa-solid fa-gamepad"
+										className="d-flex flex-1 justify-content fa-solid fa-gamepad mr-5"
 										onClick={() => navigate("/play")}
-									></i>
+									/>
 									<i
-										className="flex-1 fa-solid fa-envelope"
+										className="d-flex flex-1 justify-content fa-solid fa-envelope"
 										onClick={() => navigate("/chat")}
-									></i>
+									/>
 								</li>
 							))}
 						</ul>

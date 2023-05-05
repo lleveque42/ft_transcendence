@@ -25,11 +25,19 @@ export default function Homepage() {
 				<div className={`${styles.friendsContainer} d-flex flex-column`}>
 					<FriendsList />
 				</div>
-				<div className={`${styles.homepageButtonContainer} d-flex flex-column align-items justify-content`}>
-					<button className="btn-primary mb-10 pl-10 pr-10 p-5" onClick={handlePlay}>
+				<div
+					className={`${styles.homepageButtonContainer} d-flex flex-column align-items justify-content`}
+				>
+					<button
+						className="btn-primary mb-10 pl-10 pr-10 p-5"
+						onClick={handlePlay}
+					>
 						Play
 					</button>
-					<button className="btn-primary mb-10 pl-10 pr-10 p-5" onClick={showUsers}>
+					<button
+						className="btn-primary mb-10 pl-10 pr-10 p-5"
+						onClick={showUsers}
+					>
 						Show users
 					</button>
 				</div>
