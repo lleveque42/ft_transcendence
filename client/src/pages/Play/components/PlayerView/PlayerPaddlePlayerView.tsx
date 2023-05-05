@@ -13,16 +13,20 @@ import {
 } from "../GameUtils/Constant";
 import { ceilToDecimal, floorToDecimal } from "../GameUtils/Utils";
 import { Socket } from "socket.io-client";
-import { ClientToWebsocketEvents } from "../OwnerViewComponents/OwnerGameRender";
 
 interface PlayerPaddleProps {
 	paddle: React.MutableRefObject<
 		THREE.Mesh<THREE.BufferGeometry, THREE.Material | THREE.Material[]>
 	>;
-	socket: React.MutableRefObject<Socket<ClientToWebsocketEvents>>;
+	socket: Socket | null;
+	room: string;
 }
 
-export default function PlayerPaddle({ paddle, socket }: PlayerPaddleProps) {
+export default function PlayerPaddle({
+	paddle,
+	socket,
+	room,
+}: PlayerPaddleProps) {
 	const [move, setMove] = useState({ up: false, down: false });
 
 	useFrame((state, delta) => {
@@ -31,13 +35,19 @@ export default function PlayerPaddle({ paddle, socket }: PlayerPaddleProps) {
 			ceilToDecimal(paddle.current.position.y + PADDLE_HALF_SIZE) < CEILING
 		) {
 			paddle.current.position.y += delta * PADDLE_SPEED;
-			socket.current.emit("updatePlayerPaddlePos", paddle.current.position.y);
+			socket!.emit("updatePlayerPaddlePos", {
+				y: paddle.current.position.y,
+				room,
+			});
 		} else if (
 			move.down &&
 			floorToDecimal(paddle.current.position.y - PADDLE_HALF_SIZE) > FLOOR
 		) {
 			paddle.current.position.y -= delta * PADDLE_SPEED;
-			socket.current.emit("updatePlayerPaddlePos", paddle.current.position.y);
+			socket!.emit("updatePlayerPaddlePos", {
+				y: paddle.current.position.y,
+				room,
+			});
 		}
 	});
 

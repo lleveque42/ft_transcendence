@@ -1,5 +1,4 @@
-import React from "react";
-import { useFrame } from "@react-three/fiber";
+import React, { useEffect } from "react";
 import {
 	BALL_RADIUS,
 	MAP_DEPTH,
@@ -8,18 +7,22 @@ import {
 	PADDLE_X,
 } from "../GameUtils/Constant";
 import { Socket } from "socket.io-client";
-import { ClientToWebsocketEvents } from "./OwnerGameRender";
 
 interface PlayerPaddleProps {
 	paddle: React.MutableRefObject<
 		THREE.Mesh<THREE.BufferGeometry, THREE.Material | THREE.Material[]>
 	>;
-	socket: React.MutableRefObject<Socket<ClientToWebsocketEvents>>;
+	socket: Socket | null;
 }
 
 export default function PlayerPaddle({ paddle, socket }: PlayerPaddleProps) {
-	useFrame((state, delta) => {
-		// RENDER PLAYER PADDLE FROM SOCKET
+	useEffect(() => {
+		socket!.on("leftPaddlePosUpdate", (position: number) => {
+			paddle.current.position.y = position;
+		});
+		return () => {
+			socket!.off("leftPaddlePosUpdate");
+		};
 	});
 
 	return (

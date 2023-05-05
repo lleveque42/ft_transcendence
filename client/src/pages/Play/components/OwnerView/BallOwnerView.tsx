@@ -22,7 +22,6 @@ import {
 } from "../GameUtils/Utils";
 import { useTimer } from "use-timer";
 import { Socket } from "socket.io-client";
-import { ClientToWebsocketEvents } from "./OwnerGameRender";
 
 const enum Collision {
 	NO_HIT,
@@ -48,20 +47,16 @@ interface BallProps {
 	ownerPaddle: React.MutableRefObject<
 		THREE.Mesh<THREE.BufferGeometry, THREE.Material | THREE.Material[]>
 	>;
-	points: { left: number; right: number };
-	setPoints: React.Dispatch<
-		React.SetStateAction<{ left: number; right: number }>
-	>;
-	socket: React.MutableRefObject<Socket<ClientToWebsocketEvents>>;
+	socket: Socket | null;
+	room: string;
 }
 
 export default function Ball({
 	ballStopped,
 	playerPaddle,
 	ownerPaddle,
-	points,
-	setPoints,
 	socket,
+	room,
 }: BallProps) {
 	const [dirVector, setDirVector] = useState(randomBallDir());
 	const [xSpeedMultiplier, setXSpeedMultiplier] = useState(
@@ -75,13 +70,28 @@ export default function Ball({
 	function newBall(): void {
 		ball.current.position.x = 0;
 		ball.current.position.y = 0;
+		socket!.emit("updateBallPos", {
+			position: {
+				x: ball.current.position.x,
+				y: ball.current.position.y,
+			},
+			room,
+		});
 		setDirVector(randomBallDir());
 		setXSpeedMultiplier(1);
 	}
 
 	function resetPaddles(): void {
 		ownerPaddle.current.position.y = 0;
+		socket!.emit("updateOwnerPaddlePos", {
+			y: ownerPaddle.current.position.y,
+			room,
+		});
 		playerPaddle.current.position.y = 0;
+		socket!.emit("updatePlayerPaddlePos", {
+			y: ownerPaddle.current.position.y,
+			room,
+		});
 	}
 
 	function resetPoint(): void {
@@ -200,9 +210,12 @@ export default function Ball({
 				setXSpeedMultiplier(xSpeedMultiplier); // modify so ball speed up
 				ball.current.position.x += delta * dirVector.x * xSpeedMultiplier;
 				ball.current.position.y += delta * dirVector.y;
-				socket.current.emit("updateBallPos", {
-					x: ball.current.position.x,
-					y: ball.current.position.y,
+				socket!.emit("updateBallPos", {
+					position: {
+						x: ball.current.position.x,
+						y: ball.current.position.y,
+					},
+					room,
 				});
 				const collision = checkCollision(delta);
 				switch (collision) {
@@ -222,13 +235,13 @@ export default function Ball({
 						break;
 					case Collision.RIGHT_PADDLE_MISSED:
 						if (resetted) {
-							setPoints({ left: points.left + 1, right: points.right });
+							socket!.emit("playerScored", room);
 							setResetted(false);
 						}
 						break;
 					case Collision.LEFT_PADDLE_MISSED:
 						if (resetted) {
-							setPoints({ left: points.left, right: points.right + 1 });
+							socket!.emit("ownerScored", room);
 							setResetted(false);
 						}
 						break;

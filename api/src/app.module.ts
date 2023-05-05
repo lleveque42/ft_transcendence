@@ -7,7 +7,7 @@ import { PrismaModule } from "./prisma/prisma.module";
 import { UserModule } from "./user/user.module";
 import { AuthModule } from "./auth/auth.module";
 import { ConfigModule } from "@nestjs/config";
-import { GameGateway } from "./game/websocket/game.gateway";
+import { GameGateway } from "./game/game.gateway";
 import { UserService } from "./user/user.service";
 import { AppGateway } from "./app.gateway";
 
