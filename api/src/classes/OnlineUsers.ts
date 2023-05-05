@@ -1,7 +1,7 @@
 import { User } from "@prisma/client";
 import { Socket } from "socket.io";
 
-interface UsersInterface {
+type UsersInterface = {
 	user: User;
 	sockets: Map<string, Socket>;
 }
