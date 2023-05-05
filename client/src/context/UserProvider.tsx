@@ -1,5 +1,6 @@
 import { createContext, useContext, useState } from "react";
 import { isAuthRequest, logoutRequest } from "../api";
+import { UserStatus } from "../types/UserStatus.enum";
 
 type UserContextValue = {
 	isAuth: () => Promise<boolean>;
@@ -11,7 +12,8 @@ type UserContextValue = {
 		firstName: string;
 		lastName: string;
 		isTfaEnable: boolean;
-		friends: { userName: string }[];
+		status: UserStatus;
+		friends: { userName: string, status: UserStatus }[];
 	};
 };
 
@@ -25,6 +27,7 @@ const UserContext = createContext<UserContextValue>({
 		firstName: "",
 		lastName: "",
 		isTfaEnable: false,
+		status: UserStatus.ONLINE,
 		friends: [],
 	},
 });
@@ -39,7 +42,8 @@ type UserDataState = {
 	firstName: string;
 	lastName: string;
 	isTfaEnable: boolean;
-	friends: { userName: string }[];
+	status: UserStatus;
+	friends: { userName: string, status: UserStatus }[];
 };
 
 export const UserProvider = ({ children }: UserProviderProps) => {
@@ -50,6 +54,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
 		firstName: "",
 		lastName: "",
 		isTfaEnable: false,
+		status: UserStatus.ONLINE,
 		friends: [],
 	});
 

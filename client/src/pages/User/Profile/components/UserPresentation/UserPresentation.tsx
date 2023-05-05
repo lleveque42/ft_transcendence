@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useAlert, useUser } from "../../../../../context";
 import styles from "./UserPresentation.module.scss";
 import { toggleFriendshipRequest } from "../../../../../api";
+import { UserStatus } from "../../../../../types/UserStatus.enum";
 
 type UserProfileProps = {
 	userProfile: {
@@ -23,7 +24,6 @@ const UserPresentation = ({
 	const { showAlert } = useAlert();
 	const navigate = useNavigate();
 	const { userName, firstName, lastName, email } = userProfile;
-	const isOnline = true; // To del
 
 	async function toggleFriendship() {
 		const method = isFriend ? "DELETE" : "PATCH";
@@ -46,13 +46,19 @@ const UserPresentation = ({
 		}
 	}
 
+	console.log(user.status);
+
 	return (
 		<div className={`${styles.presentationContainer} d-flex flex-column`}>
 			<div className={styles.avatarContainer}>
 				<img src={userProfileAvatar} alt="" />
 				<div
 					className={`${styles.statusBadge} ${
-						isOnline ? styles.online : styles.offline
+						user.status === UserStatus.ONLINE
+							? styles.online
+							: user.status === UserStatus.INGAME
+							? styles.ingame
+							: styles.offline
 					}`}
 				></div>
 				<div className={`${styles.userInfosTextContainer}`}>

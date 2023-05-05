@@ -10,35 +10,42 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserStatus {
+  ONLINE
+  OFFLINE
+  INGAME
+}
+
 model User {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  email     String @unique
-  hash      String
-  userName  String @unique
-  firstName String?
-  lastName  String?
-  avatar    String?
-  ownedGames Game[] @relation("owner")
-  playerGames Game[] @relation("player")
+  email       String     @unique
+  hash        String
+  userName    String     @unique
+  firstName   String?
+  lastName    String?
+  avatar      String?
+  ownedGames  Game[]     @relation("owner")
+  playerGames Game[]     @relation("player")
   socket      String?
   tfaSecret   String?
-  isTfaEnable Boolean @default(false)
-  friends    User[]   @relation("Friends")
-  friendsOf  User[]   @relation("Friends")
+  isTfaEnable Boolean    @default(false)
+  status      UserStatus @default(ONLINE)
+  friends     User[]     @relation("Friends")
+  friendsOf   User[]     @relation("Friends")
 }
 
 model Game {
-  id Int @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  owner User @relation("owner", fields: [ownerId], references: [id])
-  ownerId Int
-  player User @relation("player", fields: [playerId], references: [id])
-  playerId Int
-  ownerScore Int
+  owner       User @relation("owner", fields: [ownerId], references: [id])
+  ownerId     Int
+  player      User @relation("player", fields: [playerId], references: [id])
+  playerId    Int
+  ownerScore  Int
   playerScore Int
 }

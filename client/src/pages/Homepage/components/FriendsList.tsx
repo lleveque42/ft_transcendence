@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../../../context";
 import styles from "./FriendsList.module.scss";
+import { UserStatus } from "../../../types/UserStatus.enum";
 
 export default function FriendsList() {
 	const { user } = useUser();
@@ -32,7 +33,15 @@ export default function FriendsList() {
 							</li>
 							{user.friends.map((f, i) => (
 								<li className={` ${styles.listElem} d-flex p-5`} key={i}>
-									<span className={`${styles.statusBadge}`} />
+									<span
+										className={`${styles.statusBadge} ${
+											f.status === UserStatus.ONLINE
+												? styles.online
+												: f.status === UserStatus.INGAME
+												? styles.ingame
+												: styles.offline
+										}`}
+									/>
 									<p
 										className="flex-1 pl-5"
 										onClick={() => navigate(`/user/${f.userName}`)}

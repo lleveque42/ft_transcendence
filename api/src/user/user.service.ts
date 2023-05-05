@@ -7,7 +7,7 @@ import {
 } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { userInfo42Dto } from "../auth/dto";
-import { User } from "@prisma/client";
+import { User, UserStatus } from "@prisma/client";
 import { createReadStream } from "fs";
 import { authenticator } from "otplib";
 import { toDataURL } from "qrcode";
@@ -120,6 +120,7 @@ export class UserService {
 				friends: {
 					select: {
 						userName: true,
+						status: true,
 					},
 				},
 			},
@@ -210,6 +211,14 @@ export class UserService {
 		const user = await this.getUserByUserName(userName);
 		if (!user) throw new ForbiddenException("Can't find user, try again");
 		return authenticator.verify({ token: code, secret: user.tfaSecret });
+	}
+
+	async changeUserStatus(userId: number, newStatus: UserStatus) {
+		console.log("NEW STATUS", newStatus);
+		await this.prisma.user.update({
+			where: { id: userId },
+			data: { status: newStatus },
+		});
 	}
 
 	async dropdb(): Promise<void> {

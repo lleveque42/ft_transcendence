@@ -11,7 +11,7 @@ import {
 } from "@nestjs/websockets";
 import { Namespace, Socket } from "socket.io";
 import { UserService } from "./user/user.service";
-import { User } from "@prisma/client";
+import { User, UserStatus } from "@prisma/client";
 import { OnlineUsers } from "./classes/OnlineUsers";
 
 @WebSocketGateway(8001, { cors: "*" })
@@ -34,6 +34,7 @@ export class AppGateway
 		if (!user) return;
 		this.logger.log(`WS Client ${client.id} (${user.userName}) disconnected !`);
 		this.users.removeClientId(client.id);
+		this.userService.changeUserStatus(user.id, UserStatus.OFFLINE);
 		this.logger.log(`${this.users.size} user(s) connected !`);
 	}
 
@@ -55,7 +56,10 @@ export class AppGateway
 		}
 		if (this.users.hasByUserId(user.id))
 			this.users.addClientToUserId(user.id, client);
-		else this.users.addNewUser(user, client);
+		else {
+			this.users.addNewUser(user, client);
+			this.userService.changeUserStatus(user.id, UserStatus.ONLINE);
+		}
 		this.logger.log(`WS Client ${client.id} (${user.userName}) connected !`);
 		this.logger.log(`${this.users.size} user(s) connected !`);
 	}
