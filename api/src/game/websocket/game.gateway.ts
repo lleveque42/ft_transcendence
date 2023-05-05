@@ -14,11 +14,6 @@ import { UserService } from "./../../user/user.service";
 import { User } from "@prisma/client";
 import { OnlineUsers } from "../../classes/OnlineUsers";
 
-interface Pair {
-	client: Socket;
-	user: User;
-}
-
 @WebSocketGateway(8001, { namespace: "game", cors: "*" })
 export class GameGateway
 	implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
@@ -34,7 +29,7 @@ export class GameGateway
 		this.logger.log("Websocket GameGateway initialized.");
 	}
 
-	handleDisconnect(client: Socket) {
+	handleDisconnect(@ConnectedSocket() client: Socket) {
 		const user: User = this.users.getUserByClientId(client.id);
 		if (!user) return;
 		this.logger.log(`WS Client ${client.id} (${user.userName}) disconnected !`);
