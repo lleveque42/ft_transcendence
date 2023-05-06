@@ -22,7 +22,7 @@ export default function Channel() {
 	 
 	const { id } = useParams();
 
-	chatSocket?.emit('joinChatRoom', id);
+	//chatSocket?.emit('joinChatRoom', id);
 
 	//	Put this shit in a context
 	// useEffect(() => {

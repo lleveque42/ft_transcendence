@@ -16,7 +16,7 @@ import { UserService } from "./../user/user.service";
 import { AtGuard } from "../auth/guards";
 import { GetCurrentUser } from "../common/decorators";
 import { ChannelDto } from "./../auth/dto/channel.dto";
-import { Channel, Message } from "@prisma/client";
+import { Channel, Message, User } from "@prisma/client";
 
 @Controller("channels")
 export class ChannelController {
@@ -90,6 +90,19 @@ export class ChannelController {
 
 			const msgs = await this.channelService.getChanMessages(title);
 			return msgs;
+		} catch (e) {
+			throw new HttpException(e.message, e.status);
+		}
+	}
+
+	@UseGuards(AtGuard)
+	@Get("/users_list/:test")
+	async getUsersList(
+		@GetCurrentUser("sub") userName: string,
+	): Promise<{ id: number; userName: string }[]> {
+		try {
+			const users = await this.userService.getAllUsers();
+			return users;
 		} catch (e) {
 			throw new HttpException(e.message, e.status);
 		}

@@ -4,12 +4,12 @@ import ChatNav from "../../components/Chat/ChatNav/ChatNav";
 import { useEffect, useState } from "react";
 import { NavLink} from "react-router-dom";
 import { useUser } from "../../context/UserProvider";
-import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
+// import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
 
 export default function Channels() {
   
 	const { accessToken, user } = useUser();
-	const {chatSocket} = usePrivateRouteSocket();
+	// const {chatSocket} = usePrivateRouteSocket();
 	
 	const [channelsState, setChannelsState] = useState([]);
 	//const [membersState, setMembersState] = useState([]);
@@ -19,11 +19,11 @@ export default function Channels() {
 	
 	const channelNames = channelsState.map(({ title}) => (title));
 	
-	useEffect(() => {
-		for (const chan of channelNames){
-			chatSocket?.emit('joinChatRoom', chan)
-		}
-	}, [channelNames, chatSocket])
+	// useEffect(() => {
+	// 	for (const chan of channelNames){
+	// 		chatSocket?.emit('joinChatRoom', chan)
+	// 	}
+	// }, [channelNames, chatSocket])
 	
 	useEffect(() => {
 		(async () => {

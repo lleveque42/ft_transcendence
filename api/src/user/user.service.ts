@@ -126,6 +126,16 @@ export class UserService {
 		});
 	}
 
+	async getAllUsers(): Promise<{ id: number; userName: string }[]> {
+		const users = await this.prisma.user.findMany({
+			select: {
+				id: true,
+				userName: true,
+			},
+		});
+		return users;
+	}
+
 	async addToFriend(userName: string, newFriendUserName: string) {
 		const user = await this.getUserByUserName(userName);
 		const userFriend = await this.getUserByUserName(newFriendUserName);

@@ -1,14 +1,11 @@
 import ChatNav from "../../components/Chat/ChatNav/ChatNav";
 import { useEffect, useState } from "react";
-import Message from "../../components/Message/Message";
-import { NavLink, useParams } from "react-router-dom";
-import { Socket, io } from "socket.io-client";
+import { NavLink } from "react-router-dom";
 import { useUser } from "../../context/UserProvider";
 
 export default function DirectMessages() {
 
 	const { user , accessToken} = useUser();
-	const [socket, setSocket] = useState<Socket>();
 	
 	const [directMessagesState, setDirectMessagesState] = useState([]);
 	
@@ -16,15 +13,6 @@ export default function DirectMessages() {
 	
 	const directMessagesNames = directMessagesState.map(({ title}) => (title));
 	
-	for (const chan of directMessagesNames){
-		socket?.emit('joinChatRoom', chan)
-	}
-	
-	// Put this shit in a context
-	useEffect(() => {
-		const newSocket = io(`${process.env.REACT_APP_CHAT_URL}`);
-		setSocket(newSocket);
-	}, [setSocket])
 
 	useEffect(() => {
 		(async () => {
@@ -46,8 +34,6 @@ export default function DirectMessages() {
 			}
         })();
     }, [user.userName, accessToken]);
-	
-	const { id } = useParams();
 	
 	const DirectMessagesList = directMessagesState.map(({ username, content }) => (
 		<li key={username}>
@@ -72,18 +58,6 @@ export default function DirectMessages() {
 			<div>
 					<ChatNav/>
 					{
-						// (id ?
-						// <>
-						// 	<p>Display {id} conversation</p>
-						// 	<MessageDisplay></MessageDisplay>
-						// 	<button>See profile</button>
-						// 	<button>Delete conversations</button>
-						// 	<input onKeyDown={handleKeyDown}
-						// 		onChange={(e)=>{setValue(e.target.value)}} 
-						// 		type="text" 
-						// 		placeholder={`Reply to ${id}`}/>
-						// </> 
-						// :
 						<>
 							<h1>Messages ({DirectMessagesList.length})</h1>
 							<ul className="List">{DirectMessagesList}</ul>
@@ -91,7 +65,6 @@ export default function DirectMessages() {
 								New Direct Messages
             				</NavLink>
 						</>
-						// )
 					}
 			</div>
 		</div>

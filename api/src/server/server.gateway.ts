@@ -15,7 +15,6 @@ import { ChannelService } from "./../channel/channel.service";
 import { HttpException, Logger } from "@nestjs/common";
 import { OnlineUsers } from "../classes/OnlineUsers";
 import { User } from "@prisma/client";
-import { log } from "console";
 
 @WebSocketGateway(8001, { namespace: "chat", cors: "*" })
 export class ServerGateway
@@ -64,6 +63,17 @@ export class ServerGateway
 		if (this.users.hasByUserId(user.id))
 			this.users.addClientToUserId(user.id, client);
 		else this.users.addNewUser(user, client);
+
+		// Function to join all rooms
+		const clients = this.users.getClientsByUserId(user.id);
+		const channels = await this.channelService.getUsersChannels(user.userName);
+		clients.forEach((value) => {
+			for (let chan of channels) {
+				console.log("This socket : " + value.id + "joined " + chan.title);
+				value.join("chan" + chan.title);
+			}
+		});
+
 		this.logger.log(`WS Client ${client.id} (${user.userName}) connected !`);
 		this.logger.log(`${this.users.size} user(s) connected !`);
 	}
