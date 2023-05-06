@@ -14,9 +14,10 @@ import { UserService } from "../user/user.service";
 import { User } from "@prisma/client";
 import { OnlineUsers } from "../classes/OnlineUsers";
 import { GameQueue } from "../classes/GameQueue";
-import { Pair } from "../classes/types/Pair";
+import { Pair } from "./types/pair.type";
 import { randomUUID } from "crypto";
-import { OngoingGames } from "../classes/OngoingGames";
+import { GAME_LIMIT_SCORE, OngoingGames } from "../classes/OngoingGames";
+import { GameType } from "./types/game.type";
 
 @WebSocketGateway(8001, { namespace: "game", cors: "*" })
 export class GameGateway
@@ -61,11 +62,15 @@ export class GameGateway
 		if (this.users.hasByUserId(user.id))
 			this.users.addClientToUserId(user.id, client);
 		else this.users.addNewUser(user, client);
+		if (this.queue.alreadyQueued(user.id)) client.emit("connectionInQueue");
+		else if (this.ongoing.alreadyInGame(user.id))
+			client.emit("connectionInGame");
+		else client.emit("connectionSuccess");
 		this.logger.log(`WS Client ${client.id} (${user.userName}) connected !`);
 		this.logger.log(`${this.users.size} user(s) connected !`);
 	}
 
-	createGame(): string {
+	createGame(): GameType {
 		const idPair = this.queue.getPair();
 		const usersPair: Pair<User> = {
 			first: this.users.getUserByUserId(idPair.first),
@@ -76,14 +81,13 @@ export class GameGateway
 			second: this.users.getClientsByUserId(idPair.second),
 		};
 		const newRoom: string = randomUUID();
-		socketsPair.first.forEach((value) => {
-			value.join(newRoom);
+		socketsPair.first.forEach((client) => {
+			client.join(newRoom);
 		});
-		socketsPair.second.forEach((value) => {
-			value.join(newRoom);
+		socketsPair.second.forEach((client) => {
+			client.join(newRoom);
 		});
-		this.ongoing.addGame(newRoom, usersPair.first, usersPair.second);
-		return newRoom;
+		return this.ongoing.addGame(newRoom, usersPair.first, usersPair.second);
 	}
 
 	endGame(room: string) {
@@ -92,58 +96,71 @@ export class GameGateway
 			first: this.users.getClientsByUserId(game.ownerId),
 			second: this.users.getClientsByUserId(game.playerId),
 		};
-		this.io.to(room).emit("gameEnded");
-		if (game.ownerScore === 1) {
-			socketsPair.first.forEach((value) => {
-				value.emit("gameWin");
-				value.leave(room);
-			});
-			socketsPair.second.forEach((value) => {
-				value.leave(room);
-			});
-		} else {
-			socketsPair.first.forEach((value) => {
-				value.leave(room);
-			});
-			socketsPair.second.forEach((value) => {
-				value.emit("gameWin");
-				value.leave(room);
-			});
-		}
+		this.io
+			.to(room)
+			.emit(
+				"gameEnded",
+				game.ownerScore === GAME_LIMIT_SCORE ? game.ownerId : game.playerId,
+			);
+		socketsPair.first.forEach((client) => {
+			client.leave(room);
+		});
+		socketsPair.second.forEach((client) => {
+			client.leave(room);
+		});
 		this.ongoing.removeGame(room);
 	}
 
 	@SubscribeMessage("showUsers")
-	showUsers(@ConnectedSocket() client: Socket) {
+	showUsers() {
 		this.users.showOnlineUsers();
 	}
 
+	@SubscribeMessage("showGames")
+	showGames() {
+		this.ongoing.showGames();
+	}
+
 	@SubscribeMessage("joinQueue")
-	handleNewGame(@ConnectedSocket() client: Socket): void {
+	handleJoinQueue(@ConnectedSocket() client: Socket): void {
 		const user = this.users.getUserByClientId(client.id);
+		const clients = this.users.getClientsByClientId(client.id);
 		if (!this.queue.alreadyQueued(user.id)) {
 			try {
 				this.queue.enqueue(user.id);
 				this.logger.log(`${user.userName} joined queue.`);
 				this.logger.log(`${this.queue.size()} user(s) queued.`);
-				client.emit("queuedSuccess");
+				this.users.emitAllbyUserId(user.id, "queuedStatus", true);
 			} catch (e) {
-				client.emit("queuedFail", e);
+				this.users.emitAllbyUserId(user.id, "queuedStatus", false);
 			}
 		} else {
-			client.emit("queuedAlready");
+			this.users.emitAllbyUserId(user.id, "queuedStatus", true);
 			this.logger.log(`${user.userName} already queued.`);
 		}
 		if (this.queue.size() === 2) {
 			const room = this.createGame();
-			client.emit("gameOwner", false);
-			this.io.to(room).emit("joinedGame", room);
+			this.io
+				.to(room.id)
+				.emit("joinedGame", room.id, room.ownerId, room.playerId);
 			this.logger.log(
-				`${this.ongoing.getGameById(room).owner.userName} vs ${
-					user.userName
-				}. launched.`,
+				`Game launched: ${
+					this.ongoing.getGameById(room.id).owner.userName
+				} vs ${user.userName}.`,
 			);
-		} else client.emit("gameOwner", true);
+		}
+	}
+
+	@SubscribeMessage("leaveQueue")
+	handleLeaveQueue(@ConnectedSocket() client: Socket): void {
+		const user = this.users.getUserByClientId(client.id);
+		if (this.queue.alreadyQueued(user.id)) {
+			this.queue.dequeueUser(user.id);
+			this.logger.log(`${user.userName} left queue.`);
+			this.logger.log(`${this.queue.size()} user(s) queued.`);
+			this.users.emitAllbyUserId(user.id, "leftQueue", undefined);
+		}
+		// else this.users.emitAllbyUserId(user.id, "notInQueue", undefined);
 	}
 
 	@SubscribeMessage("updatePlayerPaddlePos")

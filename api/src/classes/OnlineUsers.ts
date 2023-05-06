@@ -1,6 +1,6 @@
 import { User } from "@prisma/client";
 import { Socket } from "socket.io";
-import { UserType } from "./types/UserType";
+import { UserType } from "../game/types/user.type";
 
 export class OnlineUsers {
 	private _users: Map<number, UserType>;
@@ -68,6 +68,12 @@ export class OnlineUsers {
 		this._clients.set(client.id, userId);
 		const userInterface: UserType = this._users.get(userId);
 		userInterface.sockets.set(client.id, client);
+	}
+
+	emitAllbyUserId(userId: number, emit: string, content: any) {
+		this.getClientsByUserId(userId).forEach((client) => {
+			client.emit(emit, content);
+		});
 	}
 
 	showOnlineUsers() {

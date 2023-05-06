@@ -7,14 +7,10 @@ import Background from "../Game/Background";
 import { useGameSocket } from "../../context/GameSocketProvider";
 
 interface OwnerGameRenderProps {
-	ballStopped: boolean;
 	room: string;
 }
 
-export default function OwnerGameRender({
-	ballStopped,
-	room,
-}: OwnerGameRenderProps) {
+export default function OwnerGameRender({ room }: OwnerGameRenderProps) {
 	const playerPaddle = useRef<THREE.Mesh>(null!);
 	const ownerPaddle = useRef<THREE.Mesh>(null!);
 	const { gameSocket } = useGameSocket();
@@ -27,7 +23,6 @@ export default function OwnerGameRender({
 				<Background />
 				<LeftPaddle paddle={playerPaddle} socket={gameSocket} />
 				<Ball
-					ballStopped={ballStopped}
 					playerPaddle={playerPaddle}
 					ownerPaddle={ownerPaddle}
 					socket={gameSocket}
