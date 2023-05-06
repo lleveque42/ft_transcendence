@@ -100,8 +100,6 @@ export default function Channels() {
 	// console.log(channelsMembers[0]);
 	
 	//const channelMessages = setMessages(channelsState.map(({message}) => {return message}));
-	
-	console.log(user.id);
 
 	const channelsList = channelsState.map(({ id, title, ownerId}) => (
 		<li key={id}>

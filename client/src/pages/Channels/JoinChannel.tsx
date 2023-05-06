@@ -5,6 +5,11 @@ import { useEffect, useState } from "react";
 import { NavLink, useNavigate} from "react-router-dom";
 import { useUser } from "../../context/UserProvider";
 
+type FormValues = {
+	userId: number;
+	channelId: number;
+};
+
 export default function JoinChannel() {
   
 	const { accessToken, user } = useUser();
@@ -32,7 +37,17 @@ export default function JoinChannel() {
         })();
     }, [user.userName, accessToken]);
 	
-	async function onClickJoin(event: React.FormEvent<HTMLButtonElement>) {
+	async function handleClick(event: MouseEvent) {
+		const target = event.target as HTMLButtonElement;
+		const value = target.value;
+		const channelId = parseInt(value)
+		// console.log(`Button value: ${va;lue}`);
+		// console.log("POST join channel");
+		const userId = user.id;
+		const formValues: FormValues = {
+			userId: userId,
+			channelId: channelId
+		}
 		try {
 			const res = await fetch("http://localhost:3000/channels/join_channel", {
 				method: "POST",
@@ -40,7 +55,7 @@ export default function JoinChannel() {
 				headers: {
 					"Content-Type": "application/json",
 				},
-				body: JSON.stringify(user.id),
+				body: JSON.stringify(formValues),
 			});
 			if (res.status === 201) {
 				navigate("/chat/channels");
@@ -50,8 +65,11 @@ export default function JoinChannel() {
 		} catch (e) {
 			console.error("Error joining channel");
 		}
-	}
-
+	  }
+	  
+	const buttons = document.querySelectorAll('button');
+	buttons.forEach(button => button.addEventListener('click', handleClick));
+	  
 	const channelsList = channelsState.map(({ id, title, ownerId}) => (
 		<li key={id}>
 			<div>
@@ -60,7 +78,7 @@ export default function JoinChannel() {
 					<span>
 						{title}
 					</span>
-					<button onClick={onClickJoin}>
+					<button  value={id}>
 						JOIN
 					</button>
 				</>

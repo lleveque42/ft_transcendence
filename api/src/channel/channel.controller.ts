@@ -12,6 +12,7 @@ import {
 	UseGuards,
 } from "@nestjs/common";
 import { ChannelService } from "./channel.service";
+import { UserService } from "./../user/user.service";
 import { AtGuard } from "../auth/guards";
 import { GetCurrentUser } from "../common/decorators";
 import { ChannelDto } from "./../auth/dto/channel.dto";
@@ -19,7 +20,10 @@ import { Channel, Message } from "@prisma/client";
 
 @Controller("channels")
 export class ChannelController {
-	constructor(private channelService: ChannelService) {}
+	constructor(
+		private channelService: ChannelService,
+		private userService: UserService,
+	) {}
 
 	@Delete("temporary_dropdb")
 	@HttpCode(HttpStatus.GONE)
@@ -33,12 +37,20 @@ export class ChannelController {
 		return userName;
 	}
 
+	@UseGuards(AtGuard)
 	@Get("")
-	async getAllPublicChannels(): // @Param() params: UserLoginDto,
-	// @Res({ passthrough: true }) res: Response,
-	Promise<Channel[]> {
+	async getPublicChannelsToJoin(
+		@GetCurrentUser("sub") userName: string,
+	): Promise<Channel[]> {
 		try {
-			const channels = await this.channelService.getAllPublicChannels();
+			const user = await this.userService.getUserByUserName(userName);
+			console.log(user);
+
+			const channels = await this.channelService.getPublicChannelsToJoin(
+				user.id,
+			);
+			console.log(channels);
+
 			return channels;
 		} catch (e) {
 			throw new HttpException(e.message, e.status);
@@ -99,6 +111,25 @@ export class ChannelController {
 				body.username,
 			);
 			console.log("New chan : " + channel.title);
+			return channel;
+		} catch (e) {
+			throw new HttpException(e.message, e.status);
+		}
+	}
+
+	@Post("join_channel")
+	async joinChannel(
+		@Body() body,
+		@Res({ passthrough: true }) res: Response,
+	): Promise<Channel> {
+		console.log("Post joinchannel begin");
+		console.log("userId : " + body.userId);
+		console.log("channelId : " + body.channelId);
+		try {
+			const channel = await this.channelService.joinPublicChannel(
+				body.userId,
+				body.channelId,
+			);
 			return channel;
 		} catch (e) {
 			throw new HttpException(e.message, e.status);

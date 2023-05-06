@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { ChannelDto } from "../auth/dto/channel.dto";
 import { UserService } from "../user/user.service";
-import { Prisma } from "@prisma/client";
+import { Channel, Prisma } from "@prisma/client";
 import * as argon2 from "argon2";
 
 @Injectable()
@@ -36,6 +36,14 @@ export class ChannelService {
 		return chan;
 	}
 
+	async joinPublicChannel(userId: number, channelId: number) {
+		const updatedChannel = await this.prisma.channel.update({
+			where: { id: channelId },
+			data: { members: { connect: { id: userId } } },
+		});
+		return updatedChannel;
+	}
+
 	async getChannelByTitle(title: any) {
 		return await this.prisma.channel.findUnique({
 			where: {
@@ -48,6 +56,22 @@ export class ChannelService {
 		const chans = await this.prisma.channel.findMany({
 			where: {
 				mode: "Public",
+			},
+		});
+		return chans;
+	}
+
+	async getPublicChannelsToJoin(userId: number): Promise<Channel[]> {
+		const chans = await this.prisma.channel.findMany({
+			where: {
+				mode: "Public",
+				NOT: {
+					members: {
+						some: {
+							id: userId,
+						},
+					},
+				},
 			},
 		});
 		return chans;
@@ -67,8 +91,12 @@ export class ChannelService {
 				messages: true,
 			},
 			where: {
-				owner: user,
 				type: "Channel",
+				members: {
+					some: {
+						id: user.id,
+					},
+				},
 			},
 		});
 		return chans;
