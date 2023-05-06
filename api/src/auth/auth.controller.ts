@@ -70,6 +70,7 @@ export class AuthController {
 		return {
 			accessToken: accessToken.access_token,
 			userData: {
+				id: user.id,
 				userName: user.userName,
 				email: user.email,
 				firstName: user.firstName,

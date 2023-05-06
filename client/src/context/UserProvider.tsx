@@ -6,6 +6,7 @@ type UserContextValue = {
 	logout: () => void;
 	accessToken: string;
 	user: {
+		id: number;
 		userName: string;
 		email: string;
 		firstName: string;
@@ -20,6 +21,7 @@ const UserContext = createContext<UserContextValue>({
 	logout: () => {},
 	accessToken: "",
 	user: {
+		id: 0,
 		userName: "",
 		email: "",
 		firstName: "",
@@ -33,7 +35,8 @@ type UserProviderProps = {
 	children: React.ReactNode;
 };
 
-type UserDataState = {
+export type UserDataState = {
+	id: number;
 	userName: string;
 	email: string;
 	firstName: string;
@@ -45,6 +48,7 @@ type UserDataState = {
 export const UserProvider = ({ children }: UserProviderProps) => {
 	const [accessToken, setAccessToken] = useState<string>("");
 	const [user, setUser] = useState<UserDataState>({
+		id: 0,
 		userName: "",
 		email: "",
 		firstName: "",
