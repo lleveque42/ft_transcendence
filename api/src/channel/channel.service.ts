@@ -3,6 +3,7 @@ import { PrismaService } from "../prisma/prisma.service";
 import { ChannelDto } from "../auth/dto/channel.dto";
 import { UserService } from "../user/user.service";
 import { Prisma } from "@prisma/client";
+import * as argon2 from "argon2";
 
 @Injectable()
 export class ChannelService {
@@ -13,10 +14,14 @@ export class ChannelService {
 
 	async createChannel(newChannel: Prisma.ChannelCreateInput, userName: string) {
 		const user = await this.userService.getUserByUserName(userName);
+		let hash: string = null;
+		if (newChannel.password && newChannel.password !== "") {
+			hash = await argon2.hash(newChannel.password);
+		}
 		const chan = await this.prisma.channel.create({
 			data: {
 				title: newChannel.title,
-				password: newChannel.password,
+				password: hash,
 				type: newChannel.type,
 				mode: newChannel.mode,
 				ownerId: user.id,
@@ -28,7 +33,7 @@ export class ChannelService {
 				},
 			},
 		});
-		return null;
+		return chan;
 	}
 
 	async getChannelByTitle(title: any) {
