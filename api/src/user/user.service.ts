@@ -214,7 +214,6 @@ export class UserService {
 	}
 
 	async changeUserStatus(userId: number, newStatus: UserStatus) {
-		console.log("NEW STATUS", newStatus);
 		await this.prisma.user.update({
 			where: { id: userId },
 			data: { status: newStatus },

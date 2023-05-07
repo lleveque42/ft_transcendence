@@ -75,7 +75,7 @@ export class AuthController {
 				email: user.email,
 				firstName: user.firstName,
 				lastName: user.lastName,
-				status: user.status as UserStatus,
+				status: user.status,
 				isTfaEnable: user.isTfaEnable,
 				friends: friends,
 			},

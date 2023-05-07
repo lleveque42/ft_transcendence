@@ -7,9 +7,6 @@ export default function FriendsList() {
 	const { user } = useUser();
 	const navigate = useNavigate();
 
-	// ${f.isOnline ? styles.online : styles.offline}
-	// Add this in the span when online user is managed
-
 	function trimUserName(userName: string): string {
 		let displayUserName: string = userName;
 		if (displayUserName.length > 10)

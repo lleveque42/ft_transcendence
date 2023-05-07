@@ -10,6 +10,7 @@ type UserProfileProps = {
 		firstName: string;
 		lastName: string;
 		email: string;
+		status: UserStatus;
 	};
 	userProfileAvatar: string;
 	isFriend: boolean;
@@ -23,7 +24,7 @@ const UserPresentation = ({
 	const { accessToken, isAuth, user } = useUser();
 	const { showAlert } = useAlert();
 	const navigate = useNavigate();
-	const { userName, firstName, lastName, email } = userProfile;
+	const { userName, firstName, lastName, email, status } = userProfile;
 
 	async function toggleFriendship() {
 		const method = isFriend ? "DELETE" : "PATCH";
@@ -46,17 +47,15 @@ const UserPresentation = ({
 		}
 	}
 
-	console.log(user.status);
-
 	return (
 		<div className={`${styles.presentationContainer} d-flex flex-column`}>
 			<div className={styles.avatarContainer}>
 				<img src={userProfileAvatar} alt="" />
 				<div
 					className={`${styles.statusBadge} ${
-						user.status === UserStatus.ONLINE
+						userProfile.status === UserStatus.ONLINE
 							? styles.online
-							: user.status === UserStatus.INGAME
+							: userProfile.status === UserStatus.INGAME
 							? styles.ingame
 							: styles.offline
 					}`}
