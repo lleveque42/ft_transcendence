@@ -4,7 +4,6 @@ import ChatNav from "../../components/Chat/ChatNav/ChatNav";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../../context/UserProvider";
-import Input from "../../components/Input/Input";
 
 
 type FormValues = {
@@ -12,7 +11,8 @@ type FormValues = {
 	mode: string;
 	password: string;
     type: string;
-    username: string;
+    id1: number;
+    id2: number;
 };
 
 const initialFormValues: FormValues = {
@@ -20,30 +20,20 @@ const initialFormValues: FormValues = {
 	mode: "public",
 	password: "",
     type: "",
-	username: "",
+	id1 : 0,
+	id2 : 0,
 };
-
 
 export default function NewDM() {
   
 	const { accessToken, user } = useUser();
-	
 	const [usersState, setUsersState] = useState<{ id: number; userName: string }[]>([]);
-	
-	
-    const [formValues, setFormValues] = useState<FormValues>(initialFormValues);
 	const navigate = useNavigate();
-
-	function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
-		const { name, value } = event.target;
-		setFormValues({ ...formValues, [name]: value });
-	}
 
 	useEffect(() => {
 		(async () => {
 			try {
-				await fetch("http://localhost:3000/channels/users_list/test", {
-				// await fetch(`http://localhost:3000/channels/users_list/${user.userName}`, {
+				await fetch("http://localhost:3000/channels/users_list/retrieve", {
 					credentials: "include",
 					headers: {
 						Authorization: `Bearer ${accessToken}`,
@@ -60,14 +50,21 @@ export default function NewDM() {
         })();
     }, [user.userName, accessToken]);
 
-    async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+	async function handleClick(event: React.MouseEvent<HTMLLIElement>) {
 		event.preventDefault();
-        formValues.username = user.userName;
+		const target = event.target as HTMLLIElement;
+		const userName = target.textContent;
+		const userId = target.id;
+		console.log(userName + " at " + userId);
+		let formValues: FormValues = initialFormValues;
+		formValues.id1 = user.id;
+		formValues.id2 = parseInt(userId);
+		formValues.title = user.id  + "_" + userId;
         formValues.type = "DM";
 		formValues.mode = "Public";
 		formValues.password = "";
 		try {
-			const res = await fetch("http://localhost:3000/channels/create_dm", {
+			const res = await fetch("http://localhost:3000/channels/create_join_dm", {
 				method: "POST",
 				credentials: "include",
 				headers: {
@@ -76,42 +73,34 @@ export default function NewDM() {
 				body: JSON.stringify(formValues),
 			});
 			if (res.status === 201) {
-				navigate("/chat/direct_messages");
+				navigate("/chat/channels");
+				return true;
 			} else if (res.ok) {
-				navigate(`chat/direct_messages/${user.userName}_{james}`);
-            }
+				navigate("/chat/channels");
+				return true;
+			}
 		} catch (e) {
-			console.error("Error create dm");
+			console.error("Error joining channel");
 		}
-	}
+	};
 
 	const userList = usersState.map((el) => (
-		<li key={el.id}>{el.userName}</li>
-		// <option value={el.id}>{el.userName}{el.id}</option>
+		( (user.id !== el.id) &&
+			<li key={el.id} id={el.id.toString(10)} onClick={handleClick} >{el.userName}</li>
+		)
 	));
 
 	// const userOptions = usersState.map((el) => (
 	// 	// <li key={el.id}>{el.userName}</li>
-	// 	<option value={el.id}>{el.userName}</option>
+	// 	<option key={el.id} value={el.id}>{el.userName}</option>
 	// ));
+	
 return (
 		<div className="container d-flex flex-column justify-content align-items">
 			<div className="title">Start a new private chat</div>
 			<div>
 				<ChatNav/>
-				<form
-					onSubmit={handleSubmit}
-					className="d-flex flex-column align-items justify-content p-20"
-				>
-				{/* <Input
-					icon="fa-solid fa-at"
-					type="text"
-					name="title"
-					placeholder="Username"
-					value={formValues.title}
-					onChange={handleInputChange}
-				/> */}
-				<div>
+				<div className="d-flex flex-column align-items justify-content p-20">
 					{/* <input type="text" placeholder="Search users" onChange={handleInputChange} /> */}
 					{/* <button onClick={handleSearch}>Search</button> */}
 					<ul>
@@ -119,18 +108,17 @@ return (
 					</ul>
 					{/* <label htmlFor="pet-select">Choose a user:</label>
 					<select name="pets" id="pet-select">
-					<option value="selected" selected>--Please choose an option--</option>
+					<option key="0" value="selected">--Please choose an option--</option>
 						{userOptions}
-					</select> */}
+					</select>
 				</div>
 				<div
 					className={` d-flex flex-row justify-content-space-between mb-30`}
 				>
 					<button className="btn-primary" type="submit">
-						Create
-					</button>
+						Join
+					</button> */}
 				</div>
-			</form>
 			</div>
 		</div>
 	);

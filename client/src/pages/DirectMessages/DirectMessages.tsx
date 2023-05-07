@@ -2,17 +2,12 @@ import ChatNav from "../../components/Chat/ChatNav/ChatNav";
 import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import { useUser } from "../../context/UserProvider";
+import { ChannelModel } from "../../entities/entities"
 
 export default function DirectMessages() {
 
 	const { user , accessToken} = useUser();
-	
-	const [directMessagesState, setDirectMessagesState] = useState([]);
-	
-	// Make the user to join the rooms of his DMs
-	
-	const directMessagesNames = directMessagesState.map(({ title}) => (title));
-	
+	const [directMessagesState, setDirectMessagesState] = useState<ChannelModel[]>([]);
 
 	useEffect(() => {
 		(async () => {
@@ -35,22 +30,20 @@ export default function DirectMessages() {
         })();
     }, [user.userName, accessToken]);
 	
-	const DirectMessagesList = directMessagesState.map(({ username, content }) => (
-		<li key={username}>
-			<div>
-			<NavLink className={``}  to={`/chat/direct_messages/${username}`} >
-				<span>
-					{username}
-				</span>
-			</NavLink>
-				<button>
-					Delete
-				</button>
-			</div>
-		</li>
-	  ));
-	
+const membersList = directMessagesState.map((channel) => {
+	const members = channel.members;
+	const membersDetails = members.map((member) => {
+	  return ( member.id !== user.id &&
+		  <p key={member.id}>{member.userName}</p>
+	  );
+	});
 
+	return (
+		<NavLink key={channel.id}  className={``}  to={`/chat/direct_messages/${channel.id}`} >
+			{membersDetails}	
+		</NavLink >
+	);
+  });
 
 	return (
 		<div className="container d-flex flex-column justify-content align-items">
@@ -59,8 +52,8 @@ export default function DirectMessages() {
 					<ChatNav/>
 					{
 						<>
-							<h1>Messages ({DirectMessagesList.length})</h1>
-							<ul className="List">{DirectMessagesList}</ul>
+							<h1>Private messages ({directMessagesState.length})</h1>
+							<ul className="List">{membersList}</ul>
 							<NavLink className={``}  to='/chat/direct_messages/new_dm' >
 								New Direct Messages
             				</NavLink>

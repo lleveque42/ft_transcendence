@@ -9,21 +9,7 @@ import { useUser } from "../../context/UserProvider";
 export default function Channels() {
   
 	const { accessToken, user } = useUser();
-	// const {chatSocket} = usePrivateRouteSocket();
-	
 	const [channelsState, setChannelsState] = useState([]);
-	//const [membersState, setMembersState] = useState([]);
-	//const [messagesState, setMessagesState] = useState([]);
-	
-	// Make the user to join the rooms of his channels
-	
-	const channelNames = channelsState.map(({ title}) => (title));
-	
-	// useEffect(() => {
-	// 	for (const chan of channelNames){
-	// 		chatSocket?.emit('joinChatRoom', chan)
-	// 	}
-	// }, [channelNames, chatSocket])
 	
 	useEffect(() => {
 		(async () => {

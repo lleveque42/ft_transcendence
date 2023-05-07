@@ -136,6 +136,24 @@ export class UserService {
 		return users;
 	}
 
+	async getJoignableUsers(userName: string) {
+		const users = await this.prisma.user.findMany({
+			where: {
+				NOT: {
+					channels: {
+						some: {
+							AND: [
+								{ members: { some: { userName: userName } } },
+								{ type: "DM" },
+							],
+						},
+					},
+				},
+			},
+		});
+		return users;
+	}
+
 	async addToFriend(userName: string, newFriendUserName: string) {
 		const user = await this.getUserByUserName(userName);
 		const userFriend = await this.getUserByUserName(newFriendUserName);

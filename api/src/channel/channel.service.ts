@@ -36,6 +36,44 @@ export class ChannelService {
 		return chan;
 	}
 
+	async createDM(
+		newChannel: Prisma.ChannelCreateInput,
+		userId1: number,
+		userId2: number,
+	) {
+		let hash: string = null;
+		if (newChannel.password && newChannel.password !== "") {
+			hash = await argon2.hash(newChannel.password);
+		}
+		const chan = await this.prisma.channel.create({
+			data: {
+				title: newChannel.title,
+				password: hash,
+				type: newChannel.type,
+				mode: newChannel.mode,
+				ownerId: userId1,
+				operators: {
+					connect: { id: userId1 },
+				},
+				members: {
+					connect: { id: userId1 },
+				},
+			},
+		});
+		const updatedChannel = await this.prisma.channel.update({
+			where: { id: chan.id },
+			data: {
+				operators: {
+					connect: { id: userId2 },
+				},
+				members: {
+					connect: { id: userId2 },
+				},
+			},
+		});
+		return updatedChannel;
+	}
+
 	async joinPublicChannel(userId: number, channelId: number) {
 		const updatedChannel = await this.prisma.channel.update({
 			where: { id: channelId },
@@ -110,13 +148,20 @@ export class ChannelService {
 		});
 		const chans = await this.prisma.channel.findMany({
 			include: {
-				owner: true,
-				members: true,
-				operators: true,
+				members: {
+					select: {
+						id: true,
+						userName: true,
+					},
+				},
 				messages: true,
 			},
 			where: {
-				owner: user,
+				members: {
+					some: {
+						id: user.id,
+					},
+				},
 				type: "DM",
 			},
 		});

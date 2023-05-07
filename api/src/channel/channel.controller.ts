@@ -73,7 +73,6 @@ export class ChannelController {
 		@Param("username") username: string,
 	): Promise<Channel[]> {
 		try {
-			console.log("Enter getUserDirectMessages");
 			const channels = await this.channelService.getUserDirectMessages(
 				username,
 			);
@@ -101,7 +100,7 @@ export class ChannelController {
 		@GetCurrentUser("sub") userName: string,
 	): Promise<{ id: number; userName: string }[]> {
 		try {
-			const users = await this.userService.getAllUsers();
+			const users = await this.userService.getJoignableUsers(userName);
 			return users;
 		} catch (e) {
 			throw new HttpException(e.message, e.status);
@@ -126,6 +125,33 @@ export class ChannelController {
 			console.log("New chan : " + channel.title);
 			return channel;
 		} catch (e) {
+			throw new HttpException(e.message, e.status);
+		}
+	}
+
+	@Post("create_join_dm")
+	async createDM(
+		@Body() body,
+		@Res({ passthrough: true }) res: Response,
+	): Promise<Channel> {
+		try {
+			console.log("Enter join dm controller");
+
+			const channel = await this.channelService.createDM(
+				{
+					title: body.title,
+					type: body.type,
+					mode: body.mode,
+					password: body.password,
+				},
+				body.id1,
+				body.id2,
+			);
+			console.log("New chan : " + channel.title);
+			return channel;
+		} catch (e) {
+			console.log("Fail petasse");
+
 			throw new HttpException(e.message, e.status);
 		}
 	}

@@ -51,3 +51,39 @@ export class MessageModel implements Message {
 		this.author = data.author;
 	}
 }
+
+export interface Channel {
+	id: number;
+	title?: string;
+	password?: string;
+	type: string;
+	owner?: User;
+	ownerId?: number;
+	operators: User[];
+	members: User[];
+	messages: Message[];
+  }
+
+  export class ChannelModel implements Channel {
+	id: number;
+	title?: string;
+	password?: string;
+	type: string;
+	owner?: UserModel;
+	ownerId?: number;
+	operators: UserModel[];
+	members: UserModel[];
+	messages: Message[];
+  
+	constructor(data: Channel) {
+	  this.id = data.id;
+	  this.title = data.title;
+	  this.password = data.password;
+	  this.type = data.type;
+	  this.ownerId = data.ownerId;
+	  this.owner = data.owner ? new UserModel(data.owner) : undefined;
+	  this.operators = data.operators.map(user => new UserModel(user));
+	  this.members = data.members.map(user => new UserModel(user));
+	  this.messages = data.messages;
+	}
+  }
