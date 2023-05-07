@@ -1,19 +1,14 @@
 import { User, UserStatus } from "@prisma/client";
 import { Socket } from "socket.io";
-import { UserService } from "../user/user.service";
-
-type UsersInterface = {
-	user: User;
-	sockets: Map<string, Socket>;
-};
+import { UserType } from "./types/UserType";
 
 export class OnlineUsers {
-	private _users: Map<number, UsersInterface>;
+	private _users: Map<number, UserType>;
 	private _clients: Map<string, number>;
 	size: number;
 
 	constructor() {
-		this._users = new Map<number, UsersInterface>();
+		this._users = new Map<number, UserType>();
 		this._clients = new Map<string, number>();
 		this.size = 0;
 	}
@@ -32,7 +27,7 @@ export class OnlineUsers {
 		const userId = this._clients.get(clientId);
 		this._clients.delete(clientId);
 		if (userId !== undefined) {
-			const userInterface: UsersInterface = this._users.get(userId);
+			const userInterface: UserType = this._users.get(userId);
 			userInterface.sockets.delete(clientId);
 			if (userInterface.sockets.size === 0) {
 				this._users.delete(userId);
@@ -65,9 +60,13 @@ export class OnlineUsers {
 		return null;
 	}
 
+	getUserByUserId(userId: number): User | null {
+		return this._users.get(userId).user || null;
+	}
+
 	addClientToUserId(userId: number, client: Socket): void {
 		this._clients.set(client.id, userId);
-		const userInterface: UsersInterface = this._users.get(userId);
+		const userInterface: UserType = this._users.get(userId);
 		userInterface.sockets.set(client.id, client);
 	}
 

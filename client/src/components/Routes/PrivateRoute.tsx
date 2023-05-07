@@ -36,7 +36,7 @@ export default function PrivateRoute(props: {
 					email: user.email,
 				},
 			});
-			appSocket.on("connectionFailed", () => {
+			appSocket.once("connectionFailed", () => {
 				navigate("/login");
 			});
 			appSocket.on("updateOnlineFriend", (friend: Friend) => {
@@ -61,7 +61,7 @@ export default function PrivateRoute(props: {
 					email: user.email,
 				},
 			});
-			gameSocket.on("connectionFailed", () => {
+			gameSocket.once("connectionFailed", () => {
 				navigate("/login");
 			});
 			setGameSocket(gameSocket);
