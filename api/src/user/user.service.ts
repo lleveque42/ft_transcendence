@@ -109,7 +109,9 @@ export class UserService {
 
 	async getUserFriends(user: User): Promise<{
 		friends: {
+			id: number;
 			userName: string;
+			status: UserStatus;
 		}[];
 	}> {
 		return await this.prisma.user.findUnique({
@@ -119,6 +121,30 @@ export class UserService {
 			select: {
 				friends: {
 					select: {
+						id: true,
+						userName: true,
+						status: true,
+					},
+				},
+			},
+		});
+	}
+
+	async getUserFriendsOf(user: User): Promise<{
+		friendsOf: {
+			id: number;
+			userName: string;
+			status: UserStatus;
+		}[];
+	}> {
+		return await this.prisma.user.findUnique({
+			where: {
+				id: user.id,
+			},
+			select: {
+				friendsOf: {
+					select: {
+						id: true,
 						userName: true,
 						status: true,
 					},

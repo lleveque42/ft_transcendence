@@ -1,10 +1,11 @@
-import { User } from "@prisma/client";
+import { User, UserStatus } from "@prisma/client";
 import { Socket } from "socket.io";
+import { UserService } from "../user/user.service";
 
 type UsersInterface = {
 	user: User;
 	sockets: Map<string, Socket>;
-}
+};
 
 export class OnlineUsers {
 	private _users: Map<number, UsersInterface>;
@@ -48,7 +49,7 @@ export class OnlineUsers {
 		return this._clients.has(clientId);
 	}
 
-	getClientsByUserId(userId: number): Map<string, Socket> {
+	getClientsByUserId(userId: number): Map<string, Socket> | null {
 		return this._users.get(userId).sockets || null;
 	}
 
@@ -70,10 +71,29 @@ export class OnlineUsers {
 		userInterface.sockets.set(client.id, client);
 	}
 
+	emitAllbyUserId(userId: number, emit: string, content: any) {
+		this.getClientsByUserId(userId).forEach((client) => {
+			client.emit(emit, content);
+		});
+	}
+
 	showOnlineUsers() {
 		console.log("CONNECTED USERS : \n");
 		console.log(this._users);
 		console.log("\nCONNECTED CLIENTS : \n");
 		console.log(this._clients);
+	}
+
+	async getFriendsOfByUserId(
+		userId: number,
+		userService: UserService,
+	): Promise<Array<{ id: number; userName: string; status: UserStatus }>> {
+		const userI = this._users.get(userId);
+		if (!userI) return [];
+		const friends = await userService.getUserFriendsOf(userI.user);
+		const onlineFriends = friends.friendsOf.filter((friend) =>
+			this._users.has(friend.id),
+		);
+		return onlineFriends;
 	}
 }

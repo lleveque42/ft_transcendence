@@ -1,10 +1,11 @@
 import { createContext, useContext, useState } from "react";
 import { isAuthRequest, logoutRequest } from "../api";
-import { UserStatus } from "../types/UserStatus.enum";
+import { UserStatus, Friend } from "../types";
 
 type UserContextValue = {
 	isAuth: () => Promise<boolean>;
 	logout: () => void;
+	updateOnlineFriend: (friend: Friend) => void;
 	accessToken: string;
 	user: {
 		userName: string;
@@ -13,13 +14,14 @@ type UserContextValue = {
 		lastName: string;
 		isTfaEnable: boolean;
 		status: UserStatus;
-		friends: { userName: string, status: UserStatus }[];
+		friends: { userName: string; status: UserStatus; id: number }[];
 	};
 };
 
 const UserContext = createContext<UserContextValue>({
 	isAuth: async () => false,
 	logout: () => {},
+	updateOnlineFriend: (friend: Friend) => {},
 	accessToken: "",
 	user: {
 		userName: "",
@@ -43,7 +45,7 @@ type UserDataState = {
 	lastName: string;
 	isTfaEnable: boolean;
 	status: UserStatus;
-	friends: { userName: string, status: UserStatus }[];
+	friends: { userName: string; status: UserStatus; id: number }[];
 };
 
 export const UserProvider = ({ children }: UserProviderProps) => {
@@ -80,8 +82,18 @@ export const UserProvider = ({ children }: UserProviderProps) => {
 		setAccessToken("");
 	};
 
+	const updateOnlineFriend = (friend: Friend) => {
+		const newFriendsList = [
+			...user.friends.filter((f) => f.id !== friend.id),
+			friend,
+		];
+		setUser({ ...user, friends: newFriendsList });
+	};
+
 	return (
-		<UserContext.Provider value={{ isAuth, logout, accessToken, user }}>
+		<UserContext.Provider
+			value={{ isAuth, logout, updateOnlineFriend, accessToken, user }}
+		>
 			{children}
 		</UserContext.Provider>
 	);

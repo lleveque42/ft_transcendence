@@ -32,7 +32,7 @@ export default function Header() {
 		displayUserName.length > 10
 			? setDisplayUserName(displayUserName.substring(0, 10) + "...")
 			: setDisplayUserName(displayUserName);
-	}, [displayUserName]);
+	}, [displayUserName, user]);
 
 	useAvatar(accessToken, setUserAvatar, setIsLoading, user.userName);
 

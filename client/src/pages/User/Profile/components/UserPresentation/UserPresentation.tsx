@@ -53,9 +53,9 @@ const UserPresentation = ({
 				<img src={userProfileAvatar} alt="" />
 				<div
 					className={`${styles.statusBadge} ${
-						userProfile.status === UserStatus.ONLINE
+						status === UserStatus.ONLINE
 							? styles.online
-							: userProfile.status === UserStatus.INGAME
+							: status === UserStatus.INGAME
 							? styles.ingame
 							: styles.offline
 					}`}

@@ -7,13 +7,14 @@ import { useUser } from "../../context";
 import { Socket, io } from "socket.io-client";
 import { PrivateRouteSocketContext } from "../../context/PrivateRouteProvider";
 import { GameSocketContext } from "../../pages/Play/context/GameSocketProvider";
+import { Friend } from "../../types";
 
 export default function PrivateRoute(props: {
 	element: ReactElement;
 	play?: boolean | false;
 }): ReactElement {
 	const navigate = useNavigate();
-	const { user, isAuth } = useUser();
+	const { user, isAuth, updateOnlineFriend } = useUser();
 	const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 	const [socket, setSocket] = useState<Socket | null>(null);
 	const [gameSocket, setGameSocket] = useState<Socket | null>(null);
@@ -38,10 +39,16 @@ export default function PrivateRoute(props: {
 			appSocket.on("connectionFailed", () => {
 				navigate("/login");
 			});
+			appSocket.on("updateOnlineFriend", (friend: Friend) => {
+				updateOnlineFriend(friend);
+			});
 			setSocket(appSocket);
 		}
 		return () => {
-			if (appSocket) appSocket.disconnect();
+			if (appSocket) {
+				appSocket.removeAllListeners();
+				appSocket.disconnect();
+			}
 		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [isAuthenticated, user.email]);

@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import Input from "../../../../../components/Input/Input";
 import styles from "./TfaModal.module.scss";
-import { useNavigate } from "react-router-dom";
 import { enableTfaRequest } from "../../../../../api";
 import { useAlert, useUser } from "../../../../../context";
 
@@ -12,8 +11,7 @@ interface ModalProps {
 
 export default function TfaModal({ closeModal, qrCodeUrl }: ModalProps) {
 	const [inputValue, setInputValue] = useState<string>("");
-	const { accessToken } = useUser();
-	const navigate = useNavigate();
+	const { accessToken, isAuth } = useUser();
 	const { showAlert } = useAlert();
 
 	async function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -26,8 +24,9 @@ export default function TfaModal({ closeModal, qrCodeUrl }: ModalProps) {
 		try {
 			const res = await enableTfaRequest(accessToken, verificationCode);
 			if (res.ok) {
-				navigate(0);
+				isAuth();
 				showAlert("info", "TFA is now enable");
+				closeModal();
 			} else {
 				const body = await res.json();
 				showAlert("error", body.message);

@@ -1,18 +1,22 @@
 import { useState } from "react";
 import styles from "./SettingsForm.module.scss";
-import { useNavigate } from "react-router-dom";
 import Input from "../../../../../components/Input/Input";
 import TfaModal from "../TfaModal/TfaModal";
 import { useAlert, useUser } from "../../../../../context";
-import { disableTfaRequest, generateQrCodeRequest, settingsRequest } from "../../../../../api";
+import {
+	disableTfaRequest,
+	generateQrCodeRequest,
+	settingsRequest,
+} from "../../../../../api";
+import { usePrivateRouteSocket } from "../../../../../context/PrivateRouteProvider";
 
 export default function SettingsForm() {
-	const { accessToken, user } = useUser();
+	const { accessToken, user, isAuth } = useUser();
+	const {socket} = usePrivateRouteSocket();
 	const { showAlert } = useAlert();
 	const [newUserName, setNewUserName] = useState<string>(user.userName);
 	const [tfaModal, setTfaModal] = useState<boolean>(false);
 	const [qrCodeContent, setQrCodecontent] = useState<string>("");
-	const navigate = useNavigate();
 
 	async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
@@ -23,7 +27,8 @@ export default function SettingsForm() {
 				const data = await res.json();
 				showAlert("error", data.message);
 			} else {
-				navigate(0);
+				isAuth();
+				socket?.emit("userNameUpdated", newUserName)
 				showAlert("success", "Profile updated");
 			}
 		} catch (e) {
@@ -51,7 +56,7 @@ export default function SettingsForm() {
 		try {
 			const res = await disableTfaRequest(accessToken);
 			if (res.ok) {
-				navigate(0);
+				isAuth();
 				showAlert("info", "TFA is now disable");
 			} else showAlert("error", "Can't disable TFA, try again later");
 		} catch (e) {
