@@ -51,15 +51,19 @@ const UserPresentation = ({
 		<div className={`${styles.presentationContainer} d-flex flex-column`}>
 			<div className={styles.avatarContainer}>
 				<img src={userProfileAvatar} alt="" />
-				<div
-					className={`${styles.statusBadge} ${
-						status === UserStatus.ONLINE
-							? styles.online
-							: status === UserStatus.INGAME
-							? styles.ingame
-							: styles.offline
-					}`}
-				></div>
+				{isFriend || user.userName === userName ? (
+					<div
+						className={`${styles.statusBadge} ${
+							status === UserStatus.ONLINE
+								? styles.online
+								: status === UserStatus.INGAME
+								? styles.ingame
+								: styles.offline
+						}`}
+					></div>
+				) : (
+					<></>
+				)}
 				<div className={`${styles.userInfosTextContainer}`}>
 					{firstName && lastName && (
 						<h1 className="mt-10">
