@@ -1,6 +1,7 @@
 import { User, UserStatus } from "@prisma/client";
 import { Socket } from "socket.io";
 import { UserType } from "./types/UserType";
+import { UserService } from "../user/user.service";
 
 export class OnlineUsers {
 	private _users: Map<number, UserType>;
