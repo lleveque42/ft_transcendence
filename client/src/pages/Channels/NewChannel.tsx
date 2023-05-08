@@ -1,10 +1,9 @@
-import React from "react";
-
 import ChatNav from "../../components/Chat/ChatNav/ChatNav";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../../context/UserProvider";
 import Input from "../../components/Input/Input";
+import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
 
 
 type FormValues = {
@@ -23,14 +22,15 @@ const initialFormValues: FormValues = {
 	username: "",
 };
 
-
 export default function NewChannel() {
   
 	const { user } = useUser();
 	const [radioValue, setRadioValue] = useState("Public");
-	const [chanProtected, setChanProtected] = useState(false);
-	
+	const [chanProtected, setChanProtected] = useState(false);	
     const [formValues, setFormValues] = useState<FormValues>(initialFormValues);
+
+	const socket = usePrivateRouteSocket();
+
 	const navigate = useNavigate();
 
 	function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -61,6 +61,7 @@ export default function NewChannel() {
 				},
 				body: JSON.stringify(formValues),
 			});
+			socket.chatSocket?.emit("joinChatRoom",formValues.title);
 			if (res.status === 201) {
 				navigate("/chat/channels");
 			} else if (res.ok) {

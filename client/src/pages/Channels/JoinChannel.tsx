@@ -1,9 +1,9 @@
 import React from "react";
-
 import ChatNav from "../../components/Chat/ChatNav/ChatNav";
 import { useEffect, useState } from "react";
 import { NavLink, useNavigate} from "react-router-dom";
 import { useUser } from "../../context/UserProvider";
+import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
 
 type FormValues = {
 	userId: number;
@@ -12,10 +12,12 @@ type FormValues = {
 
 export default function JoinChannel() {
   
-	const { accessToken, user } = useUser();
-	const navigate = useNavigate();
-
+	const { accessToken, user } = useUser();	
 	const [channelsState, setChannelsState] = useState([]);
+	
+	const socket = usePrivateRouteSocket();
+	
+	const navigate = useNavigate();
 	
 	useEffect(() => {
 		(async () => {
@@ -40,13 +42,11 @@ export default function JoinChannel() {
 	async function handleClick(event: MouseEvent) {
 		const target = event.target as HTMLButtonElement;
 		const value = target.value;
-		const channelId = parseInt(value)
-		// console.log(`Button value: ${va;lue}`);
-		// console.log("POST join channel");
+		const channelId = parseInt(value);
 		const userId = user.id;
 		const formValues: FormValues = {
 			userId: userId,
-			channelId: channelId
+			channelId: channelId,
 		}
 		try {
 			const res = await fetch("http://localhost:3000/channels/join_channel", {
@@ -57,6 +57,7 @@ export default function JoinChannel() {
 				},
 				body: JSON.stringify(formValues),
 			});
+			socket.chatSocket?.emit("joinChatRoom", target.textContent);
 			if (res.status === 201) {
 				navigate("/chat/channels");
 			} else if (res.ok) {
@@ -75,11 +76,8 @@ export default function JoinChannel() {
 			<div>
 			{ ( user.id !== ownerId) ?
 				<>
-					<span>
+					<button value={id}>
 						{title}
-					</span>
-					<button  value={id}>
-						JOIN
 					</button>
 				</>
 			:

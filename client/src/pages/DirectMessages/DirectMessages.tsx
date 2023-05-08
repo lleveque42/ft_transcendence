@@ -9,6 +9,7 @@ export default function DirectMessages() {
 	const { user , accessToken} = useUser();
 	const [directMessagesState, setDirectMessagesState] = useState<ChannelModel[]>([]);
 
+
 	useEffect(() => {
 		(async () => {
 			try {

@@ -1,9 +1,9 @@
 import React, { useEffect } from "react";
-
 import ChatNav from "../../components/Chat/ChatNav/ChatNav";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../../context/UserProvider";
+import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
 
 
 type FormValues = {
@@ -28,6 +28,8 @@ export default function NewDM() {
   
 	const { accessToken, user } = useUser();
 	const [usersState, setUsersState] = useState<{ id: number; userName: string }[]>([]);
+	const socket = usePrivateRouteSocket();
+
 	const navigate = useNavigate();
 
 	useEffect(() => {
@@ -53,9 +55,7 @@ export default function NewDM() {
 	async function handleClick(event: React.MouseEvent<HTMLLIElement>) {
 		event.preventDefault();
 		const target = event.target as HTMLLIElement;
-		const userName = target.textContent;
 		const userId = target.id;
-		console.log(userName + " at " + userId);
 		let formValues: FormValues = initialFormValues;
 		formValues.id1 = user.id;
 		formValues.id2 = parseInt(userId);
@@ -72,11 +72,12 @@ export default function NewDM() {
 				},
 				body: JSON.stringify(formValues),
 			});
+			socket.chatSocket?.emit("joinDMRoom",{room: formValues.title, userId2: formValues.id2});
 			if (res.status === 201) {
-				navigate("/chat/channels");
+				navigate("/chat/direct_messages");
 				return true;
 			} else if (res.ok) {
-				navigate("/chat/channels");
+				navigate("/chat/direct_messages");
 				return true;
 			}
 		} catch (e) {

@@ -1,9 +1,9 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
-import { ChannelDto } from "../auth/dto/channel.dto";
 import { UserService } from "../user/user.service";
 import { Channel, Prisma } from "@prisma/client";
 import * as argon2 from "argon2";
+import { OnlineUsers } from "../classes/OnlineUsers";
 
 @Injectable()
 export class ChannelService {
@@ -12,7 +12,12 @@ export class ChannelService {
 		private userService: UserService,
 	) {}
 
-	async createChannel(newChannel: Prisma.ChannelCreateInput, userName: string) {
+	users: OnlineUsers = new OnlineUsers();
+
+	async createChannel(
+		newChannel: Prisma.ChannelCreateInput,
+		userName: string,
+	): Promise<Channel> {
 		const user = await this.userService.getUserByUserName(userName);
 		let hash: string = null;
 		if (newChannel.password && newChannel.password !== "") {
@@ -32,6 +37,14 @@ export class ChannelService {
 					connect: { id: user.id },
 				},
 			},
+		});
+		// Function to join the room
+		console.log("JOINING ROOMS");
+		const clients = this.users.getClientsByUserId(user.id);
+		console.log("Clients : " + clients.size);
+		clients.forEach((value) => {
+			console.log("This socket : " + value.id + "joined " + chan.title);
+			value.join("chan" + chan.title);
 		});
 		return chan;
 	}
@@ -140,7 +153,7 @@ export class ChannelService {
 		return chans;
 	}
 
-	async getUsersChannelsAndDMs(username) {
+	async getUsersDMs(username) {
 		const user = await this.prisma.user.findUnique({
 			where: {
 				userName: username,
@@ -154,6 +167,7 @@ export class ChannelService {
 				messages: true,
 			},
 			where: {
+				type: "DM",
 				members: {
 					some: {
 						id: user.id,

@@ -66,13 +66,20 @@ export class ServerGateway
 
 		// Function to join all rooms
 		const clients = this.users.getClientsByUserId(user.id);
-		const channels = await this.channelService.getUsersChannelsAndDMs(
-			user.userName,
-		);
+		const channels = await this.channelService.getUsersChannels(user.userName);
 		clients.forEach((value) => {
 			for (let chan of channels) {
 				console.log("This socket : " + value.id + "joined " + chan.title);
-				value.join("chan" + chan.title);
+				// value.join("chan" + chan.title);
+				value.join(chan.title);
+			}
+		});
+		const dms = await this.channelService.getUsersDMs(user.userName);
+		clients.forEach((value) => {
+			for (let dm of channels) {
+				console.log("This socket : " + value.id + "joined " + dm.title);
+				// value.join("dm" + dm.title);
+				value.join(dm.title);
 			}
 		});
 
@@ -88,7 +95,6 @@ export class ServerGateway
 		console.log("Content :" + data.message);
 		console.log("Socket :" + data.socket);
 		console.log("Receiver :" + data.receiver);
-		// this.io.to(`${data.id}`).emit("private_message", data.message);
 		try {
 			this.userService.setUserSocket(data.sender, data.socket);
 			const sender = await this.userService.getUserByUserName(data.sender);
@@ -146,7 +152,8 @@ export class ServerGateway
 						"*" +
 						" ",
 				);
-				this.io.to("chan" + data.room).emit("receivedMessage", msg);
+				// this.io.to("chan" + data.room).emit("receivedMessage", msg);
+				this.io.to(data.room).emit("receivedMessage", msg);
 			} else {
 				console.log("No msg created");
 			}
@@ -156,7 +163,7 @@ export class ServerGateway
 	}
 
 	@SubscribeMessage("joinChatRoom")
-	async handleJoinRoom(socket: Socket, chanName: string): Promise<void> {
+	async handleJoinChanRoom(socket: Socket, chanName: string): Promise<void> {
 		console.log(
 			"The socket " +
 				socket.id +
@@ -166,10 +173,41 @@ export class ServerGateway
 		);
 		const sockets = this.users.getClientsByClientId(socket.id);
 		for (const socket of sockets) {
-			socket[1].join("chan" + chanName);
+			// socket[1].join("chan" + chanName);
+			socket[1].join(chanName);
+		}
+	}
+
+	@SubscribeMessage("joinDMRoom")
+	async handleJoinDMRoom(
+		@ConnectedSocket() client: Socket,
+		@MessageBody()
+		data: {
+			room: string;
+			userId2: string;
+		},
+	): Promise<void> {
+		console.log(
+			"The socket " +
+				client.id +
+				" trying to connect to the dm " +
+				data.room +
+				" with " +
+				data.userId2 +
+				".",
+		);
+		const sockets = this.users.getClientsByClientId(client.id);
+		const sockets2 = this.users.getClientsByUserId(parseInt(data.userId2, 10));
+		for (const socket of sockets) {
+			// socket[1].join("chan" + chanName);
+			socket[1].join(data.room);
 			// Send a confirmation to client
 		}
-		//console.log(socket.rooms);
+		for (const socket of sockets2) {
+			// socket[1].join("chan" + chanName);
+			socket[1].join(data.room);
+			// Send a confirmation to client
+		}
 	}
 
 	// @SubscribeMessage("new_channel")

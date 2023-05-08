@@ -163,8 +163,6 @@ export class ChannelController {
 			console.log("New chan : " + channel.title);
 			return channel;
 		} catch (e) {
-			console.log("Fail petasse");
-
 			throw new HttpException(e.message, e.status);
 		}
 	}

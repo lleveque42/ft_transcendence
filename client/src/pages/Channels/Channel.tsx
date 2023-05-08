@@ -69,7 +69,6 @@ export default function Channel() {
 	},[messagesState]);
 
 	const messageListener = (msg: MessageModel) => {
-	// console.log("Content of received message " + msg.author.userName);
 	const {id, authorId, author, content} = msg
 	setMessagesState([...messagesState, {id, authorId, author, content}]);
 	}
@@ -80,7 +79,7 @@ export default function Channel() {
 		  chatSocket?.off("receivedMessage", messageListener);
 		}
 	  // eslint-disable-next-line react-hooks/exhaustive-deps
-	  }, [messageListener, messagesList, messagesState])
+	}, [messageListener, messagesList, messagesState])
 
 	const handleKeyDown =  (event : KeyboardEvent<HTMLInputElement>) => {
 		if (event.key === "Enter"){
