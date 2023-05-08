@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useAlert, useUser } from "../../../../../context";
 import styles from "./UserPresentation.module.scss";
 import { toggleFriendshipRequest } from "../../../../../api";
+import { UserStatus } from "../../../../../types/UserStatus.enum";
 
 type UserProfileProps = {
 	userProfile: {
@@ -9,6 +10,7 @@ type UserProfileProps = {
 		firstName: string;
 		lastName: string;
 		email: string;
+		status: UserStatus;
 	};
 	userProfileAvatar: string;
 	isFriend: boolean;
@@ -22,8 +24,7 @@ const UserPresentation = ({
 	const { accessToken, isAuth, user } = useUser();
 	const { showAlert } = useAlert();
 	const navigate = useNavigate();
-	const { userName, firstName, lastName, email } = userProfile;
-	const isOnline = true; // To del
+	const { userName, firstName, lastName, email, status } = userProfile;
 
 	async function toggleFriendship() {
 		const method = isFriend ? "DELETE" : "PATCH";
@@ -46,21 +47,32 @@ const UserPresentation = ({
 		}
 	}
 
+	console.log(firstName);
+
+
 	return (
 		<div className={`${styles.presentationContainer} d-flex flex-column`}>
 			<div className={styles.avatarContainer}>
 				<img src={userProfileAvatar} alt="" />
-				<div
-					className={`${styles.statusBadge} ${
-						isOnline ? styles.online : styles.offline
-					}`}
-				></div>
+				{isFriend || user.userName === userName ? (
+					<div
+						className={`${styles.statusBadge} ${
+							status === UserStatus.ONLINE
+								? styles.online
+								: status === UserStatus.INGAME
+								? styles.ingame
+								: styles.offline
+						}`}
+					></div>
+				) : (
+					<></>
+				)}
 				<div className={`${styles.userInfosTextContainer}`}>
-					{firstName && lastName && (
+					{firstName && lastName ? (
 						<h1 className="mt-10">
 							{firstName} {lastName}
 						</h1>
-					)}
+					) : <h1 className="mt-10">No name...</h1>}
 					<h3 className="mt-5">{email}</h3>
 				</div>
 			</div>
@@ -70,14 +82,14 @@ const UserPresentation = ({
 						className="btn btn-reverse-danger p-5 mt-20"
 						onClick={toggleFriendship}
 					>
-						Remove from friends
+						Unfollow
 					</button>
 				) : (
 					<button
 						className="btn btn-reverse-primary p-5 mt-20"
 						onClick={toggleFriendship}
 					>
-						Add to friends
+						Follow
 					</button>
 				)
 			) : (
@@ -85,7 +97,7 @@ const UserPresentation = ({
 					className="btn btn-reverse-primary p-5 mt-20"
 					onClick={() => navigate("/settings")}
 				>
-					Go to settings
+					My settings
 				</button>
 			)}
 		</div>

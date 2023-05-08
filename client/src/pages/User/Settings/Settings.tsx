@@ -1,6 +1,5 @@
 import styles from "./Settings.module.scss";
-import { ChangeEvent, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { ChangeEvent, useRef, useState } from "react";
 import useAvatar from "../../../hooks/useAvatar";
 import { userUploadAvatar } from "../../../api";
 import Loader from "react-loaders";
@@ -8,27 +7,27 @@ import { useAlert, useUser } from "../../../context";
 import SettingsForm from "./components/SettingsForm/SettingsForm";
 
 export default function Settings() {
-	const navigate = useNavigate();
 	const { showAlert } = useAlert();
-	const { user, accessToken } = useUser();
+	const { user, accessToken, isAuth } = useUser();
 	const [userAvatar, setUserAvatar] = useState<string>("");
 	const [isLoading, setIsLoading] = useState<boolean>(true);
+	const inputRef = useRef<HTMLInputElement | null>(null);
 
 	async function handleSubmitAvatar(e: ChangeEvent<HTMLInputElement>) {
 		e.preventDefault();
 		const files = e.target.files;
 		if (!files || !files[0]) return;
-
 		const formData = new FormData();
 		formData.append("file", files[0]);
 		try {
 			const res = await userUploadAvatar(accessToken, formData);
 			if (res.ok) {
-				navigate(0);
+				isAuth();
 				showAlert("success", "Avatar updated");
 			} else {
 				const body = await res.json();
 				showAlert("error", body.message);
+				if (inputRef.current) inputRef.current.value = "";
 			}
 		} catch (e) {
 			console.error("Error submit new avatar", e);
@@ -63,7 +62,12 @@ export default function Settings() {
 							<label className={styles.avatarLabel} htmlFor="file">
 								<span>Change your profile picture</span>
 							</label>
-							<input id="file" type="file" onChange={handleSubmitAvatar} />
+							<input
+								ref={inputRef}
+								id="file"
+								type="file"
+								onChange={handleSubmitAvatar}
+							/>
 							<img src={userAvatar} alt="Avatar" />
 						</div>
 					</div>

@@ -1,0 +1,108 @@
+@use "../../../assets/styles/mixins" as mixin;
+
+.friendsList {
+	margin-top: 1rem;
+	margin-bottom: 1rem;
+	max-height: 100%;
+	overflow-y: scroll;
+
+	.listElem {
+		border-bottom: 1px solid var(--secondary-dark);
+		align-items: center;
+
+		h4:first-of-type {
+			min-width: 50%;
+		}
+
+		h4 {
+			font-size: 1.2vw;
+		}
+
+		@include mixin.sm-lt {
+			h4 {
+				font-size: 1.2rem;
+			}
+		}
+
+		.titleStatusBadge {
+			width: 0.7vw;
+			height: 0.7vw;
+			border: none;
+		}
+
+		p:first-of-type {
+			min-width: 50%;
+			cursor: pointer;
+			text-decoration: none;
+			text-decoration-color: transparent;
+			transition: color 0.3s ease-in-out, text-decoration-color 0.3s ease-in-out;
+
+			&:hover {
+				color: var(--primary);
+				text-decoration: underline;
+				text-underline-offset: 0.3em;
+				text-decoration-color: var(--primary);
+			}
+		}
+
+		p {
+			font-size: 1vw;
+		}
+
+		@include mixin.sm-lt {
+			p {
+				font-size: 1rem;
+			}
+		}
+
+		i {
+			font-size: 1.2vw;
+		}
+
+		@include mixin.sm-lt {
+			i {
+				font-size: 5vw;
+			}
+		}
+
+		i:first-of-type {
+			color: var(--warning);
+		}
+
+		i:nth-of-type(2) {
+			color: var(--primary);
+		}
+
+		i {
+			cursor: pointer;
+			transition: color 0.3s ease-in-out;
+
+			&:hover {
+				color: var(--light-grey);
+			}
+		}
+
+		.statusBadge {
+			width: 0.7vw;
+			height: 0.7vw;
+			border: var(--border);
+			border-radius: 50%;
+		}
+
+		@include mixin.sm-lt {
+			.statusBadge,
+			.titleStatusBadge {
+				width: 2.5vw;
+				height: 2.5vw;
+			}
+		}
+
+		.online {
+			background-color: var(--success);
+		}
+
+		.offline {
+			background-color: var(--danger);
+		}
+	}
+}

@@ -44,7 +44,7 @@ export default function UserStats() {
 						<p
 							className="flex-1 pl-20"
 							onClick={() => {
-								navigate("/user/arudy");
+								navigate("/user/arud");
 							}}
 						>
 							Denis
