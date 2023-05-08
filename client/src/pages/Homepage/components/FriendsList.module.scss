@@ -20,7 +20,7 @@
 
 		@include mixin.sm-lt {
 			h4 {
-				font-size: 2.5vw;
+				font-size: 1.2rem;
 			}
 		}
 
@@ -51,7 +51,7 @@
 
 		@include mixin.sm-lt {
 			p {
-				font-size: 2.5vw;
+				font-size: 1rem;
 			}
 		}
 
@@ -61,7 +61,7 @@
 
 		@include mixin.sm-lt {
 			i {
-				font-size: 1.7vw;
+				font-size: 5vw;
 			}
 		}
 
@@ -87,6 +87,14 @@
 			height: 0.7vw;
 			border: var(--border);
 			border-radius: 50%;
+		}
+
+		@include mixin.sm-lt {
+			.statusBadge,
+			.titleStatusBadge {
+				width: 2.5vw;
+				height: 2.5vw;
+			}
 		}
 
 		.online {

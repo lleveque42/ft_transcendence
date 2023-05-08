@@ -23,12 +23,27 @@
 }
 
 @include mixin.sm-lt {
-	.friendsContainer {
-		margin-top: 0;
-		height: 50vh;
+	.homepageContainer {
+		flex-direction: column-reverse;
 	}
 
 	.homepageButtonContainer {
-		margin-left: 15vw;
+		flex: 1%;
+		justify-content:right;
+		button {
+			margin-left: 0;
+			margin-bottom: 0;
+		}
+
+		button:nth-child(1) {
+			margin-top: 0;
+		}
+	}
+
+	.friendsContainer {
+		margin-left: 1rem;
+		margin-right: 1rem;
+		margin-bottom: 1rem;
+		max-height: 50vh;
 	}
 }

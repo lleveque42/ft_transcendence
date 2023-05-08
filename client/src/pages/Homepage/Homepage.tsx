@@ -21,7 +21,7 @@ export default function Homepage() {
 				<div className="title">PONG</div>
 				<h2 className="underTitle mb-20">Homepage</h2>
 			</div>
-			<div className="d-flex flex-row flex-1">
+			<div className={`${styles.homepageContainer} d-flex flex-row flex-1`}>
 				<div className={`${styles.friendsContainer} d-flex flex-column`}>
 					<FriendsList />
 				</div>
@@ -35,7 +35,7 @@ export default function Homepage() {
 						Play
 					</button>
 					<button
-						className="btn-primary mb-10 pl-10 pr-10 p-5"
+						className="btn-primary mt-5 mb-10 pl-10 pr-10 p-5"
 						onClick={showUsers}
 					>
 						Show users

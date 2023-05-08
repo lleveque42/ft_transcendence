@@ -47,6 +47,9 @@ const UserPresentation = ({
 		}
 	}
 
+	console.log(firstName);
+
+
 	return (
 		<div className={`${styles.presentationContainer} d-flex flex-column`}>
 			<div className={styles.avatarContainer}>
@@ -65,11 +68,11 @@ const UserPresentation = ({
 					<></>
 				)}
 				<div className={`${styles.userInfosTextContainer}`}>
-					{firstName && lastName && (
+					{firstName && lastName ? (
 						<h1 className="mt-10">
 							{firstName} {lastName}
 						</h1>
-					)}
+					) : <h1 className="mt-10">No name...</h1>}
 					<h3 className="mt-5">{email}</h3>
 				</div>
 			</div>
@@ -79,14 +82,14 @@ const UserPresentation = ({
 						className="btn btn-reverse-danger p-5 mt-20"
 						onClick={toggleFriendship}
 					>
-						Remove from friends
+						Unfollow
 					</button>
 				) : (
 					<button
 						className="btn btn-reverse-primary p-5 mt-20"
 						onClick={toggleFriendship}
 					>
-						Add to friends
+						Follow
 					</button>
 				)
 			) : (
@@ -94,7 +97,7 @@ const UserPresentation = ({
 					className="btn btn-reverse-primary p-5 mt-20"
 					onClick={() => navigate("/settings")}
 				>
-					Go to settings
+					My settings
 				</button>
 			)}
 		</div>

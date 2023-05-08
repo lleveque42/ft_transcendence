@@ -54,7 +54,7 @@ export default function Header() {
 							FT_TRANSCENDENCE
 						</h2>
 
-						<div className={`${styles.menuContainer}`} ref={menuRef}>
+						<div ref={menuRef}>
 							<div
 								className={`${styles.menuTrigger} d-flex align-items`}
 								onClick={() => setOpenMenu(!openMenu)}
