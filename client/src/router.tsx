@@ -18,6 +18,7 @@ import GameTest from "./pages/Play/Play";
 import Profile from "./pages/User/Profile/Profile";
 import JoinChannel from "./pages/Channels/JoinChannel";
 import NewDM from "./pages/DirectMessages/NewDM";
+import DirectMessage from "./pages/DirectMessages/DirectMessage";
 
 export default function Router() {
 	return (
@@ -53,7 +54,7 @@ export default function Router() {
 				/>
 				<Route
 					path="/chat/direct_messages/:id"
-					element={<PrivateRoute element={<DirectMessages />} />}
+					element={<PrivateRoute element={<DirectMessage />} />}
 				/>
 				<Route
 					path="/chat/direct_messages/new_dm"

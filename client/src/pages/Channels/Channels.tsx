@@ -30,62 +30,6 @@ export default function Channels() {
 			}
         })();
     }, [user.userName, accessToken]);
-	
-	// useEffect(() => {
-	// 	(async () => {
-	// 		try {
-	// 			setMembersState(channelsState.map(({members}) => {return members}));
-    //         } catch (e) {
-	// 		}
-    //     })();
-    // }, []);
-	
-	// useEffect(() => {
-	// 	(async () => {
-	// 		try {
-	// 			setMessagesState(channelsState.map(({message}) => {return message}));
-    //         } catch (e) {
-	// 		}
-    //     })();
-    // }, [channelsState]);
-	
-	// const channelMessages = channelsState.map(({messages}) => {return messages});
-	//console.log(channelMessages);
-	
-	// const messagesList = messages.map(({ username, content }) => (
-	// 	<li key={username}>
-	// 	  <Message
-	// 		allMessages={channelMessages}
-	// 		removeMessages={setMessages}
-	// 		username ={username}
-	// 		content={content}
-	// 		/>
-	// 	</li>
-	//   ));
-
-	// const messageListener = (sender: string, message: string) => {
-	// 	setMessages([...messages, { username: sender, content: message}]);
-	//   }
-
-	// useEffect(() => {
-	// 	socket?.on("receivedMessage", messageListener);
-	// 	return () => {
-	// 	  socket?.off("receivedMessage", messageListener);
-	// 	}
-	//   // eslint-disable-next-line react-hooks/exhaustive-deps
-	//   }, [messageListener])
-
-	// const handleKeyDown =  (event : KeyboardEvent<HTMLInputElement>) => {
-	// 	if (event.key === "Enter"){
-	// 		socket?.emit("chanMessage", {room: id, sender: user.userName, message: value});
-	// 	}
-	// };
-	
-	// const channelsMembers = channelsState.map(({members}) => {return members});
-	// console.log(channelsMembers);
-	// console.log(channelsMembers[0]);
-	
-	//const channelMessages = setMessages(channelsState.map(({message}) => {return message}));
 
 	const channelsList = channelsState.map(({ id, title, ownerId}) => (
 		<li key={id}>

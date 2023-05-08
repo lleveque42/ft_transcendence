@@ -140,6 +140,30 @@ export class ChannelService {
 		return chans;
 	}
 
+	async getUsersChannelsAndDMs(username) {
+		const user = await this.prisma.user.findUnique({
+			where: {
+				userName: username,
+			},
+		});
+		const chans = await this.prisma.channel.findMany({
+			include: {
+				owner: true,
+				members: true,
+				operators: true,
+				messages: true,
+			},
+			where: {
+				members: {
+					some: {
+						id: user.id,
+					},
+				},
+			},
+		});
+		return chans;
+	}
+
 	async getUserDirectMessages(username) {
 		const user = await this.prisma.user.findUnique({
 			where: {
@@ -185,7 +209,23 @@ export class ChannelService {
 		});
 		return msgs;
 	}
-
+	async getDMsMessages(title) {
+		const chan = await this.prisma.channel.findUnique({
+			where: {
+				title: title,
+			},
+		});
+		const msgs = await this.prisma.message.findMany({
+			include: {
+				author: true,
+				channel: true,
+			},
+			where: {
+				channel: chan,
+			},
+		});
+		return msgs;
+	}
 	async dropdb() {
 		await this.prisma.channel.deleteMany({});
 	}

@@ -66,7 +66,9 @@ export class ServerGateway
 
 		// Function to join all rooms
 		const clients = this.users.getClientsByUserId(user.id);
-		const channels = await this.channelService.getUsersChannels(user.userName);
+		const channels = await this.channelService.getUsersChannelsAndDMs(
+			user.userName,
+		);
 		clients.forEach((value) => {
 			for (let chan of channels) {
 				console.log("This socket : " + value.id + "joined " + chan.title);

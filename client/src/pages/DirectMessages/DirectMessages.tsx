@@ -39,7 +39,7 @@ const membersList = directMessagesState.map((channel) => {
 	});
 
 	return (
-		<NavLink key={channel.id}  className={``}  to={`/chat/direct_messages/${channel.id}`} >
+		<NavLink key={channel.id}  className={``}  to={`/chat/direct_messages/${channel.title}`} >
 			{membersDetails}	
 		</NavLink >
 	);

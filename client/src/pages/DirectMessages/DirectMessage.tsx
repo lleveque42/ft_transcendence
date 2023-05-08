@@ -1,4 +1,3 @@
-
 import ChatNav from "../../components/Chat/ChatNav/ChatNav";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
@@ -8,7 +7,7 @@ import Message from "../../components/Message/Message";
 import { MessageModel } from "../../entities/entities";
 import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
 
-export default function Channel() {
+export default function DirectMessage() {
   
 	const { accessToken } = useUser();
 	//const [socket, setSocket] = useState<Socket>();
@@ -22,22 +21,11 @@ export default function Channel() {
 	const { id } = useParams();
 
 	//chatSocket?.emit('joinChatRoom', id);
-
-	//	Put this shit in a context
-	// useEffect(() => {
-	// 	const newSocket = io(`${process.env.REACT_APP_CHAT_URL}`);
-	// 	setSocket(newSocket);
-	// }, [setSocket])
-	
-	//	Put this shit in a context
-	// useEffect(() => {
-	// 	chatSocket?.emit('joinChatRoom', id)
-	// }, [chatSocket, id])
 	
 	useEffect(() => {
 	(async () => {
 			try {
-				await fetch(`http://localhost:3000/channels/chan/${id}`, {
+				await fetch(`http://localhost:3000/channels/dm/chan/${id}`, {
 					credentials: "include",
 					headers: {
 						Authorization: `Bearer ${accessToken}`,

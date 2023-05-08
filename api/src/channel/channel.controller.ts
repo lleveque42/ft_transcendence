@@ -94,6 +94,19 @@ export class ChannelController {
 		}
 	}
 
+	@Get("/dm/chan/:title")
+	async getDMsMessages(@Param("title") title: string): Promise<Message[]> {
+		try {
+			console.log("Enter getDmsMessages");
+			console.log("Title of DM: " + title);
+
+			const msgs = await this.channelService.getDMsMessages(title);
+			return msgs;
+		} catch (e) {
+			throw new HttpException(e.message, e.status);
+		}
+	}
+
 	@UseGuards(AtGuard)
 	@Get("/users_list/:test")
 	async getUsersList(
