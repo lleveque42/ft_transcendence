@@ -13,6 +13,7 @@ import Settings from "./pages/User/Settings/Settings";
 import VerifyTfa from "./pages/Login/VerifyTfa/VerifyTfa";
 import GameTest from "./pages/Play/Play";
 import Profile from "./pages/User/Profile/Profile";
+import Users from "./pages/Users/Users";
 
 export default function Router() {
 	return (
@@ -58,6 +59,7 @@ export default function Router() {
 					path="/chat/friends"
 					element={<PrivateRoute element={<Chat />} />}
 				/>
+				<Route path="/users" element={<PrivateRoute element={<Users />} />} />
 				<Route path="*" element={<NotFound />} />
 			</Route>
 		</Routes>

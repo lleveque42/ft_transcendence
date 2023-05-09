@@ -43,7 +43,7 @@ export default function Header() {
 			) : (
 				<header>
 					<div
-						className={`${styles.headerContainer} d-flex align-items justify-content-space-between`}
+						className={`${styles.headerContainer} d-flex align-items`}
 					>
 						<h2
 							className={`${styles.title} pl-10`}
@@ -53,10 +53,14 @@ export default function Header() {
 						>
 							FT_TRANSCENDENCE
 						</h2>
+						<div className={`${styles.headerNav} d-flex align-items ml-10`}>
+							<p className="" onClick={() => navigate("/users")}>Users</p>
+							<p className="pl-5">Chat</p>
+						</div>
 
-						<div ref={menuRef}>
+						<div className="d-flex align-end" ref={menuRef}>
 							<div
-								className={`${styles.menuTrigger} d-flex align-items`}
+								className={`${styles.menuTrigger} d-flex`}
 								onClick={() => setOpenMenu(!openMenu)}
 							>
 								<img src={userAvatar} alt="Avatar" />

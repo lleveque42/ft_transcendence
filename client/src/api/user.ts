@@ -114,3 +114,13 @@ export async function toggleFriendshipRequest(
 	});
 	return res;
 }
+
+export async function getAllUsersRequest(accessToken: string) {
+	const res = await fetch("http://localhost:3000/user/users", {
+		credentials: "include",
+		headers: {
+			Authorization: `Bearer ${accessToken}`,
+		},
+	});
+	return res;
+}

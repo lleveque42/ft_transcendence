@@ -62,6 +62,13 @@ export class UserController {
 	}
 
 	@UseGuards(AtGuard)
+	@Get("users")
+	async getAllUsers(): Promise<{ userName: string }[]> {
+		return await this.userService.getAllUsers();
+		// console.log("Coucou all users");
+	}
+
+	@UseGuards(AtGuard)
 	@Patch("settings")
 	async updateSettings(
 		@GetCurrentUser("sub") userName: string,

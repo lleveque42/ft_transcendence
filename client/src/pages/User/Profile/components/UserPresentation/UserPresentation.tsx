@@ -36,19 +36,12 @@ const UserPresentation = ({
 			} else if (res.ok) {
 				isAuth();
 				showAlert("info", "Added to friends");
-			} else {
-				const data = await res.json();
-				console.log("Error toggle friendship: ", data.message);
-				showAlert("error", "A problem occured, try again later");
-			}
+			} else showAlert("error", "A problem occured, try again later");
 		} catch (e) {
 			console.error("Error remove from friend: ", e);
 			showAlert("error", "A problem occured, try again later");
 		}
 	}
-
-	console.log(firstName);
-
 
 	return (
 		<div className={`${styles.presentationContainer} d-flex flex-column`}>
@@ -72,7 +65,9 @@ const UserPresentation = ({
 						<h1 className="mt-10">
 							{firstName} {lastName}
 						</h1>
-					) : <h1 className="mt-10">No name...</h1>}
+					) : (
+						<h1 className="mt-10">No name...</h1>
+					)}
 					<h3 className="mt-5">{email}</h3>
 				</div>
 			</div>
