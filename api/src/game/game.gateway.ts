@@ -17,9 +17,8 @@ import { GameQueue } from "../classes/GameQueue";
 import { Pair } from "./types/pair.type";
 import { randomUUID } from "crypto";
 import { GAME_LIMIT_SCORE, OngoingGames } from "../classes/OngoingGames";
-import { GameType } from "./types/game.type";
 
-@WebSocketGateway(8001, { namespace: "game", cors: "*" })
+@WebSocketGateway(8001, { namespace: "game", cors: "http://localhost:3001" })
 export class GameGateway
 	implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
@@ -189,36 +188,36 @@ export class GameGateway
 
 	@SubscribeMessage("updatePlayerPaddlePos")
 	handleLeftPaddlePosUpdate(
-		@MessageBody() msg: { y: number; room: string },
+		@MessageBody("y") y: number,
+		@MessageBody("room") room: string,
 	): void {
-		this.io.to(msg.room).emit("leftPaddlePosUpdate", msg.y);
+		this.io.to(room).emit("leftPaddlePosUpdate", y);
 	}
 
 	@SubscribeMessage("updateOwnerPaddlePos")
 	handleRightPaddlePosUpdate(
-		@MessageBody() msg: { y: number; room: string },
+		@MessageBody("y") y: number,
+		@MessageBody("room") room: string,
 	): void {
-		this.io.to(msg.room).emit("rightPaddlePosUpdate", msg.y);
+		this.io.to(room).emit("rightPaddlePosUpdate", y);
 	}
 
 	@SubscribeMessage("updateBallPos")
 	handleBallPosUpdate(
-		@MessageBody() msg: { position: { x: number; y: number }; room: string },
+		@MessageBody("position") position: { x: number; y: number },
+		@MessageBody("room") room: string,
 	): void {
-		this.io
-			.to(msg.room)
-			.emit("ballPosUpdate", { x: msg.position.x, y: msg.position.y });
+		this.io.to(room).emit("ballPosUpdate", { x: position.x, y: position.y });
 	}
 
-	@SubscribeMessage("playerScored")
-	playerScored(@MessageBody() room: string): void {
-		this.io.to(room).emit("playerScored");
-		if (this.ongoing.playerScored(room)) this.endGame(room);
-	}
-
-	@SubscribeMessage("ownerScored")
-	ownerScored(@MessageBody() room: string): void {
-		this.io.to(room).emit("ownerScored");
-		if (this.ongoing.ownerScored(room)) this.endGame(room);
+	@SubscribeMessage("scoreUpdate")
+	playerScored(
+		@MessageBody("room") room: string,
+		@MessageBody("ownerScored") ownerScored: boolean,
+	): void {
+		this.io.to(room).emit("scoreUpdate", ownerScored);
+		if (!ownerScored) {
+			if (this.ongoing.playerScored(room)) this.endGame(room);
+		} else if (this.ongoing.ownerScored(room)) this.endGame(room);
 	}
 }

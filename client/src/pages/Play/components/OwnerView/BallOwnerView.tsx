@@ -223,13 +223,13 @@ export default function Ball({
 				break;
 			case Collision.RIGHT_PADDLE_MISSED:
 				if (resetted) {
-					socket!.emit("playerScored", room);
+					socket!.emit("scoreUpdate", { room, ownerScored: false });
 					setResetted(false);
 				}
 				break;
 			case Collision.LEFT_PADDLE_MISSED:
 				if (resetted) {
-					socket!.emit("ownerScored", room);
+					socket!.emit("scoreUpdate", { room, ownerScored: true });
 					setResetted(false);
 				}
 				break;
