@@ -208,6 +208,12 @@ export class ServerGateway
 			socket[1].join(data.room);
 			// Send a confirmation to client
 		}
+		this.io
+			.to(data.room)
+			.emit(
+				"receivedDirectMessage",
+				this.channelService.getChannelByTitle(data.room),
+			);
 	}
 
 	// @SubscribeMessage("new_channel")

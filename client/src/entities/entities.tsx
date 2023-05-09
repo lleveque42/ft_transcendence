@@ -57,9 +57,9 @@ export interface Channel {
 	title?: string;
 	password?: string;
 	type: string;
-	owner?: User;
+	// owner?: User;
 	ownerId?: number;
-	operators: User[];
+	// operators: User[];
 	members: User[];
 	messages: Message[];
   }
@@ -69,9 +69,9 @@ export interface Channel {
 	title?: string;
 	password?: string;
 	type: string;
-	owner?: UserModel;
+	// owner?: UserModel;
 	ownerId?: number;
-	operators: UserModel[];
+	// operators: UserModel[];
 	members: UserModel[];
 	messages: Message[];
   
@@ -81,8 +81,8 @@ export interface Channel {
 	  this.password = data.password;
 	  this.type = data.type;
 	  this.ownerId = data.ownerId;
-	  this.owner = data.owner ? new UserModel(data.owner) : undefined;
-	  this.operators = data.operators.map(user => new UserModel(user));
+	//   this.owner = data.owner ? new UserModel(data.owner) : undefined;
+	//   this.operators = data.operators.map(user => new UserModel(user));
 	  this.members = data.members.map(user => new UserModel(user));
 	  this.messages = data.messages;
 	}
