@@ -11,7 +11,7 @@ import {
 } from "@nestjs/websockets";
 import { Namespace, Socket } from "socket.io";
 import { UserService } from "../user/user.service";
-import { User } from "@prisma/client";
+import { User, UserStatus } from "@prisma/client";
 import { OnlineUsers } from "../classes/OnlineUsers";
 import { GameQueue } from "../classes/GameQueue";
 import { Pair } from "./types/pair.type";
@@ -70,7 +70,23 @@ export class GameGateway
 		this.logger.log(`${this.users.size} user(s) connected !`);
 	}
 
-	createGame(): GameType {
+	async changeUserStatus(user: User, inGame: boolean) {
+		const newStatus = inGame ? UserStatus.INGAME : UserStatus.ONLINE;
+		await this.userService.changeUserStatus(user.id, newStatus);
+		let onlineFriends = await this.users.getFriendsOfByUserId(
+			user.id,
+			this.userService,
+		);
+		for (let friend of onlineFriends) {
+			this.users.emitAllbyUserId(friend.id, "updateOnlineFriend", {
+				id: user.id,
+				userName: user.userName,
+				status: newStatus,
+			});
+		}
+	}
+
+	createGame() {
 		const idPair = this.queue.getPair();
 		const usersPair: Pair<User> = {
 			first: this.users.getUserByUserId(idPair.first),
@@ -87,11 +103,17 @@ export class GameGateway
 		socketsPair.second.forEach((client) => {
 			client.join(newRoom);
 		});
+		this.changeUserStatus(usersPair.first, true);
+		this.changeUserStatus(usersPair.second, true);
 		return this.ongoing.addGame(newRoom, usersPair.first, usersPair.second);
 	}
 
 	endGame(room: string) {
 		const game = this.ongoing.getGameById(room);
+		const usersPair: Pair<User> = {
+			first: this.users.getUserByUserId(game.ownerId),
+			second: this.users.getUserByUserId(game.playerId),
+		};
 		const socketsPair: Pair<Map<string, Socket>> = {
 			first: this.users.getClientsByUserId(game.ownerId),
 			second: this.users.getClientsByUserId(game.playerId),
@@ -108,6 +130,8 @@ export class GameGateway
 		socketsPair.second.forEach((client) => {
 			client.leave(room);
 		});
+		this.changeUserStatus(usersPair.first, false);
+		this.changeUserStatus(usersPair.second, false);
 		this.ongoing.removeGame(room);
 	}
 
