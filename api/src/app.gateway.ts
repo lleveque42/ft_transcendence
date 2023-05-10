@@ -45,10 +45,10 @@ export class AppGateway
 		}
 	}
 
-	handleDisconnect(client: Socket) {
+	async handleDisconnect(client: Socket) {
 		const user: User = this.users.getUserByClientId(client.id);
 		if (!user) return;
-		this.changeUserStatus(user, false);
+		await this.changeUserStatus(user, false);
 		this.logger.log(`WS Client ${client.id} (${user.userName}) disconnected !`);
 		this.users.removeClientId(client.id);
 		this.logger.log(`${this.users.size} user(s) connected !`);
@@ -74,7 +74,7 @@ export class AppGateway
 			this.users.addClientToUserId(user.id, client);
 		else {
 			this.users.addNewUser(user, client);
-			this.changeUserStatus(user, false);
+			await this.changeUserStatus(user, true);
 		}
 		this.logger.log(`WS Client ${client.id} (${user.userName}) connected !`);
 		this.logger.log(`${this.users.size} user(s) connected !`);
