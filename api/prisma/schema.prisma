@@ -9,6 +9,11 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+enum UserStatus {
+  ONLINE
+  OFFLINE
+  INGAME
+}
 
 model User {
   id        Int       @id @default(autoincrement())
@@ -26,6 +31,7 @@ model User {
   socket      String?
   tfaSecret   String?
   isTfaEnable Boolean @default(false)
+  status      UserStatus @default(ONLINE)
   friends    User[]   @relation("Friends")
   friendsOf  User[]   @relation("Friends")
 
