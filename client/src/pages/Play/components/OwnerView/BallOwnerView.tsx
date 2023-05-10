@@ -20,7 +20,6 @@ import {
 	ceilToDecimal,
 	floorToDecimal,
 } from "../GameUtils/Utils";
-import { useTimer } from "use-timer";
 import { Socket } from "socket.io-client";
 
 const enum Collision {
@@ -40,7 +39,6 @@ const enum Paddle {
 }
 
 interface BallProps {
-	ballStopped: boolean;
 	playerPaddle: React.MutableRefObject<
 		THREE.Mesh<THREE.BufferGeometry, THREE.Material | THREE.Material[]>
 	>;
@@ -52,7 +50,6 @@ interface BallProps {
 }
 
 export default function Ball({
-	ballStopped,
 	playerPaddle,
 	ownerPaddle,
 	socket,
@@ -64,8 +61,6 @@ export default function Ball({
 	);
 	const [resetted, setResetted] = useState(true);
 	const ball = useRef<THREE.Mesh>(null!);
-
-	const { start, pause, status } = useTimer();
 
 	function newBall(): void {
 		ball.current.position.x = 0;
@@ -200,55 +195,46 @@ export default function Ball({
 	}
 
 	useFrame((state, delta) => {
-		switch (status) {
-			case "STOPPED":
-			case "PAUSED":
-				if (!ballStopped) start();
+		setXSpeedMultiplier(xSpeedMultiplier); // modify so ball speed up
+		ball.current.position.x += delta * dirVector.x * xSpeedMultiplier;
+		ball.current.position.y += delta * dirVector.y;
+		socket!.emit("updateBallPos", {
+			position: {
+				x: ball.current.position.x,
+				y: ball.current.position.y,
+			},
+			room,
+		});
+		const collision = checkCollision(delta);
+		switch (collision) {
+			case Collision.NO_HIT:
 				break;
-			case "RUNNING":
-				if (ballStopped) pause();
-				setXSpeedMultiplier(xSpeedMultiplier); // modify so ball speed up
-				ball.current.position.x += delta * dirVector.x * xSpeedMultiplier;
-				ball.current.position.y += delta * dirVector.y;
-				socket!.emit("updateBallPos", {
-					position: {
-						x: ball.current.position.x,
-						y: ball.current.position.y,
-					},
-					room,
-				});
-				const collision = checkCollision(delta);
-				switch (collision) {
-					case Collision.NO_HIT:
-						break;
-					case Collision.RIGHT_PADDLE_HIT:
-						if (dirVector.x > 0) setDirVector(rebound(collision));
-						break;
-					case Collision.LEFT_PADDLE_HIT:
-						if (dirVector.x < 0) setDirVector(rebound(collision));
-						break;
-					case Collision.FLOOR_HIT:
-						if (dirVector.y < 0) setDirVector(rebound(collision));
-						break;
-					case Collision.CEILING_HIT:
-						if (dirVector.y > 0) setDirVector(rebound(collision));
-						break;
-					case Collision.RIGHT_PADDLE_MISSED:
-						if (resetted) {
-							socket!.emit("playerScored", room);
-							setResetted(false);
-						}
-						break;
-					case Collision.LEFT_PADDLE_MISSED:
-						if (resetted) {
-							socket!.emit("ownerScored", room);
-							setResetted(false);
-						}
-						break;
-					case Collision.OUT_OF_BOUND:
-						resetPoint();
-						break;
+			case Collision.RIGHT_PADDLE_HIT:
+				if (dirVector.x > 0) setDirVector(rebound(collision));
+				break;
+			case Collision.LEFT_PADDLE_HIT:
+				if (dirVector.x < 0) setDirVector(rebound(collision));
+				break;
+			case Collision.FLOOR_HIT:
+				if (dirVector.y < 0) setDirVector(rebound(collision));
+				break;
+			case Collision.CEILING_HIT:
+				if (dirVector.y > 0) setDirVector(rebound(collision));
+				break;
+			case Collision.RIGHT_PADDLE_MISSED:
+				if (resetted) {
+					socket!.emit("scoreUpdate", { room, ownerScored: false });
+					setResetted(false);
 				}
+				break;
+			case Collision.LEFT_PADDLE_MISSED:
+				if (resetted) {
+					socket!.emit("scoreUpdate", { room, ownerScored: true });
+					setResetted(false);
+				}
+				break;
+			case Collision.OUT_OF_BOUND:
+				resetPoint();
 				break;
 		}
 	});

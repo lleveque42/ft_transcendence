@@ -1,6 +1,6 @@
 import { User, UserStatus } from "@prisma/client";
 import { Socket } from "socket.io";
-import { UserType } from "./types/UserType";
+import { UserType } from "../game/types/user.type";
 import { UserService } from "../user/user.service";
 
 export class OnlineUsers {

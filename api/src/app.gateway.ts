@@ -29,11 +29,10 @@ export class AppGateway
 		this.logger.log("Websocket AppGateway initialized.");
 	}
 
-	async handleDisconnect(client: Socket) {
-		const user: User = this.users.getUserByClientId(client.id);
-		if (!user) return;
-		await this.userService.changeUserStatus(user.id, UserStatus.OFFLINE);
-		const onlineFriends = await this.users.getFriendsOfByUserId(
+	async changeUserStatus(user: User, online: boolean) {
+		const newStatus = online ? UserStatus.ONLINE : UserStatus.OFFLINE;
+		await this.userService.changeUserStatus(user.id, newStatus);
+		let onlineFriends = await this.users.getFriendsOfByUserId(
 			user.id,
 			this.userService,
 		);
@@ -41,9 +40,15 @@ export class AppGateway
 			this.users.emitAllbyUserId(friend.id, "updateOnlineFriend", {
 				id: user.id,
 				userName: user.userName,
-				status: UserStatus.OFFLINE,
+				status: newStatus,
 			});
 		}
+	}
+
+	handleDisconnect(client: Socket) {
+		const user: User = this.users.getUserByClientId(client.id);
+		if (!user) return;
+		this.changeUserStatus(user, false);
 		this.logger.log(`WS Client ${client.id} (${user.userName}) disconnected !`);
 		this.users.removeClientId(client.id);
 		this.logger.log(`${this.users.size} user(s) connected !`);
@@ -69,18 +74,7 @@ export class AppGateway
 			this.users.addClientToUserId(user.id, client);
 		else {
 			this.users.addNewUser(user, client);
-			await this.userService.changeUserStatus(user.id, UserStatus.ONLINE);
-			const onlineFriends = await this.users.getFriendsOfByUserId(
-				user.id,
-				this.userService,
-			);
-			for (let friend of onlineFriends) {
-				this.users.emitAllbyUserId(friend.id, "updateOnlineFriend", {
-					id: user.id,
-					userName: user.userName,
-					status: UserStatus.ONLINE,
-				});
-			}
+			this.changeUserStatus(user, false);
 		}
 		this.logger.log(`WS Client ${client.id} (${user.userName}) connected !`);
 		this.logger.log(`${this.users.size} user(s) connected !`);

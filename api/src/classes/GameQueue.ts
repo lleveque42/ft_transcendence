@@ -1,5 +1,5 @@
-import { Queue } from "./interfaces/Queue";
-import { Pair } from "./types/Pair";
+import { Queue } from "../game/interfaces/queue.interface";
+import { Pair } from "../game/types/pair.type";
 
 export class GameQueue implements Queue<number> {
 	private _queue: number[] = [];
@@ -15,6 +15,11 @@ export class GameQueue implements Queue<number> {
 
 	dequeue(): number {
 		return this._queue.shift();
+	}
+
+	dequeueUser(userId: number): number {
+		this._queue = this._queue.filter((value) => value !== userId);
+		return userId;
 	}
 
 	size(): number {

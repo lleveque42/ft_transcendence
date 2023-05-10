@@ -1,38 +1,44 @@
 import { useEffect, useState } from "react";
-import OwnerGameRender from "./components/OwnerView/OwnerGameRender";
-import PlayerGameRender from "./components/PlayerView/PlayerGameRender";
 import styles from "./Play.module.scss";
 // import { Socket, io } from "socket.io-client";
 // import { useUser } from "../../context";
 import { useGameSocket } from "./context/GameSocketProvider";
-import { GameSocketContext } from "./context/GameSocketProvider";
+import {
+	GameStatus,
+	defaultGameStatus,
+	gameEnded,
+	gameStarted,
+	incrementOwnerScore,
+	incrementPlayerScore,
+	joinedGame,
+} from "./types/gameStatus.type";
+import { UserStatus } from "./enums/UserStatus";
+import { useUser } from "../../context";
+import Countdown from "./components/Common/Countdown";
+import Game from "./components/Common/Game";
+import { Default } from "./components/Common/Default";
+import Queue from "./components/Common/Queue";
 
 export default function Play() {
-	const [points, setPoints] = useState({ left: 0, right: 0 });
-	const [ballStopped, setBallStopped] = useState(true);
-	const [inQueue, setInQueue] = useState(false);
-	const [inGame, setInGame] = useState(false);
-	const [owner, setOwner] = useState(false);
-	const [room, setRoom] = useState("");
-	const [gameEnded, setGameEnded] = useState(false);
-	const [win, setWin] = useState(false);
+	const { user } = useUser();
 	const { gameSocket } = useGameSocket();
+	// const [connectionStatus, setConnectionStatus] = useState(0); //si inGame ou inqueue à la connexion
+	const [userStatus, setUserStatus] = useState<UserStatus>(
+		UserStatus.connected,
+	);
+	const [gameStatus, setGameStatus] = useState<GameStatus>(defaultGameStatus);
 
-	function handleClick() {
-		setBallStopped(!ballStopped);
-	}
-
-	function joinQueue() {
+	function joinQueue(again: boolean) {
 		if (gameSocket) {
 			gameSocket.emit("joinQueue");
-			gameSocket.once("queuedSuccess", () => {
-				setInQueue(true);
-			});
-			gameSocket.once("queuedFail", () => {
-				console.log("QUEUE FAIL");
-			});
-			gameSocket.once("queuedAlready", () => {
-				setInQueue(true);
+			gameSocket.once("queuedStatus", (success: boolean, err: string) => {
+				if (success === true) {
+					setGameStatus(defaultGameStatus);
+					setUserStatus(UserStatus.inQueue);
+				} else {
+					console.log("Queue failed? try again? : err = " + err);
+					setUserStatus(UserStatus.connected);
+				}
 			});
 		}
 		// else could not join game/ redirect to login ?
@@ -42,121 +48,94 @@ export default function Play() {
 		gameSocket?.emit("showUsers");
 	}
 
-	function playAgain() {
-		setGameEnded(false);
-		setWin(false);
-		joinQueue();
+	function showGames() {
+		gameSocket?.emit("showGames");
+	}
+
+	function showGameStatus() {
+		console.log(gameStatus);
 	}
 
 	function backToPlay() {
-		setGameEnded(false);
-		setWin(false);
+		setGameStatus(defaultGameStatus);
+		setUserStatus(UserStatus.connected);
 	}
 
 	useEffect(() => {
-		gameSocket?.once("joinedGame", (room: string) => {
-			setRoom(room);
-			setInGame(true);
-			setInQueue(false);
-		});
-		gameSocket?.once("gameOwner", (bool: boolean) => {
-			setOwner(bool);
-		});
-		if (inGame) {
-			gameSocket?.on("playerScored", () => {
-				setPoints({ left: points.left + 1, right: points.right });
+		console.log(userStatus);
+		gameSocket?.once(
+			"joinedGame",
+			(room: string, ownerId: number, playerId: number) => {
+				setGameStatus(joinedGame(gameStatus, user, room, ownerId, playerId));
+				setUserStatus(UserStatus.waitingGameStart);
+			},
+		);
+		if (userStatus === UserStatus.waitingGameStart) {
+			setTimeout(() => {
+				setUserStatus(UserStatus.inGame);
+				setGameStatus(gameStarted(gameStatus));
+			}, 3000);
+		}
+		if (userStatus === UserStatus.inGame) {
+			gameSocket?.on("scoreUpdate", (ownerScored: boolean) => {
+				if (ownerScored) setGameStatus(incrementOwnerScore(gameStatus));
+				else setGameStatus(incrementPlayerScore(gameStatus));
 			});
-			gameSocket?.on("ownerScored", () => {
-				setPoints({ left: points.left, right: points.right + 1 });
-			});
-			gameSocket?.once("gameEnded", () => {
-				setInGame(false);
-				setGameEnded(true);
-				setPoints({ left: 0, right: 0 });
-				gameSocket?.off("playerScored");
-				gameSocket?.off("ownerScored");
-			});
-			gameSocket?.once("gameWin", () => {
-				setWin(true);
+			gameSocket?.once("gameEnded", (winner: number) => {
+				gameSocket!.off("scoreUpdate");
+				let newUserStatus: UserStatus;
+				user.id === winner
+					? (newUserStatus = UserStatus.gameWinner)
+					: (newUserStatus = UserStatus.gameLoser);
+				setUserStatus(newUserStatus);
+				setGameStatus(gameEnded(gameStatus));
 			});
 		}
 		return () => {
 			gameSocket?.removeAllListeners();
-			// gameSocket?.off("queuedSuccess");
-			// gameSocket?.off("queuedFail");
-			// gameSocket?.off("queuedAlready");
 		};
-	});
+	}, [userStatus, gameSocket, gameStatus, user]);
 
 	return (
 		<div
 			className={`container ${styles.gamePage} d-flex flex-column align-items justify-content`}
 		>
-			{!inGame && !gameEnded && (
-				<>
-					<div className="title">
-						Pong <h2 className="underTitle mb-20">Game</h2>
-					</div>
-					<button className="btn-primary mb-10" onClick={showUsers}>
-						Show users
-					</button>
-					<button className="btn-primary mb-10" onClick={joinQueue}>
-						Play
-					</button>
-				</>
+			{userStatus === UserStatus.connected && (
+				<Default showUsers={showUsers} joinQueue={joinQueue} />
 			)}
-			{inQueue && (
-				<div
-					className={`${styles.sizeContainer} d-flex flex-column align-items justify-content mb-20`}
-				>
-					IN QUEUE
-				</div>
+			{userStatus === UserStatus.inQueue && (
+				<Queue gameSocket={gameSocket} setUserStatus={setUserStatus} />
 			)}
-			{inGame && (
-				<>
-					<div
-						className={`${styles.sizeContainer} d-flex flex-column align-items justify-content`}
-					>
-						<div
-							className={`${styles.pointContainer} d-flex flex-row align-items justify-content-space-between`}
-						>
-							<div className={styles.leftPoints}>{points.left} p</div>
-							<div className={styles.rightPoints}>o {points.right}</div>
-						</div>
-						<div className={`${styles.gameContainer}`}>
-							{owner ? (
-								<GameSocketContext.Provider value={{ gameSocket }}>
-									<OwnerGameRender ballStopped={ballStopped} room={room} />
-								</GameSocketContext.Provider>
-							) : (
-								<GameSocketContext.Provider value={{ gameSocket }}>
-									<PlayerGameRender room={room} />
-								</GameSocketContext.Provider>
-							)}
-						</div>
-					</div>
-					<button className="btn-danger mb-10" onClick={handleClick}>
-						{ballStopped ? "Resume" : "Pause"}
-					</button>
-				</>
+			{userStatus === UserStatus.waitingGameStart && <Countdown />}
+			{userStatus === UserStatus.inGame && (
+				<Game
+					showGames={showGames}
+					gameStatus={gameStatus}
+					gameSocket={gameSocket}
+				/>
 			)}
-			{gameEnded && win && (
+			{userStatus === UserStatus.gameWinner && (
 				<div
 					className={`${styles.sizeContainer} d-flex flex-column align-items justify-content mb-20`}
 				>
 					WIN
 				</div>
 			)}
-			{gameEnded && !win && (
+			{userStatus === UserStatus.gameLoser && (
 				<div
 					className={`${styles.sizeContainer} d-flex flex-column align-items justify-content mb-20`}
 				>
 					LOSE
 				</div>
 			)}
-			{gameEnded && (
+			{gameStatus.ended && (
 				<>
-					<button className="btn-primary mb-10" onClick={playAgain}>
+					<button
+						className="btn-primary mb-10"
+						onClick={() => {
+							joinQueue(true);
+						}}
+					>
 						Play again
 					</button>
 					<button className="btn-primary mb-10" onClick={backToPlay}>
@@ -164,6 +143,9 @@ export default function Play() {
 					</button>
 				</>
 			)}
+			<button className="btn-primary mb-10" onClick={showGameStatus}>
+				Show game status
+			</button>
 		</div>
 	);
 }
