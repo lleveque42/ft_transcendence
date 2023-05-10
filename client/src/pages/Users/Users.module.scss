@@ -1,0 +1,104 @@
+@use "../../assets/styles/mixins" as mixin;
+
+.listContainer {
+	ul {
+		border: 1px solid var(--secondary-dark);
+		border-radius: 5px;
+		box-shadow: var(--box-shadow);
+		width: 50%;
+		height: 70%;
+		overflow-y: scroll;
+
+		li {
+			border-bottom: 1px solid var(--secondary-dark);
+			align-items: center;
+
+			.statusBadge {
+				width: 0.8vw;
+				height: 0.8vw;
+				border: var(--border);
+				border-radius: 50%;
+			}
+
+			@include mixin.sm-lt {
+				.statusBadge {
+					width: 2.5vw;
+					height: 2.5vw;
+				}
+			}
+
+			.online {
+				background-color: var(--success);
+			}
+
+			.offline {
+				background-color: var(--danger);
+			}
+
+			.noStatus {
+				border: none;
+			}
+
+			i {
+				cursor: pointer;
+			}
+
+			h3 {
+				min-width: 50%;
+				cursor: pointer;
+				text-decoration: none;
+				text-decoration-color: transparent;
+				transition: color 0.3s ease-in-out,
+					text-decoration-color 0.3s ease-in-out;
+
+				&:hover {
+					color: var(--primary);
+					text-decoration: underline;
+					text-underline-offset: 0.3em;
+					text-decoration-color: var(--primary);
+				}
+			}
+
+			h3 {
+				font-size: 1.5vw;
+			}
+
+			@include mixin.sm-lt {
+				h3 {
+					font-size: 1rem;
+				}
+			}
+
+			.minusIcon {
+				color: var(--danger);
+			}
+
+			.plusIcon {
+				color: var(--success);
+			}
+
+			.playIcon {
+				color: var(--warning);
+			}
+
+			.dmIcon {
+				color: var(--primary);
+			}
+		}
+
+		@include mixin.sm-lt {
+			li {
+				// padding: 0;
+				// margin: 0;
+				// margin-right: 2px;
+			}
+		}
+	}
+
+	@include mixin.sm-lt {
+		ul {
+			width: 90%;
+			height: 80%;
+		}
+	}
+}

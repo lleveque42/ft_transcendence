@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import Loader from "react-loaders";
-import { getAllUsersRequest } from "../../api";
-import { useUser } from "../../context";
+import { getAllUsersRequest, toggleFriendshipRequest } from "../../api";
+import { useAlert, useUser } from "../../context";
 import { Friend, UserStatus } from "../../types";
+import styles from "./Users.module.scss";
+import { useNavigate } from "react-router-dom";
 
 type UsersList = {
 	userName: string;
@@ -11,12 +13,13 @@ type UsersList = {
 };
 
 export default function Users() {
-	const { accessToken, user } = useUser();
+	const { accessToken, user, isAuth } = useUser();
+	const { showAlert } = useAlert();
+	const navigate = useNavigate();
 	const [isLoading, setIsloading] = useState<boolean>(true);
 	const [usersList, setUsersList] = useState<any>([]);
 
 	function cleanUsersList(data: any) {
-		// console.log(data);
 		let list: UsersList[] = [];
 		list = data
 			.filter((u: UsersList) => u.userName !== user.userName)
@@ -33,8 +36,23 @@ export default function Users() {
 				}
 				return u;
 			});
-		console.log(list);
 		setUsersList(list);
+	}
+
+	async function toggleFriendship(method: string, userName: string) {
+		try {
+			const res = await toggleFriendshipRequest(accessToken, userName, method);
+			if (method === "DELETE" && res.status === 204) {
+				isAuth();
+				showAlert("warning", "Removed from friends");
+			} else if (res.ok) {
+				isAuth();
+				showAlert("info", "Added to friends");
+			} else showAlert("error", "A problem occured, try again later");
+		} catch (e) {
+			console.error("Error remove from friend: ", e);
+			showAlert("error", "A problem occured, try again later");
+		}
 	}
 
 	useEffect(() => {
@@ -47,7 +65,11 @@ export default function Users() {
 			setIsloading(false);
 		}
 		getAllUsers();
-	}, []);
+		// eslint-disable-next-line
+	}, [user]);
+
+	// Trim Username
+	// Order by username
 
 	return (
 		<>
@@ -57,12 +79,60 @@ export default function Users() {
 					innerClassName="container d-flex align-items private-loader"
 					active
 				/>
-			) : !usersList.length ? (
-				<h1 className="flex-1">Nobody</h1>
 			) : (
 				<>
-					<h2 className="underTitle mt-20 mb-20">Find Friends</h2>
-					<div className="flex-1">LIST</div>
+					<div className="title mt-20 mb-20">Find Friends</div>
+
+					{!usersList.length ? (
+						<h1 className="flex-1">Nobody</h1>
+					) : (
+						<div
+							className={`${styles.listContainer} d-flex flex-1 justify-content mt-30`}
+						>
+							<ul>
+								{usersList.map((u: UsersList, i: number) => (
+									<li className="d-flex p-10 ml-5" key={i}>
+										<span
+											className={`${styles.statusBadge} ${
+												u.status
+													? u.status === UserStatus.ONLINE
+														? styles.online
+														: u.status === UserStatus.INGAME
+														? styles.ingame
+														: styles.offline
+													: styles.noStatus
+											}`}
+										/>
+										<h3
+											className="flex-1 pl-5"
+											onClick={() => navigate(`/user/${u.userName}`)}
+										>
+											{u.userName}
+										</h3>
+										{u.isFriend ? (
+											<i
+												className={`${styles.minusIcon} fa-solid fa-user-minus`}
+												onClick={() => toggleFriendship("DELETE", u.userName)}
+											/>
+										) : (
+											<i
+												className={`${styles.plusIcon} fa-solid fa-user-plus`}
+												onClick={() => toggleFriendship("PATCH", u.userName)}
+											/>
+										)}
+										<i
+											className={`${styles.playIcon} fa-solid fa-gamepad ml-20`}
+											onClick={() => navigate("/play")}
+										/>
+										<i
+											className={`${styles.dmIcon} fa-solid fa-envelope ml-20 mr-20`}
+											onClick={() => navigate("/chat")}
+										/>
+									</li>
+								))}
+							</ul>
+						</div>
+					)}
 				</>
 			)}
 		</>
