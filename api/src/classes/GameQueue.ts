@@ -1,24 +1,29 @@
 import { Queue } from "../game/interfaces/queue.interface";
 import { Pair } from "../game/types/pair.type";
 
-export class GameQueue implements Queue<number> {
-	private _queue: number[] = [];
+type queueItem = {
+	client: string;
+	userId: number;
+};
+
+export class GameQueue implements Queue<queueItem> {
+	private _queue: queueItem[] = [];
 
 	constructor(private capacity: number = Infinity) {}
 
-	enqueue(userId: number): void {
+	enqueue(queueItem: queueItem): void {
 		if (this.size() === this.capacity) {
 			throw Error("Queue has reached max capacity.");
 		}
-		this._queue.push(userId);
+		this._queue.push(queueItem);
 	}
 
-	dequeue(): number {
+	dequeue(): queueItem {
 		return this._queue.shift();
 	}
 
 	dequeueUser(userId: number): number {
-		this._queue = this._queue.filter((value) => value !== userId);
+		this._queue = this._queue.filter((value) => value.userId !== userId);
 		return userId;
 	}
 
@@ -27,16 +32,17 @@ export class GameQueue implements Queue<number> {
 	}
 
 	alreadyQueued(userId: number): boolean {
-		return this._queue.includes(userId);
+		for (let user of this._queue) {
+			if (user.userId === userId) return true;
+		}
+		return false;
 	}
 
-	getPair(): Pair<number> {
-		let pair: Pair<number> = {
-			first: 0,
-			second: 0,
+	getPair(): Pair<queueItem> {
+		let pair: Pair<queueItem> = {
+			first: this.dequeue(),
+			second: this.dequeue(),
 		};
-		pair.first = this.dequeue();
-		pair.second = this.dequeue();
 		return pair;
 	}
 }

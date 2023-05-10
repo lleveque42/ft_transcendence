@@ -1,4 +1,4 @@
-export enum UserStatus {
+export enum GameUserStatus {
 	notConnected,
 	connected,
 	inQueue,

@@ -19,6 +19,21 @@ export default function PrivateRoute(props: {
 	const [socket, setSocket] = useState<Socket | null>(null);
 	const [gameSocket, setGameSocket] = useState<Socket | null>(null);
 
+	function connectGameSocket(): Socket {
+		const gameSocket = io(`${process.env.REACT_APP_GAME_GATEWAY_URL}`, {
+			query: {
+				email: user.email,
+			},
+		});
+		gameSocket.once("connectionSuccess", (success: boolean) => {
+			if (!success) {
+				navigate("/login");
+				gameSocket.disconnect();
+			}
+		});
+		return gameSocket;
+	}
+
 	useEffect(() => {
 		const checkAuth = async () => {
 			const auth = await isAuth();
@@ -56,14 +71,7 @@ export default function PrivateRoute(props: {
 	useEffect(() => {
 		let gameSocket: Socket;
 		if (isAuthenticated !== null && isAuthenticated && props.play) {
-			gameSocket = io(`${process.env.REACT_APP_GAME_GATEWAY_URL}`, {
-				query: {
-					email: user.email,
-				},
-			});
-			gameSocket.once("connectionFailed", () => {
-				navigate("/login");
-			});
+			gameSocket = connectGameSocket();
 			setGameSocket(gameSocket);
 		}
 		return () => {

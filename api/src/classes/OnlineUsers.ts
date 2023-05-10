@@ -77,6 +77,18 @@ export class OnlineUsers {
 		});
 	}
 
+	joinAllbyUserId(userId: number, room: string) {
+		this.getClientsByUserId(userId).forEach((client) => {
+			client.join(room);
+		});
+	}
+
+	leaveAllbyUserId(userId: number, room: string) {
+		this.getClientsByUserId(userId).forEach((client) => {
+			client.join(room);
+		});
+	}
+
 	showOnlineUsers() {
 		console.log("CONNECTED USERS : \n");
 		console.log(this._users);

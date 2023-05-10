@@ -29,6 +29,15 @@ export default function OwnerPaddle({
 }: OwnerPaddleProps) {
 	const [move, setMove] = useState({ up: false, down: false });
 
+	// useEffect(() => {
+	// 	socket!.on("ownerPaddlePosUpdate", (y: number) => {
+	// 		paddle.current.position.y = y;
+	// 	});
+	// 	return () => {
+	// 		socket!.off("ownerPaddlePosUpdate");
+	// 	};
+	// });
+
 	useFrame((state, delta) => {
 		if (
 			move.up &&
