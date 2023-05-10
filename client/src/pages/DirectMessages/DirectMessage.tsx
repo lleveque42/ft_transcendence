@@ -76,18 +76,18 @@ export default function DirectMessage() {
 		<div className="container d-flex flex-column justify-content align-items">
 			<div className="title">Chat channels</div>
 			<div>
-					<ChatNav/>
-					{
-						(
-						<>
-							<h1>Messages ({messagesList.length})</h1>
-							<ul className="List">{messagesList}</ul>
-							<input onKeyDown={handleKeyDown}
-								onChange={(e)=>{setValue(e.target.value)}}  type="text" placeholder="Write a message" />
-						</> 
-						)
-					}
+				<ChatNav/>
+				{
+					(
+					<>
+						<h1>Messages ({messagesList.length})</h1>
+						<ul className="List">{messagesList}</ul>
+					</> 
+					)
+				}
 			</div>
+			<input className={`btn-primary m-20 d-flex flex-column justify-content align-items`} onKeyDown={handleKeyDown}
+				onChange={(e)=>{setValue(e.target.value)}}  type="text" placeholder="Write a message" />
 		</div>
 	);
 }

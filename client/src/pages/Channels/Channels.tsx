@@ -1,5 +1,4 @@
 import React from "react";
-
 import ChatNav from "../../components/Chat/ChatNav/ChatNav";
 import { useEffect, useState } from "react";
 import { NavLink} from "react-router-dom";
@@ -33,7 +32,7 @@ export default function Channels() {
 
 	const channelsList = channelsState.map(({ id, title, ownerId}) => (
 		<li key={id}>
-			<div>
+			<div className="d-flex flex-row m-10 justify-content-space-between">	
 			<NavLink className={``}  to={`/chat/channels/${title}`} >
 				<span>
 					{title}
@@ -41,7 +40,7 @@ export default function Channels() {
 			</NavLink>
 			{ user.id === ownerId &&
 				<>
-					<button>
+					<button className="btn-danger ml-10">
 						Delete
 					</button>
 				</>
@@ -54,19 +53,19 @@ export default function Channels() {
 		<div className="container d-flex flex-column justify-content align-items">
 			<div className="title">Chat channels</div>
 			<div>
-					<ChatNav/>
-					{
-						<>
-							<h1>Channels ({channelsState.length})</h1>
-							<ul className="List">{channelsList}</ul>
-							<NavLink className={``}  to='/chat/channels/new_channel' >
-								New Channel
-            				</NavLink>
-							<NavLink className={``}  to='/chat/channels/join_channel' >
-								Join Channel
-            				</NavLink>
-						</>
-					}
+				<ChatNav/>
+				{
+					<>
+						<h1 className="mt-20">Channels ({channelsState.length})</h1>
+						<ul className="List m-20">{channelsList}</ul>
+						<NavLink className={`btn-primary m-10 d-flex flex-column justify-content align-items`}  to='/chat/channels/new_channel' >
+							New Channel
+						</NavLink>
+						<NavLink className={`btn-primary m-10 d-flex flex-column justify-content align-items`}  to='/chat/channels/join_channel' >
+							Join Channel
+						</NavLink>
+					</>
+				}
 			</div>
 		</div>
 	);

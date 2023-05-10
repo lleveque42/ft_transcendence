@@ -104,9 +104,15 @@ return (
 				<div className="d-flex flex-column align-items justify-content p-20">
 					{/* <input type="text" placeholder="Search users" onChange={handleInputChange} /> */}
 					{/* <button onClick={handleSearch}>Search</button> */}
-					<ul>
-						{userList}
-					</ul>
+					{userList.length ?
+						<ul>
+							{userList}
+						</ul>
+					:
+						<div>
+							There is no private messages avalaible for you
+						</div>
+					}
 					{/* <label htmlFor="pet-select">Choose a user:</label>
 					<select name="pets" id="pet-select">
 					<option key="0" value="selected">--Please choose an option--</option>

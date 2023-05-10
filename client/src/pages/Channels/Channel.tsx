@@ -11,7 +11,6 @@ import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
 export default function Channel() {
   
 	const { accessToken } = useUser();
-	//const [socket, setSocket] = useState<Socket>();
 	const {chatSocket} = usePrivateRouteSocket();
 	
 	
@@ -20,19 +19,6 @@ export default function Channel() {
 	const [ messagesList, setMessagesList] = useState<JSX.Element[]>([]);
 	 
 	const { id } = useParams();
-
-	//chatSocket?.emit('joinChatRoom', id);
-
-	//	Put this shit in a context
-	// useEffect(() => {
-	// 	const newSocket = io(`${process.env.REACT_APP_CHAT_URL}`);
-	// 	setSocket(newSocket);
-	// }, [setSocket])
-	
-	//	Put this shit in a context
-	// useEffect(() => {
-	// 	chatSocket?.emit('joinChatRoom', id)
-	// }, [chatSocket, id])
 	
 	useEffect(() => {
 	(async () => {
@@ -103,12 +89,12 @@ export default function Channel() {
 						<>
 							<h1>Messages ({messagesList.length})</h1>
 							<ul className="List">{messagesList}</ul>
-							<input onKeyDown={handleKeyDown}
-								onChange={(e)=>{setValue(e.target.value)}}  type="text" placeholder="Write a message" />
 						</> 
 						)
 					}
 			</div>
+			<input className={`btn-primary m-20 d-flex flex-column justify-content align-items`} onKeyDown={handleKeyDown}
+				onChange={(e)=>{setValue(e.target.value)}}  type="text" placeholder="Write a message" />
 		</div>
 	);
 }

@@ -114,7 +114,7 @@ return (
 					Private
 				</label>
 				</div>
-				<div className="radio">
+				<div className="radio mb-10">
 				<label>
 					<input
 					type="radio"

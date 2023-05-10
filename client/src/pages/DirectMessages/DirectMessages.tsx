@@ -81,9 +81,9 @@ useEffect(() => {
 					<ChatNav/>
 					{
 						<>
-							<h1>Private messages ({directMessagesState.length})</h1>
-							<ul className="List">{directMessageList}</ul>
-							<NavLink className={``}  to='/chat/direct_messages/new_dm' >
+							<h1 className={`mt-20`}>Private messages ({directMessagesState.length})</h1>
+							<ul className="List m-20">{directMessageList}</ul>
+							<NavLink className={`btn-primary m-10 d-flex flex-column justify-content align-items`}  to='/chat/direct_messages/new_dm' >
 								New Direct Messages
             				</NavLink>
 						</>

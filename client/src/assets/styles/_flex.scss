@@ -6,8 +6,12 @@
 	flex: 1;
 }
 
+.flex-begin {
+	align-items: flex-start;
+}
+
 .flex-end {
-	// flex-direction: ;
+	align-items: flex-end;
 }
 
 .flex-row {

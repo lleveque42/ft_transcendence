@@ -1,7 +1,7 @@
 import React from "react";
 import ChatNav from "../../components/Chat/ChatNav/ChatNav";
 import { useEffect, useState } from "react";
-import { NavLink, useNavigate} from "react-router-dom";
+import { useNavigate} from "react-router-dom";
 import { useUser } from "../../context/UserProvider";
 import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
 
@@ -76,17 +76,17 @@ export default function JoinChannel() {
 			<div>
 			{ ( user.id !== ownerId) ?
 				<>
-					<button value={id}>
+					<button className={` btn-primary m-10`} value={id}>
 						{title}
 					</button>
 				</>
 			:
 				<>
-					<NavLink className={``}  to={`/chat/channels/${title}`} >
+					{/* <NavLink className={`m-10`}  to={`/chat/channels/${title}`} >
 						<span>
 							{title}
 						</span>
-					</NavLink>
+					</NavLink> */}
 				</>
 			}
 			</div>
