@@ -7,12 +7,14 @@ import Loader from "react-loaders";
 import default_avatar from "../../../assets/images/punk.png";
 import UserStats from "./components/UserStats/UserStats";
 import UserPresentation from "./components/UserPresentation/UserPresentation";
+import { UserStatus } from "../../../types/UserStatus.enum";
 
 type UserProfileType = {
 	userName: string;
 	firstName: string;
 	lastName: string;
 	email: string;
+	status: UserStatus;
 };
 
 const UserProfileValues: UserProfileType = {
@@ -20,6 +22,7 @@ const UserProfileValues: UserProfileType = {
 	firstName: "",
 	lastName: "",
 	email: "",
+	status: UserStatus.ONLINE,
 };
 
 export default function Profile() {

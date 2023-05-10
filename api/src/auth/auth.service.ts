@@ -3,6 +3,7 @@ import {
 	HttpException,
 	HttpStatus,
 	Injectable,
+	Logger,
 } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { PrismaService } from "../prisma/prisma.service";
@@ -15,6 +16,8 @@ import { User } from "@prisma/client";
 
 @Injectable()
 export class AuthService {
+	private readonly logger = new Logger("Authentication");
+
 	constructor(
 		private prisma: PrismaService,
 		private jwt: JwtService,
@@ -25,7 +28,7 @@ export class AuthService {
 	async signup(dto: SignupDto, res: Response): Promise<void> {
 		let user = await this.userService.getUserByEmail(dto.email);
 		if (user) {
-			console.log("SIGNUP USER ALREADY EXIST : ", user.email);
+			this.logger.error(`${user.email} is already used`);
 			throw new ForbiddenException("Credentials taken.");
 		} else {
 			if ((await this.userService.getUserByUserName(dto.userName)) != null) {
@@ -37,10 +40,10 @@ export class AuthService {
 					hash,
 					email: dto.email,
 					userName: dto.userName,
-					avatar: ""
+					avatar: "",
 				},
 			});
-			console.log("SIGNUP USER CREATED : ", user.userName);
+			this.logger.log(`New user creation: ${user.userName}`);
 			res.status(HttpStatus.CREATED);
 		}
 		await this.updateRefreshToken(user, res);
@@ -63,7 +66,10 @@ export class AuthService {
 					user.firstName,
 					user.lastName,
 				);
-			} else return await this.updateRefreshToken(user, res);
+			} else {
+				this.logger.log(`${user.userName} is now online`);
+				return await this.updateRefreshToken(user, res);
+			}
 		} else {
 			throw new ForbiddenException("Credentials incorrect.");
 		}
@@ -73,6 +79,7 @@ export class AuthService {
 		const user = await this.userService.getUserByUserName(userName);
 		if (!user) throw new ForbiddenException("Can't find user, try again");
 		await this.updateRefreshToken(user, res);
+		this.logger.log(`${user.userName} with 2fa is now online`);
 	}
 
 	logout(res: Response): void {
@@ -116,14 +123,14 @@ export class AuthService {
 	): Promise<void | { access_token: string }> {
 		let user = await this.userService.getUserByEmail(newUser.email);
 		if (user) {
-			console.log("USER ALREADY EXIST : ", user.userName);
+			this.logger.log(`${user.userName} from 42 is now online`);
 			res.status(HttpStatus.OK);
 		} else {
 			if ((await this.userService.getUserByUserName(newUser.login)) != null) {
 				newUser.login += "_";
 			}
 			user = await this.userService.createUser42(newUser);
-			console.log("USER CREATED : ", user.userName);
+			this.logger.log(`New 42 user creation: ${user.userName}`);
 			res.status(HttpStatus.CREATED);
 		}
 		if (user.isTfaEnable) {

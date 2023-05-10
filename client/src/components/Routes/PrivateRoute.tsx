@@ -7,13 +7,14 @@ import { useUser } from "../../context";
 import { Socket, io } from "socket.io-client";
 import { PrivateRouteSocketContext } from "../../context/PrivateRouteProvider";
 import { GameSocketContext } from "../../pages/Play/context/GameSocketProvider";
+import { Friend } from "../../types";
 
 export default function PrivateRoute(props: {
 	element: ReactElement;
 	play?: boolean | false;
 }): ReactElement {
 	const navigate = useNavigate();
-	const { user, isAuth } = useUser();
+	const { user, isAuth, updateOnlineFriend } = useUser();
 	const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 	const [socket, setSocket] = useState<Socket | null>(null);
 	const [gameSocket, setGameSocket] = useState<Socket | null>(null);
@@ -38,8 +39,11 @@ export default function PrivateRoute(props: {
 					email: user.email,
 				},
 			});
-			appSocket.on("connectionFailed", () => {
+			appSocket.once("connectionFailed", () => {
 				navigate("/login");
+			});
+			appSocket.on("updateOnlineFriend", (friend: Friend) => {
+				updateOnlineFriend(friend);
 			});
 			setSocket(appSocket);
 			chatSocket = io(`${process.env.REACT_APP_CHAT_URL}`, {
@@ -53,8 +57,11 @@ export default function PrivateRoute(props: {
 			setChatSocket(chatSocket);
 		}
 		return () => {
-			if (appSocket) appSocket.disconnect();
 			if (chatSocket) chatSocket.disconnect();
+			if (appSocket) {
+				appSocket.removeAllListeners();
+				appSocket.disconnect();
+			}
 		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [isAuthenticated, user.email]);
@@ -67,7 +74,7 @@ export default function PrivateRoute(props: {
 					email: user.email,
 				},
 			});
-			gameSocket.on("connectionFailed", () => {
+			gameSocket.once("connectionFailed", () => {
 				navigate("/login");
 			});
 			setGameSocket(gameSocket);

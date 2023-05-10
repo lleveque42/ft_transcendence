@@ -7,7 +7,7 @@ import {
 } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { userInfo42Dto } from "../auth/dto";
-import { User } from "@prisma/client";
+import { User, UserStatus } from "@prisma/client";
 import { createReadStream } from "fs";
 import { authenticator } from "otplib";
 import { toDataURL } from "qrcode";
@@ -24,6 +24,14 @@ export class UserService {
 			},
 			data: {
 				socket: socket,
+			},
+		});
+	}
+
+	async getAllUsers() {
+		return await this.prisma.user.findMany({
+			select: {
+				userName: true,
 			},
 		});
 	}
@@ -109,7 +117,9 @@ export class UserService {
 
 	async getUserFriends(user: User): Promise<{
 		friends: {
+			id: number;
 			userName: string;
+			status: UserStatus;
 		}[];
 	}> {
 		return await this.prisma.user.findUnique({
@@ -119,7 +129,32 @@ export class UserService {
 			select: {
 				friends: {
 					select: {
+						id: true,
 						userName: true,
+						status: true,
+					},
+				},
+			},
+		});
+	}
+
+	async getUserFriendsOf(user: User): Promise<{
+		friendsOf: {
+			id: number;
+			userName: string;
+			status: UserStatus;
+		}[];
+	}> {
+		return await this.prisma.user.findUnique({
+			where: {
+				id: user.id,
+			},
+			select: {
+				friendsOf: {
+					select: {
+						id: true,
+						userName: true,
+						status: true,
 					},
 				},
 			},
@@ -238,6 +273,13 @@ export class UserService {
 		const user = await this.getUserByUserName(userName);
 		if (!user) throw new ForbiddenException("Can't find user, try again");
 		return authenticator.verify({ token: code, secret: user.tfaSecret });
+	}
+
+	async changeUserStatus(userId: number, newStatus: UserStatus) {
+		await this.prisma.user.update({
+			where: { id: userId },
+			data: { status: newStatus },
+		});
 	}
 
 	async dropdb(): Promise<void> {

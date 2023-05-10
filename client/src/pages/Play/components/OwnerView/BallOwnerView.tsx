@@ -20,9 +20,7 @@ import {
 	ceilToDecimal,
 	floorToDecimal,
 } from "../GameUtils/Utils";
-import { useTimer } from "use-timer";
 import { Socket } from "socket.io-client";
-import { ClientToWebsocketEvents } from "./OwnerGameRender";
 
 const enum Collision {
 	NO_HIT,
@@ -41,27 +39,21 @@ const enum Paddle {
 }
 
 interface BallProps {
-	ballStopped: boolean;
 	playerPaddle: React.MutableRefObject<
 		THREE.Mesh<THREE.BufferGeometry, THREE.Material | THREE.Material[]>
 	>;
 	ownerPaddle: React.MutableRefObject<
 		THREE.Mesh<THREE.BufferGeometry, THREE.Material | THREE.Material[]>
 	>;
-	points: { left: number; right: number };
-	setPoints: React.Dispatch<
-		React.SetStateAction<{ left: number; right: number }>
-	>;
-	socket: React.MutableRefObject<Socket<ClientToWebsocketEvents>>;
+	socket: Socket | null;
+	room: string;
 }
 
 export default function Ball({
-	ballStopped,
 	playerPaddle,
 	ownerPaddle,
-	points,
-	setPoints,
 	socket,
+	room,
 }: BallProps) {
 	const [dirVector, setDirVector] = useState(randomBallDir());
 	const [xSpeedMultiplier, setXSpeedMultiplier] = useState(
@@ -70,18 +62,31 @@ export default function Ball({
 	const [resetted, setResetted] = useState(true);
 	const ball = useRef<THREE.Mesh>(null!);
 
-	const { start, pause, status } = useTimer();
-
 	function newBall(): void {
 		ball.current.position.x = 0;
 		ball.current.position.y = 0;
+		socket!.emit("updateBallPos", {
+			position: {
+				x: ball.current.position.x,
+				y: ball.current.position.y,
+			},
+			room,
+		});
 		setDirVector(randomBallDir());
 		setXSpeedMultiplier(1);
 	}
 
 	function resetPaddles(): void {
 		ownerPaddle.current.position.y = 0;
+		socket!.emit("updateOwnerPaddlePos", {
+			y: ownerPaddle.current.position.y,
+			room,
+		});
 		playerPaddle.current.position.y = 0;
+		socket!.emit("updatePlayerPaddlePos", {
+			y: ownerPaddle.current.position.y,
+			room,
+		});
 	}
 
 	function resetPoint(): void {
@@ -190,52 +195,46 @@ export default function Ball({
 	}
 
 	useFrame((state, delta) => {
-		switch (status) {
-			case "STOPPED":
-			case "PAUSED":
-				if (!ballStopped) start();
+		setXSpeedMultiplier(xSpeedMultiplier); // modify so ball speed up
+		ball.current.position.x += delta * dirVector.x * xSpeedMultiplier;
+		ball.current.position.y += delta * dirVector.y;
+		socket!.emit("updateBallPos", {
+			position: {
+				x: ball.current.position.x,
+				y: ball.current.position.y,
+			},
+			room,
+		});
+		const collision = checkCollision(delta);
+		switch (collision) {
+			case Collision.NO_HIT:
 				break;
-			case "RUNNING":
-				if (ballStopped) pause();
-				setXSpeedMultiplier(xSpeedMultiplier); // modify so ball speed up
-				ball.current.position.x += delta * dirVector.x * xSpeedMultiplier;
-				ball.current.position.y += delta * dirVector.y;
-				socket.current.emit("updateBallPos", {
-					x: ball.current.position.x,
-					y: ball.current.position.y,
-				});
-				const collision = checkCollision(delta);
-				switch (collision) {
-					case Collision.NO_HIT:
-						break;
-					case Collision.RIGHT_PADDLE_HIT:
-						if (dirVector.x > 0) setDirVector(rebound(collision));
-						break;
-					case Collision.LEFT_PADDLE_HIT:
-						if (dirVector.x < 0) setDirVector(rebound(collision));
-						break;
-					case Collision.FLOOR_HIT:
-						if (dirVector.y < 0) setDirVector(rebound(collision));
-						break;
-					case Collision.CEILING_HIT:
-						if (dirVector.y > 0) setDirVector(rebound(collision));
-						break;
-					case Collision.RIGHT_PADDLE_MISSED:
-						if (resetted) {
-							setPoints({ left: points.left + 1, right: points.right });
-							setResetted(false);
-						}
-						break;
-					case Collision.LEFT_PADDLE_MISSED:
-						if (resetted) {
-							setPoints({ left: points.left, right: points.right + 1 });
-							setResetted(false);
-						}
-						break;
-					case Collision.OUT_OF_BOUND:
-						resetPoint();
-						break;
+			case Collision.RIGHT_PADDLE_HIT:
+				if (dirVector.x > 0) setDirVector(rebound(collision));
+				break;
+			case Collision.LEFT_PADDLE_HIT:
+				if (dirVector.x < 0) setDirVector(rebound(collision));
+				break;
+			case Collision.FLOOR_HIT:
+				if (dirVector.y < 0) setDirVector(rebound(collision));
+				break;
+			case Collision.CEILING_HIT:
+				if (dirVector.y > 0) setDirVector(rebound(collision));
+				break;
+			case Collision.RIGHT_PADDLE_MISSED:
+				if (resetted) {
+					socket!.emit("scoreUpdate", { room, ownerScored: false });
+					setResetted(false);
 				}
+				break;
+			case Collision.LEFT_PADDLE_MISSED:
+				if (resetted) {
+					socket!.emit("scoreUpdate", { room, ownerScored: true });
+					setResetted(false);
+				}
+				break;
+			case Collision.OUT_OF_BOUND:
+				resetPoint();
 				break;
 		}
 	});

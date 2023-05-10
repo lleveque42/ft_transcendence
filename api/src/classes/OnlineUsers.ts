@@ -1,18 +1,15 @@
-import { User } from "@prisma/client";
+import { User, UserStatus } from "@prisma/client";
 import { Socket } from "socket.io";
-
-interface UsersInterface {
-	user: User;
-	sockets: Map<string, Socket>;
-}
+import { UserType } from "../game/types/user.type";
+import { UserService } from "../user/user.service";
 
 export class OnlineUsers {
-	private _users: Map<number, UsersInterface>;
+	private _users: Map<number, UserType>;
 	private _clients: Map<string, number>;
 	size: number;
 
 	constructor() {
-		this._users = new Map<number, UsersInterface>();
+		this._users = new Map<number, UserType>();
 		this._clients = new Map<string, number>();
 		this.size = 0;
 	}
@@ -31,7 +28,7 @@ export class OnlineUsers {
 		const userId = this._clients.get(clientId);
 		this._clients.delete(clientId);
 		if (userId !== undefined) {
-			const userInterface: UsersInterface = this._users.get(userId);
+			const userInterface: UserType = this._users.get(userId);
 			userInterface.sockets.delete(clientId);
 			if (userInterface.sockets.size === 0) {
 				this._users.delete(userId);
@@ -48,7 +45,7 @@ export class OnlineUsers {
 		return this._clients.has(clientId);
 	}
 
-	getClientsByUserId(userId: number): Map<string, Socket> {
+	getClientsByUserId(userId: number): Map<string, Socket> | null {
 		return this._users.get(userId).sockets || null;
 	}
 
@@ -64,10 +61,20 @@ export class OnlineUsers {
 		return null;
 	}
 
+	getUserByUserId(userId: number): User | null {
+		return this._users.get(userId).user || null;
+	}
+
 	addClientToUserId(userId: number, client: Socket): void {
 		this._clients.set(client.id, userId);
-		const userInterface: UsersInterface = this._users.get(userId);
+		const userInterface: UserType = this._users.get(userId);
 		userInterface.sockets.set(client.id, client);
+	}
+
+	emitAllbyUserId(userId: number, emit: string, content: any) {
+		this.getClientsByUserId(userId).forEach((client) => {
+			client.emit(emit, content);
+		});
 	}
 
 	showOnlineUsers() {
@@ -75,5 +82,18 @@ export class OnlineUsers {
 		console.log(this._users);
 		console.log("\nCONNECTED CLIENTS : \n");
 		console.log(this._clients);
+	}
+
+	async getFriendsOfByUserId(
+		userId: number,
+		userService: UserService,
+	): Promise<Array<{ id: number; userName: string; status: UserStatus }>> {
+		const userI = this._users.get(userId);
+		if (!userI) return [];
+		const friends = await userService.getUserFriendsOf(userI.user);
+		const onlineFriends = friends.friendsOf.filter((friend) =>
+			this._users.has(friend.id),
+		);
+		return onlineFriends;
 	}
 }

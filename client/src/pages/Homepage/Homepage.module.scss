@@ -1,0 +1,49 @@
+@use "../../assets/styles/mixins" as mixin;
+
+.friendsContainer {
+	flex: 20%;
+	height: 75vh;
+	margin-top: -5rem;
+	margin-left: 0.5rem;
+	border: 1px solid var(--secondary-dark);
+	border-radius: 5px;
+	box-shadow: var(--box-shadow);
+}
+
+.homepageButtonContainer {
+	flex: 80%;
+
+	button {
+		margin-left: -20vw;
+	}
+
+	button:nth-child(1) {
+		margin-top: -10rem;
+	}
+}
+
+@include mixin.sm-lt {
+	.homepageContainer {
+		flex-direction: column-reverse;
+	}
+
+	.homepageButtonContainer {
+		flex: 1%;
+		justify-content:right;
+		button {
+			margin-left: 0;
+			margin-bottom: 0;
+		}
+
+		button:nth-child(1) {
+			margin-top: 0;
+		}
+	}
+
+	.friendsContainer {
+		margin-left: 1rem;
+		margin-right: 1rem;
+		margin-bottom: 1rem;
+		max-height: 50vh;
+	}
+}

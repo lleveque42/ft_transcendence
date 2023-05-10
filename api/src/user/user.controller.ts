@@ -30,7 +30,7 @@ import { FileInterceptor } from "@nestjs/platform-express";
 import { diskStorage } from "multer";
 import { extname } from "path";
 import { NotImageExeptionFilter } from "../common/filters/notImageExeptionFilter.filter";
-import { UserInfosType } from "./types";
+import { UserInfosType } from "../common/types";
 
 const storageOptions = {
 	storage: diskStorage({
@@ -63,6 +63,13 @@ export class UserController {
 	@HttpCode(HttpStatus.GONE)
 	async dropdb(): Promise<void> {
 		await this.userService.dropdb();
+	}
+
+	@UseGuards(AtGuard)
+	@Get("users")
+	async getAllUsers(): Promise<{ userName: string }[]> {
+		return await this.userService.getAllUsers();
+		// console.log("Coucou all users");
 	}
 
 	@UseGuards(AtGuard)
@@ -110,6 +117,7 @@ export class UserController {
 			firstName: user.firstName,
 			lastName: user.lastName,
 			email: user.email,
+			status: user.status,
 		};
 	}
 

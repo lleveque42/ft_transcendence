@@ -9,7 +9,6 @@ export default function Header() {
 	const { logout, user, accessToken } = useUser();
 	const [openMenu, setOpenMenu] = useState<boolean>(false);
 	const [userAvatar, setUserAvatar] = useState<string>("");
-	const [displayUserName, setDisplayUserName] = useState<string>(user.userName);
 	const menuRef = useRef<HTMLDivElement>(null);
 	const [isLoading, setIsLoading] = useState<boolean>(true);
 
@@ -17,6 +16,13 @@ export default function Header() {
 		logout();
 		navigate("/login");
 	};
+
+	function trimUserName(userName: string): string {
+		let displayUserName: string = userName;
+		if (displayUserName.length > 10)
+			displayUserName = displayUserName.substring(0, 10) + "...";
+		return displayUserName;
+	}
 
 	useEffect(() => {
 		const handle = (e: any) => {
@@ -28,12 +34,6 @@ export default function Header() {
 		return () => document.removeEventListener("mousedown", handle);
 	});
 
-	useEffect(() => {
-		displayUserName.length > 10
-			? setDisplayUserName(displayUserName.substring(0, 10) + "...")
-			: setDisplayUserName(displayUserName);
-	}, [displayUserName]);
-
 	useAvatar(accessToken, setUserAvatar, setIsLoading, user.userName);
 
 	return (
@@ -43,7 +43,7 @@ export default function Header() {
 			) : (
 				<header>
 					<div
-						className={`${styles.headerContainer} d-flex align-items justify-content-space-between`}
+						className={`${styles.headerContainer} d-flex align-items`}
 					>
 						<h2
 							className={`${styles.title} pl-10`}
@@ -53,10 +53,14 @@ export default function Header() {
 						>
 							FT_TRANSCENDENCE
 						</h2>
+						<div className={`${styles.headerNav} d-flex align-items ml-10`}>
+							<p className="" onClick={() => navigate("/users")}>Users</p>
+							<p className="pl-5">Chat</p>
+						</div>
 
-						<div className={`${styles.menuContainer}`} ref={menuRef}>
+						<div className="d-flex align-end" ref={menuRef}>
 							<div
-								className={`${styles.menuTrigger} d-flex align-items`}
+								className={`${styles.menuTrigger} d-flex`}
 								onClick={() => setOpenMenu(!openMenu)}
 							>
 								<img src={userAvatar} alt="Avatar" />
@@ -66,7 +70,7 @@ export default function Header() {
 									openMenu ? styles.active : styles.inactive
 								}`}
 							>
-								<h3>Hey {displayUserName}</h3>
+								<h3>Hey {trimUserName(user.userName)}</h3>
 								<ul>
 									<li
 										className={`${styles.dropdownItem}`}

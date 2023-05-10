@@ -13,16 +13,20 @@ import {
 } from "../GameUtils/Constant";
 import { ceilToDecimal, floorToDecimal } from "../GameUtils/Utils";
 import { Socket } from "socket.io-client";
-import { ClientToWebsocketEvents } from "./OwnerGameRender";
 
 interface OwnerPaddleProps {
 	paddle: React.MutableRefObject<
 		THREE.Mesh<THREE.BufferGeometry, THREE.Material | THREE.Material[]>
 	>;
-	socket: React.MutableRefObject<Socket<ClientToWebsocketEvents>>;
+	socket: Socket | null;
+	room: string;
 }
 
-export default function OwnerPaddle({ paddle, socket }: OwnerPaddleProps) {
+export default function OwnerPaddle({
+	paddle,
+	socket,
+	room,
+}: OwnerPaddleProps) {
 	const [move, setMove] = useState({ up: false, down: false });
 
 	useFrame((state, delta) => {
@@ -31,11 +35,19 @@ export default function OwnerPaddle({ paddle, socket }: OwnerPaddleProps) {
 			ceilToDecimal(paddle.current.position.y + PADDLE_HALF_SIZE) < CEILING
 		) {
 			paddle.current.position.y += delta * PADDLE_SPEED;
+			socket!.emit("updateOwnerPaddlePos", {
+				y: paddle.current.position.y,
+				room,
+			});
 		} else if (
 			move.down &&
 			floorToDecimal(paddle.current.position.y - PADDLE_HALF_SIZE) > FLOOR
 		) {
 			paddle.current.position.y -= delta * PADDLE_SPEED;
+			socket!.emit("updateOwnerPaddlePos", {
+				y: paddle.current.position.y,
+				room,
+			});
 		}
 	});
 

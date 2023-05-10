@@ -18,6 +18,7 @@ import { GetCurrentUser } from "../common/decorators";
 import { AtGuard, RtGuard } from "./guards";
 import { UserDataRefresh } from "../common/types";
 import { tfaVerificationCode } from "../user/dto";
+import { UserStatus } from "@prisma/client";
 
 @Controller("auth")
 export class AuthController {
@@ -75,6 +76,7 @@ export class AuthController {
 				email: user.email,
 				firstName: user.firstName,
 				lastName: user.lastName,
+				status: user.status,
 				isTfaEnable: user.isTfaEnable,
 				friends: friends,
 			},

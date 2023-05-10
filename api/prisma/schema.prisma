@@ -15,6 +15,12 @@ enum UserStatus {
   INGAME
 }
 
+enum UserStatus {
+  ONLINE
+  OFFLINE
+  INGAME
+}
+
 model User {
   id        Int       @id @default(autoincrement())
   createdAt DateTime  @default(now())
@@ -67,14 +73,14 @@ model Message{
 }
 
 model Game {
-  id Int @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  owner User @relation("owner", fields: [ownerId], references: [id])
-  ownerId Int
-  player User @relation("player", fields: [playerId], references: [id])
-  playerId Int
-  ownerScore Int
+  owner       User @relation("owner", fields: [ownerId], references: [id])
+  ownerId     Int
+  player      User @relation("player", fields: [playerId], references: [id])
+  playerId    Int
+  ownerScore  Int
   playerScore Int
 }
