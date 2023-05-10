@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { ForbiddenException, HttpException, Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { UserService } from "../user/user.service";
 import { Channel, Prisma } from "@prisma/client";
@@ -14,37 +14,36 @@ export class ChannelService {
 
 	users: OnlineUsers = new OnlineUsers();
 
-	async createChannel(
-		newChannel: Prisma.ChannelCreateInput,
-		userName: string,
-	): Promise<Channel> {
+	async createChannel(newChannel: Prisma.ChannelCreateInput, userName: string) {
 		const user = await this.userService.getUserByUserName(userName);
 		let hash: string = null;
 		if (newChannel.password && newChannel.password !== "") {
 			hash = await argon2.hash(newChannel.password);
 		}
-		const chan = await this.prisma.channel.create({
-			data: {
-				title: newChannel.title,
-				password: hash,
-				type: newChannel.type,
-				mode: newChannel.mode,
-				ownerId: user.id,
-				operators: {
-					connect: { id: user.id },
+		try {
+			const chan = await this.prisma.channel.create({
+				data: {
+					title: newChannel.title,
+					password: hash,
+					type: newChannel.type,
+					mode: newChannel.mode,
+					ownerId: user.id,
+					operators: {
+						connect: { id: user.id },
+					},
+					members: {
+						connect: { id: user.id },
+					},
 				},
-				members: {
-					connect: { id: user.id },
-				},
-			},
-		});
-		// Function to join the room
-		const clients = this.users.getClientsByUserId(user.id);
-		clients.forEach((value) => {
-			console.log("This socket : " + value.id + "joined " + chan.title);
-			value.join("chan" + chan.title);
-		});
-		return chan;
+			});
+		} catch (error) {
+			if (
+				error instanceof Prisma.PrismaClientKnownRequestError &&
+				error.code === "P2002"
+			) {
+				throw new ForbiddenException("Duplicate key value");
+			}
+		}
 	}
 
 	async createDM(

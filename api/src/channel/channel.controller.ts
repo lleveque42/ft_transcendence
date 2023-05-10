@@ -15,8 +15,8 @@ import { ChannelService } from "./channel.service";
 import { UserService } from "./../user/user.service";
 import { AtGuard } from "../auth/guards";
 import { GetCurrentUser } from "../common/decorators";
-import { ChannelDto } from "./../auth/dto/channel.dto";
 import { Channel, Message, User } from "@prisma/client";
+import { Response } from "express";
 
 @Controller("channels")
 export class ChannelController {
@@ -115,12 +115,9 @@ export class ChannelController {
 	}
 
 	@Post("create_channel")
-	async createChannel(
-		@Body() body,
-		@Res({ passthrough: true }) res: Response,
-	): Promise<Channel> {
+	async createChannel(@Body() body, @Res({ passthrough: true }) res: Response) {
 		try {
-			const channel = await this.channelService.createChannel(
+			const chan = await this.channelService.createChannel(
 				{
 					title: body.title,
 					type: body.type,
@@ -129,9 +126,9 @@ export class ChannelController {
 				},
 				body.username,
 			);
-			return channel;
+			res.json("OK");
 		} catch (e) {
-			throw new HttpException(e.message, e.status);
+			res.json("Duplicate");
 		}
 	}
 

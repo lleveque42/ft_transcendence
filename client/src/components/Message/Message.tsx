@@ -1,5 +1,4 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
 import { MessageModel } from "../../entities/entities";
 
 // Destructuring props in the function arguments.

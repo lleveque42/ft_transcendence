@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useUser } from "../../context/UserProvider";
 import Input from "../../components/Input/Input";
 import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
-
+import { useAlert } from "../../context/AlertProvider";
 
 type FormValues = {
 	title: string;
@@ -30,6 +30,7 @@ export default function NewChannel() {
     const [formValues, setFormValues] = useState<FormValues>(initialFormValues);
 
 	const socket = usePrivateRouteSocket();
+	const { showAlert } = useAlert();
 
 	const navigate = useNavigate();
 
@@ -53,7 +54,7 @@ export default function NewChannel() {
 			formValues.password = "";
 		}
 		try {
-			const res = await fetch("http://localhost:3000/channels/create_channel", {
+			const res : Response = await fetch("http://localhost:3000/channels/create_channel", {
 				method: "POST",
 				credentials: "include",
 				headers: {
@@ -61,14 +62,23 @@ export default function NewChannel() {
 				},
 				body: JSON.stringify(formValues),
 			});
-			socket.chatSocket?.emit("joinChatRoom",formValues.title);
 			if (res.status === 201) {
-				navigate("/chat/channels");
+				console.log("Status == 201");
+				const body = await res.json();
+				if (body != null && body === "Duplicate"){
+					showAlert("error", "Channel" + formValues.title + " already exists");
+				}
+				else{
+					showAlert("success", "Channel" + formValues.title + " created with success");
+					socket.chatSocket?.emit("joinChatRoom",formValues.title);
+					//navigate("/chat/channels");
+				}
 			} else if (res.ok) {
+				console.log("Response issued : " + res.statusText);
 				navigate("/chat/channels");
             }
 		} catch (e) {
-			console.error("Error create channel");
+			console.error("Fatal error");
 		}
 	}
 

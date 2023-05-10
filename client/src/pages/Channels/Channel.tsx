@@ -56,7 +56,10 @@ export default function Channel() {
 
 
 	useEffect(() => {
-	setMessagesList(messagesState.map(({ id, author, content }) => (
+	setMessagesList(messagesState.map(({ id, author, content }) => 
+	{
+		console.log("Rendering messagesList");
+	return (
 		<li key={id}>
 		  <Message
 			allMessages={messagesState}
@@ -65,12 +68,15 @@ export default function Channel() {
 			content={content}
 			/>
 		</li>
-	  )));
+	  )
+	}
+	  ));
 	},[messagesState]);
 
 	const messageListener = (msg: MessageModel) => {
 	const {id, authorId, author, content} = msg
 	setMessagesState([...messagesState, {id, authorId, author, content}]);
+	console.log("Message listener function");
 	}
 
 	useEffect(() => {
