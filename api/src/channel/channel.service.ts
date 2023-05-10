@@ -39,9 +39,7 @@ export class ChannelService {
 			},
 		});
 		// Function to join the room
-		console.log("JOINING ROOMS");
 		const clients = this.users.getClientsByUserId(user.id);
-		console.log("Clients : " + clients.size);
 		clients.forEach((value) => {
 			console.log("This socket : " + value.id + "joined " + chan.title);
 			value.join("chan" + chan.title);

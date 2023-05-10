@@ -70,7 +70,6 @@ export class ServerGateway
 		clients.forEach((value) => {
 			for (let chan of channels) {
 				console.log("This socket : " + value.id + "joined " + chan.title);
-				// value.join("chan" + chan.title);
 				value.join(chan.title);
 			}
 		});
@@ -78,7 +77,6 @@ export class ServerGateway
 		clients.forEach((value) => {
 			for (let dm of channels) {
 				console.log("This socket : " + value.id + "joined " + dm.title);
-				// value.join("dm" + dm.title);
 				value.join(dm.title);
 			}
 		});
@@ -130,7 +128,6 @@ export class ServerGateway
 		},
 	): Promise<void> {
 		try {
-			console.log("Room = " + data.room);
 			const msg = await this.messageService.createNewNessage(
 				{
 					content: data.message,
@@ -152,7 +149,6 @@ export class ServerGateway
 						"*" +
 						" ",
 				);
-				// this.io.to("chan" + data.room).emit("receivedMessage", msg);
 				this.io.to(data.room).emit("receivedMessage", msg);
 			} else {
 				console.log("No msg created");
@@ -173,7 +169,6 @@ export class ServerGateway
 		);
 		const sockets = this.users.getClientsByClientId(socket.id);
 		for (const socket of sockets) {
-			// socket[1].join("chan" + chanName);
 			socket[1].join(chanName);
 		}
 	}
@@ -199,14 +194,10 @@ export class ServerGateway
 		const sockets = this.users.getClientsByClientId(client.id);
 		const sockets2 = this.users.getClientsByUserId(parseInt(data.userId2, 10));
 		for (const socket of sockets) {
-			// socket[1].join("chan" + chanName);
 			socket[1].join(data.room);
-			// Send a confirmation to client
 		}
 		for (const socket of sockets2) {
-			// socket[1].join("chan" + chanName);
 			socket[1].join(data.room);
-			// Send a confirmation to client
 		}
 		this.io
 			.to(data.room)
@@ -215,23 +206,4 @@ export class ServerGateway
 				this.channelService.getChannelByTitle(data.room),
 			);
 	}
-
-	// @SubscribeMessage("new_channel")
-	// async newChannel(
-	// 	@MessageBody() data: { title; password; type; username },
-	// ): Promise<void> {
-	// 	// this.io.to(`${data.id}`).emit("private_message", data.message);
-	// 	try {
-	// 		this.channelService.createChannel(
-	// 			{
-	// 				title: data.title,
-	// 				type: data.type,
-	// 			},
-	// 			data.username,
-	// 		);
-	// 		//	this.io.to("").emit("private_message", data.message);
-	// 	} catch (e) {
-	// 		throw new HttpException(e.message, e.status);
-	// 	}
-	// }
 }

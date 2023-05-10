@@ -10,7 +10,6 @@ import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
 export default function DirectMessage() {
   
 	const { accessToken } = useUser();
-	//const [socket, setSocket] = useState<Socket>();
 	const {chatSocket} = usePrivateRouteSocket();
 	
 	
@@ -19,8 +18,6 @@ export default function DirectMessage() {
 	const [ messagesList, setMessagesList] = useState<JSX.Element[]>([]);
 	 
 	const { id } = useParams();
-
-	//chatSocket?.emit('joinChatRoom', id);
 	
 	useEffect(() => {
 	(async () => {
@@ -57,7 +54,6 @@ export default function DirectMessage() {
 	},[messagesState]);
 
 	const messageListener = (msg: MessageModel) => {
-	// console.log("Content of received message " + msg.author.userName);
 	const {id, authorId, author, content} = msg
 	setMessagesState([...messagesState, {id, authorId, author, content}]);
 	}

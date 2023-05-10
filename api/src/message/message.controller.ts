@@ -46,7 +46,6 @@ export class MessageController {
 				body.username,
 				body.chantitle,
 			);
-			console.log("New msg : " + msg.content);
 			return msg;
 		} catch (e) {
 			throw new HttpException(e.message, e.status);

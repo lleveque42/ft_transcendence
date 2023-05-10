@@ -60,7 +60,6 @@ export class ChannelController {
 	@Get("/:username")
 	async getUserChans(@Param("username") username: string): Promise<Channel[]> {
 		try {
-			console.log("Enter getUserChans");
 			const channels = await this.channelService.getUsersChannels(username);
 			return channels;
 		} catch (e) {
@@ -85,8 +84,6 @@ export class ChannelController {
 	@Get("/chan/:title")
 	async getChanMessages(@Param("title") title: string): Promise<Message[]> {
 		try {
-			console.log("Enter getChanMEssages");
-
 			const msgs = await this.channelService.getChanMessages(title);
 			return msgs;
 		} catch (e) {
@@ -97,9 +94,6 @@ export class ChannelController {
 	@Get("/dm/chan/:title")
 	async getDMsMessages(@Param("title") title: string): Promise<Message[]> {
 		try {
-			console.log("Enter getDmsMessages");
-			console.log("Title of DM: " + title);
-
 			const msgs = await this.channelService.getDMsMessages(title);
 			return msgs;
 		} catch (e) {
@@ -135,7 +129,6 @@ export class ChannelController {
 				},
 				body.username,
 			);
-			console.log("New chan : " + channel.title);
 			return channel;
 		} catch (e) {
 			throw new HttpException(e.message, e.status);
@@ -148,8 +141,6 @@ export class ChannelController {
 		@Res({ passthrough: true }) res: Response,
 	): Promise<Channel> {
 		try {
-			console.log("Enter join dm controller");
-
 			const channel = await this.channelService.createDM(
 				{
 					title: body.title,
@@ -160,7 +151,6 @@ export class ChannelController {
 				body.id1,
 				body.id2,
 			);
-			console.log("New chan : " + channel.title);
 			return channel;
 		} catch (e) {
 			throw new HttpException(e.message, e.status);
@@ -172,9 +162,6 @@ export class ChannelController {
 		@Body() body,
 		@Res({ passthrough: true }) res: Response,
 	): Promise<Channel> {
-		console.log("Post joinchannel begin");
-		console.log("userId : " + body.userId);
-		console.log("channelId : " + body.channelId);
 		try {
 			const channel = await this.channelService.joinPublicChannel(
 				body.userId,
