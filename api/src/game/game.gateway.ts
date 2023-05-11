@@ -240,18 +240,20 @@ export class GameGateway
 
 	@SubscribeMessage("updatePlayerPaddlePos")
 	handleLeftPaddlePosUpdate(
+		@ConnectedSocket() client: Socket,
 		@MessageBody("y") y: number,
 		@MessageBody("room") room: string,
 	): void {
-		this.io.to(room).emit("playerPaddlePosUpdate", y);
+		this.io.to(room).emit("playerPaddlePosUpdate", { y, senderId: client.id });
 	}
 
 	@SubscribeMessage("updateOwnerPaddlePos")
 	handleRightPaddlePosUpdate(
+		@ConnectedSocket() client: Socket,
 		@MessageBody("y") y: number,
 		@MessageBody("room") room: string,
 	): void {
-		this.io.to(room).emit("ownerPaddlePosUpdate", y);
+		this.io.to(room).emit("ownerPaddlePosUpdate", { y, senderId: client.id });
 	}
 
 	@SubscribeMessage("updateBallPos")
