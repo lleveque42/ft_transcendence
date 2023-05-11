@@ -28,8 +28,8 @@ export default function SettingsForm() {
 				showAlert("error", data.message);
 			} else {
 				isAuth();
-				socket?.emit("userNameUpdated", newUserName)
 				showAlert("success", "Profile updated");
+				socket?.emit("userNameUpdated", newUserName)
 			}
 		} catch (e) {
 			console.error("Error update userName", e);

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import useAvatar from "../../hooks/useAvatar";
 import { useUser } from "../../context";
 import logo from "../../assets/images/pongLogo.png";
+import trimUserName from "../../utils/trimUserName";
 
 export default function Header() {
 	const navigate = useNavigate();
@@ -17,13 +18,6 @@ export default function Header() {
 		logout();
 		navigate("/login");
 	};
-
-	function trimUserName(userName: string): string {
-		let displayUserName: string = userName;
-		if (displayUserName.length > 10)
-			displayUserName = displayUserName.substring(0, 10) + "...";
-		return displayUserName;
-	}
 
 	useEffect(() => {
 		const handle = (e: any) => {

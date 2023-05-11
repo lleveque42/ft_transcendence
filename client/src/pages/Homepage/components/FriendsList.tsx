@@ -2,17 +2,11 @@ import { useNavigate } from "react-router-dom";
 import { useUser } from "../../../context";
 import styles from "./FriendsList.module.scss";
 import { UserStatus } from "../../../types/UserStatus.enum";
+import trimUserName from "../../../utils/trimUserName";
 
 export default function FriendsList() {
 	const { user } = useUser();
 	const navigate = useNavigate();
-
-	function trimUserName(userName: string): string {
-		let displayUserName: string = userName;
-		if (displayUserName.length > 10)
-			displayUserName = displayUserName.substring(0, 10) + "...";
-		return displayUserName;
-	}
 
 	return (
 		<>

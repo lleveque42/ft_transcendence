@@ -95,6 +95,7 @@ export class AppGateway
 			user.id,
 			this.userService,
 		);
+		// setTimeout(() => {}, 200);
 		for (let friend of onlineFriends) {
 			this.users.emitAllbyUserId(friend.id, "updateOnlineFriend", {
 				id: user.id,

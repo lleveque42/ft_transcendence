@@ -5,6 +5,7 @@ import { useAlert, useUser } from "../../context";
 import { Friend, UserStatus } from "../../types";
 import styles from "./Users.module.scss";
 import { useNavigate } from "react-router-dom";
+import trimUserName from "../../utils/trimUserName";
 
 type UsersList = {
 	userName: string;
@@ -68,7 +69,6 @@ export default function Users() {
 		// eslint-disable-next-line
 	}, [user]);
 
-	// Trim Username
 	// Order by username
 
 	return (
@@ -118,7 +118,7 @@ export default function Users() {
 											className="flex-1 pl-5"
 											onClick={() => navigate(`/user/${u.userName}`)}
 										>
-											{u.userName}
+											{trimUserName(u.userName)}
 										</h3>
 										{u.isFriend ? (
 											<i
