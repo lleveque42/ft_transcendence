@@ -74,6 +74,9 @@ export class GameGateway
 			this.logger.log(
 				`${game.owner.userName} vs ${game.player.userName} : ended (Reconnection timeout), ${opponent.userName} won.`,
 			);
+			// this.io.on("reconnection", () => {
+			// 	// check if client.id is the same as the sender
+			// });
 			this.endGame(room, false, opponent.id);
 			this.users.removeClientId(client.id);
 		}, DISCONNECTION_TIMEOUT);
@@ -90,8 +93,7 @@ export class GameGateway
 			}
 			if (this.ongoing.alreadyInGame(user.id))
 				this.handleInGameDisconnect(user, client);
-		}
-		this.users.removeClientId(client.id);
+		} else this.users.removeClientId(client.id);
 		this.logger.log(`WS Client ${client.id} (${user.userName}) disconnected.`);
 		this.logger.log(`${this.users.size} user(s) connected.`);
 	}
@@ -112,6 +114,8 @@ export class GameGateway
 			client.disconnect();
 			return;
 		}
+		// if (this.waitingReconnection.get(user.id))
+		// 	client.
 		if (this.users.hasByUserId(user.id))
 			this.users.addClientToUserId(user.id, client);
 		else this.users.addNewUser(user, client);
