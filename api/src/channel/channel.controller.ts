@@ -142,6 +142,24 @@ export class ChannelController {
 		}
 	}
 
+	@Post("edit_channel")
+	async editChannel(@Body() body, @Res({ passthrough: true }) res: Response) {
+		try {
+			const chan = await this.channelService.updateChannel(
+				{
+					title: body.title,
+					type: body.type,
+					mode: body.mode,
+					password: body.password,
+				},
+				body.oldTitle,
+			);
+			res.json("OK");
+		} catch (e) {
+			res.json("Error while updating");
+		}
+	}
+
 	@Post("create_join_dm")
 	async createDM(
 		@Body() body,

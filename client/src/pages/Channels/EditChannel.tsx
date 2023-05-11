@@ -5,6 +5,7 @@ import { useUser } from "../../context/UserProvider";
 import Input from "../../components/Input/Input";
 import { useAlert } from "../../context/AlertProvider";
 import { ChannelModel } from "../../entities/entities";
+import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
 
 type FormValues = {
 	title: string|undefined;
@@ -12,6 +13,7 @@ type FormValues = {
 	password: string|undefined;
     type: string|undefined;
     username: string|undefined;
+	oldTitle: string | undefined;
 };
 
 const initialFormValues: FormValues = {
@@ -20,22 +22,21 @@ const initialFormValues: FormValues = {
 	password: "",
     type: "Channel",
 	username: "",
+	oldTitle: ""
 };
 
 export default function EditChannel() {
   
-	const { accessToken, user } = useUser();
-	const [radioValue, setRadioValue] = useState("Public");
-	const [chanProtected, setChanProtected] = useState(false);	
-    const [formValues, setFormValues] = useState<FormValues>(initialFormValues);
-
-	let {title} = useParams();
+	const	[chanProtected, setChanProtected] = useState(false);	
+    const	[formValues, setFormValues] = useState<FormValues>(initialFormValues);
+	const	[channelState, setChannelState] = useState<ChannelModel>();
+	const	{ chatSocket } = usePrivateRouteSocket();
+	const	{ accessToken, user } = useUser();
+	let		{ title } = useParams();
+	const	{ showAlert } = useAlert();
+	const	navigate = useNavigate();
 	
-	const { showAlert } = useAlert();
 
-	const navigate = useNavigate();
-
-	const [channelState, setChannelState] = useState<ChannelModel[]>([]);
 	
 	useEffect(() => {
 		(async () => {
@@ -49,33 +50,62 @@ export default function EditChannel() {
 				.then((res) => res.json())
 				.then(
 				(chan) => {
-					setChannelState([...channelState, chan]);
+					setChannelState(chan);
 				}
 				);
             } catch (e) {
 			}
         })();
-    }, [title, accessToken, channelState]);
+    }, [setChannelState, accessToken, title]);
 
 	function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
 		const { name, value } = event.target;
+
+		// Doesn't work for an unknown reason
 		setFormValues({ ...formValues, [name]: value });
+
+		// Did that instead
+		if (name === "password"){
+			const chan = channelState;
+			if (chan){
+				chan.password = value;
+				setChannelState(chan);
+			}
+		}
+		else if (name === "title"){
+		const chan = channelState;
+			if (chan){
+				chan.title = value;
+				setChannelState(chan);
+			}
+		}
 	}
 
 	function handleRadioChange(event:  React.ChangeEvent<HTMLInputElement>) {
 		const { value } = event.target;
 		if (value === "Protected"){setChanProtected(true)} else {setChanProtected(false)}
-		setRadioValue(value);
+		const chan = channelState;
+			if (chan){
+				chan.mode = value;
+				setChannelState(chan);
+			}
+		setFormValues((prevState) =>({
+	  		...prevState,
+	  		mode: value,
+		}));
 	}
 
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
 		event.preventDefault();
-        formValues.username = user.userName;
+		formValues.title = channelState?.title;
+		formValues.password= channelState?.password;
+		formValues.username = user.userName;
+        formValues.oldTitle = title;
         formValues.type = "Channel";
-		formValues.mode = radioValue;
 		if (formValues.mode !== "Protected"){
 			formValues.password = "";
 		}
+		console.log("Body: " + channelState?.title + " " + channelState?.type + " " + channelState?.mode + " " + channelState?.password);
 		try {
 			const res : Response = await fetch("http://localhost:3000/channels/edit_channel", {
 				method: "POST",
@@ -86,15 +116,19 @@ export default function EditChannel() {
 				body: JSON.stringify(formValues),
 			});
 			if (res.status === 201) {
-					showAlert("success", "Channel" + formValues.title + " edited with success");
-					// socket.chatSocket?.emit("joinChatRoom",formValues.title);
+					showAlert("success", "Channel " + formValues.title + " edited with success");
+					chatSocket?.emit("joinChatRoom", formValues.title);
 					navigate("/chat/channels");
 				}
 		} catch (e) {
 			console.error("Fatal error");
 		}
 	}
-	const channelForm = Array.isArray(channelState) ? channelState.map(({ id, title, password, type, mode, ownerId}) => {
+
+	let channelForm = null;
+
+	if (channelState){
+		const {id, title, password, type, mode} = channelState;
 		// Set the formValues
 		formValues.title= title;
 		formValues.mode= mode;
@@ -103,68 +137,67 @@ export default function EditChannel() {
 		formValues.username =  user.userName;
 
 		// Rendering
-		return (
+		channelForm = (
 			<>
-			<div className="radio">
+			<div key={id} className="radio">
 				<label>
 					<input
 					type="radio"
 					value="Public"
-					checked={mode === "Public"}
+					checked={formValues.mode === "Public"}
 					onChange={handleRadioChange}
 					/>
 					Public
 				</label>
-				</div>
-				<div className="radio">
+			</div>
+			<div className="radio">
 				<label>
 					<input
 					type="radio"
 					value="Private"
-					checked={mode === "Private"}
+					checked={formValues.mode === "Private"}
 					onChange={handleRadioChange}
 					/>
 					Private
 				</label>
-				</div>
-				<div className="radio mb-10">
+			</div>
+			<div className="radio mb-10">
 				<label>
 					<input
 					type="radio"
 					value="Protected"
-					checked={mode === "Protected"}
+					checked={formValues.mode === "Protected"}
 					onChange={handleRadioChange}
 					/>
 					Protected
 				</label>
-				</div>
+			</div>
+			{/* <Input
+				icon="fa-solid fa-at"
+				type="text"
+				name="title"
+				placeholder="New chan title"
+				value={formValues.title}
+				onChange={handleInputChange}
+			/> */}
+			{chanProtected &&
+				<>
 				<Input
-					icon="fa-solid fa-at"
-					type="text"
-					name="title"
-					placeholder="New chan title"
-					value={formValues.title}
+					icon="fa-solid fa-lock"
+					type="password"
+					name="password"
+					placeholder="********"
+					value={formValues.password || ""}
 					onChange={handleInputChange}
-				/>
-				{chanProtected &&
-					<>
-					<Input
-						icon="fa-solid fa-lock"
-						type="password"
-						name="password"
-						placeholder="********"
-						value={formValues.password}
-						onChange={handleInputChange}
-						/>
-					</>
-				}
+					/>
+				</>
+			}
 			</>
-		)
-			})
-			:
-			<></>
-			;
+			)
+		}	
 	
+	// = Array.isArray(channelState) ? channelState.map(({ id, title, password, type, mode}) => {
+
 
 return (
 		<div className="container d-flex flex-column justify-content align-items">
@@ -175,68 +208,16 @@ return (
 					onSubmit={handleSubmit}
 					className="d-flex flex-column align-items justify-content p-20"
 				>
-					{channelForm}
-				{/* Radio button to set the mode of the channel */}
-				{/* <div className="radio">
-				<label>
-					<input
-					type="radio"
-					value="Public"
-					checked={channelState?.type === "Public"}
-					onChange={handleRadioChange}
-					/>
-					Public
-				</label>
-				</div>
-				<div className="radio">
-				<label>
-					<input
-					type="radio"
-					value="Private"
-					checked={channelState?.type === "Private"}
-					onChange={handleRadioChange}
-					/>
-					Private
-				</label>
-				</div>
-				<div className="radio mb-10">
-				<label>
-					<input
-					type="radio"
-					value="Protected"
-					checked={channelState?.type === "Protected"}
-					onChange={handleRadioChange}
-					/>
-					Protected
-				</label>
-				</div>
-				<Input
-					icon="fa-solid fa-at"
-					type="text"
-					name="title"
-					placeholder={formValues.title}
-					value={formValues.title}
-					onChange={handleInputChange}
-				/>
-				{chanProtected &&
 					<>
-					<Input
-						icon="fa-solid fa-lock"
-						type="password"
-						name="password"
-						placeholder="********"
-						value={formValues.password}
-						onChange={handleInputChange}
-						/>
+						{channelForm}
 					</>
-				} */}
-				<div
-					className={` d-flex flex-row justify-content-space-between mb-30`}
-				>
-					<button className="btn-primary" type="submit">
-						Edit
-					</button>
-				</div>
+					<div
+						className={` d-flex flex-row justify-content-space-between mb-30`}
+						>
+						<button className="btn-primary" type="submit">
+							Edit
+						</button>
+					</div>
 			</form>
 			</div>
 		</div>

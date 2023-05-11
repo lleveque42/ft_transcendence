@@ -46,6 +46,33 @@ export class ChannelService {
 		}
 	}
 
+	async updateChannel(newChannel: Prisma.ChannelCreateInput, oldtitle: string) {
+		let hash: string = null;
+		if (newChannel.password && newChannel.password !== "") {
+			hash = await argon2.hash(newChannel.password);
+		}
+		try {
+			const chan = await this.prisma.channel.update({
+				where: {
+					title: oldtitle,
+				},
+				data: {
+					title: newChannel.title,
+					password: hash,
+					type: newChannel.type,
+					mode: newChannel.mode,
+				},
+			});
+		} catch (error) {
+			if (
+				error instanceof Prisma.PrismaClientKnownRequestError &&
+				error.code === "P2002"
+			) {
+				throw new ForbiddenException("Duplicate key value");
+			}
+		}
+	}
+
 	async createDM(
 		newChannel: Prisma.ChannelCreateInput,
 		userId1: number,
