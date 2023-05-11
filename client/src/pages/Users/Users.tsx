@@ -84,7 +84,18 @@ export default function Users() {
 					<div className="title mt-20 mb-20">Find Friends</div>
 
 					{!usersList.length ? (
-						<h1 className="flex-1">Nobody</h1>
+						<>
+							<h1
+								className={` ${styles.nobodyTitle} d-flex flex-1 justify-content mt-20`}
+							>
+								You are alone...
+							</h1>
+							<Loader
+								type="ball-zig-zag"
+								innerClassName="nobody-loader"
+								active
+							/>
+						</>
 					) : (
 						<div
 							className={`${styles.listContainer} d-flex flex-1 justify-content mt-30`}
