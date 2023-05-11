@@ -7,7 +7,7 @@ export default function Chathome() {
 	
 	return (
 		
-		<div className="chat-container d-flex flex-column justify-content align-items">
+		<div className="container d-flex flex-column justify-content align-items">
 			<div className="title">Chat</div>
 			<div
 				className={`${styles.btnContainer} d-flex justify-content-space-between align-items mb-30`}

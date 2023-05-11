@@ -91,6 +91,16 @@ export class ChannelController {
 		}
 	}
 
+	@Get("/edit/:title")
+	async getChanInfos(@Param("title") title: string): Promise<Channel> {
+		try {
+			const chan = await this.channelService.getChannelByTitle(title);
+			return chan;
+		} catch (e) {
+			throw new HttpException(e.message, e.status);
+		}
+	}
+
 	@Get("/dm/chan/:title")
 	async getDMsMessages(@Param("title") title: string): Promise<Message[]> {
 		try {

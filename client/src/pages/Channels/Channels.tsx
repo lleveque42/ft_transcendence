@@ -40,9 +40,14 @@ export default function Channels() {
 			</NavLink>
 			{ user.id === ownerId &&
 				<>
+				<div d-flex className="d-flex flex-row" >
+					<NavLink className={`btn-primary d-flex flex-column justify-content align-items`}  to={`/chat/channels/edit_channel/${title}`} >
+							Edit
+					</NavLink>
 					<button className="btn-danger ml-10">
 						Delete
 					</button>
+				</div>
 				</>
 			}
 			</div>

@@ -58,10 +58,11 @@ export default function DirectMessages() {
 	const {id,
 		title,
 		type,
+		mode,
 		ownerId,
 		members,
 		messages} = chan;
-		setDirectMessagesState([...directMessagesState, {id, title, type, ownerId, members, messages}]);
+		setDirectMessagesState([...directMessagesState, {id, title, type, mode, ownerId, members, messages}]);
 		console.log("Adding a new DM to directMessagesState");
 		navigate("/chat/direct_messages");
 }

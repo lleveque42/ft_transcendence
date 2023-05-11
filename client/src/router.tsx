@@ -20,6 +20,7 @@ import JoinChannel from "./pages/Channels/JoinChannel";
 import NewDM from "./pages/DirectMessages/NewDM";
 import DirectMessage from "./pages/DirectMessages/DirectMessage";
 import Users from "./pages/Users/Users";
+import EditChannel from "./pages/Channels/EditChannel";
 
 export default function Router() {
 	return (
@@ -76,6 +77,10 @@ export default function Router() {
 				<Route
 					path="/chat/channels/join_channel"
 					element={<PrivateRoute element={<JoinChannel/>} />}
+				/>
+				<Route
+				path="/chat/channels/edit_channel/:title"
+				element={<PrivateRoute element={<EditChannel/>} />}
 				/>
 				<Route
 					path="/chat/friends"
