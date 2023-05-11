@@ -3,6 +3,7 @@ import { GameType } from "../game/types/game.type";
 import { Pair } from "../game/types/pair.type";
 
 export const GAME_LIMIT_SCORE: number = 10;
+export const DISCONNECTION_TIMEOUT: number = 5000;
 
 export class OngoingGames {
 	private _games: Map<string, GameType>;
@@ -13,17 +14,11 @@ export class OngoingGames {
 		this._users = new Map<number, string>();
 	}
 
-	addGame(
-		room: string,
-		owner: User,
-		player: User,
-		ownerClient: string,
-	): GameType {
+	addGame(room: string, owner: User, player: User): GameType {
 		this._games.set(room, {
 			id: room,
 			owner,
 			ownerId: owner.id,
-			ownerClient,
 			player,
 			playerId: player.id,
 			ownerScore: 0,
