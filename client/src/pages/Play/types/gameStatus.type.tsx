@@ -5,6 +5,7 @@ export type GameStatus = {
 	ownerId: number;
 	playerId: number;
 	owner: boolean;
+	ballServer: boolean;
 	waitingToStart: boolean;
 	started: boolean;
 	ended: boolean;
@@ -17,6 +18,7 @@ export const defaultGameStatus: GameStatus = {
 	ownerId: 0,
 	playerId: 0,
 	owner: false,
+	ballServer: false,
 	waitingToStart: false,
 	started: false,
 	ended: false,
@@ -44,21 +46,44 @@ export function gameEnded(gameStatus: GameStatus): GameStatus {
 	};
 }
 
-export function joinedGame(
+export function alreadyInGame(
 	gameStatus: GameStatus,
 	user: UserDataState,
 	room: string,
+	ownerScore: number,
+	playerScore: number,
 	ownerId: number,
 	playerId: number,
 ): GameStatus {
-	let owner: boolean = false;
-	if (user.id === ownerId) owner = true;
+	const owner: boolean = user.id === ownerId;
 	return {
 		...gameStatus,
 		room,
 		ownerId,
 		playerId,
 		owner,
+		started: true,
+		ownerScore,
+		playerScore,
+	};
+}
+
+export function joinedGame(
+	gameStatus: GameStatus,
+	user: UserDataState,
+	room: string,
+	ownerId: number,
+	playerId: number,
+	ballServer: boolean,
+): GameStatus {
+	const owner: boolean = user.id === ownerId;
+	return {
+		...gameStatus,
+		room,
+		ownerId,
+		playerId,
+		owner,
+		ballServer,
 		waitingToStart: true,
 	};
 }

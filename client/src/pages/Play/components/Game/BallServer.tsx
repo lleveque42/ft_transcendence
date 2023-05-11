@@ -49,7 +49,7 @@ interface BallProps {
 	room: string;
 }
 
-export default function Ball({
+export default function BallServer({
 	playerPaddle,
 	ownerPaddle,
 	socket,
@@ -243,7 +243,7 @@ export default function Ball({
 		<mesh position={[0, 0, 0]} ref={ball}>
 			<sphereGeometry args={[BALL_RADIUS]} />
 
-			{/* <boxGeometry args={[0.1, 0.1, 0.1]} /> */}
+			{/* <boxGeometry args={[PADDLE_WIDTH, PADDLE_WIDTH, PADDLE_WIDTH]} /> */}
 			<meshStandardMaterial color="#74b9ff" />
 		</mesh>
 	);

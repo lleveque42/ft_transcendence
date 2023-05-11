@@ -11,9 +11,12 @@ import Chat from "./pages/Chat/Chat";
 import DirectMessages from "./pages/DirectMessages/DirectMessages";
 import Settings from "./pages/User/Settings/Settings";
 import VerifyTfa from "./pages/Login/VerifyTfa/VerifyTfa";
-import GameTest from "./pages/Play/Play";
 import Profile from "./pages/User/Profile/Profile";
 import Users from "./pages/Users/Users";
+import Play from "./pages/Play/Play";
+// import Play from "./pages/Play/Play";
+// import { defaultGameStatus } from "./pages/Play/types/gameStatus.type";
+// import { GameUserStatus } from "./pages/Play/enums/UserStatus";
 
 export default function Router() {
 	return (
@@ -40,7 +43,7 @@ export default function Router() {
 				/>
 				<Route
 					path="/play"
-					element={<PrivateRoute element={<GameTest />} play={true} />}
+					element={<PrivateRoute element={<Play />} play={true} />}
 				/>
 				<Route path="/chat" element={<PrivateRoute element={<Chat />} />} />
 				<Route
