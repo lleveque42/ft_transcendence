@@ -205,7 +205,7 @@ export class ServerGateway
 			.to(data.room)
 			.emit(
 				"receivedDirectMessage",
-				this.channelService.getChannelByTitle(data.room),
+				await this.channelService.getChannelByTitle(data.room),
 			);
 	}
 }
