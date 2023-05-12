@@ -17,11 +17,15 @@ interface PlayerPaddleProps {
 
 export default function PlayerPaddle({ paddle, socket }: PlayerPaddleProps) {
 	useEffect(() => {
+		socket!.on("resetPaddles", () => {
+			paddle.current.position.y = 0;
+		});
 		socket!.on("playerPaddlePosUpdate", (y: number) => {
 			paddle.current.position.y = y;
 		});
 		return () => {
 			socket!.off("playerPaddlePosUpdate");
+			socket!.off("resetPaddles");
 		};
 	});
 

@@ -59,7 +59,6 @@ export default function BallServer({
 	const [xSpeedMultiplier, setXSpeedMultiplier] = useState(
 		BALL_SPAWN_X_SPEED_MULTIPLIER,
 	);
-	const [resetted, setResetted] = useState(true);
 	const ball = useRef<THREE.Mesh>(null!);
 
 	function newBall(): void {
@@ -74,25 +73,6 @@ export default function BallServer({
 		});
 		setDirVector(randomBallDir());
 		setXSpeedMultiplier(1);
-	}
-
-	function resetPaddles(): void {
-		ownerPaddle.current.position.y = 0;
-		socket!.emit("updateOwnerPaddlePos", {
-			y: ownerPaddle.current.position.y,
-			room,
-		});
-		playerPaddle.current.position.y = 0;
-		socket!.emit("updatePlayerPaddlePos", {
-			y: ownerPaddle.current.position.y,
-			room,
-		});
-	}
-
-	function resetPoint(): void {
-		newBall();
-		resetPaddles();
-		setResetted(true);
 	}
 
 	function rebound(collision: Collision): { x: number; y: number } {
@@ -144,54 +124,84 @@ export default function BallServer({
 			: false;
 	}
 
-	function checkPaddleCollision(delta: number): Collision {
+	// function checkPaddleCollision(): Collision {
+	// 	if (
+	// 		inRange(
+	// 			floorToDecimal(ball.current.position.x + BALL_RADIUS),
+	// 			RIGHT_PADDLE,
+	// 			RIGHT_PADDLE + PADDLE_WIDTH,
+	// 		)
+	// 	) {
+	// 		return onPaddle(ownerPaddle.current.position.y, Paddle.RIGHT)
+	// 			? Collision.RIGHT_PADDLE_HIT
+	// 			: Collision.RIGHT_PADDLE_MISSED;
+	// 	} else if (
+	// 		inRange(
+	// 			ceilToDecimal(ball.current.position.x - BALL_RADIUS),
+	// 			LEFT_PADDLE,
+	// 			LEFT_PADDLE - PADDLE_WIDTH,
+	// 		)
+	// 	) {
+	// 		return onPaddle(playerPaddle.current.position.y, Paddle.LEFT)
+	// 			? Collision.LEFT_PADDLE_HIT
+	// 			: Collision.LEFT_PADDLE_MISSED;
+	// 	}
+	// 	return Collision.NO_HIT;
+	// }
+
+	function checkPaddleCollision(): Collision {
 		if (
 			inRange(
 				floorToDecimal(ball.current.position.x + BALL_RADIUS),
-				RIGHT_PADDLE - delta * 1.5,
+				RIGHT_PADDLE,
 				RIGHT_PADDLE + PADDLE_WIDTH,
 			)
-		) {
+		)
 			return onPaddle(ownerPaddle.current.position.y, Paddle.RIGHT)
 				? Collision.RIGHT_PADDLE_HIT
-				: Collision.RIGHT_PADDLE_MISSED;
-		} else if (
+				: Collision.NO_HIT;
+		else if (
 			inRange(
 				ceilToDecimal(ball.current.position.x - BALL_RADIUS),
 				LEFT_PADDLE - PADDLE_WIDTH,
-				LEFT_PADDLE + delta * 1.5,
+				LEFT_PADDLE,
 			)
-		) {
+		)
 			return onPaddle(playerPaddle.current.position.y, Paddle.LEFT)
 				? Collision.LEFT_PADDLE_HIT
-				: Collision.LEFT_PADDLE_MISSED;
-		}
+				: Collision.NO_HIT;
+		else if (
+			inRange(
+				floorToDecimal(ball.current.position.x + BALL_RADIUS),
+				RIGHT_PADDLE + PADDLE_WIDTH + BALL_RADIUS,
+				RIGHT_PADDLE + PADDLE_WIDTH * 2 + BALL_RADIUS,
+			)
+		)
+			return Collision.RIGHT_PADDLE_MISSED;
+		else if (
+			inRange(
+				ceilToDecimal(ball.current.position.x - BALL_RADIUS),
+				LEFT_PADDLE - PADDLE_WIDTH * 2 - BALL_RADIUS,
+				LEFT_PADDLE - PADDLE_WIDTH - BALL_RADIUS,
+			)
+		)
+			return Collision.LEFT_PADDLE_MISSED;
 		return Collision.NO_HIT;
 	}
 
-	function checkWallCollision(delta: number): Collision {
-		return inRange(
-			ceilToDecimal(ball.current.position.y),
-			CEILING - delta * 1.5,
-			CEILING + 1,
-		)
+	function checkWallCollision(): Collision {
+		return inRange(ceilToDecimal(ball.current.position.y), CEILING, CEILING + 1)
 			? Collision.CEILING_HIT
-			: inRange(
-					floorToDecimal(ball.current.position.y),
-					FLOOR - 1,
-					FLOOR + delta * 1.5,
-			  )
+			: inRange(floorToDecimal(ball.current.position.y), FLOOR - 1, FLOOR)
 			? Collision.FLOOR_HIT
 			: Collision.NO_HIT;
 	}
 
-	function checkCollision(delta: number): Collision {
+	function checkCollision(): Collision {
 		if (outOfRange(ball.current.position.x, -OUT_OF_RANGE, OUT_OF_RANGE))
 			return Collision.OUT_OF_BOUND;
-		const collision = checkPaddleCollision(delta);
-		return collision !== Collision.NO_HIT
-			? collision
-			: checkWallCollision(delta);
+		const collision = checkPaddleCollision();
+		return collision !== Collision.NO_HIT ? collision : checkWallCollision();
 	}
 
 	useFrame((state, delta) => {
@@ -205,7 +215,7 @@ export default function BallServer({
 			},
 			room,
 		});
-		const collision = checkCollision(delta);
+		const collision = checkCollision();
 		switch (collision) {
 			case Collision.NO_HIT:
 				break;
@@ -222,20 +232,16 @@ export default function BallServer({
 				if (dirVector.y > 0) setDirVector(rebound(collision));
 				break;
 			case Collision.RIGHT_PADDLE_MISSED:
-				if (resetted) {
-					socket!.emit("scoreUpdate", { room, ownerScored: false });
-					setResetted(false);
-				}
+				socket!.emit("scoreUpdate", { room, ownerScored: false });
+				newBall();
 				break;
 			case Collision.LEFT_PADDLE_MISSED:
-				if (resetted) {
-					socket!.emit("scoreUpdate", { room, ownerScored: true });
-					setResetted(false);
-				}
+				socket!.emit("scoreUpdate", { room, ownerScored: true });
+				newBall();
 				break;
-			case Collision.OUT_OF_BOUND:
-				resetPoint();
-				break;
+			// case Collision.OUT_OF_BOUND:
+			// 	resetPoint();
+			// 	break;
 		}
 	});
 

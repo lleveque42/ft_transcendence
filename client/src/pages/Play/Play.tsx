@@ -86,7 +86,7 @@ export default function Play() {
 							game.playerId,
 						),
 					);
-					setGameUserStatus(GameUserStatus.inGame);
+					setGameUserStatus(GameUserStatus.waitingGameRestart);
 				} else setGameUserStatus(GameUserStatus.connected);
 			},
 		);
@@ -137,7 +137,7 @@ export default function Play() {
 			setGameUserStatus(newUserStatus);
 			setGameStatus(gameEnded(gameStatus));
 		});
-		gameSocket?.once("disconnection", (timeout: number) => {
+		gameSocket?.once("disconnection", () => {
 			gameSocket!.off("scoreUpdate");
 			setGameUserStatus(GameUserStatus.waitingOpponentReconnection);
 			setGameStatus(gamePaused(gameStatus));
@@ -145,9 +145,9 @@ export default function Play() {
 	}
 
 	function waitingOpponentReconnection() {
-		gameSocket?.once("reconnected", () => {
+		gameSocket?.once("reconnection", () => {
 			setGameStatus(gameUnpaused(gameStatus));
-			setGameUserStatus(GameUserStatus.inGame);
+			setGameUserStatus(GameUserStatus.waitingGameRestart);
 		});
 		gameSocket?.once("gameEnded", (winner) => {
 			let newUserStatus: GameUserStatus;
@@ -174,6 +174,7 @@ export default function Play() {
 				inQueue();
 				break;
 			case GameUserStatus.waitingGameStart:
+			case GameUserStatus.waitingGameRestart:
 				waitingToStart();
 				break;
 			case GameUserStatus.inGame:
@@ -210,7 +211,18 @@ export default function Play() {
 			{gameUserStatus === GameUserStatus.inQueue && (
 				<Queue gameSocket={gameSocket} setGameUserStatus={setGameUserStatus} />
 			)}
-			{gameUserStatus === GameUserStatus.waitingGameStart && <Countdown />}
+			{gameUserStatus === GameUserStatus.waitingGameStart && (
+				<>
+					<div>Game starting...</div>
+					<Countdown />
+				</>
+			)}
+			{gameUserStatus === GameUserStatus.waitingGameRestart && (
+				<>
+					<div>Game restarting...</div>
+					<Countdown />
+				</>
+			)}
 			{gameUserStatus === GameUserStatus.inGame && (
 				<Game
 					showGames={() => gameSocket?.emit("showGames")}

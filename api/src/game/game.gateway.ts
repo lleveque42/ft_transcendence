@@ -29,6 +29,7 @@ export class GameGateway
 	private readonly logger = new Logger(GameGateway.name);
 	@WebSocketServer()
 	io: Namespace;
+	reconnecting: boolean = false;
 	users: OnlineUsers = new OnlineUsers();
 	queue: GameQueue = new GameQueue();
 	ongoing: OngoingGames = new OngoingGames();
@@ -42,6 +43,7 @@ export class GameGateway
 	connectInGame(client: Socket, user: User) {
 		const room = this.ongoing.getGameIdByUserId(user.id);
 		const game = this.ongoing.getGameById(room);
+		const opponent = game.ownerId === user.id ? game.player : game.owner;
 		client.join(room);
 		client.emit(
 			"connectionStatus",
@@ -54,6 +56,7 @@ export class GameGateway
 				playerScore: game.playerScore,
 			},
 		);
+		this.users.emitAllbyUserId(opponent.id, "reconnection", undefined);
 	}
 
 	handleInGameDisconnect(user: User, client: Socket) {
@@ -66,18 +69,20 @@ export class GameGateway
 				`${game.owner.userName} vs ${game.player.userName} : both players deconnected, game ended.`,
 			);
 			this.endGame(room, false);
+			this.waitingReconnection.delete(opponent.id);
+			this.waitingReconnection.delete(user.id);
 			return;
 		}
-		this.io.to(room).emit("disconnection", DISCONNECTION_TIMEOUT);
+		this.io.to(room).emit("disconnection");
 		setTimeout(() => {
-			this.waitingReconnection.delete(user.id);
-			this.logger.log(
-				`${game.owner.userName} vs ${game.player.userName} : ended (Reconnection timeout), ${opponent.userName} won.`,
-			);
-			// this.io.on("reconnection", () => {
-			// 	// check if client.id is the same as the sender
-			// });
-			this.endGame(room, false, opponent.id);
+			if (this.waitingReconnection.has(user.id)) {
+				this.waitingReconnection.delete(user.id);
+				this.logger.log(
+					`${game.owner.userName} vs ${game.player.userName} : ended (Reconnection timeout), ${opponent.userName} won.`,
+				);
+				this.endGame(room, false, opponent.id);
+				this.changeUserStatus(user, false);
+			}
 			this.users.removeClientId(client.id);
 		}, DISCONNECTION_TIMEOUT);
 	}
@@ -85,16 +90,17 @@ export class GameGateway
 	handleDisconnect(@ConnectedSocket() client: Socket) {
 		const user: User = this.users.getUserByClientId(client.id);
 		if (!user) return;
-		if (this.users.getClientsByUserId(user.id).size === 1) {
+		if (this.ongoing.alreadyInGame(user.id))
+			this.handleInGameDisconnect(user, client);
+		else {
 			if (this.queue.alreadyQueued(user.id)) {
 				this.queue.dequeueUser(user.id);
 				this.logger.log(`${user.userName} left queue.`);
 				this.logger.log(`${this.queue.size()} user(s) queued.`);
 			}
-			if (this.ongoing.alreadyInGame(user.id))
-				this.handleInGameDisconnect(user, client);
-		} else this.users.removeClientId(client.id);
-		this.logger.log(`WS Client ${client.id} (${user.userName}) disconnected.`);
+			this.users.removeClientId(client.id);
+		}
+		this.logger.log(`Client ${client.id} (${user.userName}) disconnected.`);
 		this.logger.log(`${this.users.size} user(s) connected.`);
 	}
 
@@ -114,12 +120,14 @@ export class GameGateway
 			client.disconnect();
 			return;
 		}
-		// if (this.waitingReconnection.get(user.id))
-		// 	client.
+		if (this.waitingReconnection.get(user.id)) {
+			this.waitingReconnection.delete(user.id);
+			this.reconnecting = true;
+		}
 		if (this.users.hasByUserId(user.id))
 			this.users.addClientToUserId(user.id, client);
 		else this.users.addNewUser(user, client);
-		this.logger.log(`WS Client ${client.id} (${user.userName}) connected.`);
+		this.logger.log(`Client ${client.id} (${user.userName}) connected.`);
 		this.logger.log(`${this.users.size} user(s) connected.`);
 	}
 
@@ -185,6 +193,7 @@ export class GameGateway
 
 	@SubscribeMessage("showUsers")
 	showUsers() {
+		console.log("GAME SOCKET :");
 		this.users.showOnlineUsers();
 	}
 
@@ -198,7 +207,10 @@ export class GameGateway
 		setTimeout(() => {}, 200);
 		const user = this.users.getUserByClientId(client.id);
 		if (!user) client.emit("connectionStatusError");
-		else if (this.users.getClientsByClientId(client.id).size > 1)
+		else if (
+			!this.reconnecting &&
+			this.users.getClientsByClientId(client.id).size > 1
+		)
 			client.emit("connectionStatus", { success: false, inGame: false });
 		else if (this.ongoing.alreadyInGame(user.id))
 			this.connectInGame(client, user);
@@ -275,9 +287,12 @@ export class GameGateway
 		@MessageBody("room") room: string,
 		@MessageBody("ownerScored") ownerScored: boolean,
 	): void {
+		// console.log("SCORE UPDATE");
+		this.io.to(room).emit("resetPaddles");
 		this.io.to(room).emit("scoreUpdate", ownerScored);
 		if (!ownerScored) {
 			if (this.ongoing.playerScored(room)) this.endGame(room, true);
 		} else if (this.ongoing.ownerScored(room)) this.endGame(room, true);
 	}
 }
+ 

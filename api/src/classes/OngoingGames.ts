@@ -3,7 +3,7 @@ import { GameType } from "../game/types/game.type";
 import { Pair } from "../game/types/pair.type";
 
 export const GAME_LIMIT_SCORE: number = 10;
-export const DISCONNECTION_TIMEOUT: number = 5000;
+export const DISCONNECTION_TIMEOUT: number = 15000;
 
 export class OngoingGames {
 	private _games: Map<string, GameType>;
