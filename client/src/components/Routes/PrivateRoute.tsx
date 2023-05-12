@@ -25,11 +25,9 @@ export default function PrivateRoute(props: {
 				email: user.email,
 			},
 		});
-		gameSocket.once("connectionSuccess", (success: boolean) => {
-			if (!success) {
-				navigate("/login");
-				gameSocket.disconnect();
-			}
+		gameSocket.once("connectionFail", () => {
+			navigate("/login");
+			gameSocket.disconnect();
 		});
 		return gameSocket;
 	}

@@ -29,16 +29,6 @@ export default function PlayerPaddle({
 }: PlayerPaddleProps) {
 	const [move, setMove] = useState({ up: false, down: false });
 
-	useEffect(() => {
-		socket!.on("playerPaddlePosUpdate", (data: {y: number, senderId: string}) => {
-			if (data.senderId !== socket!.id)
-				paddle.current.position.y = data.y;
-		});
-		return () => {
-			socket!.off("playerPaddlePosUpdate");
-		};
-	});
-
 	useFrame((state, delta) => {
 		if (
 			move.up &&

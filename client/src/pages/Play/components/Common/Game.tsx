@@ -26,10 +26,7 @@ export default function Game({ showGames, gameStatus, gameSocket }: GameProps) {
 				<div className={`${styles.gameContainer}`}>
 					{gameStatus.owner ? (
 						<GameSocketContext.Provider value={{ gameSocket }}>
-							<OwnerGameRender
-								room={gameStatus.room}
-								ballServer={gameStatus.ballServer}
-							/>
+							<OwnerGameRender room={gameStatus.room} />
 						</GameSocketContext.Provider>
 					) : (
 						<GameSocketContext.Provider value={{ gameSocket }}>

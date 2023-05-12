@@ -17,8 +17,8 @@ interface PlayerPaddleProps {
 
 export default function PlayerPaddle({ paddle, socket }: PlayerPaddleProps) {
 	useEffect(() => {
-		socket!.on("playerPaddlePosUpdate", (data: { y: number }) => {
-			paddle.current.position.y = data.y;
+		socket!.on("playerPaddlePosUpdate", (y: number) => {
+			paddle.current.position.y = y;
 		});
 		return () => {
 			socket!.off("playerPaddlePosUpdate");

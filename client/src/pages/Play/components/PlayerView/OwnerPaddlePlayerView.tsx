@@ -17,8 +17,8 @@ interface OwnerPaddleProps {
 
 export default function OwnerPaddle({ paddle, socket }: OwnerPaddleProps) {
 	useEffect(() => {
-		socket!.on("ownerPaddlePosUpdate", (data: {y: number}) => {
-			paddle.current.position.y = data.y;
+		socket!.on("ownerPaddlePosUpdate", (y: number) => {
+			paddle.current.position.y = y;
 		});
 		return () => {
 			socket!.off("ownerPaddlePosUpdate");
