@@ -9,7 +9,6 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
-
 enum UserStatus {
   ONLINE
   OFFLINE
@@ -17,24 +16,54 @@ enum UserStatus {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
-  email       String     @unique
-  hash        String
-  userName    String     @unique
-  firstName   String?
-  lastName    String?
-  avatar      String?
-  ownedGames  Game[]     @relation("owner")
-  playerGames Game[]     @relation("player")
+  email     String    @unique
+  hash      String
+  userName  String    @unique
+  firstName String?
+  lastName  String?
+  avatar    String?
+  ownedGames Game[] @relation("owner")
+  playerGames Game[] @relation("player")
   socket      String?
   tfaSecret   String?
-  isTfaEnable Boolean    @default(false)
+  isTfaEnable Boolean @default(false)
   status      UserStatus @default(ONLINE)
-  friends     User[]     @relation("Friends")
-  friendsOf   User[]     @relation("Friends")
+  friends    User[]   @relation("Friends")
+  friendsOf  User[]   @relation("Friends")
+
+  chanOp    Channel[] @relation("channel_ops")
+  chanOwner Channel[]
+  channels  Channel[] @relation("channel_members")
+
+  messages  Message[]
+}
+
+model Channel {
+  id        Int       @id @default(autoincrement())
+  title     String?   @unique
+  password  String?
+  type      String
+  mode      String
+  owner     User?     @relation(fields:[ownerId], references:[id])
+  ownerId   Int?
+  operators User[]    @relation("channel_ops")
+  members   User[]    @relation("channel_members")
+  messages  Message[]
+}
+
+model Message{
+  id        Int       @id @default(autoincrement())
+  date      DateTime  @default(now())
+  content   String
+  author    User ?    @relation(fields: [authorId], references:[id])
+  authorId  Int?
+  channel   Channel?  @relation(fields: [channelId], references:[id])
+  channelId Int?
+
 }
 
 model Game {

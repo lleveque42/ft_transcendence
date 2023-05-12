@@ -9,10 +9,17 @@ import PrivateRoute from "./components/Routes/PrivateRoute";
 import PublicRoute from "./components/Routes/PublicRoute";
 import Chat from "./pages/Chat/Chat";
 import DirectMessages from "./pages/DirectMessages/DirectMessages";
+import Channels from "./pages/Channels/Channels";
+import Channel from "./pages/Channels/Channel";
+import NewChannel from "./pages/Channels/NewChannel";
 import Settings from "./pages/User/Settings/Settings";
 import VerifyTfa from "./pages/Login/VerifyTfa/VerifyTfa";
 import Profile from "./pages/User/Profile/Profile";
+import JoinChannel from "./pages/Channels/JoinChannel";
+import NewDM from "./pages/DirectMessages/NewDM";
+import DirectMessage from "./pages/DirectMessages/DirectMessage";
 import Users from "./pages/Users/Users";
+import EditChannel from "./pages/Channels/EditChannel";
 import Play from "./pages/Play/Play";
 // import Play from "./pages/Play/Play";
 // import { defaultGameStatus } from "./pages/Play/types/gameStatus.type";
@@ -52,11 +59,31 @@ export default function Router() {
 				/>
 				<Route
 					path="/chat/direct_messages/:id"
-					element={<PrivateRoute element={<DirectMessages />} />}
+					element={<PrivateRoute element={<DirectMessage />} />}
+				/>
+				<Route
+					path="/chat/direct_messages/new_dm"
+					element={<PrivateRoute element={<NewDM/>} />}					
 				/>
 				<Route
 					path="/chat/channels"
-					element={<PrivateRoute element={<Chat />} />}
+					element={<PrivateRoute element={<Channels />} />}					
+				/>
+				<Route
+					path="/chat/channels/:id"
+					element={<PrivateRoute element={<Channel/>} />}					
+				/>
+				<Route
+					path="/chat/channels/new_channel"
+					element={<PrivateRoute element={<NewChannel/>} />}
+				/>
+				<Route
+					path="/chat/channels/join_channel"
+					element={<PrivateRoute element={<JoinChannel/>} />}
+				/>
+				<Route
+				path="/chat/channels/edit_channel/:title"
+				element={<PrivateRoute element={<EditChannel/>} />}
 				/>
 				<Route
 					path="/chat/friends"

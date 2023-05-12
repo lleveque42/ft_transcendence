@@ -18,6 +18,7 @@ export default function PrivateRoute(props: {
 	const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 	const [socket, setSocket] = useState<Socket | null>(null);
 	const [gameSocket, setGameSocket] = useState<Socket | null>(null);
+	const [chatSocket, setChatSocket] = useState<Socket | null>(null);
 
 	function connectGameSocket(): Socket {
 		const gameSocket = io(`${process.env.REACT_APP_GAME_GATEWAY_URL}`, {
@@ -43,6 +44,8 @@ export default function PrivateRoute(props: {
 
 	useEffect(() => {
 		let appSocket: Socket;
+		let chatSocket: Socket;
+
 		if (isAuthenticated !== null && isAuthenticated) {
 			appSocket = io(`${process.env.REACT_APP_APP_GATEWAY_URL}`, {
 				query: {
@@ -56,8 +59,18 @@ export default function PrivateRoute(props: {
 				updateOnlineFriend(friend);
 			});
 			setSocket(appSocket);
+			chatSocket = io(`${process.env.REACT_APP_CHAT_URL}`, {
+				query: {
+					email: user.email,
+				},
+			});
+			chatSocket.on("connectionFailed", () => {
+				navigate("/login");
+			});
+			setChatSocket(chatSocket);
 		}
 		return () => {
+			if (chatSocket) chatSocket.disconnect();
 			if (appSocket) {
 				appSocket.removeAllListeners();
 				appSocket.disconnect();
@@ -97,7 +110,7 @@ export default function PrivateRoute(props: {
 	);
 
 	return isAuthenticated ? (
-		<PrivateRouteSocketContext.Provider value={{ socket }}>
+		<PrivateRouteSocketContext.Provider value={{ socket, chatSocket}}>
 			{props.play ? (
 				<GameSocketContext.Provider value={{ gameSocket }}>
 					{elem}

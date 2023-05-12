@@ -1,100 +1,87 @@
 import ChatNav from "../../components/Chat/ChatNav/ChatNav";
 import { useEffect, useState } from "react";
-import Message from "../../components/Message/Message";
-import { useParams } from "react-router-dom";
-import MessageDisplay from "../../components/Message/MessageDisplay/MessageDisplay";
-import { KeyboardEvent } from "react";
-import { Socket, io } from "socket.io-client";
+import { NavLink } from "react-router-dom";
 import { useUser } from "../../context/UserProvider";
+import { ChannelModel } from "../../entities/entities"
+import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
 
 export default function DirectMessages() {
-	const { user } = useUser();
-	const [socket, setSocket] = useState<Socket>();
-	const [value, setValue] = useState("");
 
-	const [messages, setMessages] = useState([
-		{
-			username: "gilbert",
-			socket: "",
-			content: "Salut toi",
-		},
-		{
-			username: "wakka",
-			socket: "",
-			content: "Bonjour",
-		},
-	]);
-
-	const { id } = useParams();
-
-	const messagesList = messages.map(({ username, content }) => (
-		<li key={username}>
-			<Message
-				allMessages={messages}
-				removeMessages={setMessages}
-				username={username}
-				content={content}
-			/>
-		</li>
-	));
-
-	const messageListener = (sender: string, message: string) => {
-		setMessages([
-			...messages,
-			{ username: sender, socket: "", content: message },
-		]);
-	};
+	const { user , accessToken} = useUser();
+	const [directMessagesState, setDirectMessagesState] = useState<ChannelModel[]>([]);
+	const {chatSocket} = usePrivateRouteSocket();
 
 	useEffect(() => {
-		const newSocket = io("http://localhost:8001");
-		setSocket(newSocket);
-	}, [setSocket]);
+		(async () => {
+			try {
+				await fetch(`http://localhost:3000/channels/dm/${user.userName}`, {
+					credentials: "include",
+					headers: {
+						Authorization: `Bearer ${accessToken}`,
+					},
+				})
+				.then((res) => res.json())
+				.then(
+				(chans) => {
+					setDirectMessagesState(chans);
+					console.log(chans);
+				}
+				);
+            } catch (e) {
+			}
+        })();
+    }, [user.userName, accessToken]);
 
-	useEffect(() => {
-		socket?.on("private_message", messageListener);
-		return () => {
-			socket?.off("private_message", messageListener);
-		};
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [messageListener]);
-
-	const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-		if (event.key === "Enter") {
-			socket?.emit("private_message", {
-				sender: user.userName,
-				message: value,
-				socket: socket.id,
-				receiver: id,
+  const directMessageList = directMessagesState.map((channel) => {
+	const members = channel.members;
+	let membersDetails;
+	if (members){
+		membersDetails = members.map((member) => {
+			return ( member.id !== user.id &&
+				<p key={member.id}>{member.userName}</p>
+				);
 			});
-		}
-	};
+			
+			return (
+				<NavLink key={channel.id}  className={``}  to={`/chat/direct_messages/${channel.title}`} >
+			{membersDetails}	
+		</NavLink >
+	);
+	}
+	return (<p key={"0"}></p>)
+  });
+
+useEffect(() => {
+	const DirectMessagesListener = (chan: ChannelModel) => {
+		const {id,
+			title,
+			type,
+			mode,
+			ownerId,
+			members,
+			messages} = chan;
+			setDirectMessagesState([...directMessagesState, {id, title, type, mode, ownerId, members, messages}]);
+	}
+	chatSocket?.on("receivedDirectMessage", DirectMessagesListener);
+	return () => {
+		chatSocket?.off("receivedDirectMessage", DirectMessagesListener);
+	}
+}, [chatSocket, directMessagesState])
 
 	return (
 		<div className="container d-flex flex-column justify-content align-items">
 			<div className="title">Chat messages</div>
 			<div>
-				<ChatNav />
-				{id ? (
-					<>
-						<p>Display {id} conversation</p>
-						<MessageDisplay></MessageDisplay>
-						<button>See profile</button>
-						<button>Delete conversations</button>
-						<input
-							onKeyDown={handleKeyDown}
-							onChange={(e) => {
-								setValue(e.target.value);
-							}}
-							type="text"
-							placeholder={`Reply to ${id}`}
-						/>
-					</>
-				) : (
-					<>
-						<h1>Messages ({messages.length})</h1>
-						<ul className="List">{messagesList}</ul>
-					</>
-				)}
+					<ChatNav/>
+					{
+						<>
+							<h1 className={`mt-20`}>Private messages ({directMessagesState.length})</h1>
+							<ul className="List m-20">{directMessageList}</ul>
+							<NavLink className={`btn-primary m-10 d-flex flex-column justify-content align-items`}  to='/chat/direct_messages/new_dm' >
+								New Direct Messages
+            				</NavLink>
+						</>
+					}
 			</div>
 		</div>
 	);

@@ -28,13 +28,13 @@ export class UserService {
 		});
 	}
 
-	async getAllUsers() {
-		return await this.prisma.user.findMany({
-			select: {
-				userName: true,
-			},
-		});
-	}
+	// async getAllUsers() {
+	// 	return await this.prisma.user.findMany({
+	// 		select: {
+	// 			userName: true,
+	// 		},
+	// 	});
+	// }
 
 	async getUserByEmail(email: string): Promise<User> {
 		return await this.prisma.user.findUnique({
@@ -159,6 +159,34 @@ export class UserService {
 				},
 			},
 		});
+	}
+
+	async getAllUsers(): Promise<{ id: number; userName: string }[]> {
+		const users = await this.prisma.user.findMany({
+			select: {
+				id: true,
+				userName: true,
+			},
+		});
+		return users;
+	}
+
+	async getJoignableUsers(userName: string) {
+		const users = await this.prisma.user.findMany({
+			where: {
+				NOT: {
+					channels: {
+						some: {
+							AND: [
+								{ members: { some: { userName: userName } } },
+								{ type: "DM" },
+							],
+						},
+					},
+				},
+			},
+		});
+		return users;
 	}
 
 	async addToFriend(userName: string, newFriendUserName: string) {
