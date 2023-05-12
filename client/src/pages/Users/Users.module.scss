@@ -48,6 +48,11 @@
 
 			i {
 				cursor: pointer;
+				transition: color 0.3s ease-in-out;
+
+				&:hover {
+					color: var(--light-grey);
+				}
 			}
 
 			h3 {

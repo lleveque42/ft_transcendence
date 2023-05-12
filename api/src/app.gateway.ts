@@ -14,7 +14,7 @@ import { UserService } from "./user/user.service";
 import { User, UserStatus } from "@prisma/client";
 import { OnlineUsers } from "./classes/OnlineUsers";
 
-const DISCONNECTION_STATUS_TIMEOUT = 2000;
+const DISCONNECTION_STATUS_TIMEOUT = 1000;
 
 @WebSocketGateway(8001, { cors: "*" })
 export class AppGateway
@@ -51,18 +51,18 @@ export class AppGateway
 	async handleDisconnect(client: Socket) {
 		const user: User = this.users.getUserByClientId(client.id);
 		if (!user) return;
-		this.waitingReconnection.add(user.id);
-		setTimeout(async () => {
-			if (this.waitingReconnection.has(user.id)) {
-				await this.changeUserStatus(user, false);
-				this.logger.log(
-					`WS Client ${client.id} (${user.userName}) disconnected !`,
-				);
+		if (this.users.getClientsByUserId(user.id).size === 1) {
+			this.waitingReconnection.add(user.id);
+			setTimeout(async () => {
+				if (this.waitingReconnection.has(user.id)) {
+					this.waitingReconnection.delete(user.id);
+					await this.changeUserStatus(user, false);
+				}
 				this.users.removeClientId(client.id);
-				this.waitingReconnection.delete(user.id);
-				this.logger.log(`${this.users.size} user(s) connected !`);
-			}
-		}, DISCONNECTION_STATUS_TIMEOUT);
+			}, DISCONNECTION_STATUS_TIMEOUT);
+		} else this.users.removeClientId(client.id);
+		this.logger.log(`WS Client ${client.id} (${user.userName}) disconnected !`);
+		this.logger.log(`${this.users.size} user(s) connected !`);
 	}
 
 	async handleConnection(@ConnectedSocket() client: Socket) {
