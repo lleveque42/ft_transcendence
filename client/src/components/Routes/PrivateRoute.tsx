@@ -53,7 +53,8 @@ export default function PrivateRoute(props: {
 				navigate("/login");
 			});
 			appSocket.on("updateOnlineFriend", (friend: Friend) => {
-				updateOnlineFriend(friend);
+				// updateOnlineFriend(friend);
+				isAuth();
 			});
 			setSocket(appSocket);
 		}

@@ -36,7 +36,10 @@ export default function Users() {
 					u.status = null;
 				}
 				return u;
-			});
+			})
+			.sort((a: UsersList, b: UsersList) =>
+				a.userName.localeCompare(b.userName),
+			);
 		setUsersList(list);
 	}
 
@@ -44,10 +47,10 @@ export default function Users() {
 		try {
 			const res = await toggleFriendshipRequest(accessToken, userName, method);
 			if (method === "DELETE" && res.status === 204) {
-				isAuth();
+				await isAuth();
 				showAlert("warning", "Removed from friends");
 			} else if (res.ok) {
-				isAuth();
+				await isAuth();
 				showAlert("info", "Added to friends");
 			} else showAlert("error", "A problem occured, try again later");
 		} catch (e) {
@@ -69,7 +72,7 @@ export default function Users() {
 		// eslint-disable-next-line
 	}, [user]);
 
-	// Order by username
+	console.log(user.friends);
 
 	return (
 		<>

@@ -87,6 +87,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
 	};
 
 	const updateOnlineFriend = (friend: Friend) => {
+		// isAuth();
 		const newFriendsList = [
 			...user.friends.filter((f) => f.id !== friend.id),
 			friend,

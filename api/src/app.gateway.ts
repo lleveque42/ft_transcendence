@@ -14,7 +14,7 @@ import { UserService } from "./user/user.service";
 import { User, UserStatus } from "@prisma/client";
 import { OnlineUsers } from "./classes/OnlineUsers";
 
-const DISCONNECTION_STATUS_TIMEOUT = 1000;
+const DISCONNECTION_STATUS_TIMEOUT = 2000;
 
 @WebSocketGateway(8001, { cors: "*" })
 export class AppGateway
@@ -59,10 +59,18 @@ export class AppGateway
 					await this.changeUserStatus(user, false);
 				}
 				this.users.removeClientId(client.id);
+				this.logger.log(
+					`WS Client ${client.id} (${user.userName}) disconnected !`,
+				);
+				this.logger.log(`${this.users.size} user(s) connected !`);
 			}, DISCONNECTION_STATUS_TIMEOUT);
-		} else this.users.removeClientId(client.id);
-		this.logger.log(`WS Client ${client.id} (${user.userName}) disconnected !`);
-		this.logger.log(`${this.users.size} user(s) connected !`);
+		} else {
+			this.users.removeClientId(client.id);
+			this.logger.log(
+				`WS Client ${client.id} (${user.userName}) disconnected !`,
+			);
+			this.logger.log(`${this.users.size} user(s) connected !`);
+		}
 	}
 
 	async handleConnection(@ConnectedSocket() client: Socket) {
@@ -104,18 +112,20 @@ export class AppGateway
 		@MessageBody() newUserName: string,
 	) {
 		const user = this.users.getUserByClientId(client.id);
-		const onlineFriends = await this.users.getFriendsOfByUserId(
-			user.id,
-			this.userService,
-		);
-		if (this.waitingReconnection.has(user.id))
-			this.waitingReconnection.delete(user.id);
-		for (let friend of onlineFriends) {
-			this.users.emitAllbyUserId(friend.id, "updateOnlineFriend", {
-				id: user.id,
-				userName: newUserName,
-				status: user.status,
-			});
-		}
+
+		const users = this.users.getUsers();
+		console.log(users);
+
+		// const onlineFriends = await this.users.getFriendsOfByUserId(
+		// 	user.id,
+		// 	this.userService,
+		// );
+		// for (let friend of onlineFriends) {
+		// 	this.users.emitAllbyUserId(friend.id, "updateOnlineFriend", {
+		// 		id: user.id,
+		// 		userName: newUserName,
+		// 		status: user.status,
+		// 	});
+		// }
 	}
 }

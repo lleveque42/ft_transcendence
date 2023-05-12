@@ -14,6 +14,10 @@ export class OnlineUsers {
 		this.size = 0;
 	}
 
+	getUsers() {
+		return this._users;
+	}
+
 	addNewUser(user: User, client: Socket): void {
 		this._clients.set(client.id, user.id);
 		const clientMap = new Map<string, Socket>([[client.id, client]]);
