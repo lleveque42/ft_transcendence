@@ -7,6 +7,7 @@ export type GameStatus = {
 	owner: boolean;
 	waitingToStart: boolean;
 	started: boolean;
+	paused: boolean;
 	ended: boolean;
 	ownerScore: number;
 	playerScore: number;
@@ -19,6 +20,7 @@ export const defaultGameStatus: GameStatus = {
 	owner: false,
 	waitingToStart: false,
 	started: false,
+	paused: false,
 	ended: false,
 	ownerScore: 0,
 	playerScore: 0,
@@ -37,10 +39,36 @@ export function gameStarted(gameStatus: GameStatus): GameStatus {
 }
 
 export function gameEnded(gameStatus: GameStatus): GameStatus {
+	return { ...gameStatus, started: false, ended: true };
+}
+
+export function gamePaused(gameStatus: GameStatus): GameStatus {
+	return { ...gameStatus, paused: true };
+}
+
+export function gameUnpaused(gameStatus: GameStatus): GameStatus {
+	return { ...gameStatus, paused: false };
+}
+
+export function alreadyInGame(
+	gameStatus: GameStatus,
+	user: UserDataState,
+	room: string,
+	ownerScore: number,
+	playerScore: number,
+	ownerId: number,
+	playerId: number,
+): GameStatus {
+	const owner: boolean = user.id === ownerId;
 	return {
 		...gameStatus,
-		started: false,
-		ended: true,
+		room,
+		ownerId,
+		playerId,
+		owner,
+		started: true,
+		ownerScore,
+		playerScore,
 	};
 }
 
@@ -51,8 +79,7 @@ export function joinedGame(
 	ownerId: number,
 	playerId: number,
 ): GameStatus {
-	let owner: boolean = false;
-	if (user.id === ownerId) owner = true;
+	const owner: boolean = user.id === ownerId;
 	return {
 		...gameStatus,
 		room,

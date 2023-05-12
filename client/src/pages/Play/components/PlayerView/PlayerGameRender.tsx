@@ -1,7 +1,7 @@
 import { Canvas } from "@react-three/fiber";
 import LeftPaddle from "./PlayerPaddlePlayerView";
 import RightPaddle from "./OwnerPaddlePlayerView";
-import Ball from "./BallPlayerView";
+import Ball from "../Game/Ball";
 import { useRef } from "react";
 import Background from "../Game/Background";
 import { useGameSocket } from "../../context/GameSocketProvider";

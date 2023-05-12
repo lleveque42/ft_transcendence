@@ -1,5 +1,6 @@
 @use "./mixins" as mixin;
 @import "loaders.css/src/animations/line-scale-pulse-out.scss";
+@import "loaders.css/src/animations/ball-zig-zag.scss";
 
 .btn {
 	text-decoration: none;
@@ -66,7 +67,7 @@
 
 .loader-active {
 	background-color: var(--primary-dark);
-	// height: 100vh;
+	// display: block;
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -76,6 +77,15 @@
 		height: 15vh;
 		width: 0.8vw;
 		background: var(--primary);
+	}
+
+	.nobody-loader {
+		height: 40vh;
+		> div {
+			width: 2.5vw;
+			height: 2.5vw;
+			background: var(--primary);
+		}
 	}
 }
 

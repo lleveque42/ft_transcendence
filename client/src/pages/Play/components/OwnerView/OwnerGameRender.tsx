@@ -1,10 +1,10 @@
 import { Canvas } from "@react-three/fiber";
 import LeftPaddle from "./PlayerPaddleOwnerView";
 import RightPaddle from "./OwnerPaddleOwnerView";
-import Ball from "./BallOwnerView";
 import { useRef } from "react";
 import Background from "../Game/Background";
 import { useGameSocket } from "../../context/GameSocketProvider";
+import BallServer from "../Game/BallServer";
 
 interface OwnerGameRenderProps {
 	room: string;
@@ -22,7 +22,7 @@ export default function OwnerGameRender({ room }: OwnerGameRenderProps) {
 			<group>
 				<Background />
 				<LeftPaddle paddle={playerPaddle} socket={gameSocket} />
-				<Ball
+				<BallServer
 					playerPaddle={playerPaddle}
 					ownerPaddle={ownerPaddle}
 					socket={gameSocket}

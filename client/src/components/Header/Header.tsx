@@ -3,6 +3,8 @@ import styles from "./Header.module.scss";
 import { useEffect, useRef, useState } from "react";
 import useAvatar from "../../hooks/useAvatar";
 import { useUser } from "../../context";
+import logo from "../../assets/images/pongLogo.png";
+import trimUserName from "../../utils/trimUserName";
 
 export default function Header() {
 	const navigate = useNavigate();
@@ -16,13 +18,6 @@ export default function Header() {
 		logout();
 		navigate("/login");
 	};
-
-	function trimUserName(userName: string): string {
-		let displayUserName: string = userName;
-		if (displayUserName.length > 10)
-			displayUserName = displayUserName.substring(0, 10) + "...";
-		return displayUserName;
-	}
 
 	useEffect(() => {
 		const handle = (e: any) => {
@@ -42,20 +37,22 @@ export default function Header() {
 				<></>
 			) : (
 				<header>
-					<div
-						className={`${styles.headerContainer} d-flex align-items`}
-					>
-						<h2
-							className={`${styles.title} pl-10`}
+					<div className={`${styles.headerContainer} d-flex align-items`}>
+						<img
+							src={logo}
+							alt=""
+							className={styles.logo}
 							onClick={() => {
 								navigate("/");
 							}}
-						>
-							FT_TRANSCENDENCE
-						</h2>
-						<div className={`${styles.headerNav} d-flex align-items ml-10`}>
-							<p className="" onClick={() => navigate("/users")}>Users</p>
-							<p className="pl-5">Chat</p>
+						/>
+						<div className={`${styles.headerNav} d-flex align-items ml-30`}>
+							<h3 className="" onClick={() => navigate("/users")}>
+								Users
+							</h3>
+							<h3 className="ml-20" onClick={() => navigate("/chat")}>
+								Chat
+							</h3>
 						</div>
 
 						<div className="d-flex align-end" ref={menuRef}>

@@ -5,123 +5,234 @@ import styles from "./Play.module.scss";
 import { useGameSocket } from "./context/GameSocketProvider";
 import {
 	GameStatus,
+	alreadyInGame,
 	defaultGameStatus,
 	gameEnded,
+	gamePaused,
 	gameStarted,
+	gameUnpaused,
 	incrementOwnerScore,
 	incrementPlayerScore,
 	joinedGame,
 } from "./types/gameStatus.type";
-import { UserStatus } from "./enums/UserStatus";
+import { GameUserStatus } from "./enums/UserStatus";
 import { useUser } from "../../context";
 import Countdown from "./components/Common/Countdown";
 import Game from "./components/Common/Game";
 import { Default } from "./components/Common/Default";
 import Queue from "./components/Common/Queue";
+import { useNavigate } from "react-router-dom";
 
 export default function Play() {
 	const { user } = useUser();
+	const navigate = useNavigate();
 	const { gameSocket } = useGameSocket();
-	// const [connectionStatus, setConnectionStatus] = useState(0); //si inGame ou inqueue à la connexion
-	const [userStatus, setUserStatus] = useState<UserStatus>(
-		UserStatus.connected,
+	const [gameUserStatus, setGameUserStatus] = useState<GameUserStatus>(
+		GameUserStatus.notConnected,
 	);
 	const [gameStatus, setGameStatus] = useState<GameStatus>(defaultGameStatus);
 
-	function joinQueue(again: boolean) {
+	function joinQueue() {
 		if (gameSocket) {
 			gameSocket.emit("joinQueue");
 			gameSocket.once("queuedStatus", (success: boolean, err: string) => {
 				if (success === true) {
 					setGameStatus(defaultGameStatus);
-					setUserStatus(UserStatus.inQueue);
+					setGameUserStatus(GameUserStatus.inQueue);
 				} else {
 					console.log("Queue failed? try again? : err = " + err);
-					setUserStatus(UserStatus.connected);
+					setGameUserStatus(GameUserStatus.connected);
 				}
 			});
 		}
 		// else could not join game/ redirect to login ?
 	}
 
-	function showUsers() {
-		gameSocket?.emit("showUsers");
-	}
-
-	function showGames() {
-		gameSocket?.emit("showGames");
-	}
-
-	function showGameStatus() {
-		console.log(gameStatus);
-	}
-
 	function backToPlay() {
 		setGameStatus(defaultGameStatus);
-		setUserStatus(UserStatus.connected);
+		setGameUserStatus(GameUserStatus.connected);
 	}
 
-	useEffect(() => {
-		console.log(userStatus);
+	function notConnected() {
+		gameSocket?.on("connectionStatusError", () =>
+			gameSocket?.emit("getConnectionStatus"),
+		);
+		gameSocket?.once(
+			"connectionStatus",
+			(
+				status: { success: boolean; inGame: boolean },
+				game: {
+					room: string;
+					ownerId: number;
+					playerId: number;
+					ownerScore: number;
+					playerScore: number;
+				},
+			) => {
+				gameSocket?.removeListener("connectionStatusError");
+				if (!status.success) {
+					setGameUserStatus(GameUserStatus.alreadyConnected);
+					gameSocket.disconnect();
+					setTimeout(() => navigate("/"), 5000);
+				} else if (status.inGame) {
+					setGameStatus(
+						alreadyInGame(
+							gameStatus,
+							user,
+							game.room,
+							game.ownerScore,
+							game.playerScore,
+							game.ownerId,
+							game.playerId,
+						),
+					);
+					setGameUserStatus(GameUserStatus.inGame);
+				} else setGameUserStatus(GameUserStatus.connected);
+			},
+		);
+		gameSocket?.emit("getConnectionStatus");
+	}
+
+	function connected() {
+		gameSocket?.once("queuedStatus", (success: boolean, err: string) => {
+			if (success === true) {
+				setGameStatus(defaultGameStatus);
+				setGameUserStatus(GameUserStatus.inQueue);
+			} else {
+				console.log("Queue failed? try again? : err = " + err);
+				setGameUserStatus(GameUserStatus.connected);
+			}
+		});
+	}
+
+	function inQueue() {
 		gameSocket?.once(
 			"joinedGame",
 			(room: string, ownerId: number, playerId: number) => {
 				setGameStatus(joinedGame(gameStatus, user, room, ownerId, playerId));
-				setUserStatus(UserStatus.waitingGameStart);
+				setGameUserStatus(GameUserStatus.waitingGameStart);
+				gameSocket.removeListener("leftQueue");
 			},
 		);
-		if (userStatus === UserStatus.waitingGameStart) {
-			setTimeout(() => {
-				setUserStatus(UserStatus.inGame);
-				setGameStatus(gameStarted(gameStatus));
-			}, 3000);
-		}
-		if (userStatus === UserStatus.inGame) {
-			gameSocket?.on("scoreUpdate", (ownerScored: boolean) => {
-				if (ownerScored) setGameStatus(incrementOwnerScore(gameStatus));
-				else setGameStatus(incrementPlayerScore(gameStatus));
-			});
-			gameSocket?.once("gameEnded", (winner: number) => {
-				gameSocket!.off("scoreUpdate");
-				let newUserStatus: UserStatus;
-				user.id === winner
-					? (newUserStatus = UserStatus.gameWinner)
-					: (newUserStatus = UserStatus.gameLoser);
-				setUserStatus(newUserStatus);
-				setGameStatus(gameEnded(gameStatus));
-			});
+	}
+
+	function waitingToStart() {
+		setTimeout(() => {
+			setGameUserStatus(GameUserStatus.inGame);
+			setGameStatus(gameStarted(gameStatus));
+		}, 3000);
+	}
+
+	function inGame() {
+		gameSocket?.on("scoreUpdate", (ownerScored: boolean) => {
+			if (ownerScored) setGameStatus(incrementOwnerScore(gameStatus));
+			else setGameStatus(incrementPlayerScore(gameStatus));
+		});
+		gameSocket?.once("gameEnded", (winner: number) => {
+			gameSocket!.off("scoreUpdate");
+			let newUserStatus: GameUserStatus;
+			user.id === winner
+				? (newUserStatus = GameUserStatus.gameWinner)
+				: (newUserStatus = GameUserStatus.gameLoser);
+			setGameUserStatus(newUserStatus);
+			setGameStatus(gameEnded(gameStatus));
+		});
+		gameSocket?.once("disconnection", (timeout: number) => {
+			gameSocket!.off("scoreUpdate");
+			setGameUserStatus(GameUserStatus.waitingOpponentReconnection);
+			setGameStatus(gamePaused(gameStatus));
+		});
+	}
+
+	function waitingOpponentReconnection() {
+		gameSocket?.once("reconnected", () => {
+			setGameStatus(gameUnpaused(gameStatus));
+			setGameUserStatus(GameUserStatus.inGame);
+		});
+		gameSocket?.once("gameEnded", (winner) => {
+			let newUserStatus: GameUserStatus;
+			user.id === winner
+				? (newUserStatus = GameUserStatus.gameWinner)
+				: (newUserStatus = GameUserStatus.gameLoser);
+			setGameUserStatus(newUserStatus);
+			setGameStatus(gameUnpaused(gameStatus));
+			setGameStatus(gameEnded(gameStatus));
+		});
+	}
+
+	useEffect(() => {
+		switch (gameUserStatus) {
+			case GameUserStatus.notConnected:
+				notConnected();
+				break;
+			case GameUserStatus.connected:
+			case GameUserStatus.gameWinner:
+			case GameUserStatus.gameLoser:
+				connected();
+				break;
+			case GameUserStatus.inQueue:
+				inQueue();
+				break;
+			case GameUserStatus.waitingGameStart:
+				waitingToStart();
+				break;
+			case GameUserStatus.inGame:
+				inGame();
+				break;
+			case GameUserStatus.waitingOpponentReconnection:
+				waitingOpponentReconnection();
+				break;
 		}
 		return () => {
 			gameSocket?.removeAllListeners();
 		};
-	}, [userStatus, gameSocket, gameStatus, user]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [gameUserStatus, gameSocket, gameStatus, user]);
 
 	return (
 		<div
 			className={`container ${styles.gamePage} d-flex flex-column align-items justify-content`}
 		>
-			{userStatus === UserStatus.connected && (
-				<Default showUsers={showUsers} joinQueue={joinQueue} />
+			{gameUserStatus === GameUserStatus.notConnected && <>Connecting...</>}
+			{gameUserStatus === GameUserStatus.alreadyConnected && (
+				<>
+					You are already playing on another device or browser. Please
+					disconnect from this other session and try again. You will be
+					redirected, please do not refresh.
+				</>
 			)}
-			{userStatus === UserStatus.inQueue && (
-				<Queue gameSocket={gameSocket} setUserStatus={setUserStatus} />
+			{gameUserStatus === GameUserStatus.connected && (
+				<Default
+					showUsers={() => gameSocket?.emit("showUsers")}
+					joinQueue={joinQueue}
+				/>
 			)}
-			{userStatus === UserStatus.waitingGameStart && <Countdown />}
-			{userStatus === UserStatus.inGame && (
+			{gameUserStatus === GameUserStatus.inQueue && (
+				<Queue gameSocket={gameSocket} setGameUserStatus={setGameUserStatus} />
+			)}
+			{gameUserStatus === GameUserStatus.waitingGameStart && <Countdown />}
+			{gameUserStatus === GameUserStatus.inGame && (
 				<Game
-					showGames={showGames}
+					showGames={() => gameSocket?.emit("showGames")}
 					gameStatus={gameStatus}
 					gameSocket={gameSocket}
 				/>
 			)}
-			{userStatus === UserStatus.gameWinner && (
+			{gameUserStatus === GameUserStatus.waitingOpponentReconnection && (
+				<div
+					className={`${styles.sizeContainer} d-flex flex-column align-items justify-content mb-20`}
+				>
+					WAITING FOR OPPONENT RECONNECTION
+				</div>
+			)}
+			{gameUserStatus === GameUserStatus.gameWinner && (
 				<div
 					className={`${styles.sizeContainer} d-flex flex-column align-items justify-content mb-20`}
 				>
 					WIN
 				</div>
 			)}
-			{userStatus === UserStatus.gameLoser && (
+			{gameUserStatus === GameUserStatus.gameLoser && (
 				<div
 					className={`${styles.sizeContainer} d-flex flex-column align-items justify-content mb-20`}
 				>
@@ -133,7 +244,7 @@ export default function Play() {
 					<button
 						className="btn-primary mb-10"
 						onClick={() => {
-							joinQueue(true);
+							joinQueue();
 						}}
 					>
 						Play again
@@ -143,7 +254,18 @@ export default function Play() {
 					</button>
 				</>
 			)}
-			<button className="btn-primary mb-10" onClick={showGameStatus}>
+			<button
+				className="btn-primary mb-10"
+				onClick={() => {
+					gameSocket?.emit("showUsers");
+				}}
+			>
+				Show users
+			</button>
+			<button
+				className="btn-primary mb-10"
+				onClick={() => console.log(gameStatus)}
+			>
 				Show game status
 			</button>
 		</div>

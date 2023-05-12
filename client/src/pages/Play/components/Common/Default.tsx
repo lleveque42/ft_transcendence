@@ -1,6 +1,6 @@
 interface DefaultProps {
 	showUsers: () => void; // tmp
-	joinQueue: (again: boolean) => void;
+	joinQueue: () => void;
 }
 
 export function Default({ showUsers, joinQueue }: DefaultProps) {
@@ -15,7 +15,7 @@ export function Default({ showUsers, joinQueue }: DefaultProps) {
 			<button
 				className="btn-primary mb-10"
 				onClick={() => {
-					joinQueue(false);
+					joinQueue();
 				}}
 			>
 				Play

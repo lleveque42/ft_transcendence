@@ -24,13 +24,13 @@ export class OnlineUsers {
 		this.size++;
 	}
 
-	removeClientId(clientId: string): void {
+	removeClientId(clientId: string, removeUser?: boolean): void {
 		const userId = this._clients.get(clientId);
 		this._clients.delete(clientId);
 		if (userId !== undefined) {
-			const userInterface: UserType = this._users.get(userId);
-			userInterface.sockets.delete(clientId);
-			if (userInterface.sockets.size === 0) {
+			const user: UserType = this._users.get(userId);
+			user.sockets.delete(clientId);
+			if (user.sockets.size === 0) {
 				this._users.delete(userId);
 				this.size--;
 			}
@@ -67,8 +67,8 @@ export class OnlineUsers {
 
 	addClientToUserId(userId: number, client: Socket): void {
 		this._clients.set(client.id, userId);
-		const userInterface: UserType = this._users.get(userId);
-		userInterface.sockets.set(client.id, client);
+		const user: UserType = this._users.get(userId);
+		user.sockets.set(client.id, client);
 	}
 
 	emitAllbyUserId(userId: number, emit: string, content: any) {
@@ -77,11 +77,16 @@ export class OnlineUsers {
 		});
 	}
 
-	showOnlineUsers() {
-		console.log("CONNECTED USERS : \n");
-		console.log(this._users);
-		console.log("\nCONNECTED CLIENTS : \n");
-		console.log(this._clients);
+	joinAllbyUserId(userId: number, room: string) {
+		this.getClientsByUserId(userId).forEach((client) => {
+			client.join(room);
+		});
+	}
+
+	leaveAllbyUserId(userId: number, room: string) {
+		this.getClientsByUserId(userId).forEach((client) => {
+			client.join(room);
+		});
 	}
 
 	async getFriendsOfByUserId(
@@ -95,5 +100,12 @@ export class OnlineUsers {
 			this._users.has(friend.id),
 		);
 		return onlineFriends;
+	}
+
+	showOnlineUsers() {
+		console.log("CONNECTED USERS : \n");
+		console.log(this._users);
+		console.log("\nCONNECTED CLIENTS : \n");
+		console.log(this._clients);
 	}
 }

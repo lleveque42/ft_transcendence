@@ -33,6 +33,7 @@
 		width: 30vw;
 		border-radius: 50%;
 		background: var(--secondary-dark);
+		border: var(--border);
 		position: absolute;
 
 		@include mixin.sm-lt {

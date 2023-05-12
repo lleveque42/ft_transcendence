@@ -14,6 +14,8 @@ import { UserService } from "./user/user.service";
 import { User, UserStatus } from "@prisma/client";
 import { OnlineUsers } from "./classes/OnlineUsers";
 
+const DISCONNECTION_STATUS_TIMEOUT = 1000;
+
 @WebSocketGateway(8001, { cors: "*" })
 export class AppGateway
 	implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
@@ -22,6 +24,7 @@ export class AppGateway
 	@WebSocketServer()
 	io: Namespace;
 	users: OnlineUsers = new OnlineUsers();
+	waitingReconnection: Set<number> = new Set<number>();
 
 	constructor(private userService: UserService) {}
 
@@ -48,9 +51,17 @@ export class AppGateway
 	async handleDisconnect(client: Socket) {
 		const user: User = this.users.getUserByClientId(client.id);
 		if (!user) return;
-		await this.changeUserStatus(user, false);
+		if (this.users.getClientsByUserId(user.id).size === 1) {
+			this.waitingReconnection.add(user.id);
+			setTimeout(async () => {
+				if (this.waitingReconnection.has(user.id)) {
+					this.waitingReconnection.delete(user.id);
+					await this.changeUserStatus(user, false);
+				}
+				this.users.removeClientId(client.id);
+			}, DISCONNECTION_STATUS_TIMEOUT);
+		} else this.users.removeClientId(client.id);
 		this.logger.log(`WS Client ${client.id} (${user.userName}) disconnected !`);
-		this.users.removeClientId(client.id);
 		this.logger.log(`${this.users.size} user(s) connected !`);
 	}
 
@@ -70,6 +81,8 @@ export class AppGateway
 			client.disconnect();
 			return;
 		}
+		if (this.waitingReconnection.has(user.id))
+			this.waitingReconnection.delete(user.id);
 		if (this.users.hasByUserId(user.id))
 			this.users.addClientToUserId(user.id, client);
 		else {
@@ -95,6 +108,8 @@ export class AppGateway
 			user.id,
 			this.userService,
 		);
+		if (this.waitingReconnection.has(user.id))
+			this.waitingReconnection.delete(user.id);
 		for (let friend of onlineFriends) {
 			this.users.emitAllbyUserId(friend.id, "updateOnlineFriend", {
 				id: user.id,

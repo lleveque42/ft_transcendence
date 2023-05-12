@@ -15,6 +15,9 @@ export default function Ball({ socket }: BallProps) {
 			ball.current.position.x = x;
 			ball.current.position.y = y;
 		});
+		return () => {
+			socket!.off("ballPosUpdate");
+		};
 	});
 
 	return (

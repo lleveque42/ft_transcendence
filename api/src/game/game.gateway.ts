@@ -16,7 +16,11 @@ import { OnlineUsers } from "../classes/OnlineUsers";
 import { GameQueue } from "../classes/GameQueue";
 import { Pair } from "./types/pair.type";
 import { randomUUID } from "crypto";
-import { GAME_LIMIT_SCORE, OngoingGames } from "../classes/OngoingGames";
+import {
+	DISCONNECTION_TIMEOUT,
+	GAME_LIMIT_SCORE,
+	OngoingGames,
+} from "../classes/OngoingGames";
 
 @WebSocketGateway(8001, { namespace: "game", cors: "http://localhost:3001" })
 export class GameGateway
@@ -28,18 +32,70 @@ export class GameGateway
 	users: OnlineUsers = new OnlineUsers();
 	queue: GameQueue = new GameQueue();
 	ongoing: OngoingGames = new OngoingGames();
+	waitingReconnection: Map<number, string> = new Map<number, string>();
 	constructor(private userService: UserService) {}
 
 	afterInit(): any {
 		this.logger.log("Websocket GameGateway initialized.");
 	}
 
+	connectInGame(client: Socket, user: User) {
+		const room = this.ongoing.getGameIdByUserId(user.id);
+		const game = this.ongoing.getGameById(room);
+		client.join(room);
+		client.emit(
+			"connectionStatus",
+			{ success: true, inGame: true },
+			{
+				room: game.id,
+				ownerId: game.ownerId,
+				playerId: game.playerId,
+				ownerScore: game.ownerScore,
+				playerScore: game.playerScore,
+			},
+		);
+	}
+
+	handleInGameDisconnect(user: User, client: Socket) {
+		const room = this.ongoing.getGameIdByUserId(user.id);
+		const game = this.ongoing.getGameById(room);
+		this.waitingReconnection.set(user.id, room);
+		const opponent = game.ownerId === user.id ? game.player : game.owner;
+		if (this.waitingReconnection.get(opponent.id)) {
+			this.logger.log(
+				`${game.owner.userName} vs ${game.player.userName} : both players deconnected, game ended.`,
+			);
+			this.endGame(room, false);
+			return;
+		}
+		this.io.to(room).emit("disconnection", DISCONNECTION_TIMEOUT);
+		setTimeout(() => {
+			this.waitingReconnection.delete(user.id);
+			this.logger.log(
+				`${game.owner.userName} vs ${game.player.userName} : ended (Reconnection timeout), ${opponent.userName} won.`,
+			);
+			// this.io.on("reconnection", () => {
+			// 	// check if client.id is the same as the sender
+			// });
+			this.endGame(room, false, opponent.id);
+			this.users.removeClientId(client.id);
+		}, DISCONNECTION_TIMEOUT);
+	}
+
 	handleDisconnect(@ConnectedSocket() client: Socket) {
 		const user: User = this.users.getUserByClientId(client.id);
 		if (!user) return;
-		this.logger.log(`WS Client ${client.id} (${user.userName}) disconnected !`);
-		this.users.removeClientId(client.id);
-		this.logger.log(`${this.users.size} user(s) connected !`);
+		if (this.users.getClientsByUserId(user.id).size === 1) {
+			if (this.queue.alreadyQueued(user.id)) {
+				this.queue.dequeueUser(user.id);
+				this.logger.log(`${user.userName} left queue.`);
+				this.logger.log(`${this.queue.size()} user(s) queued.`);
+			}
+			if (this.ongoing.alreadyInGame(user.id))
+				this.handleInGameDisconnect(user, client);
+		} else this.users.removeClientId(client.id);
+		this.logger.log(`WS Client ${client.id} (${user.userName}) disconnected.`);
+		this.logger.log(`${this.users.size} user(s) connected.`);
 	}
 
 	async handleConnection(@ConnectedSocket() client: Socket) {
@@ -54,25 +110,23 @@ export class GameGateway
 						: "user does not exist."
 				}`,
 			);
-			client.emit("connectionFailed");
+			client.emit("connectionFail");
 			client.disconnect();
 			return;
 		}
+		// if (this.waitingReconnection.get(user.id))
+		// 	client.
 		if (this.users.hasByUserId(user.id))
 			this.users.addClientToUserId(user.id, client);
 		else this.users.addNewUser(user, client);
-		if (this.queue.alreadyQueued(user.id)) client.emit("connectionInQueue");
-		else if (this.ongoing.alreadyInGame(user.id))
-			client.emit("connectionInGame");
-		else client.emit("connectionSuccess");
-		this.logger.log(`WS Client ${client.id} (${user.userName}) connected !`);
-		this.logger.log(`${this.users.size} user(s) connected !`);
+		this.logger.log(`WS Client ${client.id} (${user.userName}) connected.`);
+		this.logger.log(`${this.users.size} user(s) connected.`);
 	}
 
 	async changeUserStatus(user: User, inGame: boolean) {
 		const newStatus = inGame ? UserStatus.INGAME : UserStatus.ONLINE;
 		await this.userService.changeUserStatus(user.id, newStatus);
-		let onlineFriends = await this.users.getFriendsOfByUserId(
+		const onlineFriends = await this.users.getFriendsOfByUserId(
 			user.id,
 			this.userService,
 		);
@@ -88,49 +142,44 @@ export class GameGateway
 	createGame() {
 		const idPair = this.queue.getPair();
 		const usersPair: Pair<User> = {
-			first: this.users.getUserByUserId(idPair.first),
-			second: this.users.getUserByUserId(idPair.second),
-		};
-		const socketsPair: Pair<Map<string, Socket>> = {
-			first: this.users.getClientsByUserId(idPair.first),
-			second: this.users.getClientsByUserId(idPair.second),
+			first: this.users.getUserByUserId(idPair.first.userId),
+			second: this.users.getUserByUserId(idPair.second.userId),
 		};
 		const newRoom: string = randomUUID();
-		socketsPair.first.forEach((client) => {
-			client.join(newRoom);
-		});
-		socketsPair.second.forEach((client) => {
-			client.join(newRoom);
-		});
+		this.users.joinAllbyUserId(idPair.first.userId, newRoom);
+		this.users.joinAllbyUserId(idPair.second.userId, newRoom);
 		this.changeUserStatus(usersPair.first, true);
 		this.changeUserStatus(usersPair.second, true);
 		return this.ongoing.addGame(newRoom, usersPair.first, usersPair.second);
 	}
 
-	endGame(room: string) {
+	endGame(room: string, finished: boolean, winnerId?: number) {
 		const game = this.ongoing.getGameById(room);
 		const usersPair: Pair<User> = {
 			first: this.users.getUserByUserId(game.ownerId),
 			second: this.users.getUserByUserId(game.playerId),
 		};
-		const socketsPair: Pair<Map<string, Socket>> = {
-			first: this.users.getClientsByUserId(game.ownerId),
-			second: this.users.getClientsByUserId(game.playerId),
-		};
-		this.io
-			.to(room)
-			.emit(
-				"gameEnded",
-				game.ownerScore === GAME_LIMIT_SCORE ? game.ownerId : game.playerId,
+		if (finished) {
+			winnerId =
+				game.ownerScore === GAME_LIMIT_SCORE ? game.ownerId : game.playerId;
+			const winnerUsername =
+				usersPair.first.id === winnerId
+					? usersPair.first.userName
+					: usersPair.second.userName;
+			this.io.to(room).emit("gameEnded", winnerId);
+			this.logger.log(
+				`${usersPair.first.userName} vs ${usersPair.second.userName} : ended ${winnerUsername} won.`,
 			);
-		socketsPair.first.forEach((client) => {
-			client.leave(room);
-		});
-		socketsPair.second.forEach((client) => {
-			client.leave(room);
-		});
-		this.changeUserStatus(usersPair.first, false);
-		this.changeUserStatus(usersPair.second, false);
+			this.users.leaveAllbyUserId(usersPair.first.id, room);
+			this.users.leaveAllbyUserId(usersPair.second.id, room);
+			this.changeUserStatus(usersPair.first, false);
+			this.changeUserStatus(usersPair.second, false);
+		} else {
+			this.io.to(room).emit("gameEnded", winnerId);
+			this.users.leaveAllbyUserId(winnerId, room);
+			this.changeUserStatus(this.users.getUserByUserId(winnerId), false);
+		}
+		// post game to db
 		this.ongoing.removeGame(room);
 	}
 
@@ -144,13 +193,24 @@ export class GameGateway
 		this.ongoing.showGames();
 	}
 
+	@SubscribeMessage("getConnectionStatus")
+	sendConnectionStatus(@ConnectedSocket() client: Socket) {
+		setTimeout(() => {}, 200);
+		const user = this.users.getUserByClientId(client.id);
+		if (!user) client.emit("connectionStatusError");
+		else if (this.users.getClientsByClientId(client.id).size > 1)
+			client.emit("connectionStatus", { success: false, inGame: false });
+		else if (this.ongoing.alreadyInGame(user.id))
+			this.connectInGame(client, user);
+		else client.emit("connectionStatus", { success: true, inGame: false });
+	}
+
 	@SubscribeMessage("joinQueue")
 	handleJoinQueue(@ConnectedSocket() client: Socket): void {
 		const user = this.users.getUserByClientId(client.id);
-		const clients = this.users.getClientsByClientId(client.id);
 		if (!this.queue.alreadyQueued(user.id)) {
 			try {
-				this.queue.enqueue(user.id);
+				this.queue.enqueue({ client: client.id, userId: user.id });
 				this.logger.log(`${user.userName} joined queue.`);
 				this.logger.log(`${this.queue.size()} user(s) queued.`);
 				this.users.emitAllbyUserId(user.id, "queuedStatus", true);
@@ -162,14 +222,14 @@ export class GameGateway
 			this.logger.log(`${user.userName} already queued.`);
 		}
 		if (this.queue.size() === 2) {
-			const room = this.createGame();
+			const game = this.createGame();
 			this.io
-				.to(room.id)
-				.emit("joinedGame", room.id, room.ownerId, room.playerId);
+				.to(game.id)
+				.emit("joinedGame", game.id, game.ownerId, game.playerId);
 			this.logger.log(
-				`Game launched: ${
-					this.ongoing.getGameById(room.id).owner.userName
-				} vs ${user.userName}.`,
+				`${this.ongoing.getGameById(game.id).owner.userName} vs ${
+					user.userName
+				} : game launched.`,
 			);
 		}
 	}
@@ -191,7 +251,7 @@ export class GameGateway
 		@MessageBody("y") y: number,
 		@MessageBody("room") room: string,
 	): void {
-		this.io.to(room).emit("leftPaddlePosUpdate", y);
+		this.io.to(room).emit("playerPaddlePosUpdate", y);
 	}
 
 	@SubscribeMessage("updateOwnerPaddlePos")
@@ -199,7 +259,7 @@ export class GameGateway
 		@MessageBody("y") y: number,
 		@MessageBody("room") room: string,
 	): void {
-		this.io.to(room).emit("rightPaddlePosUpdate", y);
+		this.io.to(room).emit("ownerPaddlePosUpdate", y);
 	}
 
 	@SubscribeMessage("updateBallPos")
@@ -217,7 +277,7 @@ export class GameGateway
 	): void {
 		this.io.to(room).emit("scoreUpdate", ownerScored);
 		if (!ownerScored) {
-			if (this.ongoing.playerScored(room)) this.endGame(room);
-		} else if (this.ongoing.ownerScored(room)) this.endGame(room);
+			if (this.ongoing.playerScored(room)) this.endGame(room, true);
+		} else if (this.ongoing.ownerScored(room)) this.endGame(room, true);
 	}
 }

@@ -1,16 +1,16 @@
 import { Socket } from "socket.io-client";
-import { UserStatus } from "../../enums/UserStatus";
+import { GameUserStatus } from "../../enums/UserStatus";
 
 interface QueueProps {
 	gameSocket: Socket | null;
-	setUserStatus: React.Dispatch<React.SetStateAction<UserStatus>>;
+	setGameUserStatus: React.Dispatch<React.SetStateAction<GameUserStatus>>;
 }
 
-export default function Queue({ gameSocket, setUserStatus }: QueueProps) {
+export default function Queue({ gameSocket, setGameUserStatus }: QueueProps) {
 	function leaveQueue() {
 		gameSocket?.emit("leaveQueue");
 		gameSocket?.once("leftQueue", () => {
-			setUserStatus(UserStatus.connected);
+			setGameUserStatus(GameUserStatus.connected);
 		});
 	}
 

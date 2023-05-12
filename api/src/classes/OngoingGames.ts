@@ -2,15 +2,16 @@ import { User } from "@prisma/client";
 import { GameType } from "../game/types/game.type";
 import { Pair } from "../game/types/pair.type";
 
-export const GAME_LIMIT_SCORE: number = 1;
+export const GAME_LIMIT_SCORE: number = 10;
+export const DISCONNECTION_TIMEOUT: number = 5000;
 
 export class OngoingGames {
 	private _games: Map<string, GameType>;
-	private _users: Set<number>;
+	private _users: Map<number, string>;
 
 	constructor() {
 		this._games = new Map<string, GameType>();
-		this._users = new Set<number>();
+		this._users = new Map<number, string>();
 	}
 
 	addGame(room: string, owner: User, player: User): GameType {
@@ -23,8 +24,8 @@ export class OngoingGames {
 			ownerScore: 0,
 			playerScore: 0,
 		});
-		this._users.add(owner.id);
-		this._users.add(player.id);
+		this._users.set(owner.id, room);
+		this._users.set(player.id, room);
 		return this._games.get(room);
 	}
 
@@ -41,6 +42,10 @@ export class OngoingGames {
 
 	getGameById(room: string): GameType | undefined {
 		return this._games.get(room);
+	}
+
+	getGameIdByUserId(userId: number): string {
+		return this._users.get(userId);
 	}
 
 	playerScored(room: string): boolean {

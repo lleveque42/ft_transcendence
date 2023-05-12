@@ -10,18 +10,34 @@
 	}
 }
 
-.title {
-	color: var(--primary);
+.logo {
 	cursor: pointer;
+	width: 3.5rem;
+	margin-left: 1.5rem;
+	border-radius: 50%;
+	border: var(--border);
 
 	@include mixin.sm-lt {
-		font-size: 1rem;
+		margin-left: 1rem;
+		height: 2.5rem;
+		width: 2.5rem;
 	}
 }
 
 .headerNav {
-	p {
+	h3 {
+		color: var(--light-grey);
 		cursor: pointer;
+		text-decoration: none;
+		text-decoration-color: transparent;
+		transition: color 0.3s ease-in-out, text-decoration-color 0.3s ease-in-out;
+
+		&:hover {
+			color: var(--primary);
+			text-decoration: underline;
+			text-underline-offset: 0.3em;
+			text-decoration-color: var(--primary);
+		}
 	}
 }
 .menuTrigger img {
