@@ -124,6 +124,14 @@ export class ChannelService {
 			where: {
 				title,
 			},
+			include: {
+				members: {
+					select: {
+						id: true,
+						userName: true,
+					},
+				},
+			},
 		});
 	}
 
