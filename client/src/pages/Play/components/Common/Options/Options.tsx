@@ -5,7 +5,6 @@ import { Toggle } from "../../../../../components/Toggle/Toggle";
 import { MapStatus } from "../../../enums/MapStatus";
 import styles from "./Options.module.scss";
 import map from "../../../../../assets/images/70233661-49009838.jpg";
-import { useUser } from "../../../../../context";
 
 interface OptionsProps {
 	gameSocket: Socket | null;
