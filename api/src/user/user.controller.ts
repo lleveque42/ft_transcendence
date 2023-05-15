@@ -23,7 +23,6 @@ import { GetCurrentUser } from "../common/decorators";
 import { AtGuard } from "../auth/guards";
 import { UserLoginDto } from "../auth/dto/channel.dto";
 import { User } from "@prisma/client";
-import { UserInfo } from "os";
 import { UserNameDto, updateUserNameDto } from "./dto";
 import { tfaVerificationCode } from "./dto";
 import { FileInterceptor } from "@nestjs/platform-express";
@@ -67,7 +66,7 @@ export class UserController {
 
 	@UseGuards(AtGuard)
 	@Get("users")
-	async getAllUsers(): Promise<{ userName: string }[]> {
+	async getAllUsers(): Promise<{ id: number, userName: string }[]> {
 		return await this.userService.getAllUsers();
 	}
 

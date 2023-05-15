@@ -3,10 +3,29 @@ import { useUser } from "../../../context";
 import styles from "./FriendsList.module.scss";
 import { UserStatus } from "../../../types/UserStatus.enum";
 import trimUserName from "../../../utils/trimUserName";
+import { useEffect } from "react";
+import { usePrivateRouteSocket } from "../../../context/PrivateRouteProvider";
+import { NewUserName } from "../../../types";
 
 export default function FriendsList() {
-	const { user } = useUser();
+	const { user, updateOnlineFriend } = useUser();
 	const navigate = useNavigate();
+	const { socket } = usePrivateRouteSocket();
+
+	useEffect(() => {
+		socket?.on("userNameUpdated", (userSender: NewUserName) => {
+			const friend = user.friends.filter(
+				(u: NewUserName) => u.id === userSender.id,
+			);
+			console.log("Friend:", friend);
+			if (friend.length) updateOnlineFriend(userSender);
+		});
+
+		// Keep the return ?
+		return () => {
+			socket?.removeAllListeners();
+		};
+	}, [socket, user.friends, updateOnlineFriend]);
 
 	return (
 		<>

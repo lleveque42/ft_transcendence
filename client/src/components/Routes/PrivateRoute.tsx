@@ -55,9 +55,11 @@ export default function PrivateRoute(props: {
 			appSocket.once("connectionFailed", () => {
 				navigate("/login");
 			});
+			// To keep for status ? check if no conflict with update username
 			appSocket.on("updateOnlineFriend", (friend: Friend) => {
-				// updateOnlineFriend(friend);
-				isAuth();
+				console.log("update status private route", friend.userName);
+				updateOnlineFriend(friend);
+				// isAuth();
 			});
 			setSocket(appSocket);
 			chatSocket = io(`${process.env.REACT_APP_CHAT_URL}`, {
@@ -111,7 +113,7 @@ export default function PrivateRoute(props: {
 	);
 
 	return isAuthenticated ? (
-		<PrivateRouteSocketContext.Provider value={{ socket, chatSocket}}>
+		<PrivateRouteSocketContext.Provider value={{ socket, chatSocket }}>
 			{props.play ? (
 				<GameSocketContext.Provider value={{ gameSocket }}>
 					{elem}

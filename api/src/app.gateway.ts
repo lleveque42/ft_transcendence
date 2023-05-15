@@ -114,8 +114,8 @@ export class AppGateway
 	) {
 		const user = this.users.getUserByClientId(client.id);
 
-		const users = this.users.getUsers();
-		console.log(users);
+		// const users = this.users.getUsers();
+		// console.log(users);
 
 		// const onlineFriends = await this.users.getFriendsOfByUserId(
 		// 	user.id,
@@ -128,5 +128,11 @@ export class AppGateway
 		// 		status: user.status,
 		// 	});
 		// }
+
+		this.io.emit("userNameUpdated", {
+			id: user.id,
+			userName: newUserName,
+			status: user.status,
+		});
 	}
 }
