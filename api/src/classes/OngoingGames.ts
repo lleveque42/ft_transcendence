@@ -23,6 +23,8 @@ export class OngoingGames {
 			playerId: player.id,
 			ownerScore: 0,
 			playerScore: 0,
+			accelerator: false,
+			map: 0,
 		});
 		this._users.set(owner.id, room);
 		this._users.set(player.id, room);
@@ -46,6 +48,16 @@ export class OngoingGames {
 
 	getGameIdByUserId(userId: number): string {
 		return this._users.get(userId);
+	}
+
+	setAcceleratorById(room: string, accelerator: boolean) {
+		const game = this._games.get(room);
+		this._games.set(room, { ...game, accelerator });
+	}
+
+	setMapById(room: string, map: number) {
+		const game = this._games.get(room);
+		this._games.set(room, { ...game, map });
 	}
 
 	playerScored(room: string): boolean {

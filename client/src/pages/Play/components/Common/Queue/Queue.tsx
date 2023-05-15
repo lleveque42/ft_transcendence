@@ -1,5 +1,5 @@
 import { Socket } from "socket.io-client";
-import { GameUserStatus } from "../../enums/UserStatus";
+import { GameUserStatus } from "../../../enums/UserStatus";
 
 interface QueueProps {
 	gameSocket: Socket | null;

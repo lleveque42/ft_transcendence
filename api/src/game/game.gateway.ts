@@ -32,6 +32,7 @@ export class GameGateway
 	reconnecting: boolean = false;
 	users: OnlineUsers = new OnlineUsers();
 	queue: GameQueue = new GameQueue();
+	ready: Set<number> = new Set<number>();
 	ongoing: OngoingGames = new OngoingGames();
 	waitingReconnection: Map<number, string> = new Map<number, string>();
 	constructor(private userService: UserService) {}
@@ -66,7 +67,7 @@ export class GameGateway
 		const opponent = game.ownerId === user.id ? game.player : game.owner;
 		if (this.waitingReconnection.get(opponent.id)) {
 			this.logger.log(
-				`${game.owner.userName} vs ${game.player.userName} : both players deconnected, game ended.`,
+				`${game.owner.userName} vs ${game.player.userName} : both players disconnected, game ended.`,
 			);
 			this.endGame(room, false);
 			this.waitingReconnection.delete(opponent.id);
@@ -246,6 +247,30 @@ export class GameGateway
 		}
 	}
 
+	@SubscribeMessage("playerReady")
+	handlePlayerReady(
+		@ConnectedSocket() client: Socket,
+		@MessageBody("accelerator") accelerator: boolean,
+		@MessageBody("map") map: number,
+	): void {
+		const user = this.users.getUserByClientId(client.id);
+		const gameId = this.ongoing.getGameIdByUserId(user.id);
+		const game = this.ongoing.getGameById(gameId);
+		const opponentId = game.ownerId === user.id ? game.playerId : game.ownerId;
+		if (this.ready.has(opponentId)) {
+			console.log("dewoqi");
+			this.ready.delete(opponentId);
+			if (accelerator !== game.accelerator)
+				accelerator = Math.random() < 0.5 ? accelerator : game.accelerator;
+			if (map !== game.map) map = Math.random() < 0.5 ? map : game.map;
+			this.io.to(gameId).emit("bothPlayersReady", accelerator, map);
+		} else {
+			this.ready.add(user.id);
+			this.ongoing.setAcceleratorById(gameId, accelerator);
+			this.ongoing.setMapById(gameId, map);
+		}
+	}
+
 	@SubscribeMessage("leaveQueue")
 	handleLeaveQueue(@ConnectedSocket() client: Socket): void {
 		const user = this.users.getUserByClientId(client.id);
@@ -287,7 +312,6 @@ export class GameGateway
 		@MessageBody("room") room: string,
 		@MessageBody("ownerScored") ownerScored: boolean,
 	): void {
-		// console.log("SCORE UPDATE");
 		this.io.to(room).emit("resetPaddles");
 		this.io.to(room).emit("scoreUpdate", ownerScored);
 		if (!ownerScored) {
@@ -295,4 +319,3 @@ export class GameGateway
 		} else if (this.ongoing.ownerScored(room)) this.endGame(room, true);
 	}
 }
- 

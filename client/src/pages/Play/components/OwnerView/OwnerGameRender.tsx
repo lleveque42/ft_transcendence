@@ -5,12 +5,17 @@ import { useRef } from "react";
 import Background from "../Game/Background";
 import { useGameSocket } from "../../context/GameSocketProvider";
 import BallServer from "../Game/BallServer";
+import { BALL_X_SPEED_MULTIPLIER } from "../GameUtils/Constant";
 
 interface OwnerGameRenderProps {
 	room: string;
+	accelerator: boolean;
 }
 
-export default function OwnerGameRender({ room }: OwnerGameRenderProps) {
+export default function OwnerGameRender({
+	room,
+	accelerator,
+}: OwnerGameRenderProps) {
 	const playerPaddle = useRef<THREE.Mesh>(null!);
 	const ownerPaddle = useRef<THREE.Mesh>(null!);
 	const { gameSocket } = useGameSocket();
@@ -27,6 +32,7 @@ export default function OwnerGameRender({ room }: OwnerGameRenderProps) {
 					ownerPaddle={ownerPaddle}
 					socket={gameSocket}
 					room={room}
+					ballMultiplier={accelerator ? BALL_X_SPEED_MULTIPLIER : 1}
 				/>
 				<RightPaddle paddle={ownerPaddle} socket={gameSocket} room={room} />
 			</group>

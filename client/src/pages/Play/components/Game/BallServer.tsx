@@ -7,11 +7,10 @@ import {
 	FLOOR,
 	PADDLE_HALF_SIZE,
 	BALL_RADIUS,
-	OUT_OF_RANGE,
+	OUT_OF_BOUND,
 	PADDLE_WIDTH,
 	BALL_REBOUND_Y_MULTIPLIER,
 	BALL_1ST_REBOUND_X_SPEED_MULTIPLIER,
-	BALL_SPAWN_X_SPEED_MULTIPLIER,
 } from "../GameUtils/Constant";
 import {
 	randomBallDir,
@@ -47,6 +46,7 @@ interface BallProps {
 	>;
 	socket: Socket | null;
 	room: string;
+	ballMultiplier: number;
 }
 
 export default function BallServer({
@@ -54,12 +54,11 @@ export default function BallServer({
 	ownerPaddle,
 	socket,
 	room,
+	ballMultiplier,
 }: BallProps) {
-	const [dirVector, setDirVector] = useState(randomBallDir());
-	const [xSpeedMultiplier, setXSpeedMultiplier] = useState(
-		BALL_SPAWN_X_SPEED_MULTIPLIER,
-	);
 	const ball = useRef<THREE.Mesh>(null!);
+	const [xSpeedMultiplier, setXSpeedMultiplier] = useState(ballMultiplier);
+	const [dirVector, setDirVector] = useState(randomBallDir());
 
 	function newBall(): void {
 		ball.current.position.x = 0;
@@ -78,10 +77,10 @@ export default function BallServer({
 	function rebound(collision: Collision): { x: number; y: number } {
 		switch (collision) {
 			case Collision.RIGHT_PADDLE_HIT:
-				if (xSpeedMultiplier === BALL_SPAWN_X_SPEED_MULTIPLIER)
+				if (xSpeedMultiplier === 1)
 					setXSpeedMultiplier(BALL_1ST_REBOUND_X_SPEED_MULTIPLIER);
 				return {
-					x: -dirVector.x,
+					x: -dirVector.x * ballMultiplier,
 					y:
 						((ball.current.position.y - ownerPaddle.current.position.y) /
 							PADDLE_HALF_SIZE) *
@@ -89,10 +88,10 @@ export default function BallServer({
 						BALL_REBOUND_Y_MULTIPLIER,
 				};
 			case Collision.LEFT_PADDLE_HIT:
-				if (xSpeedMultiplier === BALL_SPAWN_X_SPEED_MULTIPLIER)
+				if (xSpeedMultiplier === 1)
 					setXSpeedMultiplier(BALL_1ST_REBOUND_X_SPEED_MULTIPLIER);
 				return {
-					x: -dirVector.x,
+					x: -dirVector.x * ballMultiplier,
 					y:
 						((ball.current.position.y - playerPaddle.current.position.y) /
 							PADDLE_HALF_SIZE) *
@@ -124,31 +123,6 @@ export default function BallServer({
 			: false;
 	}
 
-	// function checkPaddleCollision(): Collision {
-	// 	if (
-	// 		inRange(
-	// 			floorToDecimal(ball.current.position.x + BALL_RADIUS),
-	// 			RIGHT_PADDLE,
-	// 			RIGHT_PADDLE + PADDLE_WIDTH,
-	// 		)
-	// 	) {
-	// 		return onPaddle(ownerPaddle.current.position.y, Paddle.RIGHT)
-	// 			? Collision.RIGHT_PADDLE_HIT
-	// 			: Collision.RIGHT_PADDLE_MISSED;
-	// 	} else if (
-	// 		inRange(
-	// 			ceilToDecimal(ball.current.position.x - BALL_RADIUS),
-	// 			LEFT_PADDLE,
-	// 			LEFT_PADDLE - PADDLE_WIDTH,
-	// 		)
-	// 	) {
-	// 		return onPaddle(playerPaddle.current.position.y, Paddle.LEFT)
-	// 			? Collision.LEFT_PADDLE_HIT
-	// 			: Collision.LEFT_PADDLE_MISSED;
-	// 	}
-	// 	return Collision.NO_HIT;
-	// }
-
 	function checkPaddleCollision(): Collision {
 		if (
 			inRange(
@@ -174,15 +148,15 @@ export default function BallServer({
 			inRange(
 				floorToDecimal(ball.current.position.x + BALL_RADIUS),
 				RIGHT_PADDLE + PADDLE_WIDTH + BALL_RADIUS,
-				RIGHT_PADDLE + PADDLE_WIDTH * 2 + BALL_RADIUS,
+				OUT_OF_BOUND,
 			)
 		)
 			return Collision.RIGHT_PADDLE_MISSED;
 		else if (
 			inRange(
 				ceilToDecimal(ball.current.position.x - BALL_RADIUS),
+				-OUT_OF_BOUND,
 				LEFT_PADDLE - PADDLE_WIDTH * 2 - BALL_RADIUS,
-				LEFT_PADDLE - PADDLE_WIDTH - BALL_RADIUS,
 			)
 		)
 			return Collision.LEFT_PADDLE_MISSED;
@@ -198,14 +172,14 @@ export default function BallServer({
 	}
 
 	function checkCollision(): Collision {
-		if (outOfRange(ball.current.position.x, -OUT_OF_RANGE, OUT_OF_RANGE))
+		if (outOfRange(ball.current.position.x, -OUT_OF_BOUND, OUT_OF_BOUND))
 			return Collision.OUT_OF_BOUND;
 		const collision = checkPaddleCollision();
 		return collision !== Collision.NO_HIT ? collision : checkWallCollision();
 	}
 
 	useFrame((state, delta) => {
-		setXSpeedMultiplier(xSpeedMultiplier); // modify so ball speed up
+		// setXSpeedMultiplier(xSpeedMultiplier);
 		ball.current.position.x += delta * dirVector.x * xSpeedMultiplier;
 		ball.current.position.y += delta * dirVector.y;
 		socket!.emit("updateBallPos", {
@@ -239,9 +213,9 @@ export default function BallServer({
 				socket!.emit("scoreUpdate", { room, ownerScored: true });
 				newBall();
 				break;
-			// case Collision.OUT_OF_BOUND:
-			// 	resetPoint();
-			// 	break;
+			case Collision.OUT_OF_BOUND:
+				newBall();
+				break;
 		}
 	});
 

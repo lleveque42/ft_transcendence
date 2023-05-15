@@ -1,0 +1,42 @@
+.toggleLabel {
+	position: relative;
+	display: inline-block;
+	width: 3rem;
+	height: 1.5rem;
+}
+
+.toggleInput {
+	opacity: 0;
+	width: 0;
+	height: 0;
+
+	&:checked + span {
+		background-color: var(--primary);
+	}
+
+	&:checked + span:before {
+		transform: translateX(1.5rem);
+	}
+}
+
+.toggleSpan {
+	position: absolute;
+	cursor: pointer;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: var(--black);
+	transition: 0.2s;
+
+	&:before {
+		position: absolute;
+		content: "";
+		height: 1rem;
+		width: 1rem;
+		left: 0.25rem;
+		bottom: 0.25rem;
+		background-color: var(--light-grey);
+		transition: 0.2s;
+	}
+}
