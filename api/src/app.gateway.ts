@@ -107,6 +107,16 @@ export class AppGateway
 		this.users.showOnlineUsers();
 	}
 
+	@SubscribeMessage("askUserStatus")
+	async askUserStatus(
+		@ConnectedSocket() client: Socket,
+		@MessageBody() userName: string,
+	) {
+		const user = await this.userService.getUserByUserName(userName);
+		if (!user) client.emit("getUserStatus", null);
+		else client.emit("getUserStatus", user.status);
+	}
+
 	@SubscribeMessage("userNameUpdated")
 	async userNameUpdated(
 		@ConnectedSocket() client: Socket,

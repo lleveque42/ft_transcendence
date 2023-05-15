@@ -17,13 +17,11 @@ export default function FriendsList() {
 			const friend = user.friends.filter(
 				(u: NewUserName) => u.id === userSender.id,
 			);
-			console.log("Friend:", friend);
 			if (friend.length) updateOnlineFriend(userSender);
 		});
 
-		// Keep the return ?
 		return () => {
-			socket?.removeAllListeners();
+			socket?.off("userNameUpdated");
 		};
 	}, [socket, user.friends, updateOnlineFriend]);
 

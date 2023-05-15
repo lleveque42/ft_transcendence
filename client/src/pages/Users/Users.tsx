@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Loader from "react-loaders";
 import { getAllUsersRequest, toggleFriendshipRequest } from "../../api";
 import { useAlert, useUser } from "../../context";
-import { NewUserName, UserStatus } from "../../types";
+import { Friend, NewUserName, UserStatus } from "../../types";
 import styles from "./Users.module.scss";
 import { useNavigate } from "react-router-dom";
 import trimUserName from "../../utils/trimUserName";
@@ -22,16 +22,44 @@ export default function Users() {
 	const navigate = useNavigate();
 	const [isLoading, setIsloading] = useState<boolean>(true);
 	const [usersList, setUsersList] = useState<UsersList[]>([]);
-	const fetchUsers = useRef(true);
+
+	function sortUsersList(list: UsersList[]) {
+		return list.sort((a: UsersList, b: UsersList) =>
+			a.userName.localeCompare(b.userName),
+		);
+	}
+
+	function updateUsersListFriendship(userId: number, nowFriend: boolean) {
+		const userToUpdate = usersList.find((u) => u.id === userId);
+		if (!userToUpdate) return;
+		userToUpdate.isFriend = nowFriend;
+
+		if (nowFriend) {
+			socket?.once("getUserStatus", (status: UserStatus | null) => {
+				userToUpdate.status = status;
+				const newUsersList = [
+					...usersList.filter((u) => u.id !== userId),
+					userToUpdate,
+				];
+				setUsersList(sortUsersList(newUsersList));
+			});
+			socket?.emit("askUserStatus", userToUpdate.userName);
+		} else {
+			userToUpdate.status = null;
+			const newUsersList = [
+				...usersList.filter((u) => u.id !== userId),
+				userToUpdate,
+			];
+			setUsersList(sortUsersList(newUsersList));
+		}
+	}
 
 	function cleanUsersList(data: any) {
-		// Need to type data
-
 		let list: UsersList[] = [];
 		list = data
 			.filter((u: UsersList) => u.userName !== user.userName)
 			.map((u: UsersList) => {
-				const friend: NewUserName | undefined = user.friends.find(
+				const friend: Friend | undefined = user.friends.find(
 					(f: any) => f.userName === u.userName,
 				);
 				if (friend) {
@@ -49,14 +77,20 @@ export default function Users() {
 		setUsersList(list);
 	}
 
-	async function toggleFriendship(method: string, userName: string) {
+	async function toggleFriendship(
+		method: string,
+		userName: string,
+		userId: number,
+	) {
 		try {
 			const res = await toggleFriendshipRequest(accessToken, userName, method);
 			if (method === "DELETE" && res.status === 204) {
 				await isAuth();
+				updateUsersListFriendship(userId, false);
 				showAlert("warning", "Removed from friends");
 			} else if (res.ok) {
 				await isAuth();
+				updateUsersListFriendship(userId, true);
 				showAlert("info", "Added to friends");
 			} else showAlert("error", "A problem occured, try again later");
 		} catch (e) {
@@ -65,46 +99,38 @@ export default function Users() {
 		}
 	}
 
-	// Make a generic function to update a special user in usersList to prevent multi api call
-
 	useEffect(() => {
 		async function getAllUsers() {
 			const res = await getAllUsersRequest(accessToken);
 			if (res.ok) {
 				const data = await res.json();
 				cleanUsersList(data);
-			} // Manage error
+			}
 			setIsloading(false);
 		}
-		if (fetchUsers) getAllUsers();
+		getAllUsers();
+	}, []);
+
+	useEffect(() => {
+		socket?.on("userNameUpdated", (userSender: NewUserName) => {
+			const friend = user.friends.filter(
+				(u: NewUserName) => u.id === userSender.id,
+			);
+			if (friend.length) updateOnlineFriend(userSender);
+			const userToUpdate = usersList.find((u) => u.id === userSender.id);
+			if (!userToUpdate) return;
+			userToUpdate.userName = userSender.userName;
+			const newUsersList = [
+				...usersList.filter((u) => u.id !== userSender.id),
+				userToUpdate,
+			];
+			setUsersList(sortUsersList(newUsersList));
+		});
 
 		return () => {
-			fetchUsers.current = false;
+			socket?.off("userNameUpdated");
 		};
-		// eslint-disable-next-line
-	}, [user]);
-
-	// useEffect(() => {
-	// 	socket?.on("userNameUpdated", (userSender: NewUserName) => {
-	// 		const friend = user.friends.filter(
-	// 			(u: NewUserName) => u.id === userSender.id,
-	// 		);
-	// 		if (friend.length) updateOnlineFriend(userSender);
-	// 		const userToUpdate = usersList.find((u) => u.id === userSender.id);
-	// 		if (!userToUpdate) return;
-	// 		userToUpdate.userName = userSender.userName;
-	// 		const newUsersList = [
-	// 			...usersList.filter((u) => u.id !== userSender.id),
-	// 			userToUpdate,
-	// 		];
-	// 		setUsersList(newUsersList);
-	// 	});
-
-	// 	// Keep the return ?
-	// 	return () => {
-	// 		socket?.removeAllListeners();
-	// 	};
-	// }, [socket, user.friends, updateOnlineFriend, usersList]);
+	}, [socket, user.friends, updateOnlineFriend, usersList]);
 
 	return (
 		<>
@@ -158,12 +184,16 @@ export default function Users() {
 										{u.isFriend ? (
 											<i
 												className={`${styles.minusIcon} fa-solid fa-user-minus`}
-												onClick={() => toggleFriendship("DELETE", u.userName)}
+												onClick={() =>
+													toggleFriendship("DELETE", u.userName, u.id)
+												}
 											/>
 										) : (
 											<i
 												className={`${styles.plusIcon} fa-solid fa-user-plus`}
-												onClick={() => toggleFriendship("PATCH", u.userName)}
+												onClick={() =>
+													toggleFriendship("PATCH", u.userName, u.id)
+												}
 											/>
 										)}
 										<i

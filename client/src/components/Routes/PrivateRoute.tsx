@@ -57,9 +57,7 @@ export default function PrivateRoute(props: {
 			});
 			// To keep for status ? check if no conflict with update username
 			appSocket.on("updateOnlineFriend", (friend: Friend) => {
-				console.log("update status private route", friend.userName);
 				updateOnlineFriend(friend);
-				// isAuth();
 			});
 			setSocket(appSocket);
 			chatSocket = io(`${process.env.REACT_APP_CHAT_URL}`, {
