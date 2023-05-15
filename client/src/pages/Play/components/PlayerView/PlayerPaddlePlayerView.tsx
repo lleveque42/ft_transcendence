@@ -29,6 +29,15 @@ export default function PlayerPaddle({
 }: PlayerPaddleProps) {
 	const [move, setMove] = useState({ up: false, down: false });
 
+	useEffect(() => {
+		socket!.on("resetPaddles", () => {
+			paddle.current.position.y = 0;
+		});
+		return () => {
+			socket!.off("resetPaddles");
+		};
+	});
+
 	useFrame((state, delta) => {
 		if (
 			move.up &&

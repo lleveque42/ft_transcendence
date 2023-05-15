@@ -1,11 +1,5 @@
-/*
-  Warnings:
-
-  - You are about to drop the column `camenbert` on the `User` table. All the data in the column will be lost.
-
-*/
 -- AlterTable
-ALTER TABLE "User" DROP COLUMN "camenbert";
+ALTER TABLE "Message" ADD COLUMN     "date" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
 
 -- CreateTable
 CREATE TABLE "_Friends" (

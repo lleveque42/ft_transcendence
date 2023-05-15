@@ -97,12 +97,13 @@ export class AppGateway
 			this.users.addNewUser(user, client);
 			await this.changeUserStatus(user, true);
 		}
-		this.logger.log(`WS Client ${client.id} (${user.userName}) connected !`);
-		this.logger.log(`${this.users.size} user(s) connected !`);
+		this.logger.log(`Client ${client.id} (${user.userName}) connected.`);
+		this.logger.log(`${this.users.size} user(s) connected.`);
 	}
 
 	@SubscribeMessage("showUsers")
 	showUsers(@ConnectedSocket() client: Socket) {
+		console.log("APP SOCKET :");
 		this.users.showOnlineUsers();
 	}
 
