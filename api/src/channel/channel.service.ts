@@ -261,16 +261,20 @@ export class ChannelService {
 				title: title,
 			},
 		});
-		const msgs = await this.prisma.message.findMany({
-			include: {
-				author: true,
-				channel: true,
-			},
-			where: {
-				channel: chan,
-			},
-		});
-		return msgs;
+		if (chan) {
+			const msgs = await this.prisma.message.findMany({
+				include: {
+					author: true,
+					channel: true,
+				},
+				where: {
+					channel: chan,
+				},
+			});
+			return msgs;
+		} else {
+			return null;
+		}
 	}
 	async dropdb() {
 		await this.prisma.channel.deleteMany({});

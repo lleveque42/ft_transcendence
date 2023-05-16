@@ -102,11 +102,15 @@ export class ChannelController {
 	}
 
 	@Get("/dm/chan/:title")
-	async getDMsMessages(@Param("title") title: string): Promise<Message[]> {
+	async getDMsMessages(
+		@Param("title") title: string,
+	): Promise<Message[] | null> {
 		try {
 			const msgs = await this.channelService.getDMsMessages(title);
 			return msgs;
 		} catch (e) {
+			console.log("NULL");
+
 			throw new HttpException(e.message, e.status);
 		}
 	}

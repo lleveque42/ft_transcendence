@@ -1,6 +1,6 @@
 import ChatNav from "../../components/Chat/ChatNav/ChatNav";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useUser } from "../../context/UserProvider";
 import { KeyboardEvent } from "react"
 import Message from "../../components/Message/Message";
@@ -11,11 +11,11 @@ export default function DirectMessage() {
   
 	const { accessToken } = useUser();
 	const {chatSocket} = usePrivateRouteSocket();
-	
+	const navigate = useNavigate();
 	
 	const [value, setValue] = useState("");
 	const [messagesState, setMessagesState] = useState<Array<MessageModel>>([]);
-	const [ messagesList, setMessagesList] = useState<JSX.Element[]>([]);
+	const [messagesList, setMessagesList] = useState<JSX.Element[]>([]);
 	 
 	const { id } = useParams();
 	
@@ -35,9 +35,10 @@ export default function DirectMessage() {
 				}
 				);
             } catch (e) {
+				navigate("/chat/direct_messages/");
 			}
         })();
-    }, [accessToken, id]);
+    }, [accessToken, id, navigate]);
 
 
 	useEffect(() => {
@@ -77,7 +78,7 @@ export default function DirectMessage() {
 			<div className="title">Chat channels</div>
 			<div>
 				<ChatNav/>
-				{
+				{ messagesState.entries() &&
 					(
 					<>
 						<h1>Messages ({messagesList.length})</h1>
@@ -86,7 +87,7 @@ export default function DirectMessage() {
 					)
 				}
 			</div>
-			<input className={`btn-primary m-20 d-flex flex-column justify-content align-items`} onKeyDown={handleKeyDown}
+				<input className={`btn-primary m-20 d-flex flex-column justify-content align-items`} onKeyDown={handleKeyDown}
 				onChange={(e)=>{setValue(e.target.value)}}  type="text" placeholder="Write a message" />
 		</div>
 	);
