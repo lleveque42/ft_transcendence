@@ -23,6 +23,7 @@ export class OngoingGames {
 			playerId: player.id,
 			ownerScore: 0,
 			playerScore: 0,
+			winnerId: 0,
 			accelerator: false,
 			map: 0,
 		});

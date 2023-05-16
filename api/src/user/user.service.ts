@@ -12,6 +12,7 @@ import { createReadStream } from "fs";
 import { authenticator } from "otplib";
 import { toDataURL } from "qrcode";
 import * as fs from "fs";
+import { GameType } from "../game/types/game.type";
 
 @Injectable()
 export class UserService {
@@ -52,6 +53,14 @@ export class UserService {
 		});
 	}
 
+	async getUserById(id: number): Promise<User> {
+		return await this.prisma.user.findUnique({
+			where: {
+				id,
+			},
+		});
+	}
+
 	async createUser42(newUser: userInfo42Dto): Promise<User> {
 		if (!newUser.image) newUser.image = "";
 		return await this.prisma.user.create({
@@ -63,6 +72,8 @@ export class UserService {
 				lastName: newUser.last_name,
 				avatar: newUser.image,
 				socket: "",
+				wins: 0,
+				losses: 0,
 			},
 		});
 	}
@@ -280,6 +291,31 @@ export class UserService {
 			where: { id: userId },
 			data: { status: newStatus },
 		});
+	}
+
+	async newGameFinished(game: GameType) {
+		const owner = await this.getUserById(game.ownerId);
+		const player = await this.getUserById(game.playerId);
+		const winnerId = game.winnerId;
+		if (owner.id === winnerId) {
+			await this.prisma.user.update({
+				where: { id: owner.id },
+				data: { wins: owner.wins + 1},
+			});
+			await this.prisma.user.update({
+				where: { id: player.id },
+				data: { losses: player.losses + 1},
+			});
+		} else {
+			await this.prisma.user.update({
+				where: { id: owner.id },
+				data: { wins: owner.losses + 1},
+			});
+			await this.prisma.user.update({
+				where: { id: player.id },
+				data: { losses: player.wins + 1},
+			});
+		}
 	}
 
 	async dropdb(): Promise<void> {

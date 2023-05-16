@@ -35,6 +35,7 @@ export class AppGateway
 	async changeUserStatus(user: User, online: boolean) {
 		const newStatus = online ? UserStatus.ONLINE : UserStatus.OFFLINE;
 		await this.userService.changeUserStatus(user.id, newStatus);
+		this.users.updateStatus(user.id, newStatus);
 		let onlineFriends = await this.users.getFriendsOfByUserId(
 			user.id,
 			this.userService,

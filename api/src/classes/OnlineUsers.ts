@@ -45,6 +45,15 @@ export class OnlineUsers {
 		return this._clients.has(clientId);
 	}
 
+	updateStatus(userId: number, newStatus: UserStatus) {
+		const user: User = this.getUserByUserId(userId);
+		const sockets: Map<string, Socket> = this.getClientsByUserId(userId);
+		this._users.set(userId, {
+			user: { ...user, status: newStatus },
+			sockets: sockets,
+		});
+	}
+
 	getClientsByUserId(userId: number): Map<string, Socket> | null {
 		return this._users.get(userId).sockets || null;
 	}
