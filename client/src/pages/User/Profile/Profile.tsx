@@ -8,6 +8,8 @@ import default_avatar from "../../../assets/images/punk.png";
 import UserStats from "./components/UserStats/UserStats";
 import UserPresentation from "./components/UserPresentation/UserPresentation";
 import { UserStatus } from "../../../types/UserStatus.enum";
+import { NewUserName } from "../../../types";
+import { usePrivateRouteSocket } from "../../../context/PrivateRouteProvider";
 
 type UserProfileType = {
 	userName: string;
@@ -27,6 +29,7 @@ const UserProfileValues: UserProfileType = {
 
 export default function Profile() {
 	const { accessToken, user } = useUser();
+	const { socket } = usePrivateRouteSocket();
 	const { showAlert } = useAlert();
 	const navigate = useNavigate();
 	const { username } = useParams();
@@ -37,13 +40,27 @@ export default function Profile() {
 	const [isFriend, setIsFriend] = useState<boolean>(false);
 
 	useEffect(() => {
+		socket?.on("userNameUpdated", (userSender: NewUserName) => {
+			setUserProfile((prevProfile) => ({
+				...prevProfile,
+				userName: userSender.userName,
+			}));
+			navigate(`/user/${userSender.userName}`);
+		});
+
+		return () => {
+			socket?.off("userNameUpdated");
+		};
+	}, [socket]);
+
+	useEffect(() => {
 		const getUserProfile = async () => {
 			try {
 				const res = await userProfileInfosRequest(accessToken, username);
 				if (res.ok) {
 					const data = await res.json();
 					setUserProfile(data);
-					if (user.friends.some((f) => f.userName === data.userName))
+					if (user.friends.find((f) => f.userName === data.userName))
 						setIsFriend(true);
 					else setIsFriend(false);
 				} else {
@@ -54,10 +71,7 @@ export default function Profile() {
 				console.error("Error user profile", e);
 			}
 		};
-		getUserProfile();
-	}, [username, accessToken, user.friends, showAlert, navigate, isFriend]);
 
-	useEffect(() => {
 		const getUserAvatar = async () => {
 			try {
 				const res = await userAvatarRequest(accessToken, userProfile.userName);
@@ -79,8 +93,12 @@ export default function Profile() {
 			}
 			setIsLoading(false);
 		};
-		if (userProfile.userName) getUserAvatar();
-	}, [userProfile, accessToken]);
+
+		if (username) {
+			getUserProfile();
+			getUserAvatar();
+		}
+	}, [username, accessToken, user.friends, showAlert, isFriend]);
 
 	return (
 		<>

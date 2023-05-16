@@ -138,10 +138,27 @@ export class AppGateway
 			});
 		}
 
+		// for (let notFriend of this.users.getUsers()) {
+		// 	if (
+		// 		!onlineFriends.find((u) => u.id === notFriend[0]) &&
+		// 		notFriend[0] !== user.id
+		// 	) {
+		// 		console.log(notFriend[1].user.userName);
+
+		// 		this.users.emitAllbyUserId(notFriend[0], "userNameUpdated", {
+		// 			id: user.id,
+		// 			userName: newUserName,
+		// 			status: user.status,
+		// 		});
+		// 	}
+		// }
+
+		// setTimeout(() => {
 		this.io.emit("userNameUpdated", {
 			id: user.id,
 			userName: newUserName,
 			status: user.status,
 		});
+		// }, 1000);
 	}
 }
