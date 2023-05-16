@@ -55,7 +55,6 @@ export default function PrivateRoute(props: {
 			appSocket.once("connectionFailed", () => {
 				navigate("/login");
 			});
-			// To keep for status ? check if no conflict with update username
 			appSocket.on("updateOnlineFriend", (friend: Friend) => {
 				updateOnlineFriend(friend);
 			});

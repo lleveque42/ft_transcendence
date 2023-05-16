@@ -16,7 +16,7 @@ type UsersList = {
 };
 
 export default function Users() {
-	const { accessToken, user, isAuth, updateOnlineFriend } = useUser();
+	const { accessToken, user, isAuth } = useUser();
 	const { socket } = usePrivateRouteSocket();
 	const { showAlert } = useAlert();
 	const navigate = useNavigate();
@@ -29,28 +29,30 @@ export default function Users() {
 		);
 	}
 
+	function updateUserInList(userToUpdate: NewUserName | Friend | UsersList) {
+		const userInList = usersList.find((u) => u.id === userToUpdate.id);
+		if (!userInList) return;
+		const userUpdated: UsersList = { ...userInList, ...userToUpdate };
+		const newUsersList = [
+			...usersList.filter((u) => u.id !== userInList.id),
+			userUpdated,
+		];
+		setUsersList(sortUsersList(newUsersList));
+	}
+
 	function updateUsersListFriendship(userId: number, nowFriend: boolean) {
 		const userToUpdate = usersList.find((u) => u.id === userId);
 		if (!userToUpdate) return;
 		userToUpdate.isFriend = nowFriend;
-
 		if (nowFriend) {
-			socket?.once("getUserStatus", (status: UserStatus | null) => {
+			socket?.once("getUserStatus", (status: UserStatus) => {
 				userToUpdate.status = status;
-				const newUsersList = [
-					...usersList.filter((u) => u.id !== userId),
-					userToUpdate,
-				];
-				setUsersList(sortUsersList(newUsersList));
+				updateUserInList(userToUpdate);
 			});
 			socket?.emit("askUserStatus", userToUpdate.userName);
 		} else {
 			userToUpdate.status = null;
-			const newUsersList = [
-				...usersList.filter((u) => u.id !== userId),
-				userToUpdate,
-			];
-			setUsersList(sortUsersList(newUsersList));
+			updateUserInList(userToUpdate);
 		}
 	}
 
@@ -60,21 +62,16 @@ export default function Users() {
 			.filter((u: UsersList) => u.userName !== user.userName)
 			.map((u: UsersList) => {
 				const friend: Friend | undefined = user.friends.find(
-					(f: any) => f.userName === u.userName,
+					(f: Friend) => f.userName === u.userName,
 				);
+				u.status = null;
 				if (friend) {
 					u.isFriend = true;
 					u.status = friend.status;
-				} else {
-					u.isFriend = false;
-					u.status = null;
-				}
+				} else u.isFriend = false;
 				return u;
-			})
-			.sort((a: UsersList, b: UsersList) =>
-				a.userName.localeCompare(b.userName),
-			);
-		setUsersList(list);
+			});
+		setUsersList(sortUsersList(list));
 	}
 
 	async function toggleFriendship(
@@ -109,28 +106,21 @@ export default function Users() {
 			setIsloading(false);
 		}
 		getAllUsers();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	useEffect(() => {
 		socket?.on("userNameUpdated", (userSender: NewUserName) => {
-			const friend = user.friends.filter(
-				(u: NewUserName) => u.id === userSender.id,
-			);
-			if (friend.length) updateOnlineFriend(userSender);
-			const userToUpdate = usersList.find((u) => u.id === userSender.id);
-			if (!userToUpdate) return;
-			userToUpdate.userName = userSender.userName;
-			const newUsersList = [
-				...usersList.filter((u) => u.id !== userSender.id),
-				userToUpdate,
-			];
-			setUsersList(sortUsersList(newUsersList));
+			updateUserInList(userSender);
 		});
-
+		socket?.on("updateOnlineFriend", (friend: Friend) => {
+			updateUserInList(friend);
+		});
 		return () => {
 			socket?.off("userNameUpdated");
 		};
-	}, [socket, user.friends, updateOnlineFriend, usersList]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [socket, user.friends]);
 
 	return (
 		<>
@@ -166,7 +156,7 @@ export default function Users() {
 									<li className="d-flex p-10 ml-5" key={i}>
 										<span
 											className={`${styles.statusBadge} ${
-												u.status
+												u.isFriend
 													? u.status === UserStatus.ONLINE
 														? styles.online
 														: u.status === UserStatus.INGAME
