@@ -107,7 +107,7 @@ export default function Channel() {
 	}, [messageListener, messagesList, messagesState])
 
 	const handleKeyDown =  (event : KeyboardEvent<HTMLInputElement>) => {
-		if (event.key === "Enter"){
+		if (event.key === "Enter" && value !== ""){
 			chatSocket?.emit("chanMessage", {room: id, message: value});
 		}
 	};
