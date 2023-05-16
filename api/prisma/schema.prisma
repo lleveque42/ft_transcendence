@@ -34,11 +34,12 @@ model User {
   status      UserStatus @default(ONLINE)
   friends    User[]   @relation("Friends")
   friendsOf  User[]   @relation("Friends")
-
+  blockList  User[]   @relation("BlockList")
+  blockRel    User[]   @relation("BlockList")
   chanOp    Channel[] @relation("channel_ops")
   chanOwner Channel[]
   channels  Channel[] @relation("channel_members")
-
+  chanBans  Channel[] @relation("channel_bans")
   messages  Message[]
 }
 
@@ -53,6 +54,7 @@ model Channel {
   operators User[]    @relation("channel_ops")
   members   User[]    @relation("channel_members")
   messages  Message[]
+  banList   User[]    @relation("channel_bans")
 }
 
 model Message{
