@@ -59,8 +59,10 @@ useEffect(() => {
 			mode,
 			ownerId,
 			members,
-			messages} = chan;
-			setDirectMessagesState([...directMessagesState, {id, title, type, mode, ownerId, members, messages}]);
+			messages,
+			operators,
+			banList} = chan;
+			setDirectMessagesState([...directMessagesState, {id, title, type, mode, ownerId, members, messages, operators, banList}]);
 	}
 	chatSocket?.on("receivedDirectMessage", DirectMessagesListener);
 	return () => {

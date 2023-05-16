@@ -1,7 +1,7 @@
 
 import ChatNav from "../../components/Chat/ChatNav/ChatNav";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { NavLink, useParams } from "react-router-dom";
 import { useUser } from "../../context/UserProvider";
 import { KeyboardEvent } from "react"
 import Message from "../../components/Message/Message";
@@ -10,15 +10,18 @@ import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
 
 export default function Channel() {
   
-	const { accessToken } = useUser();
+	const { user, accessToken } = useUser();
 	const {chatSocket} = usePrivateRouteSocket();
 	
 	
 	const [value, setValue] = useState("");
 	const [infoBool, setInfoBool] = useState(false);
+	const [userBool, setuserBool] = useState(false);
 	const [messagesState, setMessagesState] = useState<Array<MessageModel>>([]);
-	const [ messagesList, setMessagesList] = useState<JSX.Element[]>([]);
+	const [messagesList, setMessagesList] = useState<JSX.Element[]>([]);
 	const [chanInfo, setChanInfo] = useState<ChannelModel>();
+	const [currentUserName, setCurrentUserName] = useState("");
+	const [isOp, setOp] = useState(false);
 	 
 	const { id } = useParams();
 	
@@ -37,74 +40,83 @@ export default function Channel() {
 					setMessagesState(messages);
 				}
 				);
-            } catch (e) {
-			}
-        })();
-    }, [accessToken, id]);
-
-	async function handleChanClick(event: MouseEvent) {
-		try {
-			await fetch(`http://localhost:3000/channels/edit/${id}`, {
+				await fetch(`http://localhost:3000/channels/edit/${id}`, {
 				credentials: "include",
 				headers: {
 					Authorization: `Bearer ${accessToken}`,
 				},
-			})
-			.then((res) => res.json())
-				.then(
-				(chan) => {
-					setInfoBool(true);
-					setChanInfo(chan);
-				}
-				);
-		} catch (e) {
-			console.error("Error getting chan info");
-		}
-	  }
-	  
-	  async function handleMsgClick(event: MouseEvent) {
-		try {
-			console.log("Click on a user");
-		} catch (e) {
-			console.error("Error getting chan info");
-		}
-	  }
+				})
+				.then((res) => res.json())
+					.then(
+					(chan) => {
+						setuserBool(false);
+						setInfoBool(true);
+						setChanInfo(chan);
+					}
+					);
+            } catch (e) {
+			}
 
+        })();
+    }, [accessToken, id]);
+
+	function handleChanClick(event: MouseEvent) {
+		setuserBool(false);
+		setInfoBool(true);
+	}
+	
+	function handleMsgClick(userName: string) {
+		if (userName === user.userName)
+		{return}
+		setCurrentUserName(userName);
+		setuserBool(true);
+		setInfoBool(false);
+	}
+			
 	const chanClick = document.querySelectorAll('h1');
 	chanClick.forEach(chan => chan.addEventListener('click', handleChanClick));
 
-	const messageClick = document.querySelectorAll('li');
-	messageClick.forEach(chan => chan.addEventListener('click', handleMsgClick));
+	// const messageClick = document.querySelectorAll('li');
+	// messageClick.forEach(chan => chan.addEventListener('click', handleMsgClick));
 
 	useEffect(() => {
 	setMessagesList(messagesState.map(({ id, author, content }) => 
 	{
 		return (
-			<li key={id}>
-			<Message
-				allMessages={messagesState}
-				// removeMessages={setMessagesState}
-				username ={author.userName}
-				content={content}
+			<li  onClick={() => handleMsgClick(author.userName)} key={id}>
+				<Message
+					allMessages={messagesState}
+					// removeMessages={setMessagesState}
+					username ={author.userName}
+					content={content}
 				/>
 			</li>
 		)
 	}
 	  ));
+	// eslint-disable-next-line react-hooks/exhaustive-deps
 	},[messagesState]);
 
-	const messageListener = (msg: MessageModel) => {
-	const {id, authorId, author, content} = msg
-	setMessagesState([...messagesState, {id, authorId, author, content}]);
-	}
+	useEffect(()=>{	
+		chanInfo?.operators.map((op)=>{
+			if (op.id === user.id){
+				setOp(true);	
+			}
+			return ("");
+		})
+	}, [chanInfo?.operators, isOp, user.id])
+	
 
 	useEffect(() => {
+		const messageListener = (msg: MessageModel) => {
+			const {id, authorId, author, content} = msg
+			setMessagesState([...messagesState, {id, authorId, author, content}]);
+		}
 		chatSocket?.on("receivedMessage", messageListener);
 		return () => {
 		  chatSocket?.off("receivedMessage", messageListener);
 		}
-	  // eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [messageListener, messagesList, messagesState])
+	}, [messagesList, messagesState, chatSocket])
 
 	const handleKeyDown =  (event : KeyboardEvent<HTMLInputElement>) => {
 		if (event.key === "Enter" && value !== ""){
@@ -136,7 +148,7 @@ export default function Channel() {
 						 infoBool &&
 						<div className="d-flex flex-column">
 							<div>
-								<h2>
+								<h2 className="ml-10">
 									Users List
 								</h2>
 								<ul>
@@ -144,25 +156,46 @@ export default function Channel() {
 									const username = member.userName;
 									const userId = member.id;
 									return (
-										<li key={userId}>
+										<li onClick={() => handleMsgClick(username)} key={userId} className="ml-10">
 											{username}
-											<button className="btn-danger ml-10">
-												Kick
-											</button>
-											<button className="btn-danger ml-10">
-												Ban
-											</button>
-											<button className="btn-danger ml-10">
-												Mute
-											</button>
-											<button className="btn-primary ml-10">
-												Play
-											</button>
 										</li>
 									)
 								})}
 								</ul>
 							</div>
+						</div>
+					}
+					{ userBool && chanInfo &&
+						<div className="d-flex flex-column">
+							<h2 className="ml-10">
+								Manage {currentUserName}
+							</h2>
+							<NavLink className="btn-primary ml-10 d-flex justify-content" to="">
+								Profile
+							</NavLink>
+							<button className="btn-primary ml-10">
+								Play
+							</button>
+							{
+								user.id === chanInfo.ownerId && 
+								<button className="btn-primary ml-10">
+									Admin
+								</button>
+							}
+							{ isOp &&
+							<>
+								<button className="btn-danger ml-10">
+									Kick
+								</button>
+								<button className="btn-danger ml-10">
+									Ban
+								</button>
+								<button className="btn-danger ml-10">
+									Mute
+								</button>
+							</>
+							}
+							
 						</div>
 					}
 				</div>

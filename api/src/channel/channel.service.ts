@@ -131,6 +131,12 @@ export class ChannelService {
 						userName: true,
 					},
 				},
+				operators: {
+					select: {
+						id: true,
+						userName: true,
+					},
+				},
 			},
 		});
 	}
@@ -172,6 +178,7 @@ export class ChannelService {
 				members: true,
 				operators: true,
 				messages: true,
+				banList: true,
 			},
 			where: {
 				type: "Channel",
@@ -197,6 +204,7 @@ export class ChannelService {
 				members: true,
 				operators: true,
 				messages: true,
+				banList: true,
 			},
 			where: {
 				type: "DM",
