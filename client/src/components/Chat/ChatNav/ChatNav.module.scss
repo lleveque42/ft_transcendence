@@ -1,6 +1,6 @@
 .navContainer{
     background: #3d4c53;
-	width: 100%;
+	width: 70vw;
 	height: 5em;
 	overflow: hidden;
 	text-align: center;
@@ -8,9 +8,12 @@
 	cursor: pointer;
 	border-radius: 4px;
 	box-shadow: var(--box-shadow-nav);
+	min-width: 400px;
+	max-width: 70vw;
 }
 
 .navLink{
+	width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
