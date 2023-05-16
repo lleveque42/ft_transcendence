@@ -41,6 +41,26 @@ export class OnlineUsers {
 		}
 	}
 
+	updateStatus(userId: number, newStatus: UserStatus) {
+		const user: User = this.getUserByUserId(userId);
+		if (!user) return;
+		const sockets: Map<string, Socket> = this.getClientsByUserId(userId);
+		this._users.set(userId, {
+			user: { ...user, status: newStatus },
+			sockets: sockets,
+		});
+	}
+
+	updateUserName(userId: number, newUserName: string) {
+		const user: User = this.getUserByUserId(userId);
+		if (!user) return;
+		const sockets: Map<string, Socket> = this.getClientsByUserId(userId);
+		this._users.set(userId, {
+			user: { ...user, userName: newUserName },
+			sockets: sockets,
+		});
+	}
+
 	hasByUserId(userId: number): boolean {
 		return this._users.has(userId);
 	}

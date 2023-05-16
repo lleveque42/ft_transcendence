@@ -35,6 +35,7 @@ export class AppGateway
 	async changeUserStatus(user: User, online: boolean) {
 		const newStatus = online ? UserStatus.ONLINE : UserStatus.OFFLINE;
 		await this.userService.changeUserStatus(user.id, newStatus);
+		this.users.updateStatus(user.id, newStatus);
 		let onlineFriends = await this.users.getFriendsOfByUserId(
 			user.id,
 			this.userService,
@@ -123,21 +124,19 @@ export class AppGateway
 		@MessageBody() newUserName: string,
 	) {
 		const user = this.users.getUserByClientId(client.id);
+		this.users.updateUserName(user.id, newUserName);
 
-		// const users = this.users.getUsers();
-		// console.log(users);
-
-		// const onlineFriends = await this.users.getFriendsOfByUserId(
-		// 	user.id,
-		// 	this.userService,
-		// );
-		// for (let friend of onlineFriends) {
-		// 	this.users.emitAllbyUserId(friend.id, "updateOnlineFriend", {
-		// 		id: user.id,
-		// 		userName: newUserName,
-		// 		status: user.status,
-		// 	});
-		// }
+		const onlineFriends = await this.users.getFriendsOfByUserId(
+			user.id,
+			this.userService,
+		);
+		for (let friend of onlineFriends) {
+			this.users.emitAllbyUserId(friend.id, "updateOnlineFriend", {
+				id: user.id,
+				userName: newUserName,
+				status: user.status,
+			});
+		}
 
 		this.io.emit("userNameUpdated", {
 			id: user.id,

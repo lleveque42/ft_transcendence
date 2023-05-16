@@ -134,6 +134,7 @@ export class GameGateway
 	async changeUserStatus(user: User, inGame: boolean) {
 		const newStatus = inGame ? UserStatus.INGAME : UserStatus.ONLINE;
 		await this.userService.changeUserStatus(user.id, newStatus);
+		this.users.updateStatus(user.id, newStatus);
 		const onlineFriends = await this.users.getFriendsOfByUserId(
 			user.id,
 			this.userService,
@@ -295,4 +296,3 @@ export class GameGateway
 		} else if (this.ongoing.ownerScored(room)) this.endGame(room, true);
 	}
 }
- 
