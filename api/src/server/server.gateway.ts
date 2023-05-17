@@ -208,4 +208,28 @@ export class ServerGateway
 				await this.channelService.getChannelByTitle(data.room),
 			);
 	}
+
+	@SubscribeMessage("exitChatRoom")
+	async handleExitChanRoom(
+		@ConnectedSocket() client: Socket,
+		@MessageBody()
+		data: {
+			id: number;
+			room: string;
+			userName: string;
+		},
+	): Promise<void> {
+		console.log(
+			"The socket " +
+				client.id +
+				" trying to disconnect from the chan " +
+				data.room,
+		);
+		this.io.to(data.room).emit("kickOrBanFromChannel", data.userName);
+		const user = await this.userService.getUserByUserName(data.userName);
+		const sockets = await this.users.getClientsByUserId(user.id);
+		for (const socket of sockets) {
+			socket[1].leave(data.room);
+		}
+	}
 }

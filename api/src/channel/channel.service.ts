@@ -73,6 +73,70 @@ export class ChannelService {
 		}
 	}
 
+	async kickFromChannel(userName: string, id: number) {
+		try {
+			const chan = await this.prisma.channel.update({
+				where: {
+					id: id,
+				},
+				data: {
+					members: {
+						disconnect: {
+							userName: userName,
+						},
+					},
+					operators: {
+						disconnect: {
+							userName: userName,
+						},
+					},
+				},
+				include: {
+					members: {
+						select: {
+							id: true,
+							userName: true,
+						},
+					},
+					operators: {
+						select: {
+							id: true,
+							userName: true,
+						},
+					},
+				},
+			});
+			return await this.prisma.channel.findUnique({
+				where: {
+					id: id,
+				},
+				include: {
+					members: {
+						select: {
+							id: true,
+							userName: true,
+						},
+					},
+					operators: {
+						select: {
+							id: true,
+							userName: true,
+						},
+					},
+				},
+			});
+		} catch (error) {
+			if (
+				error instanceof Prisma.PrismaClientKnownRequestError &&
+				error.code === "P2002"
+			) {
+				throw new ForbiddenException("Duplicate key value");
+			} else {
+				console.log("Error in update");
+			}
+		}
+	}
+
 	async createDM(
 		newChannel: Prisma.ChannelCreateInput,
 		userId1: number,
@@ -119,7 +183,7 @@ export class ChannelService {
 		return updatedChannel;
 	}
 
-	async getChannelByTitle(title: any) {
+	async getChannelByTitle(title: string) {
 		return await this.prisma.channel.findUnique({
 			where: {
 				title,

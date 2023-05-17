@@ -1,12 +1,13 @@
 
 import ChatNav from "../../components/Chat/ChatNav/ChatNav";
 import { useEffect, useState } from "react";
-import { NavLink, useParams } from "react-router-dom";
+import { NavLink, useNavigate, useParams } from "react-router-dom";
 import { useUser } from "../../context/UserProvider";
 import { KeyboardEvent } from "react"
 import Message from "../../components/Message/Message";
 import { ChannelModel, MessageModel } from "../../entities/entities";
 import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
+import { useAlert } from "../../context/AlertProvider";
 
 export default function Channel() {
   
@@ -21,9 +22,15 @@ export default function Channel() {
 	const [messagesList, setMessagesList] = useState<JSX.Element[]>([]);
 	const [chanInfo, setChanInfo] = useState<ChannelModel>();
 	const [currentUserName, setCurrentUserName] = useState("");
+	const [currentUserId, setCurrentUserId] = useState(0);
 	const [isOp, setOp] = useState(false);
+	
 	 
 	const { id } = useParams();
+	const { showAlert } = useAlert();
+	const navigate = useNavigate();
+
+
 	
 	useEffect(() => {
 	(async () => {
@@ -65,10 +72,11 @@ export default function Channel() {
 		setInfoBool(true);
 	}
 	
-	function handleMsgClick(userName: string) {
+	function handleMsgClick(userName: string, userId: number) {
 		if (userName === user.userName)
 		{return}
 		setCurrentUserName(userName);
+		setCurrentUserId(userId);
 		setuserBool(true);
 		setInfoBool(false);
 	}
@@ -83,7 +91,7 @@ export default function Channel() {
 	setMessagesList(messagesState.map(({ id, author, content }) => 
 	{
 		return (
-			<li  onClick={() => handleMsgClick(author.userName)} key={id}>
+			<li  onClick={() => handleMsgClick(author.userName, author.id)} key={id}>
 				<Message
 					allMessages={messagesState}
 					// removeMessages={setMessagesState}
@@ -123,6 +131,56 @@ export default function Channel() {
 			chatSocket?.emit("chanMessage", {room: id, message: value});
 		}
 	};
+
+		
+	async function handleKick(userName : string, userId: number) {
+		const id = chanInfo?.id;
+		const room = chanInfo?.title;
+		const data = {userName, id}
+		const tets = {id, room,userName}
+		if (chanInfo?.ownerId === userId){
+			showAlert("error", "Error, you can't kick, ban or mute the channel owner bro");
+			return ;
+		}
+		try {
+			const res = await fetch("http://localhost:3000/channels/kick", {
+				method: "POST",
+				credentials: "include",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(data),
+			})
+			// .then(res => res.json()).then(chan => {
+			// 	setChanInfo(chan);
+			// });
+			chatSocket?.emit("exitChatRoom", tets);
+			console.log("Emitted");
+			
+			if (res.status === 201) {
+				setInfoBool(true);
+				setuserBool(false);
+			} else if (res.ok) {
+				// navigate("/chat/channels");
+            }
+		} catch (e) {
+			console.error("Error kicking from channel");
+		}
+	  }
+	  useEffect(() => {
+		chatSocket?.on("kickOrBanFromChannel", (username:string)=>{
+			if (username === user.userName){
+				navigate(-1);
+			}
+			// Mettre a jour la liste de users
+		});
+		return () => {
+		  chatSocket?.off("kickOrBanFromChannel",);
+		}
+	  // eslint-disable-next-line react-hooks/exhaustive-deps
+	  }, [messagesList, messagesState])
+	  
+	
 	
 	return (
 		<div className="container d-flex flex-column justify-content align-items">
@@ -156,7 +214,7 @@ export default function Channel() {
 									const username = member.userName;
 									const userId = member.id;
 									return (
-										<li onClick={() => handleMsgClick(username)} key={userId} className="ml-10">
+										<li onClick={() => handleMsgClick(username, userId)} key={userId} className="ml-10">
 											{username}
 										</li>
 									)
@@ -170,7 +228,7 @@ export default function Channel() {
 							<h2 className="ml-10">
 								Manage {currentUserName}
 							</h2>
-							<NavLink className="btn-primary ml-10 d-flex justify-content" to="">
+							<NavLink className="btn-primary ml-10 d-flex justify-content" to={`/user/${currentUserName}`}>
 								Profile
 							</NavLink>
 							<button className="btn-primary ml-10">
@@ -184,13 +242,13 @@ export default function Channel() {
 							}
 							{ isOp &&
 							<>
-								<button className="btn-danger ml-10">
+								<button id="Kick" onClick={() => handleKick(currentUserName, currentUserId)} className="btn-danger ml-10">
 									Kick
 								</button>
-								<button className="btn-danger ml-10">
+								<button id="Ban" className="btn-danger ml-10">
 									Ban
 								</button>
-								<button className="btn-danger ml-10">
+								<button id="Mute" className="btn-danger ml-10">
 									Mute
 								</button>
 							</>

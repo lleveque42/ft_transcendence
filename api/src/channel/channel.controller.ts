@@ -163,6 +163,21 @@ export class ChannelController {
 			res.json("Error while updating");
 		}
 	}
+	@Post("kick")
+	async kickFromChannel(
+		@Body() body,
+		@Res({ passthrough: true }) res: Response,
+	) {
+		try {
+			const chan = await this.channelService.kickFromChannel(
+				body.userName,
+				body.id,
+			);
+			res.json("OK");
+		} catch (e) {
+			res.json("Error while kicking");
+		}
+	}
 
 	@Post("create_join_dm")
 	async createDM(
