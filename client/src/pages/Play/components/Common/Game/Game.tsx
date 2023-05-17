@@ -9,15 +9,9 @@ interface GameProps {
 	showGames: () => void; // tmp
 	gameStatus: GameStatus;
 	gameSocket: Socket | null;
-	accelerator: boolean;
 }
 
-export default function Game({
-	showGames,
-	gameStatus,
-	gameSocket,
-	accelerator,
-}: GameProps) {
+export default function Game({ showGames, gameStatus, gameSocket }: GameProps) {
 	return (
 		<>
 			<div
@@ -34,7 +28,7 @@ export default function Game({
 						<GameSocketContext.Provider value={{ gameSocket }}>
 							<OwnerGameRender
 								room={gameStatus.room}
-								accelerator={accelerator}
+								accelerator={gameStatus.accelerator}
 							/>
 						</GameSocketContext.Provider>
 					) : (

@@ -62,13 +62,19 @@ export default function Play() {
 		gameSocket?.once(
 			"connectionStatus",
 			(
-				status: { success: boolean; inGame: boolean },
+				status: {
+					success: boolean;
+					inGame: boolean;
+					inOption?: boolean | false;
+				},
 				game: {
 					room: string;
 					ownerId: number;
 					playerId: number;
 					ownerScore: number;
 					playerScore: number;
+					accelerator: boolean;
+					map: MapStatus;
 				},
 			) => {
 				gameSocket?.removeListener("connectionStatusError");
@@ -86,9 +92,28 @@ export default function Play() {
 							game.playerScore,
 							game.ownerId,
 							game.playerId,
+							game.map,
+							game.accelerator,
 						),
 					);
+					setAcceleratorOption(game.accelerator);
+					setMapOption(game.map);
 					setGameUserStatus(GameUserStatus.waitingGameRestart);
+				} else if (status.inOption) {
+					setGameStatus(
+						alreadyInGame(
+							gameStatus,
+							user,
+							game.room,
+							game.ownerScore,
+							game.playerScore,
+							game.ownerId,
+							game.playerId,
+							game.map,
+							game.accelerator,
+						),
+					);
+					setGameUserStatus(GameUserStatus.choosingOptions);
 				} else setGameUserStatus(GameUserStatus.connected);
 			},
 		);
@@ -118,6 +143,18 @@ export default function Play() {
 		);
 	}
 
+	function choosingOptions() {
+		gameSocket?.once("reconnection", () => {
+			setGameUserStatus(GameUserStatus.choosingOptions);
+			gameSocket?.off("gameCancelled");
+		});
+		gameSocket?.once("gameCancelled", () => {
+			setGameUserStatus(GameUserStatus.gameCancelled);
+			setGameStatus(gameEnded(gameStatus));
+			gameSocket?.off("reconnection");
+		});
+	}
+
 	function readyToStart() {
 		gameSocket?.once(
 			"bothPlayersReady",
@@ -125,8 +162,14 @@ export default function Play() {
 				setAcceleratorOption(accelerator);
 				setMapOption(map);
 				setGameUserStatus(GameUserStatus.waitingGameStart);
+				gameSocket!.off("gameCancelled");
 			},
 		);
+		gameSocket?.once("gameCancelled", () => {
+			setGameUserStatus(GameUserStatus.gameCancelled);
+			setGameStatus(gameEnded(gameStatus));
+			gameSocket!.off("bothPlayersReady");
+		});
 	}
 
 	function waitingToStart() {
@@ -143,6 +186,7 @@ export default function Play() {
 		});
 		gameSocket?.once("gameEnded", (winner: number) => {
 			gameSocket!.off("scoreUpdate");
+			gameSocket!.off("disconnection");
 			let newUserStatus: GameUserStatus;
 			user.id === winner
 				? (newUserStatus = GameUserStatus.gameWinner)
@@ -161,6 +205,7 @@ export default function Play() {
 		gameSocket?.once("reconnection", () => {
 			setGameStatus(gameUnpaused(gameStatus));
 			setGameUserStatus(GameUserStatus.waitingGameRestart);
+			gameSocket!.off("gameEnded");
 		});
 		gameSocket?.once("gameEnded", (winner) => {
 			let newUserStatus: GameUserStatus;
@@ -170,6 +215,7 @@ export default function Play() {
 			setGameUserStatus(newUserStatus);
 			setGameStatus(gameUnpaused(gameStatus));
 			setGameStatus(gameEnded(gameStatus));
+			gameSocket!.off("reconnection");
 		});
 	}
 
@@ -187,6 +233,7 @@ export default function Play() {
 				inQueue();
 				break;
 			case GameUserStatus.choosingOptions:
+				choosingOptions();
 				break;
 			case GameUserStatus.readyToStart:
 				readyToStart();
@@ -240,6 +287,9 @@ export default function Play() {
 			{gameUserStatus === GameUserStatus.readyToStart && (
 				<>Waiting for other player...</>
 			)}
+			{gameUserStatus === GameUserStatus.gameCancelled && (
+				<>Game cancelled, opponent disconnected.</>
+			)}
 			{gameUserStatus === GameUserStatus.waitingGameStart && (
 				<>
 					<div>Game starting...</div>
@@ -251,6 +301,8 @@ export default function Play() {
 			{gameUserStatus === GameUserStatus.waitingGameRestart && (
 				<>
 					<div>Game restarting...</div>
+					<div>Accelerator : {acceleratorOption ? "true" : "false"}</div>
+					<div>Map : {mapOption}</div>
 					<Countdown />
 				</>
 			)}
@@ -259,7 +311,6 @@ export default function Play() {
 					showGames={() => gameSocket?.emit("showGames")}
 					gameStatus={gameStatus}
 					gameSocket={gameSocket}
-					accelerator={acceleratorOption}
 				/>
 			)}
 			{gameUserStatus === GameUserStatus.waitingOpponentReconnection && (
