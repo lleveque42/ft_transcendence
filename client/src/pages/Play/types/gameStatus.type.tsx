@@ -4,7 +4,9 @@ import { MapStatus } from "../enums/MapStatus";
 export type GameStatus = {
 	room: string;
 	ownerId: number;
+	ownerUserName: string;
 	playerId: number;
+	playerUserName: string;
 	owner: boolean;
 	waitingToStart: boolean;
 	started: boolean;
@@ -19,7 +21,9 @@ export type GameStatus = {
 export const defaultGameStatus: GameStatus = {
 	room: "",
 	ownerId: 0,
+	ownerUserName: "",
 	playerId: 0,
+	playerUserName: "",
 	owner: false,
 	waitingToStart: false,
 	started: false,
@@ -62,7 +66,9 @@ export function alreadyInGame(
 	ownerScore: number,
 	playerScore: number,
 	ownerId: number,
+	ownerUserName: string,
 	playerId: number,
+	playerUserName: string,
 	map: number,
 	accelerator: boolean,
 ): GameStatus {
@@ -71,7 +77,9 @@ export function alreadyInGame(
 		...gameStatus,
 		room,
 		ownerId,
+		ownerUserName,
 		playerId,
+		playerUserName,
 		owner,
 		started: true,
 		ownerScore,
@@ -86,14 +94,18 @@ export function joinedGame(
 	user: UserDataState,
 	room: string,
 	ownerId: number,
+	ownerUserName: string,
 	playerId: number,
+	playerUserName: string,
 ): GameStatus {
 	const owner: boolean = user.id === ownerId;
 	return {
 		...gameStatus,
 		room,
 		ownerId,
+		ownerUserName,
 		playerId,
+		playerUserName,
 		owner,
 		waitingToStart: true,
 	};

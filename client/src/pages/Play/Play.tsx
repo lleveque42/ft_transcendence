@@ -72,7 +72,9 @@ export default function Play() {
 				game: {
 					room: string;
 					ownerId: number;
+					ownerUserName: string;
 					playerId: number;
+					playerUserName: string;
 					ownerScore: number;
 					playerScore: number;
 					accelerator: boolean;
@@ -93,7 +95,9 @@ export default function Play() {
 							game.ownerScore,
 							game.playerScore,
 							game.ownerId,
+							game.ownerUserName,
 							game.playerId,
+							game.playerUserName,
 							game.map,
 							game.accelerator,
 						),
@@ -110,7 +114,9 @@ export default function Play() {
 							game.ownerScore,
 							game.playerScore,
 							game.ownerId,
+							game.ownerUserName,
 							game.playerId,
+							game.playerUserName,
 							game.map,
 							game.accelerator,
 						),
@@ -137,8 +143,24 @@ export default function Play() {
 	function inQueue() {
 		gameSocket?.once(
 			"joinedGame",
-			(room: string, ownerId: number, playerId: number) => {
-				setGameStatus(joinedGame(gameStatus, user, room, ownerId, playerId));
+			(
+				room: string,
+				ownerId: number,
+				ownerUserName: string,
+				playerId: number,
+				playerUserName: string,
+			) => {
+				setGameStatus(
+					joinedGame(
+						gameStatus,
+						user,
+						room,
+						ownerId,
+						ownerUserName,
+						playerId,
+						playerUserName,
+					),
+				);
 				setGameUserStatus(GameUserStatus.choosingOptions);
 				gameSocket.removeListener("leftQueue");
 				if (ownerId === user.id) {
