@@ -1,4 +1,5 @@
 import { UserDataState } from "../../../context";
+import { MapStatus } from "../enums/MapStatus";
 
 export type GameStatus = {
 	room: string;
@@ -11,6 +12,8 @@ export type GameStatus = {
 	ended: boolean;
 	ownerScore: number;
 	playerScore: number;
+	map: MapStatus;
+	accelerator: boolean;
 };
 
 export const defaultGameStatus: GameStatus = {
@@ -24,6 +27,8 @@ export const defaultGameStatus: GameStatus = {
 	ended: false,
 	ownerScore: 0,
 	playerScore: 0,
+	map: MapStatus.default,
+	accelerator: false,
 };
 
 export function incrementOwnerScore(gameStatus: GameStatus): GameStatus {
@@ -58,6 +63,8 @@ export function alreadyInGame(
 	playerScore: number,
 	ownerId: number,
 	playerId: number,
+	map: number,
+	accelerator: boolean,
 ): GameStatus {
 	const owner: boolean = user.id === ownerId;
 	return {
@@ -69,6 +76,8 @@ export function alreadyInGame(
 		started: true,
 		ownerScore,
 		playerScore,
+		map,
+		accelerator,
 	};
 }
 

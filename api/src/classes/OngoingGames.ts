@@ -17,6 +17,7 @@ export class OngoingGames {
 	addGame(room: string, owner: User, player: User): GameType {
 		this._games.set(room, {
 			id: room,
+			started: false,
 			owner,
 			ownerId: owner.id,
 			player,
@@ -59,6 +60,11 @@ export class OngoingGames {
 	setMapById(room: string, map: number) {
 		const game = this._games.get(room);
 		this._games.set(room, { ...game, map });
+	}
+
+	setStarted(room: string) {
+		const game = this._games.get(room);
+		this._games.set(room, { ...game, started: true });
 	}
 
 	playerScored(room: string): boolean {
