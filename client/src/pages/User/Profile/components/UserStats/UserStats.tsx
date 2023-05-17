@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import styles from "./UserStats.module.scss";
 import { GameInfosType } from "../../../../../types";
 import { useEffect, useState } from "react";
+import trimUserName from "../../../../../utils/trimUserName";
 
 type UserStatsProps = {
 	userProfile: {
@@ -57,7 +58,7 @@ export default function UserStats({ userProfile }: UserStatsProps) {
 											navigate(`/user/${game.opponentUsername}`);
 										}}
 									>
-										{game.opponentUsername}
+										{trimUserName(game.opponentUsername)}
 									</p>
 									{game.won ? (
 										<p className={`${styles.winColor} flex-1 pl-30`}>Win</p>

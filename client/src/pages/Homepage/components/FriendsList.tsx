@@ -3,16 +3,30 @@ import { useUser } from "../../../context";
 import styles from "./FriendsList.module.scss";
 import { UserStatus } from "../../../types/UserStatus.enum";
 import trimUserName from "../../../utils/trimUserName";
+import { useEffect, useState } from "react";
+import { Friend } from "../../../types";
+import { usePrivateRouteSocket } from "../../../context/PrivateRouteProvider";
 
 export default function FriendsList() {
 	const { user } = useUser();
+	const { socket } = usePrivateRouteSocket();
+	const [friendsList, setFriendsList] = useState<Friend[]>([]);
 	const navigate = useNavigate();
+
+	// useEffect(() => {
+	// 	setFriendsList(user.friends);
+	// 	// socket?.on("updateOnlineFriend", (friend: Friend) => {
+	// 	// 	console.log("Friends", user.friends);
+
+	// 	// 	setFriendsList(user.friends);
+	// 	// });
+	// }, [user.friends]);
 
 	return (
 		<>
 			<h3 className="underTitle mt-10">My Friends</h3>
 			<div className={styles.friendsList}>
-				{user.friends.length !== 0 ? (
+				{friendsList.length !== 0 ? (
 					<>
 						<ul className={`pl-5 pr-5`}>
 							<li className={`${styles.listElem} d-flex p-5 mb-10`}>
@@ -22,7 +36,7 @@ export default function FriendsList() {
 								<h4 className="d-flex flex-1 justify-content mr-5">Play</h4>
 								<h4 className="d-flex flex-1 justify-content">Dm</h4>
 							</li>
-							{user.friends.map((f, i) => (
+							{friendsList.map((f, i) => (
 								<li className={` ${styles.listElem} d-flex p-5`} key={i}>
 									<span
 										className={`${styles.statusBadge} ${
