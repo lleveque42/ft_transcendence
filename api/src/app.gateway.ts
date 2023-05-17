@@ -126,6 +126,12 @@ export class AppGateway
 		const user = this.users.getUserByClientId(client.id);
 		this.users.updateUserName(user.id, newUserName);
 
+		this.io.emit("userNameUpdatedProfile", {
+			id: user.id,
+			userName: newUserName,
+			status: user.status,
+		});
+
 		const onlineFriends = await this.users.getFriendsOfByUserId(
 			user.id,
 			this.userService,
@@ -138,27 +144,10 @@ export class AppGateway
 			});
 		}
 
-		// for (let notFriend of this.users.getUsers()) {
-		// 	if (
-		// 		!onlineFriends.find((u) => u.id === notFriend[0]) &&
-		// 		notFriend[0] !== user.id
-		// 	) {
-		// 		console.log(notFriend[1].user.userName);
-
-		// 		this.users.emitAllbyUserId(notFriend[0], "userNameUpdated", {
-		// 			id: user.id,
-		// 			userName: newUserName,
-		// 			status: user.status,
-		// 		});
-		// 	}
-		// }
-
-		// setTimeout(() => {
-		this.io.emit("userNameUpdated", {
+		this.io.emit("userNameUpdatedUsersList", {
 			id: user.id,
 			userName: newUserName,
 			status: user.status,
 		});
-		// }, 1000);
 	}
 }

@@ -30,14 +30,6 @@ export class UserService {
 		});
 	}
 
-	// async getAllUsers() {
-	// 	return await this.prisma.user.findMany({
-	// 		select: {
-	// 			userName: true,
-	// 		},
-	// 	});
-	// }
-
 	async getUserByEmail(email: string): Promise<User> {
 		return await this.prisma.user.findUnique({
 			where: {
@@ -134,7 +126,7 @@ export class UserService {
 			status: UserStatus;
 		}[];
 	}> {
-		return await this.prisma.user.findUnique({
+		const list = await this.prisma.user.findUnique({
 			where: {
 				id: user.id,
 			},
@@ -148,6 +140,8 @@ export class UserService {
 				},
 			},
 		});
+		list.friends.sort((a: any, b: any) => a.userName.localeCompare(b.userName));
+		return list;
 	}
 
 	async getUserFriendsOf(user: User): Promise<{

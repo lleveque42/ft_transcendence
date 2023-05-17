@@ -40,17 +40,13 @@ export default function Profile() {
 	const [isFriend, setIsFriend] = useState<boolean>(false);
 
 	useEffect(() => {
-		socket?.on("userNameUpdated", (userSender: NewUserName) => {
-			setUserProfile((prevProfile) => ({
-				...prevProfile,
-				userName: userSender.userName,
-			}));
+		socket?.on("userNameUpdatedProfile", (userSender: NewUserName) => {
 			navigate(`/user/${userSender.userName}`);
 		});
-
 		return () => {
-			socket?.off("userNameUpdated");
+			socket?.off("userNameUpdatedProfile");
 		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [socket]);
 
 	useEffect(() => {
@@ -98,7 +94,8 @@ export default function Profile() {
 			getUserProfile();
 			getUserAvatar();
 		}
-	}, [username, accessToken, user.friends, showAlert, isFriend]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [username, accessToken, user.friends, showAlert, navigate, isFriend]);
 
 	return (
 		<>

@@ -24,14 +24,18 @@ export default function Users() {
 	const [usersList, setUsersList] = useState<UsersList[]>([]);
 
 	function sortUsersList(list: UsersList[]) {
-		return list.sort((a: UsersList, b: UsersList) =>
-			a.userName.localeCompare(b.userName),
-		);
+		if (list.length > 1) {
+			list.sort((a: UsersList, b: UsersList) =>
+				a.userName.localeCompare(b.userName),
+			);
+		}
+		return list;
 	}
 
 	function updateUserInList(userToUpdate: NewUserName | Friend | UsersList) {
 		const userInList = usersList.find((u) => u.id === userToUpdate.id);
 		if (!userInList) return;
+
 		const userUpdated: UsersList = { ...userInList, ...userToUpdate };
 		const newUsersList = [
 			...usersList.filter((u) => u.id !== userInList.id),
@@ -110,17 +114,17 @@ export default function Users() {
 	}, []);
 
 	useEffect(() => {
-		socket?.on("userNameUpdated", (userSender: NewUserName) => {
+		socket?.on("userNameUpdatedUsersList", (userSender: NewUserName) => {
 			updateUserInList(userSender);
 		});
 		socket?.on("updateOnlineFriend", (friend: Friend) => {
 			updateUserInList(friend);
 		});
 		return () => {
-			socket?.off("userNameUpdated");
+			socket?.off("userNameUpdatedUsersList");
 		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [socket, user.friends]);
+	}, [socket, user.friends, usersList]);
 
 	return (
 		<>
