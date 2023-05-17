@@ -7,25 +7,12 @@ import Loader from "react-loaders";
 import default_avatar from "../../../assets/images/punk.png";
 import UserStats from "./components/UserStats/UserStats";
 import UserPresentation from "./components/UserPresentation/UserPresentation";
-import { UserStatus } from "../../../types/UserStatus.enum";
-import { NewUserName } from "../../../types";
+import {
+	NewUserName,
+	UserProfileType,
+	UserProfileValues,
+} from "../../../types";
 import { usePrivateRouteSocket } from "../../../context/PrivateRouteProvider";
-
-type UserProfileType = {
-	userName: string;
-	firstName: string;
-	lastName: string;
-	email: string;
-	status: UserStatus;
-};
-
-const UserProfileValues: UserProfileType = {
-	userName: "",
-	firstName: "",
-	lastName: "",
-	email: "",
-	status: UserStatus.ONLINE,
-};
 
 export default function Profile() {
 	const { accessToken, user } = useUser();
@@ -67,7 +54,6 @@ export default function Profile() {
 				console.error("Error user profile", e);
 			}
 		};
-
 		const getUserAvatar = async () => {
 			try {
 				const res = await userAvatarRequest(accessToken, username as string);
@@ -122,7 +108,7 @@ export default function Profile() {
 							/>
 						</div>
 						<div className={`${styles.userStatsContainer} d-flex flex-column`}>
-							<UserStats />
+							<UserStats userProfile={userProfile} />
 						</div>
 					</div>
 				</>
