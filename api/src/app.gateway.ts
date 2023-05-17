@@ -32,8 +32,16 @@ export class AppGateway
 		this.logger.log("Websocket AppGateway initialized.");
 	}
 
-	async changeUserStatus(user: User, online: boolean) {
-		const newStatus = online ? UserStatus.ONLINE : UserStatus.OFFLINE;
+	async changeUserStatus(
+		user: User,
+		online: boolean,
+		inGame?: boolean | false,
+	) {
+		const newStatus = inGame
+			? UserStatus.INGAME
+			: online
+			? UserStatus.ONLINE
+			: UserStatus.OFFLINE;
 		await this.userService.changeUserStatus(user.id, newStatus);
 		this.users.updateStatus(user.id, newStatus);
 		let onlineFriends = await this.users.getFriendsOfByUserId(
@@ -149,5 +157,20 @@ export class AppGateway
 			userName: newUserName,
 			status: user.status,
 		});
+	}
+
+	@SubscribeMessage("userStatusInGame")
+	async newInGameStatus(
+		@ConnectedSocket() client: Socket,
+		@MessageBody("ownerId") ownerId: number,
+		@MessageBody("playerId") playerId: number,
+		@MessageBody("inGame") inGame: boolean,
+	) {
+		const owner = this.users.getUserByUserId(ownerId);
+		const player = this.users.getUserByUserId(playerId);
+		await this.changeUserStatus(owner, true, inGame);
+		setTimeout(async () => {
+			await this.changeUserStatus(player, true, inGame);
+		}, 50);
 	}
 }
