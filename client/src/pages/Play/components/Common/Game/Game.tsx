@@ -1,17 +1,23 @@
 import { Socket } from "socket.io-client";
-import { GameSocketContext } from "../../context/GameSocketProvider";
-import { GameStatus } from "../../types/gameStatus.type";
-import OwnerGameRender from "../OwnerView/OwnerGameRender";
-import PlayerGameRender from "../PlayerView/PlayerGameRender";
-import styles from "../../Play.module.scss";
+import { GameSocketContext } from "../../../context/GameSocketProvider";
+import { GameStatus } from "../../../types/gameStatus.type";
+import OwnerGameRender from "../../OwnerView/OwnerGameRender";
+import PlayerGameRender from "../../PlayerView/PlayerGameRender";
+import styles from "../../../Play.module.scss";
 
 interface GameProps {
 	showGames: () => void; // tmp
 	gameStatus: GameStatus;
 	gameSocket: Socket | null;
+	accelerator: boolean;
 }
 
-export default function Game({ showGames, gameStatus, gameSocket }: GameProps) {
+export default function Game({
+	showGames,
+	gameStatus,
+	gameSocket,
+	accelerator,
+}: GameProps) {
 	return (
 		<>
 			<div
@@ -26,7 +32,10 @@ export default function Game({ showGames, gameStatus, gameSocket }: GameProps) {
 				<div className={`${styles.gameContainer}`}>
 					{gameStatus.owner ? (
 						<GameSocketContext.Provider value={{ gameSocket }}>
-							<OwnerGameRender room={gameStatus.room} />
+							<OwnerGameRender
+								room={gameStatus.room}
+								accelerator={accelerator}
+							/>
 						</GameSocketContext.Provider>
 					) : (
 						<GameSocketContext.Provider value={{ gameSocket }}>

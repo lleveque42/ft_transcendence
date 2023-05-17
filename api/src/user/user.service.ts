@@ -12,6 +12,8 @@ import { createReadStream } from "fs";
 import { authenticator } from "otplib";
 import { toDataURL } from "qrcode";
 import * as fs from "fs";
+import { GameType } from "../game/types/game.type";
+import { GameInfosType } from "../common/types";
 
 @Injectable()
 export class UserService {
@@ -52,6 +54,14 @@ export class UserService {
 		});
 	}
 
+	async getUserById(id: number): Promise<User> {
+		return await this.prisma.user.findUnique({
+			where: {
+				id,
+			},
+		});
+	}
+
 	async createUser42(newUser: userInfo42Dto): Promise<User> {
 		if (!newUser.image) newUser.image = "";
 		return await this.prisma.user.create({
@@ -63,6 +73,8 @@ export class UserService {
 				lastName: newUser.last_name,
 				avatar: newUser.image,
 				socket: "",
+				wins: 0,
+				losses: 0,
 			},
 		});
 	}
@@ -189,6 +201,82 @@ export class UserService {
 		return users;
 	}
 
+	async getAllGames(userId: number): Promise<GameInfosType[]> {
+		const playerGames = await this.prisma.user.findUnique({
+			where: { id: userId },
+			select: {
+				playerGames: {
+					select: {
+						owner: {
+							select: {
+								userName: true,
+							},
+						},
+						player: {
+							select: {
+								userName: true,
+							},
+						},
+						id: true,
+						ownerId: true,
+						playerId: true,
+						ownerScore: true,
+						playerScore: true,
+						winnerId: true,
+					},
+				},
+			},
+		});
+		const ownedGames = await this.prisma.user.findUnique({
+			where: { id: userId },
+			select: {
+				ownedGames: {
+					select: {
+						owner: {
+							select: {
+								userName: true,
+							},
+						},
+						player: {
+							select: {
+								userName: true,
+							},
+						},
+						id: true,
+						ownerId: true,
+						playerId: true,
+						ownerScore: true,
+						playerScore: true,
+						winnerId: true,
+					},
+				},
+			},
+		});
+		const allGames = new Array<GameInfosType>();
+		playerGames.playerGames.forEach((game) => {
+			const owner: Boolean = userId === game.ownerId;
+			allGames.push({
+				id: game.id,
+				opponentUsername: owner ? game.player.userName : game.owner.userName,
+				won: userId === game.winnerId,
+				ownScore: owner ? game.ownerScore : game.playerScore,
+				playerScore: owner ? game.playerScore : game.ownerScore,
+			});
+		});
+		ownedGames.ownedGames.forEach((game) => {
+			const owner: Boolean = userId === game.ownerId;
+			allGames.push({
+				id: game.id,
+				opponentUsername: owner ? game.player.userName : game.owner.userName,
+				won: userId === game.winnerId,
+				ownScore: owner ? game.ownerScore : game.playerScore,
+				playerScore: owner ? game.playerScore : game.ownerScore,
+			});
+		});
+		allGames.sort((a, b) => a.id - b.id);
+		return allGames;
+	}
+
 	async addToFriend(userName: string, newFriendUserName: string) {
 		const user = await this.getUserByUserName(userName);
 		const userFriend = await this.getUserByUserName(newFriendUserName);
@@ -280,6 +368,31 @@ export class UserService {
 			where: { id: userId },
 			data: { status: newStatus },
 		});
+	}
+
+	async newGameFinished(game: GameType) {
+		const owner = await this.getUserById(game.ownerId);
+		const player = await this.getUserById(game.playerId);
+		const winnerId = game.winnerId;
+		if (owner.id === winnerId) {
+			await this.prisma.user.update({
+				where: { id: owner.id },
+				data: { wins: owner.wins + 1 },
+			});
+			await this.prisma.user.update({
+				where: { id: player.id },
+				data: { losses: player.losses + 1 },
+			});
+		} else {
+			await this.prisma.user.update({
+				where: { id: owner.id },
+				data: { wins: owner.losses + 1 },
+			});
+			await this.prisma.user.update({
+				where: { id: player.id },
+				data: { losses: player.wins + 1 },
+			});
+		}
 	}
 
 	async dropdb(): Promise<void> {

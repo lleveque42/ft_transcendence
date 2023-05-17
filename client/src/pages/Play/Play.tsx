@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
 import styles from "./Play.module.scss";
-// import { Socket, io } from "socket.io-client";
-// import { useUser } from "../../context";
 import { useGameSocket } from "./context/GameSocketProvider";
 import {
 	GameStatus,
@@ -17,16 +15,20 @@ import {
 } from "./types/gameStatus.type";
 import { GameUserStatus } from "./enums/UserStatus";
 import { useUser } from "../../context";
-import Countdown from "./components/Common/Countdown";
-import Game from "./components/Common/Game";
-import { Default } from "./components/Common/Default";
-import Queue from "./components/Common/Queue";
+import Countdown from "./components/Common/Countdown/Countdown";
+import Game from "./components/Common/Game/Game";
+import { Default } from "./components/Common/Default/Default";
+import Queue from "./components/Common/Queue/Queue";
 import { useNavigate } from "react-router-dom";
+import Options from "./components/Common/Options/Options";
+import { MapStatus } from "./enums/MapStatus";
 
 export default function Play() {
 	const { user } = useUser();
 	const navigate = useNavigate();
 	const { gameSocket } = useGameSocket();
+	const [mapOption, setMapOption] = useState<MapStatus>(MapStatus.default);
+	const [acceleratorOption, setAcceleratorOption] = useState<boolean>(false);
 	const [gameUserStatus, setGameUserStatus] = useState<GameUserStatus>(
 		GameUserStatus.notConnected,
 	);
@@ -110,8 +112,19 @@ export default function Play() {
 			"joinedGame",
 			(room: string, ownerId: number, playerId: number) => {
 				setGameStatus(joinedGame(gameStatus, user, room, ownerId, playerId));
-				setGameUserStatus(GameUserStatus.waitingGameStart);
+				setGameUserStatus(GameUserStatus.choosingOptions);
 				gameSocket.removeListener("leftQueue");
+			},
+		);
+	}
+
+	function readyToStart() {
+		gameSocket?.once(
+			"bothPlayersReady",
+			(accelerator: boolean, map: number) => {
+				setAcceleratorOption(accelerator);
+				setMapOption(map);
+				setGameUserStatus(GameUserStatus.waitingGameStart);
 			},
 		);
 	}
@@ -173,6 +186,11 @@ export default function Play() {
 			case GameUserStatus.inQueue:
 				inQueue();
 				break;
+			case GameUserStatus.choosingOptions:
+				break;
+			case GameUserStatus.readyToStart:
+				readyToStart();
+				break;
 			case GameUserStatus.waitingGameStart:
 			case GameUserStatus.waitingGameRestart:
 				waitingToStart();
@@ -211,9 +229,22 @@ export default function Play() {
 			{gameUserStatus === GameUserStatus.inQueue && (
 				<Queue gameSocket={gameSocket} setGameUserStatus={setGameUserStatus} />
 			)}
+			{gameUserStatus === GameUserStatus.choosingOptions && (
+				<Options
+					gameSocket={gameSocket}
+					setGameUserStatus={setGameUserStatus}
+					setAcceleratorOption={setAcceleratorOption}
+					setMapOption={setMapOption}
+				/>
+			)}
+			{gameUserStatus === GameUserStatus.readyToStart && (
+				<>Waiting for other player...</>
+			)}
 			{gameUserStatus === GameUserStatus.waitingGameStart && (
 				<>
 					<div>Game starting...</div>
+					<div>Accelerator : {acceleratorOption ? "true" : "false"}</div>
+					<div>Map : {mapOption}</div>
 					<Countdown />
 				</>
 			)}
@@ -228,6 +259,7 @@ export default function Play() {
 					showGames={() => gameSocket?.emit("showGames")}
 					gameStatus={gameStatus}
 					gameSocket={gameSocket}
+					accelerator={acceleratorOption}
 				/>
 			)}
 			{gameUserStatus === GameUserStatus.waitingOpponentReconnection && (

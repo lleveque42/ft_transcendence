@@ -12,7 +12,7 @@ export const PADDLE_SPEED: number = 2.5;
 
 export const CEILING: number = 1;
 export const FLOOR: number = -1;
-export const OUT_OF_RANGE: number = PADDLE_X + 0.4;
+export const OUT_OF_BOUND: number = PADDLE_X + PADDLE_WIDTH * 5;
 export const WALL_WIDTH: number = PADDLE_WIDTH;
 export const MAP_LENGTH: number =
 	PADDLE_X * 2 + PADDLE_WIDTH * 2 + WALL_WIDTH * 2;
@@ -25,8 +25,6 @@ export const BALL_RADIUS: number = PADDLE_WIDTH / 2;
 export const BALL_DIAMETER: number = BALL_RADIUS * 2;
 export const BALL_MAX_X_SPEED: number = 3;
 export const BALL_X_SPEED: number = 1.25;
-// export const BALL_X_SPEED: number = 0.25;
-// export const BALL_X_SPEED: number = 0;
 export const BALL_REBOUND_Y_MULTIPLIER: number = 1.75;
-export const BALL_SPAWN_X_SPEED_MULTIPLIER: number = 1;
+export const BALL_X_SPEED_MULTIPLIER: number = 1.01;
 export const BALL_1ST_REBOUND_X_SPEED_MULTIPLIER: number = 2;

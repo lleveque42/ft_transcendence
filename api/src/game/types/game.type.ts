@@ -8,4 +8,7 @@ export type GameType = {
 	playerId: number;
 	ownerScore: number;
 	playerScore: number;
+	winnerId: number;
+	accelerator: boolean;
+	map: number;
 };

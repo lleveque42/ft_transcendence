@@ -3,6 +3,8 @@ export enum GameUserStatus {
 	alreadyConnected,
 	connected,
 	inQueue,
+	choosingOptions,
+	readyToStart,
 	waitingGameStart,
 	waitingGameRestart,
 	inGame,

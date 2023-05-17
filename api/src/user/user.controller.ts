@@ -116,6 +116,9 @@ export class UserController {
 			lastName: user.lastName,
 			email: user.email,
 			status: user.status,
+			wins: user.wins,
+			losses: user.losses,
+			games: await this.userService.getAllGames(user.id),
 		};
 	}
 
