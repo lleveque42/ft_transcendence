@@ -218,7 +218,8 @@ export class GameGateway
 			this.users.leaveAllbyUserId(winnerId, room);
 			this.changeUserStatus(this.users.getUserByUserId(winnerId), false);
 		}
-		if (!bothDisconnected) this.gameService.postGame({ ...game, winnerId });
+		if (!bothDisconnected && game.started)
+			this.gameService.postGame({ ...game, winnerId });
 		this.ongoing.removeGame(room);
 	}
 

@@ -301,8 +301,8 @@ export default function Play() {
 			{gameUserStatus === GameUserStatus.waitingGameRestart && (
 				<>
 					<div>Game restarting...</div>
-					<div>Accelerator : {acceleratorOption ? "true" : "false"}</div>
-					<div>Map : {mapOption}</div>
+					<div>Accelerator : {gameStatus.accelerator ? "true" : "false"}</div>
+					<div>Map : {gameStatus.map}</div>
 					<Countdown />
 				</>
 			)}

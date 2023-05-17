@@ -371,28 +371,19 @@ export class UserService {
 	}
 
 	async newGameFinished(game: GameType) {
-		const owner = await this.getUserById(game.ownerId);
-		const player = await this.getUserById(game.playerId);
 		const winnerId = game.winnerId;
-		if (owner.id === winnerId) {
-			await this.prisma.user.update({
-				where: { id: owner.id },
-				data: { wins: owner.wins + 1 },
-			});
-			await this.prisma.user.update({
-				where: { id: player.id },
-				data: { losses: player.losses + 1 },
-			});
-		} else {
-			await this.prisma.user.update({
-				where: { id: owner.id },
-				data: { wins: owner.losses + 1 },
-			});
-			await this.prisma.user.update({
-				where: { id: player.id },
-				data: { losses: player.wins + 1 },
-			});
-		}
+		const loserId =
+			game.winnerId === game.ownerId ? game.playerId : game.ownerId;
+		const winner = await this.getUserById(winnerId);
+		const loser = await this.getUserById(loserId);
+		await this.prisma.user.update({
+			where: { id: winnerId },
+			data: { wins: winner.wins + 1 },
+		});
+		await this.prisma.user.update({
+			where: { id: loserId },
+			data: { losses: loser.losses + 1 },
+		});
 	}
 
 	async dropdb(): Promise<void> {
