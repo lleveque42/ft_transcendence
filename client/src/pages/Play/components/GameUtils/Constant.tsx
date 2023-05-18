@@ -28,3 +28,27 @@ export const BALL_X_SPEED: number = 1.25;
 export const BALL_REBOUND_Y_MULTIPLIER: number = 1.75;
 export const BALL_X_SPEED_MULTIPLIER: number = 1.01;
 export const BALL_1ST_REBOUND_X_SPEED_MULTIPLIER: number = 2;
+
+// COLOR DEFAULT //
+
+export const NET_DEFAULT_COLOR = "#dfe6e9";
+export const BACKGROUND_DEFAULT_COLOR = "#2d3436";
+export const WALL_DEFAULT_COLOR = "#2d3436";
+export const PADDLE_DEFAULT_COLOR = "#74b9ff";
+export const BALL_DEFAULT_COLOR = "#74b9ff";
+
+// COLOR CITY //
+
+export const BACKGROUND_CITY_COLOR = "#2E7D32";
+export const WALL_CITY_COLOR = "#2F4858";
+export const PADDLE_CITY_COLOR = "#2F4858";
+export const BALL_CITY_COLOR = "#2F4858"
+
+// COLOR CITY //
+
+export const NET_SPACE_COLOR = "#4B4453";
+// export const BACKGROUND_SPACE_COLOR = "#4B4453";
+export const BACKGROUND_SPACE_COLOR = "#000000";
+export const WALL_SPACE_COLOR = "#4B4453";
+export const PADDLE_SPACE_COLOR = "#845EC2";
+export const BALL_SPACE_COLOR = "#F9F871";

@@ -29,10 +29,16 @@ export default function Play() {
 	const navigate = useNavigate();
 	const { socket } = usePrivateRouteSocket();
 	const { gameSocket } = useGameSocket();
-	const [mapOption, setMapOption] = useState<MapStatus>(MapStatus.default);
+	const [mapOption, setMapOption] = useState<MapStatus>(
+		MapStatus.default
+		// MapStatus.space,
+		// MapStatus.city
+	);
 	const [acceleratorOption, setAcceleratorOption] = useState<boolean>(false);
 	const [gameUserStatus, setGameUserStatus] = useState<GameUserStatus>(
 		GameUserStatus.notConnected,
+		// GameUserStatus.inGame,
+		// GameUserStatus.choosingOptions
 	);
 	const [gameStatus, setGameStatus] = useState<GameStatus>(defaultGameStatus);
 
@@ -218,10 +224,19 @@ export default function Play() {
 	}
 
 	function waitingToStart() {
+		let opponentDisconnected = false;
 		setTimeout(() => {
-			setGameUserStatus(GameUserStatus.inGame);
-			setGameStatus(gameStarted(gameStatus));
+			if (!opponentDisconnected) {
+				gameSocket!.off("disconnection");
+				setGameUserStatus(GameUserStatus.inGame);
+				setGameStatus(gameStarted(gameStatus));
+			}
 		}, 3000);
+		gameSocket?.once("disconnection", () => {
+			setGameUserStatus(GameUserStatus.waitingOpponentReconnection);
+			setGameStatus(gamePaused(gameStatus));
+			opponentDisconnected = true;
+		});
 	}
 
 	function inGame() {
@@ -323,7 +338,8 @@ export default function Play() {
 				<>
 					You are already playing on another device or browser. Please
 					disconnect from this other session and try again. You will be
-					redirected, please do not refresh.
+					redirected, please do not refresh. If the problem persists, wait 15
+					seconds.
 				</>
 			)}
 			{gameUserStatus === GameUserStatus.connected && (
@@ -370,6 +386,8 @@ export default function Play() {
 					showGames={() => gameSocket?.emit("showGames")}
 					gameStatus={gameStatus}
 					gameSocket={gameSocket}
+					accelerator={acceleratorOption}
+					map={mapOption}
 				/>
 			)}
 			{gameUserStatus === GameUserStatus.waitingOpponentReconnection && (

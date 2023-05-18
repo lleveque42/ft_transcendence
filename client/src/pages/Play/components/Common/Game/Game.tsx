@@ -4,14 +4,23 @@ import { GameStatus } from "../../../types/gameStatus.type";
 import OwnerGameRender from "../../OwnerView/OwnerGameRender";
 import PlayerGameRender from "../../PlayerView/PlayerGameRender";
 import styles from "../../../Play.module.scss";
+import { MapStatus } from "../../../enums/MapStatus";
 
 interface GameProps {
 	showGames: () => void; // tmp
 	gameStatus: GameStatus;
 	gameSocket: Socket | null;
+	accelerator: boolean;
+	map: MapStatus;
 }
 
-export default function Game({ showGames, gameStatus, gameSocket }: GameProps) {
+export default function Game({
+	showGames,
+	gameStatus,
+	gameSocket,
+	accelerator,
+	map,
+}: GameProps) {
 	return (
 		<>
 			<div
@@ -32,12 +41,13 @@ export default function Game({ showGames, gameStatus, gameSocket }: GameProps) {
 						<GameSocketContext.Provider value={{ gameSocket }}>
 							<OwnerGameRender
 								room={gameStatus.room}
-								accelerator={gameStatus.accelerator}
+								accelerator={accelerator}
+								map={map}
 							/>
 						</GameSocketContext.Provider>
 					) : (
 						<GameSocketContext.Provider value={{ gameSocket }}>
-							<PlayerGameRender room={gameStatus.room} />
+							<PlayerGameRender room={gameStatus.room} map={map} />
 						</GameSocketContext.Provider>
 					)}
 				</div>
