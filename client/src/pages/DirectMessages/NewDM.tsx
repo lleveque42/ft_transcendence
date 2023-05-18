@@ -6,7 +6,6 @@ import { useUser } from "../../context/UserProvider";
 import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
 import { useAlert } from "../../context/AlertProvider";
 
-
 type FormValues = {
 	title: string;
 	mode: string;
@@ -29,9 +28,11 @@ export default function NewDM() {
   
 	const { accessToken, user } = useUser();
 	const [usersState, setUsersState] = useState<{ id: number; userName: string }[]>([]);
+	const [usersList, setUsersList] = useState<JSX.Element[]>([]);
 	const socket = usePrivateRouteSocket();
 	const { showAlert } = useAlert();
 	const navigate = useNavigate();
+	const {chatSocket} = usePrivateRouteSocket();
 
 	useEffect(() => {
 		(async () => {
@@ -84,7 +85,7 @@ export default function NewDM() {
 				}
 				else {
 					showAlert("success", "A private message connection is established");
-					socket.chatSocket?.emit("joinDMRoom",{room: formValues.title, userId2: formValues.id2});
+					socket.chatSocket?.emit("joinDMRoom",{room: formValues.title, userId2: formValues.id2, userId: formValues.id1});
 					//navigate("/chat/channels");
 				}
 				navigate("/chat/direct_messages");
@@ -95,11 +96,25 @@ export default function NewDM() {
 		}
 	};
 
-	const userList = usersState.map((el) => (
-		( (user.id !== el.id) &&
-			<li key={el.id} id={el.id.toString(10)} onClick={handleClick} >{el.userName}</li>
-		)
-	));
+	useEffect(() => {
+	setUsersList(usersState.map((el) => 
+				( 
+					<li key={el.id} id={el.id.toString(10)} onClick={handleClick} >{el.userName}</li>
+				))
+		);
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [usersState])
+
+	useEffect(() => {
+		const usersListener = (userId: number) => {
+			setUsersState(usersState.filter(usr => usr.id !== userId));
+		}
+		chatSocket?.on("userExpel", usersListener);
+		return () => {
+		  chatSocket?.off("userExpel");
+		}
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [chatSocket, usersState])
 	
 return (
 		<div className="container d-flex flex-column justify-content align-items">
@@ -109,9 +124,9 @@ return (
 				<div className="d-flex flex-column align-items justify-content p-20">
 					{/* <input type="text" placeholder="Search users" onChange={handleInputChange} /> */}
 					{/* <button onClick={handleSearch}>Search</button> */}
-					{userList.length ?
+					{usersList.length !== 0 ?
 						<ul>
-							{userList}
+							{usersList}
 						</ul>
 					:
 						<div>

@@ -183,6 +183,7 @@ export class ServerGateway
 		data: {
 			room: string;
 			userId2: string;
+			userId: string;
 		},
 	): Promise<void> {
 		const sockets = this.users.getClientsByClientId(client.id);
@@ -193,12 +194,7 @@ export class ServerGateway
 		for (const socket of sockets2) {
 			socket[1].join(data.room);
 		}
-		this.io
-			.to(data.room)
-			.emit(
-				"receivedDirectMessage",
-				await this.channelService.getChannelByTitle(data.room),
-			);
+		this.io.to(data.room).emit("userExpel", data.userId);
 	}
 
 	@SubscribeMessage("exitChatRoom")

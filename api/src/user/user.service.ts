@@ -184,6 +184,7 @@ export class UserService {
 						},
 					},
 				},
+				userName: { not: userName },
 			},
 		});
 		return users;
