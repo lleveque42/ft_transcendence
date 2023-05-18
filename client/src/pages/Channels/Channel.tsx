@@ -23,6 +23,7 @@ export default function Channel() {
 	const [chanInfo, setChanInfo] = useState<ChannelModel>();
 	const [currentUserName, setCurrentUserName] = useState("");
 	const [currentUserId, setCurrentUserId] = useState(0);
+	const [currentUserAdmin, setCurrentUserAdmin] = useState(false);
 	const [isOp, setOp] = useState(false);
 	const navigate = useNavigate();
 
@@ -71,6 +72,11 @@ export default function Channel() {
 		{return}
 		setCurrentUserName(userName);
 		setCurrentUserId(userId);
+		chanInfo?.operators.forEach((op)=>{
+			if (op.id === userId){
+				setCurrentUserAdmin(true);
+			}
+		});
 		setuserBool(true);
 		setInfoBool(false);
 	}
@@ -142,7 +148,8 @@ export default function Channel() {
 		const id = chanInfo?.id;
 		const room = chanInfo?.title;
 		const data = {userName, id}
-		const tets = {id, room,userName}
+		const mode = "kick";
+		const toEmit = {id, room, userName, mode}
 		if (chanInfo?.ownerId === userId){
 			showAlert("error", "Error, you can't kick, ban or mute the channel owner bro");
 			return ;
@@ -156,7 +163,7 @@ export default function Channel() {
 				},
 				body: JSON.stringify(data),
 			})
-			chatSocket?.emit("exitChatRoom", tets);			
+			chatSocket?.emit("exitChatRoom", toEmit);			
 			if (res.status === 201) {
 				setInfoBool(true);
 				setuserBool(false);
@@ -170,7 +177,8 @@ export default function Channel() {
 		const id = chanInfo?.id;
 		const room = chanInfo?.title;
 		const data = {userName, id}
-		const tets = {id, room,userName}
+		const mode = "ban";
+		const toEmit = {id, room, userName, mode}
 		if (chanInfo?.ownerId === userId){
 			showAlert("error", "Error, you can't kick, ban or mute the channel owner bro");
 			return ;
@@ -184,7 +192,7 @@ export default function Channel() {
 				},
 				body: JSON.stringify(data),
 			})
-			chatSocket?.emit("exitChatRoom", tets);			
+			chatSocket?.emit("exitChatRoom", toEmit);			
 			if (res.status === 201) {
 				setInfoBool(true);
 				setuserBool(false);
@@ -194,19 +202,49 @@ export default function Channel() {
 		}
 	  }
 
+	  async function handleAdmin(userName : string, userId: number) {
+		const id = chanInfo?.id;
+		const room = chanInfo?.title;
+		const data = {userName, id}
+		const mode = "admin";
+		const toEmit = {id, room, userName, mode}
+		try {
+			const res = await fetch("http://localhost:3000/channels/admin", {
+				method: "POST",
+				credentials: "include",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(data),
+			})
+			chatSocket?.emit("adminChatRoom", toEmit);
+			if (res.status === 201) {
+				setInfoBool(true);
+				setuserBool(false);
+			}
+		} catch (e) {
+			console.error("Error adminishing from channel");
+		}
+	  }
+
 	  useEffect(() => {
-		const chanListener = (chan: ChannelModel, username: string) => {
-			if (username === user.userName){
-				showAlert("error","You've been kicked / ban from " + chan.title);
+		const chanListener = (chan: ChannelModel, username: string, mode : string) => {
+			if (username === user.userName && (mode === "ban" || mode === "kick")){
+				showAlert("error","You've been"+ mode + " from " + chan.title);
 				navigate(-1);
+			}
+			else if (username === user.userName && mode === "admin"){
+				showAlert("success","You've been made "+ mode + " of " + chan.title);
 			}
 			setChanInfo(chan);
 		}
 		chatSocket?.on("kickOrBanFromChannel", chanListener)
 		chatSocket?.on("userJoinedChan", chanListener)
+		chatSocket?.on("adminJoinedChan", chanListener)
 		return () => {
 			chatSocket?.off("kickOrBanFromChannel",);
 			chatSocket?.off("userJoinedChan",);
+			chatSocket?.off("adminJoinedChan",);
 		}
 	  }, [chatSocket, navigate, showAlert, user.userName])
 	  
@@ -263,8 +301,8 @@ export default function Channel() {
 									Play
 								</button>
 								{
-									user.id === chanInfo.ownerId && 
-									<button className="btn-primary ml-10">
+									user.id === chanInfo.ownerId && !currentUserAdmin &&
+									<button onClick={() => handleAdmin(currentUserName, currentUserId)} className="btn-primary ml-10">
 										Admin
 									</button>
 								}

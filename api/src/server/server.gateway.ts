@@ -218,6 +218,7 @@ export class ServerGateway
 			id: number;
 			room: string;
 			userName: string;
+			mode: string;
 		},
 	): Promise<void> {
 		this.io
@@ -226,11 +227,38 @@ export class ServerGateway
 				"kickOrBanFromChannel",
 				await this.channelService.getChannelByTitle(data.room),
 				data.userName,
+				data.mode,
 			);
 		const user = await this.userService.getUserByUserName(data.userName);
 		const sockets = await this.users.getClientsByUserId(user.id);
 		for (const socket of sockets) {
 			socket[1].leave(data.room);
 		}
+	}
+
+	@SubscribeMessage("adminChatRoom")
+	async handleAdminChanRoom(
+		@ConnectedSocket() client: Socket,
+		@MessageBody()
+		data: {
+			id: number;
+			room: string;
+			userName: string;
+			mode: string;
+		},
+	): Promise<void> {
+		this.io
+			.to(data.room)
+			.emit(
+				"adminJoinedChan",
+				await this.channelService.getChannelByTitle(data.room),
+				data.userName,
+				data.mode,
+			);
+		// const user = await this.userService.getUserByUserName(data.userName);
+		// const sockets = await this.users.getClientsByUserId(user.id);
+		// for (const socket of sockets) {
+		// 	socket[1].leave(data.room);
+		// }
 	}
 }

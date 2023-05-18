@@ -192,6 +192,22 @@ export class ChannelController {
 		}
 	}
 
+	@Post("admin")
+	async adminOfChannel(
+		@Body() body,
+		@Res({ passthrough: true }) res: Response,
+	) {
+		try {
+			const chan = await this.channelService.adminOfChannel(
+				body.userName,
+				body.id,
+			);
+			res.json("OK");
+		} catch (e) {
+			res.json("Error while adminishing");
+		}
+	}
+
 	@Post("create_join_dm")
 	async createDM(
 		@Body() body,

@@ -178,6 +178,53 @@ export class ChannelService {
 		}
 	}
 
+	async adminOfChannel(userName: string, id: number) {
+		try {
+			console.log("admin en cours");
+
+			const chan = await this.prisma.channel.update({
+				where: {
+					id: id,
+				},
+				data: {
+					operators: {
+						connect: {
+							userName: userName,
+						},
+					},
+				},
+			});
+			return await this.prisma.channel.findUnique({
+				where: {
+					id: id,
+				},
+				include: {
+					members: {
+						select: {
+							id: true,
+							userName: true,
+						},
+					},
+					operators: {
+						select: {
+							id: true,
+							userName: true,
+						},
+					},
+				},
+			});
+		} catch (error) {
+			if (
+				error instanceof Prisma.PrismaClientKnownRequestError &&
+				error.code === "P2002"
+			) {
+				throw new ForbiddenException("Duplicate key value");
+			} else {
+				console.log("Error in update");
+			}
+		}
+	}
+
 	async createDM(
 		newChannel: Prisma.ChannelCreateInput,
 		userId1: number,
