@@ -156,9 +156,7 @@ export default function Channel() {
 				},
 				body: JSON.stringify(data),
 			})
-			chatSocket?.emit("exitChatRoom", tets);
-			console.log("Emitted");
-			
+			chatSocket?.emit("exitChatRoom", tets);			
 			if (res.status === 201) {
 				setInfoBool(true);
 				setuserBool(false);
@@ -168,7 +166,33 @@ export default function Channel() {
 		}
 	  }
 
-	
+	  async function handleBan(userName : string, userId: number) {
+		const id = chanInfo?.id;
+		const room = chanInfo?.title;
+		const data = {userName, id}
+		const tets = {id, room,userName}
+		if (chanInfo?.ownerId === userId){
+			showAlert("error", "Error, you can't kick, ban or mute the channel owner bro");
+			return ;
+		}
+		try {
+			const res = await fetch("http://localhost:3000/channels/ban", {
+				method: "POST",
+				credentials: "include",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(data),
+			})
+			chatSocket?.emit("exitChatRoom", tets);			
+			if (res.status === 201) {
+				setInfoBool(true);
+				setuserBool(false);
+			}
+		} catch (e) {
+			console.error("Error bannishing from channel");
+		}
+	  }
 
 	  useEffect(() => {
 		const chanListener = (chan: ChannelModel, username: string) => {
@@ -249,7 +273,7 @@ export default function Channel() {
 									<button id="Kick" onClick={() => handleKick(currentUserName, currentUserId)} className="btn-danger ml-10">
 										Kick
 									</button>
-									<button id="Ban" className="btn-danger ml-10">
+									<button id="Ban" onClick={() => handleBan(currentUserName, currentUserId)} className="btn-danger ml-10">
 										Ban
 									</button>
 									<button id="Mute" className="btn-danger ml-10">

@@ -22,7 +22,7 @@ export default function JoinChannel() {
 	useEffect(() => {
 		(async () => {
 			try {
-				await fetch(`http://localhost:3000/channels`, {
+				await fetch(`http://localhost:3000/channels/join`, {
 					credentials: "include",
 					headers: {
 						Authorization: `Bearer ${accessToken}`,

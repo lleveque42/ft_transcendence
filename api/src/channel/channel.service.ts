@@ -91,6 +91,11 @@ export class ChannelService {
 						},
 					},
 				},
+			});
+			return await this.prisma.channel.findUnique({
+				where: {
+					id: id,
+				},
 				include: {
 					members: {
 						select: {
@@ -102,6 +107,42 @@ export class ChannelService {
 						select: {
 							id: true,
 							userName: true,
+						},
+					},
+				},
+			});
+		} catch (error) {
+			if (
+				error instanceof Prisma.PrismaClientKnownRequestError &&
+				error.code === "P2002"
+			) {
+				throw new ForbiddenException("Duplicate key value");
+			} else {
+				console.log("Error in update");
+			}
+		}
+	}
+
+	async banFromChannel(userName: string, id: number) {
+		try {
+			const chan = await this.prisma.channel.update({
+				where: {
+					id: id,
+				},
+				data: {
+					members: {
+						disconnect: {
+							userName: userName,
+						},
+					},
+					operators: {
+						disconnect: {
+							userName: userName,
+						},
+					},
+					banList: {
+						connect: {
+							userName: userName,
 						},
 					},
 				},
@@ -218,11 +259,15 @@ export class ChannelService {
 		const chans = await this.prisma.channel.findMany({
 			where: {
 				mode: "Public",
-				NOT: {
-					members: {
-						some: {
-							id: userId,
-						},
+
+				members: {
+					none: {
+						id: userId,
+					},
+				},
+				banList: {
+					none: {
+						id: userId,
 					},
 				},
 			},

@@ -220,12 +220,6 @@ export class ServerGateway
 			userName: string;
 		},
 	): Promise<void> {
-		console.log(
-			"The socket " +
-				client.id +
-				" trying to disconnect from the chan " +
-				data.room,
-		);
 		this.io
 			.to(data.room)
 			.emit(

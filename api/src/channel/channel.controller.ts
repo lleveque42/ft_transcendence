@@ -38,19 +38,16 @@ export class ChannelController {
 	}
 
 	@UseGuards(AtGuard)
-	@Get("")
+	@Get("/join")
 	async getPublicChannelsToJoin(
 		@GetCurrentUser("sub") userName: string,
 	): Promise<Channel[]> {
 		try {
 			const user = await this.userService.getUserByUserName(userName);
-			console.log(user);
-
 			const channels = await this.channelService.getPublicChannelsToJoin(
 				user.id,
 			);
-			console.log(channels);
-
+			// console.log(channels);
 			return channels;
 		} catch (e) {
 			throw new HttpException(e.message, e.status);
@@ -176,6 +173,22 @@ export class ChannelController {
 			res.json("OK");
 		} catch (e) {
 			res.json("Error while kicking");
+		}
+	}
+
+	@Post("ban")
+	async banFromChannel(
+		@Body() body,
+		@Res({ passthrough: true }) res: Response,
+	) {
+		try {
+			const chan = await this.channelService.banFromChannel(
+				body.userName,
+				body.id,
+			);
+			res.json("OK");
+		} catch (e) {
+			res.json("Error while banishing");
 		}
 	}
 
