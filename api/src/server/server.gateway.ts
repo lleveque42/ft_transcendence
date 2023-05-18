@@ -185,15 +185,6 @@ export class ServerGateway
 			userId2: string;
 		},
 	): Promise<void> {
-		console.log(
-			"The socket " +
-				client.id +
-				" trying to connect to the dm " +
-				data.room +
-				" with " +
-				data.userId2 +
-				".",
-		);
 		const sockets = this.users.getClientsByClientId(client.id);
 		const sockets2 = this.users.getClientsByUserId(parseInt(data.userId2, 10));
 		for (const socket of sockets) {
@@ -255,10 +246,5 @@ export class ServerGateway
 				data.userName,
 				data.mode,
 			);
-		// const user = await this.userService.getUserByUserName(data.userName);
-		// const sockets = await this.users.getClientsByUserId(user.id);
-		// for (const socket of sockets) {
-		// 	socket[1].leave(data.room);
-		// }
 	}
 }

@@ -1,6 +1,5 @@
 import ChatNav from "../../components/Chat/ChatNav/ChatNav";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useUser } from "../../context/UserProvider";
 import Input from "../../components/Input/Input";
 import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
@@ -31,8 +30,6 @@ export default function NewChannel() {
 
 	const socket = usePrivateRouteSocket();
 	const { showAlert } = useAlert();
-
-	const navigate = useNavigate();
 
 	function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
 		const { name, value } = event.target;
@@ -73,10 +70,7 @@ export default function NewChannel() {
 					socket.chatSocket?.emit("joinChatRoom",formValues.title);
 					//navigate("/chat/channels");
 				}
-			} else if (res.ok) {
-				console.log("Response issued : " + res.statusText);
-				navigate("/chat/channels");
-            }
+			}
 		} catch (e) {
 			console.error("Fatal error");
 		}

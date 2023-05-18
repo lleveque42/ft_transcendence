@@ -212,7 +212,7 @@ export class ChannelController {
 	async createDM(
 		@Body() body,
 		@Res({ passthrough: true }) res: Response,
-	): Promise<Channel> {
+	): Promise<void> {
 		try {
 			const channel = await this.channelService.createDM(
 				{
@@ -224,9 +224,9 @@ export class ChannelController {
 				body.id1,
 				body.id2,
 			);
-			return channel;
+			res.json("OK");
 		} catch (e) {
-			throw new HttpException(e.message, e.status);
+			res.json("Duplicate");
 		}
 	}
 

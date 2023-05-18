@@ -134,7 +134,6 @@ export default function Channel() {
 			console.log("Error username : " + username);
 			if (username === user.userName){
 				showAlert("error", "You're not able to send a message in this channel, sorry :(");
-				// navigate(-1);
 			}
 		});
 		return () => {

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../../context/UserProvider";
 import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
+import { useAlert } from "../../context/AlertProvider";
 
 
 type FormValues = {
@@ -29,7 +30,7 @@ export default function NewDM() {
 	const { accessToken, user } = useUser();
 	const [usersState, setUsersState] = useState<{ id: number; userName: string }[]>([]);
 	const socket = usePrivateRouteSocket();
-
+	const { showAlert } = useAlert();
 	const navigate = useNavigate();
 
 	useEffect(() => {
@@ -59,12 +60,16 @@ export default function NewDM() {
 		let formValues: FormValues = initialFormValues;
 		formValues.id1 = user.id;
 		formValues.id2 = parseInt(userId);
-		formValues.title = user.id  + "_" + userId;
+		if (formValues.id1 < formValues.id2){
+			formValues.title = user.id  + "_" + userId;
+		} else {
+			formValues.title = userId  + "_" + user.id;			
+		}
         formValues.type = "DM";
 		formValues.mode = "Public";
 		formValues.password = "";
 		try {
-			const res = await fetch("http://localhost:3000/channels/create_join_dm", {
+			const res : Response= await fetch("http://localhost:3000/channels/create_join_dm", {
 				method: "POST",
 				credentials: "include",
 				headers: {
@@ -72,11 +77,16 @@ export default function NewDM() {
 				},
 				body: JSON.stringify(formValues),
 			});
-			socket.chatSocket?.emit("joinDMRoom",{room: formValues.title, userId2: formValues.id2});
 			if (res.status === 201) {
-				navigate("/chat/direct_messages");
-				return true;
-			} else if (res.ok) {
+				const body = await res.json();
+				if (body != null && body === "Duplicate"){
+					showAlert("error", "This conversation already exists");
+				}
+				else {
+					showAlert("success", "A private message connection is established");
+					socket.chatSocket?.emit("joinDMRoom",{room: formValues.title, userId2: formValues.id2});
+					//navigate("/chat/channels");
+				}
 				navigate("/chat/direct_messages");
 				return true;
 			}
@@ -90,11 +100,6 @@ export default function NewDM() {
 			<li key={el.id} id={el.id.toString(10)} onClick={handleClick} >{el.userName}</li>
 		)
 	));
-
-	// const userOptions = usersState.map((el) => (
-	// 	// <li key={el.id}>{el.userName}</li>
-	// 	<option key={el.id} value={el.id}>{el.userName}</option>
-	// ));
 	
 return (
 		<div className="container d-flex flex-column justify-content align-items">

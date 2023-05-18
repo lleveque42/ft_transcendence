@@ -234,33 +234,41 @@ export class ChannelService {
 		if (newChannel.password && newChannel.password !== "") {
 			hash = await argon2.hash(newChannel.password);
 		}
-		const chan = await this.prisma.channel.create({
-			data: {
-				title: newChannel.title,
-				password: hash,
-				type: newChannel.type,
-				mode: newChannel.mode,
-				ownerId: userId1,
-				operators: {
-					connect: { id: userId1 },
+		try {
+			const chan = await this.prisma.channel.create({
+				data: {
+					title: newChannel.title,
+					password: hash,
+					type: newChannel.type,
+					mode: newChannel.mode,
+					ownerId: userId1,
+					operators: {
+						connect: { id: userId1 },
+					},
+					members: {
+						connect: { id: userId1 },
+					},
 				},
-				members: {
-					connect: { id: userId1 },
+			});
+			const updatedChannel = await this.prisma.channel.update({
+				where: { id: chan.id },
+				data: {
+					operators: {
+						connect: { id: userId2 },
+					},
+					members: {
+						connect: { id: userId2 },
+					},
 				},
-			},
-		});
-		const updatedChannel = await this.prisma.channel.update({
-			where: { id: chan.id },
-			data: {
-				operators: {
-					connect: { id: userId2 },
-				},
-				members: {
-					connect: { id: userId2 },
-				},
-			},
-		});
-		return updatedChannel;
+			});
+		} catch (error) {
+			if (
+				error instanceof Prisma.PrismaClientKnownRequestError &&
+				error.code === "P2002"
+			) {
+				throw new ForbiddenException("Duplicate key value");
+			}
+		}
 	}
 
 	async joinPublicChannel(userId: number, channelId: number) {
