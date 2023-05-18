@@ -51,11 +51,9 @@ export class OnlineUsers {
 		});
 	}
 
-	updateUserName(userId: number, newUserName: string) {
-		const user: User = this.getUserByUserId(userId);
-		if (!user) return;
-		const sockets: Map<string, Socket> = this.getClientsByUserId(userId);
-		this._users.set(userId, {
+	updateUserName(user: User, newUserName: string) {
+		const sockets: Map<string, Socket> = this.getClientsByUserId(user.id);
+		this._users.set(user.id, {
 			user: { ...user, userName: newUserName },
 			sockets: sockets,
 		});

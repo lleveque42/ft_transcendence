@@ -44,6 +44,20 @@ export default function Users() {
 		setUsersList(sortUsersList(newUsersList));
 	}
 
+	function updateUsersFriends() {
+		let list: UsersList[] = [];
+		list = usersList.map((u) => {
+			if (u.isFriend) {
+				const friend = user.friends.find((f) => f.id === u.id);
+				if (!friend) return;
+				u.status = friend.status;
+				u.userName = friend.userName;
+			}
+			return u;
+		}) as UsersList[];
+		setUsersList(() => sortUsersList(list));
+	}
+
 	function updateUsersListFriendship(userId: number, nowFriend: boolean) {
 		const userToUpdate = usersList.find((u) => u.id === userId);
 		if (!userToUpdate) return;
@@ -58,24 +72,6 @@ export default function Users() {
 			userToUpdate.status = null;
 			updateUserInList(userToUpdate);
 		}
-	}
-
-	function cleanUsersList(data: any) {
-		let list: UsersList[] = [];
-		list = data
-			.filter((u: UsersList) => u.userName !== user.userName)
-			.map((u: UsersList) => {
-				const friend: Friend | undefined = user.friends.find(
-					(f: Friend) => f.userName === u.userName,
-				);
-				u.status = null;
-				if (friend) {
-					u.isFriend = true;
-					u.status = friend.status;
-				} else u.isFriend = false;
-				return u;
-			});
-		setUsersList(sortUsersList(list));
 	}
 
 	async function toggleFriendship(
@@ -100,6 +96,24 @@ export default function Users() {
 		}
 	}
 
+	function cleanUsersList(data: { id: number; userName: string }[]) {
+		let list: UsersList[] = [];
+		list = data
+			.filter((u: { id: number; userName: string }) => u.id !== user.id)
+			.map((u: { id: number; userName: string }) => {
+				const friend: Friend | undefined = user.friends.find(
+					(f: Friend) => f.id === u.id,
+				);
+				const newUser: UsersList = {
+					...u,
+					isFriend: friend ? true : false,
+					status: friend ? friend.status : null,
+				};
+				return newUser;
+			});
+		setUsersList(sortUsersList(list));
+	}
+
 	useEffect(() => {
 		async function getAllUsers() {
 			const res = await getAllUsersRequest(accessToken);
@@ -114,17 +128,14 @@ export default function Users() {
 	}, []);
 
 	useEffect(() => {
+		updateUsersFriends();
 		socket?.on("userNameUpdatedUsersList", (userSender: NewUserName) => {
 			updateUserInList(userSender);
 		});
-		socket?.on("updateOnlineFriend", (friend: Friend) => {
-			updateUserInList(friend);
-		});
-		return () => {
-			socket?.off("userNameUpdatedUsersList");
-		};
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [socket, user.friends, usersList]);
+		// return () => {
+		// 	socket?.off("userNameUpdatedUsersList");
+		// };
+	}, [user.friends]);
 
 	return (
 		<>

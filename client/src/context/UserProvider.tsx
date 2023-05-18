@@ -87,14 +87,16 @@ export const UserProvider = ({ children }: UserProviderProps) => {
 	};
 
 	const updateOnlineFriend = (friend: Friend) => {
-		const newFriendsList = [
-			...user.friends.filter((f) => f.id !== friend.id),
-			friend,
-		];
-		newFriendsList.sort((a: Friend, b: Friend) =>
-			a.userName.localeCompare(b.userName),
-		);
-		setUser({ ...user, friends: newFriendsList });
+		setUser((prevUser) => {
+			const updatedFriendsList = prevUser.friends.map((f) => {
+				if (f.id === friend.id) return { ...f, ...friend };
+				return f;
+			});
+			updatedFriendsList.sort((a: Friend, b: Friend) =>
+				a.userName.localeCompare(b.userName),
+			);
+			return { ...prevUser, friends: updatedFriendsList };
+		});
 	};
 
 	return (
