@@ -237,11 +237,11 @@ export default function Channel() {
 			}
 			setChanInfo(chan);
 		}
-		chatSocket?.on("kickOrBanFromChannel", chanListener)
+		chatSocket?.on("kickOrBanOrLeaveFromChannel", chanListener)
 		chatSocket?.on("userJoinedChan", chanListener)
 		chatSocket?.on("adminJoinedChan", chanListener)
 		return () => {
-			chatSocket?.off("kickOrBanFromChannel",);
+			chatSocket?.off("kickOrBanOrLeaveFromChannel",);
 			chatSocket?.off("userJoinedChan",);
 			chatSocket?.off("adminJoinedChan",);
 		}

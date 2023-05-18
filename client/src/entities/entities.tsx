@@ -54,7 +54,7 @@ export class MessageModel implements Message {
 
 export interface Channel {
 	id: number;
-	title?: string;
+	title: string;
 	password?: string;
 	type: string;
 	mode: string;
@@ -68,7 +68,7 @@ export interface Channel {
 
   export class ChannelModel implements Channel {
 	id: number;
-	title?: string;
+	title: string;
 	password?: string;
 	type: string;
 	mode: string;

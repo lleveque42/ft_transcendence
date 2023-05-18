@@ -3,11 +3,14 @@ import ChatNav from "../../components/Chat/ChatNav/ChatNav";
 import { useEffect, useState } from "react";
 import { NavLink} from "react-router-dom";
 import { useUser } from "../../context/UserProvider";
+import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
+import { ChannelModel } from "../../entities/entities";
 
 export default function Channels() {
   
 	const { accessToken, user } = useUser();
-	const [channelsState, setChannelsState] = useState([]);
+	const {chatSocket} = usePrivateRouteSocket();
+	const [channelsState, setChannelsState] = useState<ChannelModel[]>([]);
 	
 	useEffect(() => {
 		(async () => {
@@ -29,30 +32,65 @@ export default function Channels() {
         })();
     }, [user.userName, accessToken]);
 
-	const channelsList = channelsState.map(({ id, title, ownerId}) => (
+	async function handleLeaveClick(userName : string, id: number, room: string) {
+		
+		const data = {userName, id, room}
+		const mode = "leave";
+		const toEmit = {id, room, userName, mode}
+		try {
+			const res = await fetch("http://localhost:3000/channels/leave", {
+				method: "POST",
+				credentials: "include",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(data),
+			})
+			if (res.status === 201) {
+				chatSocket?.emit("exitChatRoom", toEmit);
+			}
+		} catch (e) {
+			console.error("Error leaving channel");
+		}
+	  }
+
+	const channelsList = channelsState.map(({ id, title, ownerId}) => {
+		const chanTitle = title;
+		return (
 		<li key={id}>
 			<div className="d-flex flex-row m-10 justify-content-space-between">	
-			<NavLink className={``}  to={`/chat/channels/${title}`} >
-				<span>
-					{title}
-				</span>
-			</NavLink>
-			{ user.id === ownerId &&
-				<>
+				<NavLink className={``}  to={`/chat/channels/${title}`} >
+					<span>
+						{title}
+					</span>
+				</NavLink>
 				<div className="d-flex flex-row" >
-					<NavLink className={`btn-primary`}  to={`/chat/channels/edit_channel/${title}`} >
-							Edit
-					</NavLink>
-					<button className="btn-danger ml-10">
-						Delete
+					{ user.id === ownerId &&
+						<NavLink className={`btn-primary`}  to={`/chat/channels/edit_channel/${title}`} >
+									Edit
+							</NavLink>
+					}		
+					<button  onClick={() => handleLeaveClick(user.userName, user.id, chanTitle )} className="btn-danger ml-10">
+						Leave
 					</button>
 				</div>
-				</>
-			}
 			</div>
 		</li>
-	));
+	)});
 	
+	useEffect(() => {
+		const chanListener = (chan: ChannelModel, username: string, mode : string) => {
+			if (username !== user.userName && mode === "leave"){
+				console.log(username + "leaved");
+			}
+			setChannelsState(channelsState.filter(c => c.id !== chan.id));
+		}
+		chatSocket?.on("kickOrBanOrLeaveFromChannel", chanListener)
+		return () => {
+			chatSocket?.off("kickOrBanOrLeaveFromChannel",);
+		}
+	  }, [channelsState, chatSocket, user.userName])
+
 	return (
 		<div className="container d-flex flex-column justify-content align-items">
 			<div className="title">Chat channels</div>

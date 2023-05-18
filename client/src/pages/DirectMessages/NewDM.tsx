@@ -86,7 +86,6 @@ export default function NewDM() {
 				else {
 					showAlert("success", "A private message connection is established");
 					socket.chatSocket?.emit("joinDMRoom",{room: formValues.title, userId2: formValues.id2, userId: formValues.id1});
-					//navigate("/chat/channels");
 				}
 				navigate("/chat/direct_messages");
 				return true;
@@ -122,8 +121,6 @@ return (
 			<div>
 				<ChatNav/>
 				<div className="d-flex flex-column align-items justify-content p-20">
-					{/* <input type="text" placeholder="Search users" onChange={handleInputChange} /> */}
-					{/* <button onClick={handleSearch}>Search</button> */}
 					{usersList.length !== 0 ?
 						<ul>
 							{usersList}
@@ -133,18 +130,6 @@ return (
 							There is no private messages avalaible for you
 						</div>
 					}
-					{/* <label htmlFor="pet-select">Choose a user:</label>
-					<select name="pets" id="pet-select">
-					<option key="0" value="selected">--Please choose an option--</option>
-						{userOptions}
-					</select>
-				</div>
-				<div
-					className={` d-flex flex-row justify-content-space-between mb-30`}
-				>
-					<button className="btn-primary" type="submit">
-						Join
-					</button> */}
 				</div>
 			</div>
 		</div>

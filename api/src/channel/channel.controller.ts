@@ -47,7 +47,7 @@ export class ChannelController {
 			const channels = await this.channelService.getPublicChannelsToJoin(
 				user.id,
 			);
-			// console.log(channels);
+			console.log(channels);
 			return channels;
 		} catch (e) {
 			throw new HttpException(e.message, e.status);
@@ -160,6 +160,24 @@ export class ChannelController {
 			res.json("Error while updating");
 		}
 	}
+
+	@Post("leave")
+	async leaveFromChannel(
+		@Body() body,
+		@Res({ passthrough: true }) res: Response,
+	) {
+		try {
+			const chan = await this.channelService.leaveFromChannel(
+				body.userName,
+				body.id,
+				body.room,
+			);
+			res.json("OK");
+		} catch (e) {
+			res.json("Error while leaving");
+		}
+	}
+
 	@Post("kick")
 	async kickFromChannel(
 		@Body() body,

@@ -208,10 +208,12 @@ export class ServerGateway
 			mode: string;
 		},
 	): Promise<void> {
+		console.log(data);
+
 		this.io
 			.to(data.room)
 			.emit(
-				"kickOrBanFromChannel",
+				"kickOrBanOrLeaveFromChannel",
 				await this.channelService.getChannelByTitle(data.room),
 				data.userName,
 				data.mode,

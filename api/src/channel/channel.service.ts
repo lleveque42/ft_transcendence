@@ -73,6 +73,37 @@ export class ChannelService {
 		}
 	}
 
+	async leaveFromChannel(userName: string, userId: number, chanTitle) {
+		try {
+			const chan = await this.prisma.channel.update({
+				where: {
+					title: chanTitle,
+				},
+				data: {
+					members: {
+						disconnect: {
+							userName: userName,
+						},
+					},
+					operators: {
+						disconnect: {
+							userName: userName,
+						},
+					},
+				},
+			});
+		} catch (error) {
+			if (
+				error instanceof Prisma.PrismaClientKnownRequestError &&
+				error.code === "P2002"
+			) {
+				throw new ForbiddenException("Duplicate key value");
+			} else {
+				console.log("Error in update");
+			}
+		}
+	}
+
 	async kickFromChannel(userName: string, id: number) {
 		try {
 			const chan = await this.prisma.channel.update({
@@ -180,8 +211,6 @@ export class ChannelService {
 
 	async adminOfChannel(userName: string, id: number) {
 		try {
-			console.log("admin en cours");
-
 			const chan = await this.prisma.channel.update({
 				where: {
 					id: id,
@@ -282,7 +311,7 @@ export class ChannelService {
 	async getChannelByTitle(title: string) {
 		return await this.prisma.channel.findUnique({
 			where: {
-				title,
+				title: title,
 			},
 			include: {
 				members: {
@@ -314,7 +343,6 @@ export class ChannelService {
 		const chans = await this.prisma.channel.findMany({
 			where: {
 				mode: "Public",
-
 				members: {
 					none: {
 						id: userId,
