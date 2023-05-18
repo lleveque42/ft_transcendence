@@ -13,8 +13,8 @@ export default function Channel() {
   
 	const { user, accessToken } = useUser();
 	const {chatSocket} = usePrivateRouteSocket();
-	
-	
+	const { id } = useParams();
+	const { showAlert } = useAlert();
 	const [value, setValue] = useState("");
 	const [infoBool, setInfoBool] = useState(false);
 	const [userBool, setuserBool] = useState(false);
@@ -24,14 +24,8 @@ export default function Channel() {
 	const [currentUserName, setCurrentUserName] = useState("");
 	const [currentUserId, setCurrentUserId] = useState(0);
 	const [isOp, setOp] = useState(false);
-	
-	 
-	const { id } = useParams();
-	const { showAlert } = useAlert();
 	const navigate = useNavigate();
 
-
-	
 	useEffect(() => {
 	(async () => {
 			try {
@@ -84,9 +78,6 @@ export default function Channel() {
 	const chanClick = document.querySelectorAll('h1');
 	chanClick.forEach(chan => chan.addEventListener('click', handleChanClick));
 
-	// const messageClick = document.querySelectorAll('li');
-	// messageClick.forEach(chan => chan.addEventListener('click', handleMsgClick));
-
 	useEffect(() => {
 	setMessagesList(messagesState.map(({ id, author, content }) => 
 	{
@@ -131,6 +122,20 @@ export default function Channel() {
 			chatSocket?.emit("chanMessage", {room: id, message: value});
 		}
 	};
+	
+	useEffect(() => {
+		chatSocket?.on("errorSendingMessage", (username:string)=>{
+			console.log("Error username : " + username);
+			if (username === user.userName){
+				showAlert("error", "You're not able to send a message in this channel, sorry :(");
+				// navigate(-1);
+			}
+		});
+		return () => {
+		  chatSocket?.off("errorSendingMessage",);
+		}
+	  // eslint-disable-next-line react-hooks/exhaustive-deps
+	  }, [messagesList, messagesState])
 
 		
 	async function handleKick(userName : string, userId: number) {
@@ -151,111 +156,109 @@ export default function Channel() {
 				},
 				body: JSON.stringify(data),
 			})
-			// .then(res => res.json()).then(chan => {
-			// 	setChanInfo(chan);
-			// });
 			chatSocket?.emit("exitChatRoom", tets);
 			console.log("Emitted");
 			
 			if (res.status === 201) {
 				setInfoBool(true);
 				setuserBool(false);
-			} else if (res.ok) {
-				// navigate("/chat/channels");
-            }
+			}
 		} catch (e) {
 			console.error("Error kicking from channel");
 		}
 	  }
+
+	
+
 	  useEffect(() => {
-		chatSocket?.on("kickOrBanFromChannel", (username:string)=>{
+		const chanListener = (chan: ChannelModel, username: string) => {
 			if (username === user.userName){
+				showAlert("error","You've been kicked / ban from " + chan.title);
 				navigate(-1);
 			}
-			// Mettre a jour la liste de users
-		});
-		return () => {
-		  chatSocket?.off("kickOrBanFromChannel",);
+			setChanInfo(chan);
 		}
-	  // eslint-disable-next-line react-hooks/exhaustive-deps
-	  }, [messagesList, messagesState])
+		chatSocket?.on("kickOrBanFromChannel", chanListener)
+		chatSocket?.on("userJoinedChan", chanListener)
+		return () => {
+			chatSocket?.off("kickOrBanFromChannel",);
+			chatSocket?.off("userJoinedChan",);
+		}
+	  }, [chatSocket, navigate, showAlert, user.userName])
 	  
-	
-	
 	return (
 		<div className="container d-flex flex-column justify-content align-items">
 			<div className="title">Chat channels</div>
 			<div>
-					<ChatNav/>
+			<ChatNav/>
 					<h1 className="m-20">{id}</h1>
 					<div className="d-flex flex-row justify-content-space-between">
 						<div className="d-flex flex-column">
-					{
-						(
-							<>
-							<div className="d-flex flex-column justify-content">
-								<ul className="List">{messagesList}</ul>
+						{
+							(
+								<>
+								<div className="d-flex flex-column justify-content">
+									<ul className="List">{messagesList}</ul>
+								</div>
+							</> 
+							)
+						}
+						<input className={`btn-primary m-20 d-flex flex-column justify-content align-items`} onKeyDown={handleKeyDown}
+						onChange={(e)=>{setValue(e.target.value)}}  type="text" placeholder="Write a message" />
+						</div>
+						{
+							infoBool &&
+							<div className="d-flex flex-column">
+								<div>
+									<h2 className="ml-10">
+										Users List
+									</h2>
+									<ul>
+									{chanInfo?.members.map((member)=>{
+										const username = member.userName;
+										const userId = member.id;
+										return (
+											<li onClick={() => handleMsgClick(username, userId)} key={userId} className="ml-10">
+												{username}
+											</li>
+										)
+									})}
+									</ul>
+								</div>
 							</div>
-						</> 
-						)
-					}
-					<input className={`btn-primary m-20 d-flex flex-column justify-content align-items`} onKeyDown={handleKeyDown}
-					onChange={(e)=>{setValue(e.target.value)}}  type="text" placeholder="Write a message" />
-					</div>
-					{
-						 infoBool &&
-						<div className="d-flex flex-column">
-							<div>
+						}
+						{ userBool && chanInfo &&
+							<div className="d-flex flex-column">
 								<h2 className="ml-10">
-									Users List
+									Manage {currentUserName}
 								</h2>
-								<ul>
-								{chanInfo?.members.map((member)=>{
-									const username = member.userName;
-									const userId = member.id;
-									return (
-										<li onClick={() => handleMsgClick(username, userId)} key={userId} className="ml-10">
-											{username}
-										</li>
-									)
-								})}
-								</ul>
-							</div>
-						</div>
-					}
-					{ userBool && chanInfo &&
-						<div className="d-flex flex-column">
-							<h2 className="ml-10">
-								Manage {currentUserName}
-							</h2>
-							<NavLink className="btn-primary ml-10 d-flex justify-content" to={`/user/${currentUserName}`}>
-								Profile
-							</NavLink>
-							<button className="btn-primary ml-10">
-								Play
-							</button>
-							{
-								user.id === chanInfo.ownerId && 
+								<NavLink className="btn-primary ml-10 d-flex justify-content" to={`/user/${currentUserName}`}>
+									Profile
+								</NavLink>
 								<button className="btn-primary ml-10">
-									Admin
+									Play
 								</button>
-							}
-							{ isOp &&
-							<>
-								<button id="Kick" onClick={() => handleKick(currentUserName, currentUserId)} className="btn-danger ml-10">
-									Kick
-								</button>
-								<button id="Ban" className="btn-danger ml-10">
-									Ban
-								</button>
-								<button id="Mute" className="btn-danger ml-10">
-									Mute
-								</button>
-							</>
-							}
-							
-						</div>
-					}
+								{
+									user.id === chanInfo.ownerId && 
+									<button className="btn-primary ml-10">
+										Admin
+									</button>
+								}
+								{ isOp &&
+								<>
+									<button id="Kick" onClick={() => handleKick(currentUserName, currentUserId)} className="btn-danger ml-10">
+										Kick
+									</button>
+									<button id="Ban" className="btn-danger ml-10">
+										Ban
+									</button>
+									<button id="Mute" className="btn-danger ml-10">
+										Mute
+									</button>
+								</>
+								}	
+							</div>
+						}
 				</div>
 			</div>
 		</div>

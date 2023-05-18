@@ -67,14 +67,12 @@ export class ServerGateway
 		// Function to join all rooms
 		const clients = this.users.getClientsByUserId(user.id);
 		const channels = await this.channelService.getUsersChannels(user.userName);
-		console.log("Joining Channels");
 		clients.forEach((value) => {
 			for (let chan of channels) {
 				console.log("This socket : " + value.id + " joined " + chan.title);
 				value.join(chan.title);
 			}
 		});
-		console.log("Joining DM's");
 		const dms = await this.channelService.getUsersDMs(user.userName);
 		clients.forEach((value) => {
 			for (let dm of dms) {
@@ -82,7 +80,6 @@ export class ServerGateway
 				value.join(dm.title);
 			}
 		});
-
 		this.logger.log(`WS Client ${client.id} (${user.userName}) connected !`);
 		this.logger.log(`${this.users.size} user(s) connected !`);
 	}
@@ -91,10 +88,6 @@ export class ServerGateway
 	async handlePrivateMessage(
 		@MessageBody() data: { sender; message; socket; receiver },
 	): Promise<void> {
-		console.log("Sender :" + data.sender);
-		console.log("Content :" + data.message);
-		console.log("Socket :" + data.socket);
-		console.log("Receiver :" + data.receiver);
 		try {
 			this.userService.setUserSocket(data.sender, data.socket);
 			const sender = await this.userService.getUserByUserName(data.sender);
@@ -129,6 +122,25 @@ export class ServerGateway
 			value: string;
 		},
 	): Promise<void> {
+		console.log(client.rooms);
+		const rooms: Set<string> = client.rooms;
+		const val = [...rooms][0];
+		let isInChannel: boolean = false;
+		rooms.forEach((room) => {
+			if (room === data.room) {
+				isInChannel = true;
+			}
+		});
+		if (!isInChannel) {
+			console.log(val);
+			this.io
+				.to(val)
+				.emit(
+					"errorSendingMessage",
+					await this.users.getUserByClientId(client.id).userName,
+				);
+			return;
+		}
 		try {
 			const msg = await this.messageService.createNewNessage(
 				{
@@ -137,20 +149,7 @@ export class ServerGateway
 				this.users.getUserByClientId(client.id).userName,
 				data.room,
 			);
-			console.log(msg);
 			if (msg) {
-				console.log(
-					"Sender " +
-						msg.authorId +
-						" in channel : *" +
-						msg.channelId +
-						"* content: *" +
-						msg.content +
-						"* at *" +
-						data.room +
-						"*" +
-						" ",
-				);
 				this.io.to(data.room).emit("receivedMessage", msg);
 			} else {
 				console.log("No msg created");
@@ -173,6 +172,8 @@ export class ServerGateway
 		for (const socket of sockets) {
 			socket[1].join(chanName);
 		}
+		const chan = await this.channelService.getChannelByTitle(chanName);
+		this.io.to(chanName).emit("userJoinedChan", chan);
 	}
 
 	@SubscribeMessage("joinDMRoom")
@@ -225,7 +226,13 @@ export class ServerGateway
 				" trying to disconnect from the chan " +
 				data.room,
 		);
-		this.io.to(data.room).emit("kickOrBanFromChannel", data.userName);
+		this.io
+			.to(data.room)
+			.emit(
+				"kickOrBanFromChannel",
+				await this.channelService.getChannelByTitle(data.room),
+				data.userName,
+			);
 		const user = await this.userService.getUserByUserName(data.userName);
 		const sockets = await this.users.getClientsByUserId(user.id);
 		for (const socket of sockets) {
