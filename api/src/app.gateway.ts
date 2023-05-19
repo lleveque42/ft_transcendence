@@ -64,13 +64,6 @@ export class AppGateway
 			: UserStatus.OFFLINE;
 		this.users.updateStatus(user.id, newStatus);
 		await this.userService.changeUserStatus(user.id, newStatus);
-		// this.emitAllUserFriends(
-		// 	user,
-		// 	"userStatusUpdatedFriendsList",
-		// 	user.id,
-		// 	user.userName,
-		// 	newStatus,
-		// );
 		this.emitAllUserFriends(
 			user,
 			"updateOnlineFriend",

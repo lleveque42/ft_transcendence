@@ -23,39 +23,34 @@ export default function Users() {
 	const [isLoading, setIsloading] = useState<boolean>(true);
 	const [usersList, setUsersList] = useState<UsersList[]>([]);
 
-	function sortUsersList(list: UsersList[]) {
-		if (list.length > 1) {
-			list.sort((a: UsersList, b: UsersList) =>
-				a.userName.localeCompare(b.userName),
-			);
-		}
-		return list;
+	function sortUsersList(list: UsersList[]): UsersList[] {
+		return list.sort((a: UsersList, b: UsersList) =>
+			a.userName.localeCompare(b.userName),
+		);
 	}
 
 	function updateUserInList(userToUpdate: NewUserName | Friend | UsersList) {
-		const userInList = usersList.find((u) => u.id === userToUpdate.id);
-		if (!userInList) return;
-
-		const userUpdated: UsersList = { ...userInList, ...userToUpdate };
-		const newUsersList = [
-			...usersList.filter((u) => u.id !== userInList.id),
-			userUpdated,
-		];
-		setUsersList(sortUsersList(newUsersList));
+		setUsersList((prevUsersList) => {
+			const updatedList = prevUsersList.map((u) => {
+				if (u.id === userToUpdate.id) return { ...u, ...userToUpdate };
+				return u;
+			});
+			return sortUsersList(updatedList);
+		});
 	}
 
 	function updateUsersFriends() {
-		let list: UsersList[] = [];
-		list = usersList.map((u) => {
-			if (u.isFriend) {
-				const friend = user.friends.find((f) => f.id === u.id);
-				if (!friend) return;
-				u.status = friend.status;
-				u.userName = friend.userName;
-			}
-			return u;
-		}) as UsersList[];
-		setUsersList(() => sortUsersList(list));
+		setUsersList((prevUsersList) => {
+			const updatedList = prevUsersList.map((u) => {
+				if (u.isFriend) {
+					const friend = user.friends.find((f) => f.id === u.id);
+					if (friend)
+						return { ...u, status: friend.status, userName: friend.userName };
+				}
+				return u;
+			});
+			return sortUsersList(updatedList);
+		});
 	}
 
 	function updateUsersListFriendship(userId: number, nowFriend: boolean) {
@@ -97,20 +92,13 @@ export default function Users() {
 	}
 
 	function cleanUsersList(data: { id: number; userName: string }[]) {
-		let list: UsersList[] = [];
-		list = data
+		const list = data
 			.filter((u: { id: number; userName: string }) => u.id !== user.id)
-			.map((u: { id: number; userName: string }) => {
-				const friend: Friend | undefined = user.friends.find(
-					(f: Friend) => f.id === u.id,
-				);
-				const newUser: UsersList = {
-					...u,
-					isFriend: friend ? true : false,
-					status: friend ? friend.status : null,
-				};
-				return newUser;
-			});
+			.map((u: { id: number; userName: string }) => ({
+				...u,
+				isFriend: user.friends.some((f: Friend) => f.id === u.id),
+				status: user.friends.find((f: Friend) => f.id === u.id)?.status || null,
+			}));
 		setUsersList(sortUsersList(list));
 	}
 
@@ -132,10 +120,11 @@ export default function Users() {
 		socket?.on("userNameUpdatedUsersList", (userSender: NewUserName) => {
 			updateUserInList(userSender);
 		});
-		// return () => {
-		// 	socket?.off("userNameUpdatedUsersList");
-		// };
-	}, [user.friends]);
+		return () => {
+			socket?.off("userNameUpdatedUsersList");
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [socket, user.friends]);
 
 	return (
 		<>
