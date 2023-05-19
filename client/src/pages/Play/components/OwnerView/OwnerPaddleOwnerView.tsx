@@ -5,14 +5,18 @@ import {
 	CEILING,
 	FLOOR,
 	MAP_DEPTH,
+	PADDLE_CITY_COLOR,
+	PADDLE_DEFAULT_COLOR,
 	PADDLE_HALF_SIZE,
 	PADDLE_HEIGHT,
+	PADDLE_SPACE_COLOR,
 	PADDLE_SPEED,
 	PADDLE_WIDTH,
 	PADDLE_X,
 } from "../GameUtils/Constant";
 import { ceilToDecimal, floorToDecimal } from "../GameUtils/Utils";
 import { Socket } from "socket.io-client";
+import { MapStatus } from "../../enums/MapStatus";
 
 interface OwnerPaddleProps {
 	paddle: React.MutableRefObject<
@@ -20,14 +24,29 @@ interface OwnerPaddleProps {
 	>;
 	socket: Socket | null;
 	room: string;
+	map: MapStatus;
 }
 
 export default function OwnerPaddle({
 	paddle,
 	socket,
 	room,
+	map,
 }: OwnerPaddleProps) {
 	const [move, setMove] = useState({ up: false, down: false });
+	let paddleColor;
+
+	switch (map) {
+		case MapStatus.city:
+			paddleColor = PADDLE_CITY_COLOR;
+			break;
+		case MapStatus.space:
+			paddleColor = PADDLE_SPACE_COLOR;
+			break;
+		default:
+			paddleColor = PADDLE_DEFAULT_COLOR;
+			break;
+	}
 
 	useEffect(() => {
 		socket!.on("resetPaddles", () => {
@@ -90,7 +109,7 @@ export default function OwnerPaddle({
 	return (
 		<mesh position={[PADDLE_X + BALL_RADIUS, 0, 0]} ref={paddle}>
 			<boxGeometry args={[PADDLE_WIDTH, PADDLE_HEIGHT, MAP_DEPTH]} />
-			<meshStandardMaterial color="#74b9ff" />
+			<meshStandardMaterial color={paddleColor} />
 		</mesh>
 	);
 }

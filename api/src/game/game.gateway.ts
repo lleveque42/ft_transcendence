@@ -57,7 +57,9 @@ export class GameGateway
 				{
 					room: game.id,
 					ownerId: game.ownerId,
+					ownerUserName: game.owner.userName,
 					playerId: game.playerId,
+					playerUserName: game.player.userName,
 					ownerScore: game.ownerScore,
 					playerScore: game.playerScore,
 					accelerator: game.accelerator,
@@ -71,7 +73,9 @@ export class GameGateway
 				{
 					room: game.id,
 					ownerId: game.ownerId,
+					ownerUserName: game.owner.userName,
 					playerId: game.playerId,
+					playerUserName: game.player.userName,
 					ownerScore: game.ownerScore,
 					playerScore: game.playerScore,
 					accelerator: game.accelerator,
@@ -258,7 +262,14 @@ export class GameGateway
 			const game = this.createGame();
 			this.io
 				.to(game.id)
-				.emit("joinedGame", game.id, game.ownerId, game.playerId);
+				.emit(
+					"joinedGame",
+					game.id,
+					game.ownerId,
+					game.owner.userName,
+					game.playerId,
+					game.player.userName,
+				);
 			this.logger.log(
 				`${this.ongoing.getGameById(game.id).owner.userName} vs ${
 					user.userName
