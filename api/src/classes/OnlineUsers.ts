@@ -68,23 +68,23 @@ export class OnlineUsers {
 	}
 
 	getClientsByUserId(userId: number): Map<string, Socket> | null {
-		return this._users.get(userId).sockets || null;
+		return this._users.get(userId)?.sockets || null;
 	}
 
 	getClientsByClientId(clientId: string): Map<string, Socket> | null {
 		const userId = this._clients.get(clientId);
-		if (userId !== undefined) return this._users.get(userId).sockets || null;
+		if (userId !== undefined) return this._users.get(userId)?.sockets || null;
 		return null;
 	}
 
 	getUserByClientId(clientId: string): User | null {
 		const userId = this._clients.get(clientId);
-		if (userId !== undefined) return this._users.get(userId).user;
+		if (userId !== undefined) return this._users.get(userId)?.user;
 		return null;
 	}
 
 	getUserByUserId(userId: number): User | null {
-		return this._users.get(userId).user || null;
+		return this._users.get(userId)?.user || null;
 	}
 
 	addClientToUserId(userId: number, client: Socket): void {
