@@ -7,7 +7,7 @@ import {
 } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { userInfo42Dto } from "../auth/dto";
-import { User, UserStatus } from "@prisma/client";
+import { Prisma, User, UserStatus } from "@prisma/client";
 import { createReadStream } from "fs";
 import { authenticator } from "otplib";
 import { toDataURL } from "qrcode";
@@ -286,5 +286,34 @@ export class UserService {
 	async dropdb(): Promise<void> {
 		// to del
 		await this.prisma.user.deleteMany({});
+	}
+
+	async blockUser(
+		userTopName: string,
+		userTopId: number,
+		userBottomName: string,
+		userBottomId: number,
+	) {
+		try {
+			const chan = await this.prisma.user.update({
+				where: {
+					id: userTopId,
+				},
+				data: {
+					blockList: {
+						connect: { id: userBottomId },
+					},
+				},
+			});
+		} catch (error) {
+			if (
+				error instanceof Prisma.PrismaClientKnownRequestError &&
+				error.code === "P2002"
+			) {
+				throw new ForbiddenException("Duplicate key value");
+			} else {
+				console.log("Error in update");
+			}
+		}
 	}
 }

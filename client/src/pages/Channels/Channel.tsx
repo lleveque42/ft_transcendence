@@ -172,6 +172,28 @@ export default function Channel() {
 		}
 	  }
 
+	  async function handleBlock(userTopName:string, userTopId: number, userBottomName : string, userBottomId: number) {
+		const data = {userTopName, userTopId, userBottomName, userBottomId}
+		// const toEmit = {id, room, userName, mode}
+		try {
+			const res = await fetch("http://localhost:3000/user/block", {
+				method: "POST",
+				credentials: "include",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(data),
+			})
+			// chatSocket?.emit("exitChatRoom", 2);			
+			if (res.status === 201) {
+				// setInfoBool(true);
+				// setuserBool(false);
+			}
+		} catch (e) {
+			console.error("Error blocking from user");
+		}
+	  }
+
 	  async function handleBan(userName : string, userId: number) {
 		const id = chanInfo?.id;
 		const room = chanInfo?.title;
@@ -234,6 +256,8 @@ export default function Channel() {
 			}
 			else if (username === user.userName && mode === "admin"){
 				showAlert("success","You've been made "+ mode + " of " + chan.title);
+			}else if (username !== user.userName && mode === "leave") {
+				showAlert("success",username + " leaved the channel");
 			}
 			setChanInfo(chan);
 		}
@@ -298,6 +322,9 @@ export default function Channel() {
 								</NavLink>
 								<button className="btn-primary ml-10">
 									Play
+								</button>
+								<button onClick={() => handleBlock(user.userName, user.id, currentUserName, currentUserId)} className="btn-primary ml-10">
+									Block
 								</button>
 								{
 									user.id === chanInfo.ownerId && !currentUserAdmin &&

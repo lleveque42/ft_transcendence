@@ -5,11 +5,13 @@ import { NavLink} from "react-router-dom";
 import { useUser } from "../../context/UserProvider";
 import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
 import { ChannelModel } from "../../entities/entities";
+import { useAlert } from "../../context/AlertProvider";
 
 export default function Channels() {
   
 	const { accessToken, user } = useUser();
 	const {chatSocket} = usePrivateRouteSocket();
+	const { showAlert } = useAlert();
 	const [channelsState, setChannelsState] = useState<ChannelModel[]>([]);
 	
 	useEffect(() => {
@@ -80,16 +82,19 @@ export default function Channels() {
 	
 	useEffect(() => {
 		const chanListener = (chan: ChannelModel, username: string, mode : string) => {
-			if (username !== user.userName && mode === "leave"){
-				console.log(username + "leaved");
+			// console.log((username !== user.userName && mode === "leave"));
+			
+			if (username === user.userName && mode === "leave"){
+				setChannelsState(channelsState.filter(c => c.id !== chan.id));
+			}else if (username !== user.userName && mode === "leave") {
+				showAlert("success",username + " leaved the channel");
 			}
-			setChannelsState(channelsState.filter(c => c.id !== chan.id));
 		}
 		chatSocket?.on("kickOrBanOrLeaveFromChannel", chanListener)
 		return () => {
 			chatSocket?.off("kickOrBanOrLeaveFromChannel",);
 		}
-	  }, [channelsState, chatSocket, user.userName])
+	  }, [channelsState, chatSocket, showAlert, user.userName])
 
 	return (
 		<div className="container d-flex flex-column justify-content align-items">

@@ -17,6 +17,7 @@ import {
 	UseFilters,
 	UseGuards,
 	UseInterceptors,
+	Post,
 } from "@nestjs/common";
 import { UserService } from "./user.service";
 import { GetCurrentUser } from "../common/decorators";
@@ -31,6 +32,7 @@ import { diskStorage } from "multer";
 import { extname } from "path";
 import { NotImageExeptionFilter } from "../common/filters/notImageExeptionFilter.filter";
 import { UserInfosType } from "../common/types";
+import { Response } from "express";
 
 const storageOptions = {
 	storage: diskStorage({
@@ -228,4 +230,19 @@ export class UserController {
 	// 		throw new HttpException(e.message, e.status);
 	// 	}
 	// }
+
+	@Post("block")
+	async BlockUser(@Body() body, @Res({ passthrough: true }) res: Response) {
+		try {
+			const chan = await this.userService.blockUser(
+				body.userTopName,
+				body.userTopId,
+				body.userBottomName,
+				body.userBottomId,
+			);
+			res.json("OK");
+		} catch (e) {
+			res.json("Error while banishing");
+		}
+	}
 }
