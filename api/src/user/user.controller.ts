@@ -66,7 +66,7 @@ export class UserController {
 
 	@UseGuards(AtGuard)
 	@Get("users")
-	async getAllUsers(): Promise<{ id: number, userName: string }[]> {
+	async getAllUsers(): Promise<{ id: number; userName: string }[]> {
 		return await this.userService.getAllUsers();
 	}
 
@@ -85,14 +85,18 @@ export class UserController {
 
 	@UseGuards(AtGuard)
 	@Patch("upload/avatar")
-	@UseInterceptors(FileInterceptor("file", storageOptions))
+	@UseInterceptors(FileInterceptor("file"))
 	@UseFilters(NotImageExeptionFilter)
 	async updateAvatar(
 		@GetCurrentUser("sub") userName: string,
 		@UploadedFile(parseFileOptions)
 		file: Express.Multer.File,
 	): Promise<void> {
-		await this.userService.uploadAvatar(userName, file);
+		try {
+			await this.userService.uploadAvatar(userName, file);
+		} catch (e) {
+			throw new HttpException(e.message, e.status);
+		}
 	}
 
 	@UseGuards(AtGuard)

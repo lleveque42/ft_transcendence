@@ -74,21 +74,51 @@ export class UserService {
 	async uploadAvatar(userName: string, file: Express.Multer.File) {
 		const user = await this.getUserByUserName(userName);
 		if (!user) throw new ForbiddenException("Can't find user, try again");
-		try {
-			await fs.promises.unlink(user.avatar);
-		} catch (e) {}
-		const fileUrl = process.cwd() + `./files/avatars/${file.filename}`;
-		await this.prisma.user.update({
-			where: {
-				email: user.email,
-			},
+		// console.log("File:", file);
+
+		const newAvatarFile = await this.prisma.file.create({
 			data: {
-				avatar: fileUrl,
+				name: `${user.id}_avatar`,
+				size: file.size,
+				data: file.buffer,
+				user: { connect: { id: user.id } },
 			},
 		});
+		await this.prisma.user.update({
+			where: { id: user.id },
+			data: {
+				avatarFile: { connect: { id: newAvatarFile.id } },
+			},
+		});
+		// try {
+		// 	await fs.promises.unlink(user.avatar);
+		// } catch (e) {}
+		// const fileUrl = process.cwd() + `./files/avatars/${file.filename}`;
+		// await this.prisma.user.update({
+		// 	where: {
+		// 		email: user.email,
+		// 	},
+		// 	data: {
+		// 		avatar: fileUrl,
+		// 	},
+		// });
+	}
+
+	async getAvatarFile(user: User): Promise<any> {
+		// Need to type
+		const avatarFile = await this.prisma.user.findUnique({
+			where: { id: user.id },
+			select: {
+				avatarFile: true,
+			},
+		});
+		return avatarFile;
 	}
 
 	async getAvatar(user: User): Promise<StreamableFile | String> {
+		const avatarFile = await this.getAvatarFile(user);
+		console.log(avatarFile);
+
 		if (!user.avatar || user.avatar === "") {
 			throw new HttpException("Can't provide avatar", HttpStatus.NO_CONTENT);
 		} else if (
