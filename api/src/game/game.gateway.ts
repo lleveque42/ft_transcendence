@@ -348,4 +348,22 @@ export class GameGateway
 			if (this.ongoing.playerScored(room)) this.endGame(room, true, false);
 		} else if (this.ongoing.ownerScored(room)) this.endGame(room, true, false);
 	}
+
+	@SubscribeMessage("ownerMinimized")
+	ownerMinimized(@ConnectedSocket() client: Socket) {
+		const user = this.users.getUserByClientId(client.id);
+		this.handleInGameDisconnect(user, client);
+	}
+
+	@SubscribeMessage("ownerMaximized")
+	ownerMaximized(@ConnectedSocket() client: Socket) {
+		const user = this.users.getUserByClientId(client.id);
+		if (this.waitingReconnection.get(user.id)) {
+			this.waitingReconnection.delete(user.id);
+			client.emit("reconnectionMaximized", true);
+		} else {
+			client.emit("reconnectionMaximized", false);
+			client.disconnect();
+		}
+	}
 }
