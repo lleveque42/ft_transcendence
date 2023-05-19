@@ -168,9 +168,9 @@ export class AppGateway
 	) {
 		const owner = this.users.getUserByUserId(ownerId);
 		const player = this.users.getUserByUserId(playerId);
-		await this.changeUserStatus(owner, true, inGame);
+		if (owner) await this.changeUserStatus(owner, true, inGame);
 		setTimeout(async () => {
-			await this.changeUserStatus(player, true, inGame);
+			if (player) await this.changeUserStatus(player, true, inGame);
 		}, 50);
 	}
 }
