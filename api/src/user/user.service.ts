@@ -7,7 +7,7 @@ import {
 } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { userInfo42Dto } from "../auth/dto";
-import { User, UserStatus } from "@prisma/client";
+import { AvatarFile, User, UserStatus } from "@prisma/client";
 import { createReadStream } from "fs";
 import { authenticator } from "otplib";
 import { toDataURL } from "qrcode";
@@ -74,63 +74,51 @@ export class UserService {
 	async uploadAvatar(userName: string, file: Express.Multer.File) {
 		const user = await this.getUserByUserName(userName);
 		if (!user) throw new ForbiddenException("Can't find user, try again");
-		// console.log("File:", file);
-
-		const newAvatarFile = await this.prisma.file.create({
-			data: {
-				name: `${user.id}_avatar`,
-				size: file.size,
-				data: file.buffer,
-				user: { connect: { id: user.id } },
-			},
-		});
-		await this.prisma.user.update({
-			where: { id: user.id },
-			data: {
-				avatarFile: { connect: { id: newAvatarFile.id } },
-			},
-		});
-		// try {
-		// 	await fs.promises.unlink(user.avatar);
-		// } catch (e) {}
-		// const fileUrl = process.cwd() + `./files/avatars/${file.filename}`;
-		// await this.prisma.user.update({
-		// 	where: {
-		// 		email: user.email,
-		// 	},
-		// 	data: {
-		// 		avatar: fileUrl,
-		// 	},
-		// });
+		const avatarFile = await this.getAvatarFile(user);
+		if (!avatarFile) {
+			const newAvatarFile = await this.prisma.avatarFile.create({
+				data: {
+					name: `${user.id}_avatar`,
+					size: file.size,
+					data: file.buffer,
+					user: { connect: { id: user.id } },
+				},
+			});
+			await this.prisma.user.update({
+				where: { id: user.id },
+				data: {
+					avatarFile: { connect: { id: newAvatarFile.id } },
+				},
+			});
+		} else {
+			await this.prisma.avatarFile.update({
+				where: {
+					id: avatarFile.id,
+				},
+				data: {
+					size: file.size,
+					data: file.buffer,
+				},
+			});
+		}
 	}
 
-	async getAvatarFile(user: User): Promise<any> {
-		// Need to type
+	async getAvatarFile(user: User): Promise<AvatarFile | null> {
 		const avatarFile = await this.prisma.user.findUnique({
 			where: { id: user.id },
 			select: {
 				avatarFile: true,
 			},
 		});
-		return avatarFile;
+		return avatarFile.avatarFile;
 	}
 
 	async getAvatar(user: User): Promise<StreamableFile | String> {
 		const avatarFile = await this.getAvatarFile(user);
-		console.log(avatarFile);
-
-		if (!user.avatar || user.avatar === "") {
-			throw new HttpException("Can't provide avatar", HttpStatus.NO_CONTENT);
-		} else if (
-			user.avatar.includes("/files/avatars/") &&
-			fs.existsSync(user.avatar)
-		) {
-			return new StreamableFile(createReadStream(user.avatar));
-		} else if (user.avatar.includes("https://cdn.intra.42.fr/users/")) {
+		if (avatarFile) return new StreamableFile(avatarFile.data);
+		if (user.avatar && user.avatar.includes("https://cdn.intra.42.fr/users/"))
 			return user.avatar;
-		} else {
-			throw new HttpException("Can't provide avatar", HttpStatus.NO_CONTENT);
-		}
+		throw new HttpException("Can't provide avatar", HttpStatus.NO_CONTENT);
 	}
 
 	async updateUserName(userName: string, newUserName: string): Promise<User> {

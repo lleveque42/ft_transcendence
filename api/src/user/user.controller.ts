@@ -26,23 +26,8 @@ import { User } from "@prisma/client";
 import { UserNameDto, updateUserNameDto } from "./dto";
 import { tfaVerificationCode } from "./dto";
 import { FileInterceptor } from "@nestjs/platform-express";
-import { diskStorage } from "multer";
-import { extname } from "path";
 import { NotImageExeptionFilter } from "../common/filters/notImageExeptionFilter.filter";
 import { UserInfosType } from "../common/types";
-
-const storageOptions = {
-	storage: diskStorage({
-		destination: "./files/avatars",
-		filename: (req, file, cb) => {
-			const randomName = Array(16)
-				.fill(null)
-				.map(() => Math.round(Math.random() * 16).toString(16))
-				.join("");
-			return cb(null, `${randomName}${extname(file.originalname)}`);
-		},
-	}),
-};
 
 const parseFileOptions = new ParseFilePipe({
 	validators: [

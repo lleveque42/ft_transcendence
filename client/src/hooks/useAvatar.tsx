@@ -26,6 +26,7 @@ export default function useAvatar(
 				}
 			} catch (e) {
 				console.error("Error get User Avatar", e);
+				setUserAvatar(default_avatar);
 			}
 			setIsLoading(false);
 		}
