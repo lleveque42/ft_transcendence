@@ -190,10 +190,16 @@ export default function Users() {
 												}
 											/>
 										)}
-										<i
-											className={`${styles.playIcon} fa-solid fa-gamepad ml-20`}
-											onClick={() => navigate("/play")}
-										/>
+										{u.isFriend && u.status === UserStatus.OFFLINE ? (
+											<i
+												className={`${styles.gamepadDisconnectedIcon} fa-solid fa-gamepad ml-20`}
+											/>
+										) : (
+											<i
+												className={`${styles.gamepadIcon} fa-solid fa-gamepad ml-20`}
+												onClick={() => navigate("/play")}
+											/>
+										)}
 										<i
 											className={`${styles.dmIcon} fa-solid fa-envelope ml-20 mr-20`}
 											onClick={() => navigate("/chat")}

@@ -2,9 +2,11 @@ import styles from "./Homepage.module.scss";
 import { useNavigate } from "react-router-dom";
 import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
 import FriendsList from "./components/FriendsList";
+import { useAlert } from "../../context";
 
 export default function Homepage() {
 	const { socket } = usePrivateRouteSocket();
+	const { showInvite } = useAlert();
 	const navigate = useNavigate();
 
 	function showUsers() {
@@ -39,6 +41,19 @@ export default function Homepage() {
 						onClick={showUsers}
 					>
 						Show users
+					</button>
+					<button
+						className="btn-primary mt-5 mb-10 pl-10 pr-10 p-5"
+						onClick={() =>
+							showInvite({
+								senderId: 1,
+								senderUserName: "test",
+								invitedId: 2,
+								invitedUserName: "coucou",
+							})
+						}
+					>
+						Show Invite msg
 					</button>
 				</div>
 			</div>

@@ -190,4 +190,21 @@ export class AppGateway
 		if (owner) await this.changeUserStatus(owner, true, inGame);
 		if (player) await this.changeUserStatus(player, true, inGame);
 	}
+
+	@SubscribeMessage("sendGameInvite")
+	async sendGameInvite(
+		@ConnectedSocket() client: Socket,
+		@MessageBody("sender") sender: number,
+		@MessageBody("invited") invited: number,
+	) {
+		console.log(sender, invited);
+		const userInvited = this.users.getUserByUserId(invited);
+		const userSender = this.users.getUserByUserId(sender);
+		if (userInvited) {
+			this.users.emitAllbyUserId(userInvited.id, "inviteGameRequest", {
+				senderId: userSender.id,
+				senderUserName: userSender.userName,
+			});
+		}
+	}
 }

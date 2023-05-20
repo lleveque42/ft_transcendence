@@ -3,7 +3,7 @@ import { Navigate, useNavigate } from "react-router-dom";
 import Loader from "react-loaders";
 import Header from "../Header/Header";
 import Footer from "../Footer/Footer";
-import { useUser } from "../../context";
+import { useAlert, useUser } from "../../context";
 import { Socket, io } from "socket.io-client";
 import { PrivateRouteSocketContext } from "../../context/PrivateRouteProvider";
 import { GameSocketContext } from "../../pages/Play/context/GameSocketProvider";
@@ -15,6 +15,7 @@ export default function PrivateRoute(props: {
 }): ReactElement {
 	const navigate = useNavigate();
 	const { user, isAuth, updateOnlineFriend } = useUser();
+	const { showInvite } = useAlert();
 	const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 	const [socket, setSocket] = useState<Socket | null>(null);
 	const [gameSocket, setGameSocket] = useState<Socket | null>(null);
@@ -58,6 +59,17 @@ export default function PrivateRoute(props: {
 			appSocket.on("updateOnlineFriend", (friend: Friend) => {
 				updateOnlineFriend(friend);
 			});
+			appSocket.on(
+				"inviteGameRequest",
+				(data: { senderId: number; senderUserName: string }) => {
+					showInvite({
+						senderId: data.senderId,
+						senderUserName: data.senderUserName,
+						invitedId: user.id,
+						invitedUserName: user.userName,
+					});
+				},
+			);
 			setSocket(appSocket);
 			chatSocket = io(`${process.env.REACT_APP_CHAT_URL}`, {
 				query: {

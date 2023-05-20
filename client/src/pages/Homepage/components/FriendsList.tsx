@@ -3,10 +3,16 @@ import { useUser } from "../../../context";
 import styles from "./FriendsList.module.scss";
 import { UserStatus } from "../../../types/UserStatus.enum";
 import trimUserName from "../../../utils/trimUserName";
+import { usePrivateRouteSocket } from "../../../context/PrivateRouteProvider";
 
 export default function FriendsList() {
 	const { user } = useUser();
+	const { socket } = usePrivateRouteSocket();
 	const navigate = useNavigate();
+
+	function sendInvite(invited: number) {
+		socket?.emit("sendGameInvite", { sender: user.id, invited });
+	}
 
 	return (
 		<>
@@ -40,10 +46,16 @@ export default function FriendsList() {
 										{trimUserName(f.userName)}
 									</p>
 									<p className="pr-10 pl-5">|</p>
-									<i
-										className="d-flex flex-1 justify-content fa-solid fa-gamepad mr-5"
-										onClick={() => navigate("/play")}
-									/>
+									{f.status === UserStatus.ONLINE ? (
+										<i
+											className={`${styles.gamepad} d-flex flex-1 justify-content fa-solid fa-gamepad mr-5`}
+											onClick={() => sendInvite(f.id)}
+										/>
+									) : (
+										<i
+											className={`${styles.gamepadDisconnected} d-flex flex-1 justify-content fa-solid fa-gamepad mr-5`}
+										/>
+									)}
 									<i
 										className="d-flex flex-1 justify-content fa-solid fa-envelope"
 										onClick={() => navigate("/chat")}

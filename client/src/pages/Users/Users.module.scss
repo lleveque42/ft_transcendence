@@ -95,8 +95,17 @@
 				color: var(--success);
 			}
 
-			.playIcon {
+			.gamepadIcon {
 				color: var(--warning);
+			}
+
+			.gamepadDisconnectedIcon {
+				color: var(--secondary-dark);
+				cursor: auto;
+
+				&:hover {
+					color: var(--secondary-dark);
+				}
 			}
 
 			.dmIcon {
