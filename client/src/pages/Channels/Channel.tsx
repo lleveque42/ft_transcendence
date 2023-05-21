@@ -11,7 +11,7 @@ import { useAlert } from "../../context/AlertProvider";
 
 export default function Channel() {
   
-	const { user, accessToken } = useUser();
+	const { user, isAuth, accessToken } = useUser();
 	const {chatSocket} = usePrivateRouteSocket();
 	const { id } = useParams();
 	const { showAlert } = useAlert();
@@ -87,7 +87,11 @@ export default function Channel() {
 	useEffect(() => {
 	setMessagesList(messagesState.map(({ id, author, content }) => 
 	{
-		return (
+		const match = user.blockList.filter((el) =>{
+			return (el.id === author.id);
+		} )
+		const boolMatch : boolean = match.length > 0 ? true : false;
+		return ( !boolMatch ?
 			<li  onClick={() => handleMsgClick(author.userName, author.id)} key={id}>
 				<Message
 					allMessages={messagesState}
@@ -95,6 +99,10 @@ export default function Channel() {
 					username ={author.userName}
 					content={content}
 				/>
+			</li>
+			:
+			<li key={id}>
+				Blocked Message from {author.userName}
 			</li>
 		)
 	}
@@ -162,7 +170,7 @@ export default function Channel() {
 				},
 				body: JSON.stringify(data),
 			})
-			chatSocket?.emit("exitChatRoom", toEmit);			
+			chatSocket?.emit("blockUser", toEmit);			
 			if (res.status === 201) {
 				setInfoBool(true);
 				setuserBool(false);
@@ -173,8 +181,11 @@ export default function Channel() {
 	  }
 
 	  async function handleBlock(userTopName:string, userTopId: number, userBottomName : string, userBottomId: number) {
+		const room = chanInfo?.title;
+		const id = chanInfo?.id;
+		const mode = "block";
 		const data = {userTopName, userTopId, userBottomName, userBottomId}
-		// const toEmit = {id, room, userName, mode}
+		const toEmit = {id, room, userTopName, mode}
 		try {
 			const res = await fetch("http://localhost:3000/user/block", {
 				method: "POST",
@@ -184,10 +195,11 @@ export default function Channel() {
 				},
 				body: JSON.stringify(data),
 			})
-			// chatSocket?.emit("exitChatRoom", 2);			
+			chatSocket?.emit("blockUser", toEmit);			
 			if (res.status === 201) {
-				// setInfoBool(true);
-				// setuserBool(false);
+				setInfoBool(true);
+				setuserBool(false);
+				isAuth();
 			}
 		} catch (e) {
 			console.error("Error blocking from user");
@@ -323,7 +335,7 @@ export default function Channel() {
 								<button className="btn-primary ml-10">
 									Play
 								</button>
-								<button onClick={() => handleBlock(user.userName, user.id, currentUserName, currentUserId)} className="btn-primary ml-10">
+								<button onClick={() => handleBlock(user.userName, user.id, currentUserName, currentUserId)} className="btn-danger ml-10">
 									Block
 								</button>
 								{

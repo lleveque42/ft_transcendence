@@ -9,7 +9,7 @@ import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
 
 export default function DirectMessage() {
   
-	const { accessToken } = useUser();
+	const { user, accessToken } = useUser();
 	const {chatSocket} = usePrivateRouteSocket();
 	const navigate = useNavigate();
 	
@@ -42,17 +42,27 @@ export default function DirectMessage() {
 
 
 	useEffect(() => {
-	setMessagesList(messagesState.map(({ id, author, content }) => (
-		<li key={id}>
-		  <Message
-			allMessages={messagesState}
-			// removeMessages={setMessagesState}
-			username ={author.userName}
-			content={content}
-			/>
-		</li>
-	  )));
-	},[messagesState]);
+	setMessagesList(messagesState.map(({ id, author, content }) => {
+
+		const match = user.blockList.filter((el) =>{
+			return (el.id === author.id);
+		} )
+		const boolMatch : boolean = match.length > 0 ? true : false;
+		return ( !boolMatch ?
+			<li key={id}>
+				<Message
+					allMessages={messagesState}
+					// removeMessages={setMessagesState}
+					username ={author.userName}
+					content={content}
+				/>
+			</li>
+			:
+			<li key={id}>
+				Blocked Message from {author.userName}
+			</li>
+		)
+	}))},[messagesState, user.blockList]);
 
 	const messageListener = (msg: MessageModel) => {
 	const {id, authorId, author, content} = msg

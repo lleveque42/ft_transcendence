@@ -138,6 +138,27 @@ export class UserService {
 		});
 	}
 
+	async getUserBlockList(user: User): Promise<{
+		blockList: {
+			id: number;
+			userName: string;
+		}[];
+	}> {
+		return await this.prisma.user.findUnique({
+			where: {
+				id: user.id,
+			},
+			select: {
+				blockList: {
+					select: {
+						id: true,
+						userName: true,
+					},
+				},
+			},
+		});
+	}
+
 	async getUserFriendsOf(user: User): Promise<{
 		friendsOf: {
 			id: number;

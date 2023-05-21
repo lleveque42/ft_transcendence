@@ -68,6 +68,8 @@ export class AuthController {
 		const accessToken = await this.authService.newTokens(userEmail);
 		const user = await this.userService.getUserByEmail(userEmail);
 		const { friends } = await this.userService.getUserFriends(user);
+		const { blockList } = await this.userService.getUserBlockList(user);
+
 		return {
 			accessToken: accessToken.access_token,
 			userData: {
@@ -79,6 +81,7 @@ export class AuthController {
 				status: user.status,
 				isTfaEnable: user.isTfaEnable,
 				friends: friends,
+				blockList: blockList,
 			},
 		};
 	}

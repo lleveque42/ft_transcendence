@@ -16,6 +16,7 @@ type UserContextValue = {
 		isTfaEnable: boolean;
 		status: UserStatus;
 		friends: { userName: string; status: UserStatus; id: number }[];
+		blockList: { id : number; userName: string}[];
 	};
 };
 
@@ -33,6 +34,7 @@ const UserContext = createContext<UserContextValue>({
 		isTfaEnable: false,
 		status: UserStatus.ONLINE,
 		friends: [],
+		blockList: [],
 	},
 });
 
@@ -49,6 +51,7 @@ export type UserDataState = {
 	isTfaEnable: boolean;
 	status: UserStatus;
 	friends: { userName: string; status: UserStatus; id: number }[];
+	blockList: { id : number; userName: string}[];
 };
 
 export const UserProvider = ({ children }: UserProviderProps) => {
@@ -62,6 +65,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
 		isTfaEnable: false,
 		status: UserStatus.ONLINE,
 		friends: [],
+		blockList: [],
 	});
 
 	const isAuth = async (): Promise<boolean> => {

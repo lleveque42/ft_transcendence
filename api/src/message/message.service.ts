@@ -28,6 +28,7 @@ export class MessageService {
 			include: {
 				author: {
 					select: {
+						id: true,
 						userName: true,
 					},
 				},

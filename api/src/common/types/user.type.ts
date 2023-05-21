@@ -11,6 +11,7 @@ export type UserDataRefresh = {
 	isTfaEnable: boolean;
 	status: UserStatus;
 	friends: { userName: string }[];
+	blockList: { id: number; userName: string }[];
 };
 
 export type UserInfosType = {
