@@ -190,14 +190,20 @@ export default function Users() {
 												}
 											/>
 										)}
-										{u.isFriend && u.status === UserStatus.OFFLINE ? (
+										{(u.isFriend && u.status === UserStatus.ONLINE) ||
+										!u.isFriend ? (
 											<i
-												className={`${styles.gamepadDisconnectedIcon} fa-solid fa-gamepad ml-20`}
+												className={`${styles.gamepadIcon} fa-solid fa-gamepad ml-20`}
+												onClick={() =>
+													socket?.emit("sendGameInvite", {
+														sender: user.id,
+														invited: u.id,
+													})
+												}
 											/>
 										) : (
 											<i
-												className={`${styles.gamepadIcon} fa-solid fa-gamepad ml-20`}
-												onClick={() => navigate("/play")}
+												className={`${styles.gamepadDisconnectedIcon} fa-solid fa-gamepad ml-20`}
 											/>
 										)}
 										<i

@@ -10,7 +10,7 @@ export default function FriendsList() {
 	const { socket } = usePrivateRouteSocket();
 	const navigate = useNavigate();
 
-	function sendInvite(invited: number) {
+	function sendGameInvite(invited: number) {
 		socket?.emit("sendGameInvite", { sender: user.id, invited });
 	}
 
@@ -49,7 +49,7 @@ export default function FriendsList() {
 									{f.status === UserStatus.ONLINE ? (
 										<i
 											className={`${styles.gamepad} d-flex flex-1 justify-content fa-solid fa-gamepad mr-5`}
-											onClick={() => sendInvite(f.id)}
+											onClick={() => sendGameInvite(f.id)}
 										/>
 									) : (
 										<i

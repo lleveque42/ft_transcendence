@@ -192,12 +192,10 @@ export class AppGateway
 	}
 
 	@SubscribeMessage("sendGameInvite")
-	async sendGameInvite(
-		@ConnectedSocket() client: Socket,
+	sendGameInvite(
 		@MessageBody("sender") sender: number,
 		@MessageBody("invited") invited: number,
 	) {
-		console.log(sender, invited);
 		const userInvited = this.users.getUserByUserId(invited);
 		const userSender = this.users.getUserByUserId(sender);
 		if (userInvited) {
@@ -205,6 +203,23 @@ export class AppGateway
 				senderId: userSender.id,
 				senderUserName: userSender.userName,
 			});
+		} else {
+			setTimeout(() => {
+				this.declineGameInvite(
+					userSender.id,
+					"Can't find user to invite, try again later",
+				);
+			}, 5000);
 		}
+	}
+
+	@SubscribeMessage("declineGameInvite")
+	declineGameInvite(
+		@MessageBody("senderId") senderId: number,
+		@MessageBody("message") message: string,
+	) {
+		this.users.emitAllbyUserId(senderId, "inviteDeclined", {
+			message,
+		});
 	}
 }

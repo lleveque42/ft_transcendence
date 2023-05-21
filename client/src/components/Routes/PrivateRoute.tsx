@@ -15,7 +15,7 @@ export default function PrivateRoute(props: {
 }): ReactElement {
 	const navigate = useNavigate();
 	const { user, isAuth, updateOnlineFriend } = useUser();
-	const { showInvite } = useAlert();
+	const { showInvite, showAlert } = useAlert();
 	const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 	const [socket, setSocket] = useState<Socket | null>(null);
 	const [gameSocket, setGameSocket] = useState<Socket | null>(null);
@@ -67,9 +67,16 @@ export default function PrivateRoute(props: {
 						senderUserName: data.senderUserName,
 						invitedId: user.id,
 						invitedUserName: user.userName,
+						socket: appSocket,
 					});
 				},
 			);
+			appSocket.on("inviteDeclined", (data: { message: string }) => {
+				showAlert(
+					"warning",
+					data.message,
+				);
+			});
 			setSocket(appSocket);
 			chatSocket = io(`${process.env.REACT_APP_CHAT_URL}`, {
 				query: {

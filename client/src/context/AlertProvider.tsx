@@ -1,5 +1,4 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { usePrivateRouteSocket } from "./PrivateRouteProvider";
 import {
 	AlertContextType,
 	AlertProps,
@@ -9,7 +8,7 @@ import {
 } from "../types";
 
 export const ALERT_TIMEOUT = 3000;
-export const INVITE_TIMEOUT = 3000; // 15000
+export const INVITE_TIMEOUT = 15000;
 
 function initialAlertState() {
 	const storedAlert = localStorage.getItem("alert");
@@ -35,7 +34,6 @@ export const AlertProvider = ({ children }: AlertProviderProps) => {
 		initialInviteState(),
 	);
 	const [isHiddenInvite, setIsHiddenInvite] = useState<boolean>(true);
-	const { socket } = usePrivateRouteSocket();
 
 	const showAlert = (type: AlertType, message: string) => {
 		setAlert({ type, message });
@@ -44,10 +42,38 @@ export const AlertProvider = ({ children }: AlertProviderProps) => {
 	};
 
 	const showInvite = (props: InviteProps) => {
-		setInvite({ ...props });
-		setIsHiddenInvite(false);
-		localStorage.setItem("invite", JSON.stringify({ ...props }));
+		const { socket } = { ...props };
+		const alreayInInvite = localStorage.getItem("invite");
+		if (!alreayInInvite) {
+			setInvite({ ...props });
+			setIsHiddenInvite(false);
+			localStorage.setItem(
+				"invite",
+				JSON.stringify({
+					senderId: props.senderId,
+					senderUserName: props.senderUserName,
+					invitedId: props.invitedId,
+					invitedUserName: props.invitedUserName,
+				}),
+			);
+		} else {
+			socket?.emit("declineGameInvite", {
+				senderId: props.senderId,
+				message: `${props.invitedUserName} is already invited, try again later`,
+			});
+		}
 	};
+
+	function declineInvite(props: InviteProps) {
+		const { socket } = { ...props };
+		setIsHiddenInvite(true);
+		setInvite(null);
+		localStorage.removeItem("invite");
+		socket?.emit("declineGameInvite", {
+			senderId: props.senderId,
+			message: `${props.invitedUserName} declined your game invitation`,
+		});
+	}
 
 	useEffect(() => {
 		let timeoutId: NodeJS.Timeout;
@@ -69,9 +95,7 @@ export const AlertProvider = ({ children }: AlertProviderProps) => {
 		if (invite) {
 			setIsHiddenInvite(false);
 			timeoutId = setTimeout(() => {
-				setIsHiddenInvite(true);
-				setInvite(null);
-				localStorage.removeItem("invite");
+				declineInvite(invite);
 			}, INVITE_TIMEOUT);
 		}
 		return () => {
@@ -97,7 +121,12 @@ export const AlertProvider = ({ children }: AlertProviderProps) => {
 					{invite.senderUserName} invites you to play.
 					<div className="d-flex flex-row align-items justify-content mt-10">
 						<button className="btn btn-success p-5 mr-10">Accept</button>
-						<button className="btn btn-danger p-5">Decline</button>
+						<button
+							className="btn btn-danger p-5"
+							onClick={() => declineInvite(invite)}
+						>
+							Decline
+						</button>
 					</div>
 				</div>
 			)}

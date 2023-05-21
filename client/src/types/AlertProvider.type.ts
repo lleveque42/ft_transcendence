@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import { Socket } from "socket.io-client";
 
 export type AlertType = "success" | "error" | "info" | "warning";
 
@@ -16,6 +17,7 @@ export type InviteProps = {
 	senderUserName: string;
 	invitedId: number;
 	invitedUserName: string;
+	socket: Socket | null;
 };
 
 export type AlertContextType = {
