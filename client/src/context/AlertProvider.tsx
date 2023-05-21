@@ -75,6 +75,10 @@ export const AlertProvider = ({ children }: AlertProviderProps) => {
 		});
 	}
 
+	function acceptInvite(props: InviteProps) {
+		
+	}
+
 	useEffect(() => {
 		let timeoutId: NodeJS.Timeout;
 		if (alert) {
@@ -120,7 +124,12 @@ export const AlertProvider = ({ children }: AlertProviderProps) => {
 				>
 					{invite.senderUserName} invites you to play.
 					<div className="d-flex flex-row align-items justify-content mt-10">
-						<button className="btn btn-success p-5 mr-10">Accept</button>
+						<button
+							className="btn btn-success p-5 mr-10"
+							onClick={() => acceptInvite(invite)}
+						>
+							Accept
+						</button>
 						<button
 							className="btn btn-danger p-5"
 							onClick={() => declineInvite(invite)}
