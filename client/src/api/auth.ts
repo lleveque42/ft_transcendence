@@ -1,6 +1,8 @@
+const url = `${process.env.REACT_APP_BACKEND_URL}auth/`;
+
 export async function isAuthRequest(): Promise<Response | null> {
 	try {
-		const res = await fetch("http://localhost:3000/auth/refresh", {
+		const res = await fetch(`http://e1r2p4:3001/auth/refresh`, {
 			credentials: "include",
 		});
 		return res;
@@ -10,9 +12,18 @@ export async function isAuthRequest(): Promise<Response | null> {
 	return null;
 }
 
+export async function callback42(code: string): Promise<Response> {
+	const res = await fetch(
+	`${url}callback42/${code}`,
+	{
+		credentials: "include",
+	});
+	return res;
+}
+
 export async function logoutRequest(accessToken: string) {
 	try {
-		await fetch("http://localhost:3000/auth/logout", {
+		await fetch(`${url}logout`, {
 			method: "POST",
 			credentials: "include",
 			headers: {
@@ -28,7 +39,7 @@ export async function loginRequest(formValues: {
 	userName: string;
 	password: string;
 }): Promise<Response> {
-	const res = await fetch("http://localhost:3000/auth/login", {
+	const res = await fetch(`${url}login`, {
 		method: "POST",
 		credentials: "include",
 		headers: {
@@ -44,7 +55,7 @@ export async function signupRequest(formValues: {
 	email: string;
 	password: string;
 }): Promise<Response> {
-	const res = await fetch("http://localhost:3000/auth/signup", {
+	const res = await fetch(`${url}signup`, {
 		method: "POST",
 		credentials: "include",
 		headers: {
@@ -56,7 +67,7 @@ export async function signupRequest(formValues: {
 }
 
 export async function verifyTfaRequest(code: string, accessToken: string) {
-	const res = await fetch("http://localhost:3000/auth/tfa", {
+	const res = await fetch(`${url}tfa`, {
 		method: "POST",
 		credentials: "include",
 		headers: {

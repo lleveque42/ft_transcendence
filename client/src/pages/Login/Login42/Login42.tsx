@@ -3,6 +3,7 @@ import Loader from "react-loaders";
 import { useNavigate } from "react-router-dom";
 import { useSearchParams } from "react-router-dom";
 import { useAlert } from "../../../context";
+import { callback42 } from "../../../api";
 
 export default function Login42() {
 	const [searchParams] = useSearchParams();
@@ -15,12 +16,7 @@ export default function Login42() {
 		async function sendCode() {
 			try {
 				if (!code) throw new Error("No code provided");
-				const res = await fetch(
-					`http://localhost:3000/auth/callback42/${code}`,
-					{
-						credentials: "include",
-					},
-				);
+				const res = await callback42(code);
 				if (res.status === 201) {
 					navigate("/settings");
 					showAlert(

@@ -69,8 +69,11 @@ export const UserProvider = ({ children }: UserProviderProps) => {
 		if (res && res.ok) {
 			if (res.status === 204) {
 				return false;
+				// token refresh not ok
 			}
+
 			const data = await res.json();
+			console.log(data);
 			setAccessToken(data.accessToken);
 			setUser(data.userData);
 			return true;
