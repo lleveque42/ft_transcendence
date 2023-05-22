@@ -80,6 +80,11 @@ export default function DirectMessage() {
 	const handleKeyDown =  (event : KeyboardEvent<HTMLInputElement>) => {
 		if (event.key === "Enter" && value !== ""){
 			chatSocket?.emit("chanMessage", {room: id, message: value});
+			setValue("");
+			const inputValue : HTMLElement | null = document.getElementById("newMsg");
+			if (inputValue!= null){
+				inputValue.nodeValue = "";
+			}
 		}
 	};
 	

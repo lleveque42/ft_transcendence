@@ -134,6 +134,11 @@ export default function Channel() {
 	const handleKeyDown =  (event : KeyboardEvent<HTMLInputElement>) => {
 		if (event.key === "Enter" && value !== ""){
 			chatSocket?.emit("chanMessage", {room: id, message: value});
+			setValue("");
+			const inputValue : HTMLElement | null = document.getElementById("newMsg");
+			if (inputValue!= null){
+				inputValue.nodeValue = "";
+			}
 		}
 	};
 	
@@ -300,8 +305,8 @@ export default function Channel() {
 							</> 
 							)
 						}
-						<input className={`btn-primary m-20 d-flex flex-column justify-content align-items`} onKeyDown={handleKeyDown}
-						onChange={(e)=>{setValue(e.target.value)}}  type="text" placeholder="Write a message" />
+						<input id="newMsg" className={`btn-primary m-20 d-flex flex-column justify-content align-items`} onKeyDown={handleKeyDown}
+						onChange={(e)=>{setValue(e.target.value)}}  type="text" placeholder="Write a message" value={value}/>
 						</div>
 						{
 							infoBool &&
