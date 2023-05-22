@@ -204,33 +204,6 @@ export class UserController {
 		}
 	}
 
-	// @Get("/:login")
-	// async login(
-	// 	@Param() params: UserLoginDto,
-	// 	@Res({ passthrough: true }) res: Response,
-	// ): Promise<User> {
-	// 	try {
-	// 		const user = await this.userService.getUserByEmail(params.login);
-	// 		console.log("User " + user.email);
-	// 		const userInfo = {
-	// 			userName: user.userName,
-	// 			email: user.email,
-	// 			firstName: user.firstName,
-	// 			lastName: user.lastName,
-	// 			id: user.id,
-	// 			socket: user.socket,
-	// 			avatar: user.avatar,
-	// 			createdAt: user.createdAt,
-	// 			updatedAt: user.updatedAt,
-	// 			hash: user.hash,
-	// 		};
-	// 		console.log("User" + userInfo.email);
-	// 		return userInfo;
-	// 	} catch (e) {
-	// 		throw new HttpException(e.message, e.status);
-	// 	}
-	// }
-
 	@Post("block")
 	async BlockUser(@Body() body, @Res({ passthrough: true }) res: Response) {
 		try {

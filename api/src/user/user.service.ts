@@ -207,6 +207,9 @@ export class UserService {
 				},
 				userName: { not: userName },
 			},
+			include: {
+				blockList : true,
+			}
 		});
 		return users;
 	}

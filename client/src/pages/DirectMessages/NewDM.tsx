@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useUser } from "../../context/UserProvider";
 import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
 import { useAlert } from "../../context/AlertProvider";
+import { UserModel } from "../../entities/entities";
 
 type FormValues = {
 	title: string;
@@ -27,7 +28,7 @@ const initialFormValues: FormValues = {
 export default function NewDM() {
   
 	const { accessToken, user } = useUser();
-	const [usersState, setUsersState] = useState<{ id: number; userName: string }[]>([]);
+	const [usersState, setUsersState] = useState<{ id: number; userName: string ; blockList: UserModel[]}[]>([]);
 	const [usersList, setUsersList] = useState<JSX.Element[]>([]);
 	const socket = usePrivateRouteSocket();
 	const { showAlert } = useAlert();
@@ -96,11 +97,23 @@ export default function NewDM() {
 	};
 
 	useEffect(() => {
-	setUsersList(usersState.map((el) => 
-				( 
-					<li key={el.id} id={el.id.toString(10)} onClick={handleClick} >{el.userName}</li>
-				))
-		);
+	setUsersList(usersState.map((el) => {
+		const match = user.blockList.filter((b) =>{
+			return (el.id === b.id);
+		} )
+		console.log(match.length);
+		
+		const boolMatch : boolean = match.length > 0 ? true : false;
+		return ( !boolMatch ?
+			<li key={el.id} id={el.id.toString(10)} onClick={handleClick} >{el.userName}</li>
+			:
+			<li key={el.id}>
+				<span className={"barre"}>	
+					{el.userName}
+				</span>
+			</li>
+			)
+		}));
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [usersState])
 

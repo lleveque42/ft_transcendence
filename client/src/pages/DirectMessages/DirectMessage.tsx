@@ -43,7 +43,6 @@ export default function DirectMessage() {
 
 	useEffect(() => {
 	setMessagesList(messagesState.map(({ id, author, content }) => {
-
 		const match = user.blockList.filter((el) =>{
 			return (el.id === author.id);
 		} )
