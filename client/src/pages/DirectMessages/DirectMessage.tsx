@@ -103,7 +103,7 @@ export default function DirectMessage() {
 				}
 			</div>
 				<input className={`btn-primary m-20 d-flex flex-column justify-content align-items`} onKeyDown={handleKeyDown}
-				onChange={(e)=>{setValue(e.target.value)}}  type="text" placeholder="Write a message" />
+				onChange={(e)=>{setValue(e.target.value)}}  type="text" placeholder="Write a message" id="newMsg" value={value} />
 		</div>
 	);
 }

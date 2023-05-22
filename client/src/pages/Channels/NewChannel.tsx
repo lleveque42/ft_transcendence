@@ -4,6 +4,7 @@ import { useUser } from "../../context/UserProvider";
 import Input from "../../components/Input/Input";
 import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
 import { useAlert } from "../../context/AlertProvider";
+import { useNavigate } from "react-router-dom";
 
 type FormValues = {
 	title: string;
@@ -29,6 +30,7 @@ export default function NewChannel() {
     const [formValues, setFormValues] = useState<FormValues>(initialFormValues);
 
 	const socket = usePrivateRouteSocket();
+	const navigate = useNavigate();
 	const { showAlert } = useAlert();
 
 	function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -63,12 +65,12 @@ export default function NewChannel() {
 				console.log("Status == 201");
 				const body = await res.json();
 				if (body != null && body === "Duplicate"){
-					showAlert("error", "Channel" + formValues.title + " already exists");
+					showAlert("error", "Channel " + formValues.title + " already exists");
 				}
 				else{
-					showAlert("success", "Channel" + formValues.title + " created with success");
+					showAlert("success", "Channel " + formValues.title + " created with success");
 					socket.chatSocket?.emit("joinChatRoom",formValues.title);
-					//navigate("/chat/channels");
+					navigate("/chat/channels");
 				}
 			}
 		} catch (e) {
