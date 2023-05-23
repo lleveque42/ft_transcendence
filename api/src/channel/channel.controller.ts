@@ -210,6 +210,20 @@ export class ChannelController {
 		}
 	}
 
+	@Post("mute")
+	async muteInChannel(@Body() body, @Res({ passthrough: true }) res: Response) {
+		try {
+			const chan = await this.channelService.muteInChannel(
+				body.chanId,
+				body.userId,
+				body.mutedEnd,
+			);
+			res.json("OK");
+		} catch (e) {
+			res.json("Error while muting");
+		}
+	}
+
 	@Post("admin")
 	async adminOfChannel(
 		@Body() body,

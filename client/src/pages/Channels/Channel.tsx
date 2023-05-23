@@ -254,11 +254,13 @@ export default function Channel() {
 	  }
 
 	  async function handleMute(userName : string, userId: number) {
-		const id = chanInfo?.id;
+		const chanId = chanInfo?.id;
 		const room = chanInfo?.title;
-		const data = {userName, id}
-		const mode = "ban";
-		const toEmit = {id, room, userName, mode}
+		const mutedEnd = new Date(currentTime.getTime() + 10000);
+		console.log(mutedEnd);
+		const data = {chanId, userId, mutedEnd};
+		// const mode = "mute";
+		// const toEmit = {id, userId, userName, mode}
 		if (chanInfo?.ownerId === userId){
 			showAlert("error", "Error, you can't kick, ban or mute the channel owner bro");
 			return ;
@@ -272,8 +274,8 @@ export default function Channel() {
 				},
 				body: JSON.stringify(data),
 			})
-			// chatSocket?.emit("exitChatRoom", toEmit);			
 			if (res.status === 201) {
+				// chatSocket?.emit("MuteInChatRoom", toEmit);			
 				showAlert("success", userName + " has been muted for 10 seconds");
 				setInfoBool(true);
 				setuserBool(false);

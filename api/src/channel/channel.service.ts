@@ -1,7 +1,7 @@
 import { ForbiddenException, HttpException, Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { UserService } from "../user/user.service";
-import { Channel, Prisma } from "@prisma/client";
+import { Channel, Muted, Prisma } from "@prisma/client";
 import * as argon2 from "argon2";
 import { OnlineUsers } from "../classes/OnlineUsers";
 
@@ -197,6 +197,63 @@ export class ChannelService {
 					},
 				},
 			});
+		} catch (error) {
+			if (
+				error instanceof Prisma.PrismaClientKnownRequestError &&
+				error.code === "P2002"
+			) {
+				throw new ForbiddenException("Duplicate key value");
+			} else {
+				console.log("Error in update");
+			}
+		}
+	}
+
+	async muteInChannel(chanId: number, userId: number, mutedEnd: Date) {
+		try {
+			const muted: Muted = await this.prisma.muted.create({
+				data: {
+					userId: userId,
+					muteExpiration: mutedEnd,
+					channelId: chanId,
+				},
+			});
+			if (muted) {
+				const chan: Channel = await this.prisma.channel.update({
+					where: {
+						id: chanId,
+					},
+					data: {
+						mutedList: {
+							connect: {
+								id: muted.id,
+							},
+						},
+					},
+					include: {
+						members: {
+							select: {
+								id: true,
+								userName: true,
+							},
+						},
+						operators: {
+							select: {
+								id: true,
+								userName: true,
+							},
+						},
+						mutedList: {
+							select: {
+								id: true,
+								userId: true,
+								muteExpiration: true,
+							},
+						},
+					},
+				});
+				return chan;
+			}
 		} catch (error) {
 			if (
 				error instanceof Prisma.PrismaClientKnownRequestError &&
