@@ -141,7 +141,7 @@ export default function Users() {
 					{!usersList.length ? (
 						<>
 							<h1
-								className={` ${styles.nobodyTitle} d-flex flex-1 justify-content mt-20`}
+								className={`${styles.nobodyTitle} d-flex flex-1 justify-content mt-20`}
 							>
 								You are alone...
 							</h1>

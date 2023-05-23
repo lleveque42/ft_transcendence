@@ -7,7 +7,7 @@ import Login42 from "./pages/Login/Login42/Login42";
 import Signup from "./pages/Signup/Signup";
 import PrivateRoute from "./components/Routes/PrivateRoute";
 import PublicRoute from "./components/Routes/PublicRoute";
-import Chat from "./pages/Chat/Chat";
+// import Chat from "./pages/Chat/Chat";
 import DirectMessages from "./pages/DirectMessages/DirectMessages";
 import Channels from "./pages/Channels/Channels";
 import Channel from "./pages/Channels/Channel";
@@ -52,7 +52,6 @@ export default function Router() {
 					path="/play"
 					element={<PrivateRoute element={<Play />} play={true} />}
 				/>
-				<Route path="/chat" element={<PrivateRoute element={<Chat />} />} />
 				<Route
 					path="/chat/direct_messages"
 					element={<PrivateRoute element={<DirectMessages />} />}
@@ -63,15 +62,15 @@ export default function Router() {
 				/>
 				<Route
 					path="/chat/direct_messages/new_dm"
-					element={<PrivateRoute element={<NewDM/>} />}					
+					element={<PrivateRoute element={<NewDM/>} />}
 				/>
 				<Route
 					path="/chat/channels"
-					element={<PrivateRoute element={<Channels />} />}					
+					element={<PrivateRoute element={<Channels />} />}
 				/>
 				<Route
 					path="/chat/channels/:id"
-					element={<PrivateRoute element={<Channel/>} />}					
+					element={<PrivateRoute element={<Channel/>} />}
 				/>
 				<Route
 					path="/chat/channels/new_channel"
@@ -84,10 +83,6 @@ export default function Router() {
 				<Route
 				path="/chat/channels/edit_channel/:title"
 				element={<PrivateRoute element={<EditChannel/>} />}
-				/>
-				<Route
-					path="/chat/friends"
-					element={<PrivateRoute element={<Chat />} />}
 				/>
 				<Route path="/users" element={<PrivateRoute element={<Users />} />} />
 				<Route path="*" element={<NotFound />} />

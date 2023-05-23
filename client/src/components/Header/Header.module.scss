@@ -8,130 +8,130 @@
 	@include mixin.sm-lt {
 		height: 3rem;
 	}
-}
 
-.logo {
-	cursor: pointer;
-	width: 3.5rem;
-	margin-left: 1.5rem;
-	border-radius: 50%;
-	border: var(--border);
-
-	@include mixin.sm-lt {
-		margin-left: 1rem;
-		height: 2.5rem;
-		width: 2.5rem;
-	}
-}
-
-.headerNav {
-	h3 {
-		color: var(--light-grey);
+	.logo {
 		cursor: pointer;
-		text-decoration: none;
-		text-decoration-color: transparent;
-		transition: color 0.3s ease-in-out, text-decoration-color 0.3s ease-in-out;
+		width: 3.5rem;
+		margin-left: 1.5rem;
+		border-radius: 50%;
+		border: var(--border);
 
-		&:hover {
-			color: var(--primary);
-			text-decoration: underline;
-			text-underline-offset: 0.3em;
-			text-decoration-color: var(--primary);
-		}
-	}
-}
-.menuTrigger img {
-	height: 3.5rem;
-	width: 3.5rem;
-	border-radius: 50%;
-	overflow: hidden;
-	cursor: pointer;
-	margin-right: 1rem;
-	background: var(--secondary-dark);
-
-	@include mixin.sm-lt {
-		height: 2.5rem;
-		width: 2.5rem;
-	}
-}
-
-.dropdownMenu {
-	position: absolute;
-	top: 5rem;
-	right: 1rem;
-	background-color: var(--light-grey);
-	border-radius: 8px;
-	padding: 1rem 1.5rem;
-	width: 12rem;
-	z-index: 2;
-
-	@include mixin.sm-lt {
-		top: 4rem;
-		right: 0.5rem;
-		padding: 0.5rem 1rem;
-	}
-
-	h3 {
-		width: 100%;
-		text-align: center;
-		font-size: 18px;
-		padding: 20px 0;
-		font-weight: 500;
-		font-size: 18px;
-		color: var(--primary-dark);
-		line-height: 1.2rem;
-	}
-
-	ul li {
-		padding: 0.5rem 0;
-		border-top: 1px solid rgba(0, 0, 0, 0.1);
-		cursor: pointer;
-
-		button {
-			text-decoration: none;
-			color: var(--black);
-			border: none;
-			background: inherit;
-			max-width: 10rem;
+		@include mixin.sm-lt {
 			margin-left: 1rem;
-			transition: 500ms;
-		}
-
-		&:nth-child(3) button {
-			color: var(--danger);
-		}
-
-		&:hover button {
-			color: var(--primary);
+			height: 2.5rem;
+			width: 2.5rem;
 		}
 	}
-}
 
-.dropdownMenu::before {
-	content: "";
-	position: absolute;
-	top: -0.5rem;
-	right: 1rem;
-	height: 2rem;
-	width: 2rem;
-	background: var(--light-grey);
-	transform: rotate(45deg);
-}
+	.headerNav {
+		h3 {
+			color: var(--light-grey);
+			cursor: pointer;
+			text-decoration: none;
+			text-decoration-color: transparent;
+			transition: color 0.3s ease-in-out, text-decoration-color 0.3s ease-in-out;
 
-.dropdownItem {
-	margin: 1rem auto;
-}
+			&:hover {
+				color: var(--primary);
+				text-decoration: underline;
+				text-underline-offset: 0.3em;
+				text-decoration-color: var(--primary);
+			}
+		}
+	}
+	.menuTrigger img {
+		height: 3.5rem;
+		width: 3.5rem;
+		border-radius: 50%;
+		overflow: hidden;
+		cursor: pointer;
+		margin-right: 1rem;
+		background: var(--secondary-dark);
 
-.active {
-	opacity: 1;
-	visibility: visible;
-	transform: translateY(0);
-	transition: 500ms ease;
-}
+		@include mixin.sm-lt {
+			height: 2.5rem;
+			width: 2.5rem;
+		}
+	}
 
-.inactive {
-	opacity: 0;
-	visibility: hidden;
-	transform: translateY(-20px);
-	transition: 500ms ease;
+	.dropdownMenu {
+		position: absolute;
+		top: 5rem;
+		right: 1rem;
+		background-color: var(--light-grey);
+		border-radius: 8px;
+		padding: 1rem 1.5rem;
+		width: 12rem;
+		z-index: 2;
+
+		@include mixin.sm-lt {
+			top: 4rem;
+			right: 0.5rem;
+			padding: 0.5rem 1rem;
+		}
+
+		h3 {
+			width: 100%;
+			text-align: center;
+			font-size: 18px;
+			padding: 20px 0;
+			font-weight: 500;
+			font-size: 18px;
+			color: var(--primary-dark);
+			line-height: 1.2rem;
+		}
+
+		ul li {
+			padding: 0.5rem 0;
+			border-top: 1px solid rgba(0, 0, 0, 0.1);
+			cursor: pointer;
+
+			button {
+				text-decoration: none;
+				color: var(--black);
+				border: none;
+				background: inherit;
+				max-width: 10rem;
+				margin-left: 1rem;
+				transition: 500ms;
+			}
+
+			&:nth-child(3) button {
+				color: var(--danger);
+			}
+
+			&:hover button {
+				color: var(--primary);
+			}
+		}
+	}
+
+	.dropdownMenu::before {
+		content: "";
+		position: absolute;
+		top: -0.5rem;
+		right: 1rem;
+		height: 2rem;
+		width: 2rem;
+		background: var(--light-grey);
+		transform: rotate(45deg);
+	}
+
+	.dropdownItem {
+		margin: 1rem auto;
+	}
+
+	.active {
+		opacity: 1;
+		visibility: visible;
+		transform: translateY(0);
+		transition: 500ms ease;
+	}
+
+	.inactive {
+		opacity: 0;
+		visibility: hidden;
+		transform: translateY(-20px);
+		transition: 500ms ease;
+	}
 }

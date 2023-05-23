@@ -74,15 +74,9 @@
 					text-underline-offset: 0.3em;
 					text-decoration-color: var(--primary);
 				}
-			}
 
-			h3 {
-				font-size: 1.5vw;
-			}
-
-			@include mixin.sm-lt {
-				h3 {
-					font-size: 5vw;
+				@include mixin.sm-lt {
+					font-size: 3vw;
 					min-width: 40%;
 				}
 			}

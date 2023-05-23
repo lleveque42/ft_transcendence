@@ -50,7 +50,7 @@ export default function Header() {
 							<h3 className="" onClick={() => navigate("/users")}>
 								Users
 							</h3>
-							<h3 className="ml-20" onClick={() => navigate("/chat")}>
+							<h3 className="ml-20" onClick={() => navigate("/chat/direct_messages")}>
 								Chat
 							</h3>
 						</div>

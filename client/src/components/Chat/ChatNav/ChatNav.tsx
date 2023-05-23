@@ -1,27 +1,33 @@
-import React from "react";
 import styles from "./ChatNav.module.scss";
+import { NavLink, useLocation } from "react-router-dom";
 
-import {
-    NavLink,
-  } from 'react-router-dom';
+export default function ChatNav() {
+	const location = useLocation();
+	const directMessagesMatch = location.pathname.startsWith(
+		"/chat/direct_messages",
+	);
+	const channelsMatch = location.pathname.startsWith("/chat/channels");
 
-export default function ChatNav(){
-
-    return (
-        <>
-        <div className={`${styles.navContainer}  d-flex flex-row mt-20`}>
-            <NavLink className={`${styles.navLink} p-20`}  to='/chat/direct_messages' >
-              My messages
-            </NavLink>
-            <NavLink className={`${styles.navLink} p-20`}  to='/chat/channels' >
-              My channels
-            </NavLink>
-            <NavLink className={`${styles.navLink} p-20`}  to='/chat/friends' >
-              My friends
-            </NavLink>
-        </div>
-      </>
-    );
-  };
-    
-  
+	return (
+		<>
+			<div className={`${styles.navContainer} d-flex flex-row mt-20`}>
+				<NavLink
+					className={`${styles.navLink} ${
+						directMessagesMatch ? styles.activeNavLink : ""
+					} p-20`}
+					to="/chat/direct_messages"
+				>
+					My messages
+				</NavLink>
+				<NavLink
+					className={`${styles.navLink} ${
+						channelsMatch ? styles.activeNavLink : ""
+					} p-20`}
+					to="/chat/channels"
+				>
+					My channels
+				</NavLink>
+			</div>
+		</>
+	);
+}
