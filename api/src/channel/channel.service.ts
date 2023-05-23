@@ -211,8 +211,20 @@ export class ChannelService {
 
 	async muteInChannel(chanId: number, userId: number, mutedEnd: Date) {
 		try {
-			const muted: Muted = await this.prisma.muted.create({
-				data: {
+			const retrieve = await this.prisma.muted.findMany({
+				where: {
+					userId: userId,
+				},
+			});
+			const muted: Muted = await this.prisma.muted.upsert({
+				where: {
+					id: retrieve.at(0).id,
+				},
+				update: {
+					muteExpiration: mutedEnd,
+					channelId: chanId,
+				},
+				create: {
 					userId: userId,
 					muteExpiration: mutedEnd,
 					channelId: chanId,
@@ -366,6 +378,8 @@ export class ChannelService {
 	}
 
 	async getChannelByTitle(title: string) {
+		console.log(title);
+
 		return await this.prisma.channel.findUnique({
 			where: {
 				title: title,
@@ -381,6 +395,13 @@ export class ChannelService {
 					select: {
 						id: true,
 						userName: true,
+					},
+				},
+				mutedList: {
+					select: {
+						id: true,
+						userId: true,
+						muteExpiration: true,
 					},
 				},
 			},

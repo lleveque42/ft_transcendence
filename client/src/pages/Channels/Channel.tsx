@@ -144,11 +144,31 @@ export default function Channel() {
 
 	const handleKeyDown =  (event : KeyboardEvent<HTMLInputElement>) => {
 		if (event.key === "Enter" && value !== ""){
-			chatSocket?.emit("chanMessage", {room: id, message: value});
-			setValue("");
-			const inputValue : HTMLElement | null = document.getElementById("newMsg");
-			if (inputValue!= null){
-				inputValue.nodeValue = "";
+			const data = chanInfo?.mutedList?.filter((mutedUser) => mutedUser.userId === user.id);
+			const retrieveDate = data?.at(0)?.muteExpiration;
+			let newDate = currentTime;
+			let unMuted: boolean = false;
+			if (retrieveDate){
+				newDate = new Date(retrieveDate);
+			}
+			if (newDate){
+				unMuted = isAfter(currentTime.getTime(), newDate.getTime());
+			}
+			if (unMuted){
+				// Might be worthy to delete the mutedList item
+				console.log("Need to be unMuted");
+			}
+			if (!chanInfo?.mutedList?.some((mutedUser) => mutedUser.userId === user.id) || unMuted){
+				chatSocket?.emit("chanMessage", {room: id, message: value});
+				setValue("");
+				const inputValue : HTMLElement | null = document.getElementById("newMsg");
+				if (inputValue!= null){
+					inputValue.nodeValue = "";
+				}
+			}
+			else{
+				console.log("Muted");
+				showAlert("error", "You are currently muted");
 			}
 		}
 	};
@@ -256,11 +276,12 @@ export default function Channel() {
 	  async function handleMute(userName : string, userId: number) {
 		const chanId = chanInfo?.id;
 		const room = chanInfo?.title;
-		const mutedEnd = new Date(currentTime.getTime() + 10000);
-		console.log(mutedEnd);
+		const mutedEnd = new Date(currentTime.getTime() + 30000);
+		// console.log(currentTime);
+		// console.log(mutedEnd);
 		const data = {chanId, userId, mutedEnd};
-		// const mode = "mute";
-		// const toEmit = {id, userId, userName, mode}
+		const mode = "mute";
+		const toEmit = {id, userId, userName, mode}
 		if (chanInfo?.ownerId === userId){
 			showAlert("error", "Error, you can't kick, ban or mute the channel owner bro");
 			return ;
@@ -275,8 +296,8 @@ export default function Channel() {
 				body: JSON.stringify(data),
 			})
 			if (res.status === 201) {
-				// chatSocket?.emit("MuteInChatRoom", toEmit);			
-				showAlert("success", userName + " has been muted for 10 seconds");
+				chatSocket?.emit("MuteInChatRoom", toEmit);			
+				showAlert("success", userName + " has been muted for 30 seconds");
 				setInfoBool(true);
 				setuserBool(false);
 			}
@@ -320,16 +341,20 @@ export default function Channel() {
 				showAlert("success","You've been made "+ mode + " of " + chan.title);
 			}else if (username !== user.userName && mode === "leave") {
 				showAlert("success",username + " leaved the channel");
-			}
+			}else if (username === user.userName && mode === "mute") {
+			showAlert("success", "You've been muted 30 seconds from this channel");
+		}
 			setChanInfo(chan);
 		}
 		chatSocket?.on("kickOrBanOrLeaveFromChannel", chanListener)
 		chatSocket?.on("userJoinedChan", chanListener)
 		chatSocket?.on("adminJoinedChan", chanListener)
+		chatSocket?.on("refreshMute", chanListener)
 		return () => {
 			chatSocket?.off("kickOrBanOrLeaveFromChannel",);
 			chatSocket?.off("userJoinedChan",);
 			chatSocket?.off("adminJoinedChan",);
+			chatSocket?.off("refreshMute",);
 		}
 	  }, [chatSocket, navigate, showAlert, user.userName])
 	  

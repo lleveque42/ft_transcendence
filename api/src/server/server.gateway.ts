@@ -225,6 +225,29 @@ export class ServerGateway
 		}
 	}
 
+	@SubscribeMessage("MuteInChatRoom")
+	async handleMuteInChatChanRoom(
+		@ConnectedSocket() client: Socket,
+		@MessageBody()
+		data: {
+			id: string;
+			room: string;
+			userName: string;
+			mode: string;
+		},
+	): Promise<void> {
+		console.log(data);
+		console.log(data.room);
+		this.io
+			.to(data.id)
+			.emit(
+				"refreshMute",
+				await this.channelService.getChannelByTitle(data.id),
+				data.userName,
+				data.mode,
+			);
+	}
+
 	@SubscribeMessage("adminChatRoom")
 	async handleAdminChanRoom(
 		@ConnectedSocket() client: Socket,

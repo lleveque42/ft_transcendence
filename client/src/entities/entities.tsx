@@ -64,6 +64,7 @@ export interface Channel {
 	members: User[];
 	messages: Message[];
 	banList: User[];
+	mutedList: Muted[];
   }
 
   export class ChannelModel implements Channel {
@@ -78,6 +79,7 @@ export interface Channel {
 	members: UserModel[];
 	messages: Message[];
 	banList: User[];
+	mutedList: Muted[];
   
 	constructor(data: Channel) {
 	  this.id = data.id;
@@ -91,5 +93,23 @@ export interface Channel {
 	  this.members = data.members.map(user => new UserModel(user));
 	  this.messages = data.messages;
 	  this.banList = data.banList;
+	  this.mutedList = data.mutedList;
+	}
+  }
+  export interface Muted {
+	id: number;
+	userId :number;
+	muteExpiration: Date;
+  }
+
+  export class MutedModel implements Muted {
+	id: number;
+	userId :number;
+	muteExpiration: Date;
+
+	constructor(data: Muted) {
+	  this.id = data.id;
+	  this.userId = data.userId;
+	  this.muteExpiration = data.muteExpiration;
 	}
   }
