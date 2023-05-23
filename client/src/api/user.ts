@@ -1,10 +1,10 @@
-const url = "http://e1r2p4:3000/user/";
+const url = `${process.env.REACT_APP_BACKEND_URL}/user`;
 
 export async function settingsRequest(
 	accessToken: string,
 	newUserName: string,
 ): Promise<Response> {
-	const res = await fetch(`${url}settings`, {
+	const res = await fetch(`${url}/settings`, {
 		method: "PATCH",
 		credentials: "include",
 		headers: {
@@ -19,7 +19,7 @@ export async function settingsRequest(
 export async function generateQrCodeRequest(
 	accessToken: string,
 ): Promise<Response> {
-	const res = await fetch(`${url}tfa/generate`, {
+	const res = await fetch(`${url}/tfa/generate`, {
 		method: "GET",
 		credentials: "include",
 		headers: {
@@ -33,7 +33,7 @@ export async function generateQrCodeRequest(
 export async function disableTfaRequest(
 	accessToken: string,
 ): Promise<Response> {
-	const res = await fetch(`${url}tfa/disable`, {
+	const res = await fetch(`${url}/tfa/disable`, {
 		method: "PATCH",
 		credentials: "include",
 		headers: {
@@ -47,7 +47,7 @@ export async function enableTfaRequest(
 	accessToken: string,
 	code: string,
 ): Promise<Response> {
-	const res = await fetch(`${url}tfa/enable`, {
+	const res = await fetch(`${url}/tfa/enable`, {
 		method: "PATCH",
 		credentials: "include",
 		headers: {
@@ -63,7 +63,7 @@ export async function userUploadAvatar(
 	accessToken: string,
 	formData: FormData,
 ): Promise<Response> {
-	const res = await fetch(`${url}upload/avatar`, {
+	const res = await fetch(`${url}/upload/avatar`, {
 		method: "PATCH",
 		credentials: "include",
 		headers: {
@@ -78,7 +78,7 @@ export async function userAvatarRequest(
 	accessToken: string,
 	username: string,
 ): Promise<Response> {
-	const res = await fetch(`${url}avatar/${username}`, {
+	const res = await fetch(`${url}/avatar/${username}`, {
 		credentials: "include",
 		headers: {
 			Authorization: `Bearer ${accessToken}`,
@@ -91,7 +91,7 @@ export async function userProfileInfosRequest(
 	accessToken: string,
 	username: string | undefined,
 ): Promise<Response> {
-	const res = await fetch(`${url}infos/${username}`, {
+	const res = await fetch(`${url}/infos/${username}`, {
 		credentials: "include",
 		headers: {
 			Authorization: `Bearer ${accessToken}`,
@@ -105,7 +105,7 @@ export async function toggleFriendshipRequest(
 	username: string,
 	method: string,
 ) {
-	const res = await fetch(`${url}friend`, {
+	const res = await fetch(`${url}/friend`, {
 		credentials: "include",
 		method: method,
 		headers: {
@@ -118,7 +118,7 @@ export async function toggleFriendshipRequest(
 }
 
 export async function getAllUsersRequest(accessToken: string) {
-	const res = await fetch(`${url}users`, {
+	const res = await fetch(`${url}/users`, {
 		credentials: "include",
 		headers: {
 			Authorization: `Bearer ${accessToken}`,

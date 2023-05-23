@@ -59,7 +59,7 @@ export default function PrivateRoute(props: {
 				updateOnlineFriend(friend);
 			});
 			setSocket(appSocket);
-			chatSocket = io(`${process.env.REACT_APP_CHAT_URL}`, {
+			chatSocket = io(`${process.env.REACT_APP_CHAT_GATEWAY_URL}`, {
 				query: {
 					email: user.email,
 				},

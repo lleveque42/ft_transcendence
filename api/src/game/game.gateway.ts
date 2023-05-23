@@ -23,7 +23,7 @@ import {
 } from "../classes/OngoingGames";
 import { GameService } from "./game.service";
 
-@WebSocketGateway(8001, { namespace: "game", cors: "http://localhost:3001" })
+@WebSocketGateway(8001, { namespace: "game", cors: process.env.FRONTEND_URL })
 export class GameGateway
 	implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {

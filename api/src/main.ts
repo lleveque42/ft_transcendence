@@ -12,7 +12,7 @@ async function bootstrap() {
 		}),
 	);
 	app.enableCors({
-		origin: "http://e1r2p4:3001",
+		origin: process.env.FRONTEND_URL,
 		credentials: true,
 		exposedHeaders: ["WWW-Authenticate"],
 	});

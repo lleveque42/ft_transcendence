@@ -67,13 +67,9 @@ export const UserProvider = ({ children }: UserProviderProps) => {
 	const isAuth = async (): Promise<boolean> => {
 		const res = await isAuthRequest();
 		if (res && res.ok) {
-			if (res.status === 204) {
+			if (res.status === 204)
 				return false;
-				// token refresh not ok
-			}
-
 			const data = await res.json();
-			console.log(data);
 			setAccessToken(data.accessToken);
 			setUser(data.userData);
 			return true;

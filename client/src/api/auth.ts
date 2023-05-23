@@ -1,8 +1,8 @@
-const url = `${process.env.REACT_APP_BACKEND_URL}auth/`;
+const url = `${process.env.REACT_APP_BACKEND_URL}/auth`;
 
 export async function isAuthRequest(): Promise<Response | null> {
 	try {
-		const res = await fetch(`http://e1r2p4:3001/auth/refresh`, {
+		const res = await fetch(`${url}/refresh`, {
 			credentials: "include",
 		});
 		return res;
@@ -14,7 +14,7 @@ export async function isAuthRequest(): Promise<Response | null> {
 
 export async function callback42(code: string): Promise<Response> {
 	const res = await fetch(
-	`${url}callback42/${code}`,
+	`${url}/callback42/${code}`,
 	{
 		credentials: "include",
 	});
@@ -23,7 +23,7 @@ export async function callback42(code: string): Promise<Response> {
 
 export async function logoutRequest(accessToken: string) {
 	try {
-		await fetch(`${url}logout`, {
+		await fetch(`${url}/logout`, {
 			method: "POST",
 			credentials: "include",
 			headers: {
@@ -39,7 +39,7 @@ export async function loginRequest(formValues: {
 	userName: string;
 	password: string;
 }): Promise<Response> {
-	const res = await fetch(`${url}login`, {
+	const res = await fetch(`${url}/login`, {
 		method: "POST",
 		credentials: "include",
 		headers: {
@@ -55,7 +55,7 @@ export async function signupRequest(formValues: {
 	email: string;
 	password: string;
 }): Promise<Response> {
-	const res = await fetch(`${url}signup`, {
+	const res = await fetch(`${url}/signup`, {
 		method: "POST",
 		credentials: "include",
 		headers: {
@@ -67,7 +67,7 @@ export async function signupRequest(formValues: {
 }
 
 export async function verifyTfaRequest(code: string, accessToken: string) {
-	const res = await fetch(`${url}tfa`, {
+	const res = await fetch(`${url}/tfa`, {
 		method: "POST",
 		credentials: "include",
 		headers: {
