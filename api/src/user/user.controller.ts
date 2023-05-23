@@ -190,20 +190,6 @@ export class UserController {
 		}
 	}
 
-	@Get("/:login")
-	async login(
-		@Param() params: UserLoginDto,
-		@Res({ passthrough: true }) res: Response,
-	): Promise<User> {
-		try {
-			const user = await this.userService.getUserByUserName(params.login);
-			console.log("User : " + user.userName);
-			return user;
-		} catch (e) {
-			throw new HttpException(e.message, e.status);
-		}
-	}
-
 	@Post("block")
 	async BlockUser(@Body() body, @Res({ passthrough: true }) res: Response) {
 		try {

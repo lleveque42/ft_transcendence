@@ -28,14 +28,6 @@ export class UserService {
 		});
 	}
 
-	// async getAllUsers() {
-	// 	return await this.prisma.user.findMany({
-	// 		select: {
-	// 			userName: true,
-	// 		},
-	// 	});
-	// }
-
 	async getUserByEmail(email: string): Promise<User> {
 		return await this.prisma.user.findUnique({
 			where: {
@@ -208,8 +200,8 @@ export class UserService {
 				userName: { not: userName },
 			},
 			include: {
-				blockList : true,
-			}
+				blockList: true,
+			},
 		});
 		return users;
 	}
