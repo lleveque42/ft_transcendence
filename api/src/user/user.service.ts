@@ -8,10 +8,8 @@ import {
 import { PrismaService } from "../prisma/prisma.service";
 import { userInfo42Dto } from "../auth/dto";
 import { AvatarFile, User, UserStatus } from "@prisma/client";
-import { createReadStream } from "fs";
 import { authenticator } from "otplib";
 import { toDataURL } from "qrcode";
-import * as fs from "fs";
 import { GameType } from "../game/types/game.type";
 import { GameInfosType } from "../common/types";
 

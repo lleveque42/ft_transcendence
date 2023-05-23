@@ -64,8 +64,10 @@ export class AuthController {
 	async refresh(
 		@GetCurrentUser("email") userEmail: string,
 	): Promise<{ accessToken: string; userData: UserDataRefresh }> {
-		const accessToken = await this.authService.newTokens(userEmail);
 		const user = await this.userService.getUserByEmail(userEmail);
+		if (!user)
+			throw new HttpException("Can't find user", HttpStatus.UNAUTHORIZED);
+		const accessToken = await this.authService.newTokens(userEmail);
 		const { friends } = await this.userService.getUserFriends(user);
 		return {
 			accessToken: accessToken.access_token,

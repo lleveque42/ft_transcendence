@@ -16,7 +16,7 @@ import { OnlineUsers } from "./classes/OnlineUsers";
 
 const DISCONNECTION_STATUS_TIMEOUT = 2000;
 
-@WebSocketGateway(8001, { cors: "*" })
+@WebSocketGateway(8001, { cors: process.env.FRONTEND_URL })
 export class AppGateway
 	implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
