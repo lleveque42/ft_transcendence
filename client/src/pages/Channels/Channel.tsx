@@ -202,6 +202,7 @@ export default function Channel() {
 			})
 			chatSocket?.emit("blockUser", toEmit);			
 			if (res.status === 201) {
+				showAlert("success", userBottomName + " has been blocked");
 				setInfoBool(true);
 				setuserBool(false);
 				isAuth();
@@ -232,11 +233,42 @@ export default function Channel() {
 			})
 			chatSocket?.emit("exitChatRoom", toEmit);			
 			if (res.status === 201) {
+				showAlert("success", userName + " has been banned");
 				setInfoBool(true);
 				setuserBool(false);
 			}
 		} catch (e) {
 			console.error("Error bannishing from channel");
+		}
+	  }
+
+	  async function handleMute(userName : string, userId: number) {
+		const id = chanInfo?.id;
+		const room = chanInfo?.title;
+		const data = {userName, id}
+		const mode = "ban";
+		const toEmit = {id, room, userName, mode}
+		if (chanInfo?.ownerId === userId){
+			showAlert("error", "Error, you can't kick, ban or mute the channel owner bro");
+			return ;
+		}
+		try {
+			const res = await fetch("http://localhost:3000/channels/mute", {
+				method: "POST",
+				credentials: "include",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(data),
+			})
+			// chatSocket?.emit("exitChatRoom", toEmit);			
+			if (res.status === 201) {
+				showAlert("success", userName + " has been muted for 10 seconds");
+				setInfoBool(true);
+				setuserBool(false);
+			}
+		} catch (e) {
+			console.error("Error muting from channel");
 		}
 	  }
 
@@ -357,7 +389,7 @@ export default function Channel() {
 									<button id="Ban" onClick={() => handleBan(currentUserName, currentUserId)} className="btn-danger ml-10">
 										Ban
 									</button>
-									<button id="Mute" className="btn-danger ml-10">
+									<button id="Mute" onClick={() => handleMute(currentUserName, currentUserId)} className="btn-danger ml-10">
 										Mute
 									</button>
 								</>
