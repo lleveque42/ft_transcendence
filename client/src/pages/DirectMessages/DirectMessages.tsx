@@ -13,7 +13,6 @@ export default function DirectMessages() {
 	const {chatSocket} = usePrivateRouteSocket();
 	const { showAlert } = useAlert();
 
-
 	useEffect(() => {
 		(async () => {
 			try {
@@ -27,7 +26,6 @@ export default function DirectMessages() {
 				.then(
 				(chans) => {
 					setDirectMessagesState(chans);
-					console.log(chans);
 				}
 				);
             } catch (e) {
@@ -50,6 +48,15 @@ export default function DirectMessages() {
 		if (userId1 && userId2 && userName1 && userName2){
 			userBottomId = (userId1 === user.id) ? userId2 : userId1;
 			userBottomName = (userName1 === user.userName) ? userName2 : userName1;
+		}
+		const match = user.blockList.filter((el) =>{
+			return (el.id === userBottomId);
+		} )
+		const boolMatch : boolean = match.length > 0 ? true : false;
+		if (boolMatch)
+		{
+			showAlert("error", userBottomName + " is already blocked");
+			return ;
 		}
 		const mode = "block";
 		const data = {userTopName , userTopId, userBottomName, userBottomId}
@@ -88,6 +95,7 @@ export default function DirectMessages() {
 					<NavLink key={channel.id} className={``}  to={`/chat/direct_messages/${channel.title}`} >
 						{membersDetails}	
 					</NavLink >
+					
 					<button onClick={() => handleBlock(channel)} className="btn-danger ml-10">
 						Block
 					</button>
