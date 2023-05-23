@@ -4,12 +4,15 @@ import { NavLink } from "react-router-dom";
 import { useUser } from "../../context/UserProvider";
 import { ChannelModel } from "../../entities/entities"
 import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
+import { useAlert } from "../../context/AlertProvider";
 
 export default function DirectMessages() {
 
-	const { user , accessToken} = useUser();
+	const { user ,isAuth, accessToken} = useUser();
 	const [directMessagesState, setDirectMessagesState] = useState<ChannelModel[]>([]);
 	const {chatSocket} = usePrivateRouteSocket();
+	const { showAlert } = useAlert();
+
 
 	useEffect(() => {
 		(async () => {
@@ -62,9 +65,8 @@ export default function DirectMessages() {
 			})
 			chatSocket?.emit("blockUser", toEmit);			
 			if (res.status === 201) {
-				// setInfoBool(true);
-				// setuserBool(false);
-				// isAuth();
+				isAuth();
+				showAlert("success", "You've just blocked " + userBottomName);
 			}
 		} catch (e) {
 			console.error("Error blocking from user");
@@ -82,7 +84,7 @@ export default function DirectMessages() {
 			});
 			
 			return (
-				<div key={channel.id}>
+				<div key={channel.id} className="d-flex flex-raw justify-content align-items">
 					<NavLink key={channel.id} className={``}  to={`/chat/direct_messages/${channel.title}`} >
 						{membersDetails}	
 					</NavLink >
