@@ -8,6 +8,7 @@ import { KeyboardEvent } from "react"
 import { ChannelModel, MessageModel } from "../../entities/entities";
 import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
 import { useAlert } from "../../context/AlertProvider";
+import { addMinutes, isAfter } from 'date-fns';
 
 export default function Channel() {
   
@@ -25,6 +26,7 @@ export default function Channel() {
 	const [currentUserId, setCurrentUserId] = useState(0);
 	const [currentUserAdmin, setCurrentUserAdmin] = useState(false);
 	const [isOp, setOp] = useState(false);
+	const [currentTime, setCurrentTime] = useState(new Date());
 	const navigate = useNavigate();
 
 	useEffect(() => {
@@ -61,6 +63,15 @@ export default function Channel() {
 
         })();
     }, [accessToken, id]);
+
+	useEffect(() => {
+		const timer = setInterval(() => {
+		  setCurrentTime(new Date());
+		}, 1000);
+		return () => {
+		  clearInterval(timer)
+		};
+	  }, []);
 
 	function handleChanClick(event: MouseEvent) {
 		setuserBool(false);
