@@ -8,6 +8,7 @@ import { ChannelModel, MessageModel } from "../../entities/entities";
 import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
 import { useAlert } from "../../context/AlertProvider";
 import { addMinutes, isAfter } from 'date-fns';
+import { getAllMessagesInChan } from "../../api/chat";
 
 export default function Channel() {
   
@@ -31,7 +32,8 @@ export default function Channel() {
 	useEffect(() => {
 		(async () => {
 			try {
-				await fetch(`http://localhost:3000/channels/chan/${id}`, {
+				// await getAllMessagesInChan(id, accessToken, setMessagesState); 
+				await fetch(`${process.env.REACT_APP_BACKEND_URL}/channels/chan/${id}`, {
 					credentials: "include",
 					headers: {
 						Authorization: `Bearer ${accessToken}`,
@@ -43,7 +45,7 @@ export default function Channel() {
 					setMessagesState(messages);
 				}
 				);
-				await fetch(`http://localhost:3000/channels/edit/${id}`, {
+				await fetch(`${process.env.REACT_APP_BACKEND_URL}/channels/edit/${id}`, {
 				credentials: "include",
 				headers: {
 					Authorization: `Bearer ${accessToken}`,
@@ -197,7 +199,7 @@ export default function Channel() {
 			return ;
 		}
 		try {
-			const res = await fetch("http://localhost:3000/channels/kick", {
+			const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/channels/kick`, {
 				method: "POST",
 				credentials: "include",
 				headers: {
@@ -209,6 +211,9 @@ export default function Channel() {
 			if (res.status === 201) {
 				setInfoBool(true);
 				setuserBool(false);
+			}
+			else{
+				// To dOOOOOOOOOOOOOO
 			}
 		} catch (e) {
 			console.error("Error kicking from channel");
@@ -222,7 +227,7 @@ export default function Channel() {
 		const data = {userTopName, userTopId, userBottomName, userBottomId}
 		const toEmit = {id, room, userTopName, mode}
 		try {
-			const res = await fetch("http://localhost:3000/user/block", {
+			const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/user/block`, {
 				method: "POST",
 				credentials: "include",
 				headers: {
@@ -253,7 +258,7 @@ export default function Channel() {
 			return ;
 		}
 		try {
-			const res = await fetch("http://localhost:3000/channels/ban", {
+			const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/channels/ban`, {
 				method: "POST",
 				credentials: "include",
 				headers: {
@@ -266,6 +271,9 @@ export default function Channel() {
 				showAlert("success", userName + " has been banned");
 				setInfoBool(true);
 				setuserBool(false);
+			}
+			else {
+				// To dooooooooooooooo
 			}
 		} catch (e) {
 			console.error("Error bannishing from channel");
@@ -286,7 +294,7 @@ export default function Channel() {
 			return ;
 		}
 		try {
-			const res = await fetch("http://localhost:3000/channels/mute", {
+			const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/channels/mute`, {
 				method: "POST",
 				credentials: "include",
 				headers: {
@@ -300,6 +308,9 @@ export default function Channel() {
 				setInfoBool(true);
 				setuserBool(false);
 			}
+			else {
+				// To dooooooooooooooo
+			}
 		} catch (e) {
 			console.error("Error muting from channel");
 		}
@@ -312,7 +323,7 @@ export default function Channel() {
 		const mode = "admin";
 		const toEmit = {id, room, userName, mode}
 		try {
-			const res = await fetch("http://localhost:3000/channels/admin", {
+			const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/channels/admin`, {
 				method: "POST",
 				credentials: "include",
 				headers: {
@@ -324,6 +335,9 @@ export default function Channel() {
 			if (res.status === 201) {
 				setInfoBool(true);
 				setuserBool(false);
+			}
+			else {
+				// To dooooooooooooooo
 			}
 		} catch (e) {
 			console.error("Error adminishing from channel");

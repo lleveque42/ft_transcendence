@@ -17,7 +17,7 @@ export default function DirectMessages() {
 	useEffect(() => {
 		(async () => {
 			try {
-				await fetch(`http://localhost:3000/channels/dm/${user.userName}`, {
+				await fetch(`${process.env.REACT_APP_BACKEND_URL}/channels/dm/${user.userName}`, {
 					credentials: "include",
 					headers: {
 						Authorization: `Bearer ${accessToken}`,
@@ -63,7 +63,7 @@ export default function DirectMessages() {
 		const data = {userTopName , userTopId, userBottomName, userBottomId}
 		const toEmit = {id, room, userTopName, mode}
 		try {
-			const res = await fetch("http://localhost:3000/user/block", {
+			const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/user/block`, {
 				method: "POST",
 				credentials: "include",
 				headers: {
@@ -120,9 +120,13 @@ useEffect(() => {
 			mutedList} = chan;
 			setDirectMessagesState([...directMessagesState, {id, title, type, mode, ownerId, members, messages, operators, banList, mutedList}]);
 	}
+	
+	chatSocket?.on("userJoinedDM", DirectMessagesListener);
 	chatSocket?.on("receivedDirectMessage", DirectMessagesListener);
 	return () => {
 		chatSocket?.off("receivedDirectMessage", DirectMessagesListener);
+		chatSocket?.off("userJoinedDM", DirectMessagesListener);
+
 	}
 }, [chatSocket, directMessagesState])
 

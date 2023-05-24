@@ -20,7 +20,7 @@ export default function JoinChannel() {
 	useEffect(() => {
 		(async () => {
 			try {
-				await fetch(`http://localhost:3000/channels/join`, {
+				await fetch(`${process.env.REACT_APP_BACKEND_URL}/channels/join`, {
 					credentials: "include",
 					headers: {
 						Authorization: `Bearer ${accessToken}`,
@@ -44,7 +44,7 @@ export default function JoinChannel() {
 			channelId: channelId,
 		};
 		try {
-			const res = await fetch("http://localhost:3000/channels/join_channel", {
+			const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/channels/join_channel`, {
 				method: "POST",
 				credentials: "include",
 				headers: {
@@ -57,6 +57,8 @@ export default function JoinChannel() {
 				navigate("/chat/channels");
 			} else if (res.ok) {
 				navigate("/chat/channels");
+			}else {
+				// to dooooooooo
 			}
 		} catch (e) {
 			console.error("Error joining channel");

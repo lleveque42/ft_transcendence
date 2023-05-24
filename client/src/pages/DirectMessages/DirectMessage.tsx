@@ -22,7 +22,7 @@ export default function DirectMessage() {
 	useEffect(() => {
 		(async () => {
 			try {
-				await fetch(`http://localhost:3000/channels/dm/chan/${id}`, {
+				await fetch(`${process.env.REACT_APP_BACKEND_URL}/channels/dm/chan/${id}`, {
 					credentials: "include",
 					headers: {
 						Authorization: `Bearer ${accessToken}`,

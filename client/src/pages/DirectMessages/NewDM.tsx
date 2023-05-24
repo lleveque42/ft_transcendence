@@ -38,7 +38,7 @@ export default function NewDM() {
 	useEffect(() => {
 		(async () => {
 			try {
-				await fetch("http://localhost:3000/channels/users_list/retrieve", {
+				await fetch(`${process.env.REACT_APP_BACKEND_URL}/channels/users_list/retrieve`, {
 					credentials: "include",
 					headers: {
 						Authorization: `Bearer ${accessToken}`,
@@ -68,7 +68,7 @@ export default function NewDM() {
 		formValues.mode = "Public";
 		formValues.password = "";
 		try {
-			const res : Response= await fetch("http://localhost:3000/channels/create_join_dm", {
+			const res : Response= await fetch(`${process.env.REACT_APP_BACKEND_URL}/channels/create_join_dm`, {
 				method: "POST",
 				credentials: "include",
 				headers: {

@@ -119,7 +119,7 @@ export class ServerGateway
 		data: {
 			room: string;
 			message: string;
-			value: string;
+			// value: string;
 		},
 	): Promise<void> {
 		console.log(client.rooms);
@@ -146,7 +146,7 @@ export class ServerGateway
 				{
 					content: data.message,
 				},
-				this.users.getUserByClientId(client.id).userName,
+				this.users.getUserByClientId(client.id).id,
 				data.room,
 			);
 			if (msg) {
@@ -195,6 +195,8 @@ export class ServerGateway
 			socket[1].join(data.room);
 		}
 		this.io.to(data.room).emit("userExpel", data.userId);
+		const chan = await this.channelService.getChannelByTitle(data.room);
+		this.io.to(data.room).emit("userJoinedDM", chan);
 	}
 
 	@SubscribeMessage("exitChatRoom")

@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { UserService } from "../user/user.service";
 import { ChannelService } from "../channel/channel.service";
@@ -14,10 +14,12 @@ export class MessageService {
 
 	async createNewNessage(
 		newMessage: Prisma.MessageCreateInput,
-		userName: string,
+		id: number,
 		chanTitle: string,
 	) {
-		const user = await this.userService.getUserByUserName(userName);
+		const user = await this.userService.getUserById(id);
+		if (!user)
+		throw new HttpException("User not found", HttpStatus.NOT_FOUND);
 		const chan = await this.channelService.getChannelByTitle(chanTitle);
 		const msg: Message = await this.prisma.message.create({
 			data: {

@@ -15,7 +15,7 @@ export default function Channels() {
 	useEffect(() => {
 		(async () => {
 			try {
-				await fetch(`http://localhost:3000/channels/${user.userName}`, {
+				await fetch(`${process.env.REACT_APP_BACKEND_URL}/channels/${user.userName}`, {
 					credentials: "include",
 					headers: {
 						Authorization: `Bearer ${accessToken}`,
@@ -35,7 +35,7 @@ export default function Channels() {
 		const mode = "leave";
 		const toEmit = {id, room, userName, mode}
 		try {
-			const res = await fetch("http://localhost:3000/channels/leave", {
+			const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/channels/leave`, {
 				method: "POST",
 				credentials: "include",
 				headers: {

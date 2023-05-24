@@ -7,9 +7,7 @@ import {
 } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { userInfo42Dto } from "../auth/dto";
-import { Prisma, User, UserStatus } from "@prisma/client";
-import { createReadStream } from "fs";
-import { AvatarFile, User, UserStatus } from "@prisma/client";
+import { Prisma, User, UserStatus , AvatarFile} from "@prisma/client";
 import { authenticator } from "otplib";
 import { toDataURL } from "qrcode";
 import { GameType } from "../game/types/game.type";
@@ -263,8 +261,12 @@ export class UserService {
 					},
 				},
 			},
-		});/prisma/schema.prisma
-
+		});
+		const ownedGames = await this.prisma.user.findUnique({
+			where: { id: userId },
+			select: {
+				ownedGames: {
+					select: {
 						owner: {
 							select: {
 								userName: true,

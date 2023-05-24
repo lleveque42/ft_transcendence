@@ -57,7 +57,7 @@ export default function NewChannel() {
 		}
 		try {
 			const res: Response = await fetch(
-				"http://localhost:3000/channels/create_channel",
+				`${process.env.REACT_APP_BACKEND_URL}/channels/create_channel`,
 				{
 					method: "POST",
 					credentials: "include",
@@ -77,6 +77,9 @@ export default function NewChannel() {
 					socket.chatSocket?.emit("joinChatRoom",formValues.title);
 					navigate("/chat/channels");
 				}
+			}
+			else{
+				// to doooo
 			}
 		} catch (e) {
 			console.error("Fatal error");

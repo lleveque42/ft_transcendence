@@ -38,7 +38,7 @@ export default function EditChannel() {
 	useEffect(() => {
 		(async () => {
 			try {
-				await fetch(`http://localhost:3000/channels/edit/${title}`, {
+				await fetch(`${process.env.REACT_APP_BACKEND_URL}/channels/edit/${title}`, {
 					credentials: "include",
 					headers: {
 						Authorization: `Bearer ${accessToken}`,
@@ -114,7 +114,7 @@ export default function EditChannel() {
 		);
 		try {
 			const res: Response = await fetch(
-				"http://localhost:3000/channels/edit_channel",
+				`${process.env.REACT_APP_BACKEND_URL}/channels/edit_channel`,
 				{
 					method: "POST",
 					credentials: "include",
@@ -131,6 +131,9 @@ export default function EditChannel() {
 				);
 				chatSocket?.emit("joinChatRoom", formValues.title);
 				navigate("/chat/channels");
+			}
+			else {
+				// To dooooooooooooooo
 			}
 		} catch (e) {
 			console.error("Fatal error");

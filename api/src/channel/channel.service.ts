@@ -420,6 +420,7 @@ export class ChannelService {
 	async getPublicChannelsToJoin(userId: number): Promise<Channel[]> {
 		const chans = await this.prisma.channel.findMany({
 			where: {
+				type: "Channel",
 				mode: "Public",
 				members: {
 					none: {
