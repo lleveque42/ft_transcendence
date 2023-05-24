@@ -8,33 +8,34 @@ import { useAlert } from "../../context/AlertProvider";
 import styles from "./DirectMessages.module.scss";
 
 export default function DirectMessages() {
-
-	const { user ,isAuth, accessToken} = useUser();
-	const [directMessagesState, setDirectMessagesState] = useState<ChannelModel[]>([]);
-	const {chatSocket} = usePrivateRouteSocket();
+	const { user, isAuth, accessToken } = useUser();
+	const [directMessagesState, setDirectMessagesState] = useState<
+		ChannelModel[]
+	>([]);
+	const { chatSocket } = usePrivateRouteSocket();
 	const { showAlert } = useAlert();
 
 	useEffect(() => {
 		(async () => {
 			try {
-				await fetch(`${process.env.REACT_APP_BACKEND_URL}/channels/dm/${user.userName}`, {
-					credentials: "include",
-					headers: {
-						Authorization: `Bearer ${accessToken}`,
+				await fetch(
+					`${process.env.REACT_APP_BACKEND_URL}/channels/dm/${user.userName}`,
+					{
+						credentials: "include",
+						headers: {
+							Authorization: `Bearer ${accessToken}`,
+						},
 					},
-				})
-				.then((res) => res.json())
-				.then(
-				(chans) => {
-					setDirectMessagesState(chans);
-				}
-				);
-            } catch (e) {
-			}
-        })();
-    }, [user.userName, accessToken]);
+				)
+					.then((res) => res.json())
+					.then((chans) => {
+						setDirectMessagesState(chans);
+					});
+			} catch (e) {}
+		})();
+	}, [user.userName, accessToken]);
 
-	async function handleBlock(channel : ChannelModel) {
+	async function handleBlock(channel: ChannelModel) {
 		const room = channel?.title;
 		const id = channel?.id;
 		const userTopName = user.userName;
@@ -46,32 +47,34 @@ export default function DirectMessages() {
 		const userName2 = userList.at(1)?.userName;
 		let userBottomName = "";
 		let userBottomId = 0;
-		if (userId1 && userId2 && userName1 && userName2){
-			userBottomId = (userId1 === user.id) ? userId2 : userId1;
-			userBottomName = (userName1 === user.userName) ? userName2 : userName1;
+		if (userId1 && userId2 && userName1 && userName2) {
+			userBottomId = userId1 === user.id ? userId2 : userId1;
+			userBottomName = userName1 === user.userName ? userName2 : userName1;
 		}
-		const match = user.blockList.filter((el) =>{
-			return (el.id === userBottomId);
-		} )
-		const boolMatch : boolean = match.length > 0 ? true : false;
-		if (boolMatch)
-		{
+		const match = user.blockList.filter((el) => {
+			return el.id === userBottomId;
+		});
+		const boolMatch: boolean = match.length > 0 ? true : false;
+		if (boolMatch) {
 			showAlert("error", userBottomName + " is already blocked");
-			return ;
+			return;
 		}
 		const mode = "block";
-		const data = {userTopName , userTopId, userBottomName, userBottomId}
-		const toEmit = {id, room, userTopName, mode}
+		const data = { userTopName, userTopId, userBottomName, userBottomId };
+		const toEmit = { id, room, userTopName, mode };
 		try {
-			const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/user/block`, {
-				method: "POST",
-				credentials: "include",
-				headers: {
-					"Content-Type": "application/json",
+			const res = await fetch(
+				`${process.env.REACT_APP_BACKEND_URL}/user/block`,
+				{
+					method: "POST",
+					credentials: "include",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify(data),
 				},
-				body: JSON.stringify(data),
-			})
-			chatSocket?.emit("blockUser", toEmit);			
+			);
+			chatSocket?.emit("blockUser", toEmit);
 			if (res.status === 201) {
 				isAuth();
 				showAlert("success", "You've just blocked " + userBottomName);
@@ -79,73 +82,70 @@ export default function DirectMessages() {
 		} catch (e) {
 			console.error("Error blocking from user");
 		}
-	  }
+	}
 
-  const directMessageList = directMessagesState.map((channel) => {
-	const members = channel.members;
-	let membersDetails;
-	if (members){
-		membersDetails = members.map((member) => {
-			return ( member.id !== user.id &&
-				<p className={styles.listElems} key={member.id}>{member.userName}</p>
+	const directMessageList = directMessagesState.map((channel) => {
+		// const members = channel.members;
+
+		const members = [
+			{ id: 1, userName: "Denis" },
+			{ id: 2, userName: "Denis" },
+			{ id: 3, userName: "Denis" },
+			{ id: 4, userName: "Denis" },
+			{ id: 5, userName: "Denis" },
+			{ id: 6, userName: "Denis" },
+			{ id: 7, userName: "Denis" },
+			{ id: 8, userName: "Denis" },
+			{ id: 9, userName: "Denis" },
+			{ id: 10, userName: "Denis" },
+			{ id: 11, userName: "Denis" },
+			{ id: 12, userName: "Denis" },
+			{ id: 13, userName: "Denis" },
+			{ id: 14, userName: "Denis" },
+			{ id: 15, userName: "Denis" },
+			{ id: 17, userName: "Denis" },
+			{ id: 16, userName: "Denis" },
+			{ id: 18, userName: "Denis" },
+			{ id: 19, userName: "Denis" },
+		];
+		// let membersDetails;
+		if (members) {
+			return members.map((member) => {
+				return (
+					member.id !== user.id && (
+						<p className={styles.listElems} key={member.id}>
+							{member.userName}
+						</p>
+					)
 				);
 			});
-			
-			return (
-				<div key={channel.id} className="d-flex flex-raw justify-content align-items">
-					<NavLink key={channel.id} className={``}  to={`/chat/direct_messages/${channel.title}`} >
-						{membersDetails}	
-					</NavLink >
-					
-					<button onClick={() => handleBlock(channel)} className="btn-danger ml-10">
-						Block
-					</button>
-				</div>
-	);
-	}
-	return (<p key={"0"}></p>)
-  });
 
-useEffect(() => {
-	const DirectMessagesListener = (chan: ChannelModel) => {
-		const {id,
-			title,
-			type,
-			mode,
-			ownerId,
-			members,
-			messages,
-			operators,
-			banList,
-			mutedList} = chan;
-			setDirectMessagesState([...directMessagesState, {id, title, type, mode, ownerId, members, messages, operators, banList, mutedList}]);
-	}
-	
-	chatSocket?.on("userJoinedDM", DirectMessagesListener);
-	chatSocket?.on("receivedDirectMessage", DirectMessagesListener);
-	return () => {
-		chatSocket?.off("receivedDirectMessage", DirectMessagesListener);
-		chatSocket?.off("userJoinedDM", DirectMessagesListener);
+			// return (
+			// 	<div
+			// 		key={channel.id}
+			// 		className="d-flex flex-row justify-content align-items"
+			// 	>
+			// 		<NavLink
+			// 			key={channel.id}
+			// 			className={``}
+			// 			to={`/chat/direct_messages/${channel.title}`}
+			// 		>
+			// 			{membersDetails}
+			// 		</NavLink>
 
-	}
-}, [chatSocket, directMessagesState])
+			// 		<button
+			// 			onClick={() => handleBlock(channel)}
+			// 			className="btn-danger ml-10"
+			// 		>
+			// 			Block
+			// 		</button>
+			// 	</div>
+			// );
+		}
+		return <p key={"0"}></p>;
+	});
 
-	return (
-		<div className="container d-flex flex-column justify-content align-items">
-			<div className="title">Chat messages</div>
-			<div>
-				<ChatNav/>
-				{
-					<>
-						<h1 className={`mt-20`}>Private messages ({directMessagesState.length})</h1>
-						<ul className="List m-20">{directMessageList}</ul>
-						<NavLink className={`btn-primary m-10 d-flex flex-column justify-content align-items`}  to='/chat/direct_messages/new_dm' >
-							New Direct Messages
-						</NavLink>
-					</>
-				}
-			</div>
-			{/* const directMessageList = directMessagesState.map((channel) => {
+			/* const directMessageList = directMessagesState.map((channel) => {
 		const members = channel.members;
 		if (members) {
 			return members.map((member) => {
@@ -163,8 +163,48 @@ useEffect(() => {
 			});
 		}
 		return <p key={"0"}></p>;
-	}); */}
-				{/* return (
+	}); */
+
+	useEffect(() => {
+		const DirectMessagesListener = (chan: ChannelModel) => {
+			const {
+				id,
+				title,
+				type,
+				mode,
+				ownerId,
+				members,
+				messages,
+				operators,
+				banList,
+				mutedList,
+			} = chan;
+			setDirectMessagesState([
+				...directMessagesState,
+				{
+					id,
+					title,
+					type,
+					mode,
+					ownerId,
+					members,
+					messages,
+					operators,
+					banList,
+					mutedList,
+				},
+			]);
+		};
+
+		chatSocket?.on("userJoinedDM", DirectMessagesListener);
+		chatSocket?.on("receivedDirectMessage", DirectMessagesListener);
+		return () => {
+			chatSocket?.off("receivedDirectMessage", DirectMessagesListener);
+			chatSocket?.off("userJoinedDM", DirectMessagesListener);
+		};
+	}, [chatSocket, directMessagesState]);
+
+	return (
 		<div className="d-flex flex-column align-items flex-1">
 			<div className="title mt-20">Chat</div>
 			<ChatNav />
@@ -178,7 +218,7 @@ useEffect(() => {
 							<ul>{directMessageList}</ul>
 						) : (
 							<p className="d-flex justify-content align-items m-10">
-								No private messages...{" "}
+								No private messages...
 							</p>
 						)}
 					</div>
@@ -191,7 +231,7 @@ useEffect(() => {
 						</NavLink>
 					</div>
 				</>
-			} */}
+			}
 		</div>
 	);
 }

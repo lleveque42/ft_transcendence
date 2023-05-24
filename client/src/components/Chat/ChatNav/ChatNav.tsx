@@ -17,7 +17,7 @@ export default function ChatNav() {
 					} p-20`}
 					to="/chat/direct_messages"
 				>
-					My messages
+					Messages
 				</NavLink>
 				<NavLink
 					className={`${styles.navLink} ${
@@ -25,7 +25,7 @@ export default function ChatNav() {
 					} p-20`}
 					to="/chat/channels"
 				>
-					My channels
+					Channels
 				</NavLink>
 			</div>
 		</>

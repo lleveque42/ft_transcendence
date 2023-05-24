@@ -21,7 +21,7 @@ export default function Login42() {
 					navigate("/settings");
 					showAlert(
 						"success",
-						"Welcome ! You can customize your profile on this page",
+						"Welcome ! You can customize your profile on this page.",
 					);
 				} else if (res.ok) {
 					if (res.headers.get("WWW-Authenticate") === "TFA") {
@@ -35,7 +35,7 @@ export default function Login42() {
 					const body = await res.json();
 					console.error("Error login42:", res.status, body.message);
 					navigate("/login");
-					showAlert("error", "Can't log with 42 account, try again later");
+					showAlert("error", "Can't log with 42 account, try again later.");
 				}
 			} catch (e) {
 				console.error("Error login42: ", e);
