@@ -6,7 +6,6 @@ import { useUser } from "../../context/UserProvider";
 import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
 import { useAlert } from "../../context/AlertProvider";
 import { UserModel } from "../../entities/entities";
-import styles from "./DirectMessages.module.scss";
 
 type FormValues = {
 	title: string;
@@ -93,7 +92,7 @@ export default function NewDM() {
 		}
 	}
 
-	const userList = usersState.filter((u) => u.id !== user.id);
+	// const userList = usersState.filter((u) => u.id !== user.id);
 
 	useEffect(() => {
 	setUsersList(usersState.map((el) => {
@@ -147,27 +146,28 @@ export default function NewDM() {
 		</div>
 	)
 }
-	{/* return (
-		<div className="d-flex flex-column align-items flex-1">
-			<div className="title mt-20">New DM</div>
-			<ChatNav />
-			<div className={`${styles.dmListContainer}`}>
-				{userList.length ? (
-					<ul>
-						{userList.map((u, i) => (
-							<p
-								key={u.id}
-								id={u.id.toString(10)}
-								onClick={handleClick}
-								className={styles.listElems}
-							>
-								{u.userName}
-							</p>
-						))}
-					</ul>
-				) : (
-					<div className="d-flex align-items justify-content m-30">
-						There are no new private messages avalaible for you...
-					</div>
-				)}
-			</div>) */}
+
+// {/* return (
+// <div className="d-flex flex-column align-items flex-1">
+// 	<div className="title mt-20">New DM</div>
+// 	<ChatNav />
+// 	<div className={`${styles.dmListContainer}`}>
+// 		{userList.length ? (
+// 			<ul>
+// 				{userList.map((u, i) => (
+// 					<p
+// 						key={u.id}
+// 						id={u.id.toString(10)}
+// 						onClick={handleClick}
+// 						className={styles.listElems}
+// 					>
+// 						{u.userName}
+// 					</p>
+// 				))}
+// 			</ul>
+// 		) : (
+// 			<div className="d-flex align-items justify-content m-30">
+// 				There are no new private messages avalaible for you...
+// 			</div>
+// 		)}
+// 	</div>) */}

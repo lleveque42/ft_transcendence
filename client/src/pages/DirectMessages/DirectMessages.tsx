@@ -1,6 +1,6 @@
 import ChatNav from "../../components/Chat/ChatNav/ChatNav";
 import { useEffect, useState } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { useUser } from "../../context/UserProvider";
 import { ChannelModel } from "../../entities/entities";
 import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
