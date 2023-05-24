@@ -7,8 +7,7 @@ import { KeyboardEvent } from "react"
 import { ChannelModel, MessageModel } from "../../entities/entities";
 import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
 import { useAlert } from "../../context/AlertProvider";
-import { addMinutes, isAfter } from 'date-fns';
-import { getAllMessagesInChan } from "../../api/chat";
+import { isAfter } from 'date-fns';
 
 export default function Channel() {
   
