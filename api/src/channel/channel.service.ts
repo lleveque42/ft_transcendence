@@ -526,6 +526,9 @@ export class ChannelService {
 				members:true,
 			}
 		});
+		if (!chan){
+			return null;
+		}
 		const user = await this.userService.getUserByUserName(userName);
 		const match = chan.members.filter((el) =>{
 			return (el.id === user.id);
@@ -551,23 +554,42 @@ export class ChannelService {
 			return null;
 		}
 	}
-	async getDMsMessages(title) {
+	async getDMsMessages(userName, title) {
 		const chan = await this.prisma.channel.findUnique({
 			where: {
 				title: title,
 			},
+			include: {
+				members:true,
+			}
 		});
-		if (chan) {
+		if (!chan){
+			return null;
+		}
+		const user = await this.userService.getUserByUserName(userName);
+		const match = chan.members.filter((el) =>{
+			return (el.id === user.id);
+		} )
+		const boolMatch : boolean = match.length > 0 ? true : false;
+		if (chan && user && boolMatch){
+			const chanWithoutMembers = await this.prisma.channel.findUnique({
+				where: {
+					title: title,
+				},
+			});
 			const msgs = await this.prisma.message.findMany({
 				include: {
 					author: true,
 					channel: true,
 				},
 				where: {
-					channel: chan,
+					channelId: chanWithoutMembers.id,
 				},
 			});
-			return msgs;
+			if (msgs){
+				console.log(msgs);
+				return msgs;
+			} else {return null}
 		} else {
 			return null;
 		}

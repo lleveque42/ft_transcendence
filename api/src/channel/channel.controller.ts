@@ -77,6 +77,7 @@ export class ChannelController {
 			throw new HttpException(e.message, e.status);
 		}
 	}
+	
 	@UseGuards(AtGuard)
 	@Get("/chan/:title")
 	async getChanMessages(@GetCurrentUser("sub") userName: string, @Param("title") title: string): Promise<Message[] | null> {
@@ -98,12 +99,13 @@ export class ChannelController {
 		}
 	}
 
+	@UseGuards(AtGuard)
 	@Get("/dm/chan/:title")
-	async getDMsMessages(
+	async getDMsMessages(@GetCurrentUser("sub") userName: string,
 		@Param("title") title: string,
 	): Promise<Message[] | null> {
 		try {
-			const msgs = await this.channelService.getDMsMessages(title);
+			const msgs = await this.channelService.getDMsMessages(userName, title);
 			return msgs;
 		} catch (e) {
 			throw new HttpException(e.message, e.status);
