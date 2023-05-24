@@ -79,7 +79,7 @@ export class ChannelController {
 	}
 
 	@Get("/chan/:title")
-	async getChanMessages(@Param("title") title: string): Promise<Message[]> {
+	async getChanMessages(@Param("title") title: string): Promise<Message[] | null> {
 		try {
 			const msgs = await this.channelService.getChanMessages(title);
 			return msgs;
@@ -106,8 +106,6 @@ export class ChannelController {
 			const msgs = await this.channelService.getDMsMessages(title);
 			return msgs;
 		} catch (e) {
-			console.log("NULL");
-
 			throw new HttpException(e.message, e.status);
 		}
 	}

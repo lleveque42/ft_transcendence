@@ -59,6 +59,8 @@ export default function Channel() {
 					}
 					);
             } catch (e) {
+				showAlert("error", "You tried to enter a channel with no rights to do so. Be careful young entrepeneur!!");
+				navigate("/chat/channels/");
 			}
 
         })();

@@ -6,12 +6,14 @@ import { KeyboardEvent } from "react";
 import Message from "../../components/Message/Message";
 import { MessageModel } from "../../entities/entities";
 import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
+import { useAlert } from "../../context/AlertProvider";
 
 export default function DirectMessage() {
   
 	const { user, accessToken } = useUser();
 	const {chatSocket} = usePrivateRouteSocket();
 	const navigate = useNavigate();
+	const { showAlert } = useAlert();
 	
 	const [value, setValue] = useState("");
 	const [messagesState, setMessagesState] = useState<Array<MessageModel>>([]);
@@ -35,6 +37,7 @@ export default function DirectMessage() {
 				}
 				);
             } catch (e) {
+				showAlert("error", "You tried to enter a dm with no rights to do so. Be careful young entrepeneur!!");
 				navigate("/chat/direct_messages/");
 			}
         })();
