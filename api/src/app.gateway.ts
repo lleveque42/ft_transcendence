@@ -13,6 +13,8 @@ import { Namespace, Socket } from "socket.io";
 import { UserService } from "./user/user.service";
 import { User, UserStatus } from "@prisma/client";
 import { OnlineUsers } from "./classes/OnlineUsers";
+import { GameGateway } from "./game/game.gateway";
+import { DISCONNECTION_TIMEOUT } from "./classes/OngoingGames";
 
 const DISCONNECTION_STATUS_TIMEOUT = 2000;
 
@@ -26,7 +28,10 @@ export class AppGateway
 	users: OnlineUsers = new OnlineUsers();
 	waitingReconnection: Set<number> = new Set<number>();
 
-	constructor(private userService: UserService) {}
+	constructor(
+		private userService: UserService,
+		private gameSocket: GameGateway,
+	) {}
 
 	afterInit(): any {
 		this.logger.log("Websocket AppGateway initialized.");
@@ -180,7 +185,6 @@ export class AppGateway
 
 	@SubscribeMessage("userStatusInGame")
 	async newInGameStatus(
-		@ConnectedSocket() client: Socket,
 		@MessageBody("ownerId") ownerId: number,
 		@MessageBody("playerId") playerId: number,
 		@MessageBody("inGame") inGame: boolean,
@@ -207,10 +211,28 @@ export class AppGateway
 			setTimeout(() => {
 				this.declineGameInvite(
 					userSender.id,
-					"Can't find user to invite, try again later",
+					"Can't find user to invite, try again later.",
 				);
-			}, 5000);
+			}, DISCONNECTION_TIMEOUT);
 		}
+	}
+
+	@SubscribeMessage("acceptGameInvite")
+	acceptGameInvite(
+		@ConnectedSocket() client: Socket,
+		@MessageBody("senderId") senderId: number,
+		@MessageBody("message") message: string,
+	) {
+		const player = this.users.getUserByClientId(client.id);
+		if (!player)
+			return this.users.emitAllbyUserId(senderId, "inviteDeclined", {
+				message,
+			});
+		this.gameSocket.createPrivateGame(senderId, player.id);
+		this.users.emitAllbyUserId(senderId, "inviteAccepted", {
+			playerId: player.id,
+			message,
+		});
 	}
 
 	@SubscribeMessage("declineGameInvite")

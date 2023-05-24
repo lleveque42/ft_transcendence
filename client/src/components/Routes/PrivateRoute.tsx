@@ -1,5 +1,5 @@
 import { ReactElement, useEffect, useState } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import Loader from "react-loaders";
 import Header from "../Header/Header";
 import Footer from "../Footer/Footer";
@@ -14,6 +14,7 @@ export default function PrivateRoute(props: {
 	play?: boolean | false;
 }): ReactElement {
 	const navigate = useNavigate();
+	const location = useLocation();
 	const { user, isAuth, updateOnlineFriend } = useUser();
 	const { showInvite, showAlert } = useAlert();
 	const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
@@ -71,11 +72,18 @@ export default function PrivateRoute(props: {
 					});
 				},
 			);
+			appSocket.on(
+				"inviteAccepted",
+				(data: { playerId: number; message: string }) => {
+					showAlert("success", data.message);
+					setTimeout(() => {
+						if (location.pathname === "/play") navigate(0);
+						else navigate("/play");
+					}, 500);
+				},
+			);
 			appSocket.on("inviteDeclined", (data: { message: string }) => {
-				showAlert(
-					"warning",
-					data.message,
-				);
+				showAlert("warning", data.message);
 			});
 			setSocket(appSocket);
 			chatSocket = io(`${process.env.REACT_APP_CHAT_URL}`, {

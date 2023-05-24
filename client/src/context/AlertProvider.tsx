@@ -6,6 +6,7 @@ import {
 	AlertType,
 	InviteProps,
 } from "../types";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export const ALERT_TIMEOUT = 3000;
 export const INVITE_TIMEOUT = 15000;
@@ -28,6 +29,8 @@ const AlertContext = createContext<AlertContextType>({
 });
 
 export const AlertProvider = ({ children }: AlertProviderProps) => {
+	const location = useLocation();
+	const navigate = useNavigate();
 	const [alert, setAlert] = useState<AlertProps | null>(initialAlertState());
 	const [isHiddenAlert, setIsHiddenAlert] = useState<boolean>(true);
 	const [invite, setInvite] = useState<InviteProps | null>(
@@ -71,12 +74,23 @@ export const AlertProvider = ({ children }: AlertProviderProps) => {
 		localStorage.removeItem("invite");
 		socket?.emit("declineGameInvite", {
 			senderId: props.senderId,
-			message: `${props.invitedUserName} declined your game invitation`,
+			message: `${props.invitedUserName} declined your game invitation.`,
 		});
 	}
 
 	function acceptInvite(props: InviteProps) {
-		
+		const { socket } = { ...props };
+		setIsHiddenInvite(true);
+		setInvite(null);
+		localStorage.removeItem("invite");
+		socket?.emit("acceptGameInvite", {
+			senderId: props.senderId,
+			message: `${props.invitedUserName} accepted your game invitation.`,
+		});
+		setTimeout(() => {
+			if (location.pathname === "/play") navigate(0);
+			else navigate("/play");
+		}, 500);
 	}
 
 	useEffect(() => {
@@ -97,10 +111,10 @@ export const AlertProvider = ({ children }: AlertProviderProps) => {
 	useEffect(() => {
 		let timeoutId: NodeJS.Timeout;
 		if (invite) {
-			setIsHiddenInvite(false);
 			timeoutId = setTimeout(() => {
 				declineInvite(invite);
 			}, INVITE_TIMEOUT);
+			setIsHiddenInvite(false);
 		}
 		return () => {
 			if (timeoutId) clearTimeout(timeoutId);
