@@ -342,6 +342,10 @@ export default function Channel() {
 			console.error("Error adminishing from channel");
 		}
 	  }
+	  async function handleReturnToList() {
+		setInfoBool(true);
+		setuserBool(false);
+	  }
 
 	  useEffect(() => {
 		const chanListener = (chan: ChannelModel, username: string, mode : string) => {
@@ -443,7 +447,10 @@ export default function Channel() {
 										Mute
 									</button>
 								</>
-								}	
+								}
+								<button onClick={() => handleReturnToList()} className="btn-primary ml-10">
+									Return
+								</button>
 							</div>
 						}
 				</div>
