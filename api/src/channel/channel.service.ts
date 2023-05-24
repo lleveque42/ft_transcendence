@@ -517,27 +517,39 @@ export class ChannelService {
 		return chans;
 	}
 
-	async getChanMessages(title) {
+	async getChanMessages(userName, title) {
 		const chan = await this.prisma.channel.findUnique({
 			where: {
 				title: title,
 			},
+			include: {
+				members:true,
+			}
 		});
-		if (chan) {
+		const user = await this.userService.getUserByUserName(userName);
+		const match = chan.members.filter((el) =>{
+			return (el.id === user.id);
+		} )
+		const boolMatch : boolean = match.length > 0 ? true : false;
+		if (chan && user && boolMatch){
+			const chanWithoutMembers = await this.prisma.channel.findUnique({
+				where: {
+					title: title,
+				},
+			});
 			const msgs = await this.prisma.message.findMany({
 				include: {
 					author: true,
 					channel: true,
 				},
 				where: {
-					channel: chan,
+					channel: chanWithoutMembers,
 				},
 			});
 			return msgs;
 		} else {
 			return null;
-	}
-
+		}
 	}
 	async getDMsMessages(title) {
 		const chan = await this.prisma.channel.findUnique({

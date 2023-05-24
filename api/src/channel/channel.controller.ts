@@ -77,11 +77,11 @@ export class ChannelController {
 			throw new HttpException(e.message, e.status);
 		}
 	}
-
+	@UseGuards(AtGuard)
 	@Get("/chan/:title")
-	async getChanMessages(@Param("title") title: string): Promise<Message[] | null> {
+	async getChanMessages(@GetCurrentUser("sub") userName: string, @Param("title") title: string): Promise<Message[] | null> {
 		try {
-			const msgs = await this.channelService.getChanMessages(title);
+			const msgs = await this.channelService.getChanMessages(userName, title);
 			return msgs;
 		} catch (e) {
 			throw new HttpException(e.message, e.status);

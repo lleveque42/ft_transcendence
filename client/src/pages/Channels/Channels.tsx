@@ -11,7 +11,6 @@ export default function Channels() {
 	const {chatSocket} = usePrivateRouteSocket();
 	const { showAlert } = useAlert();
 	const [channelsState, setChannelsState] = useState<ChannelModel[]>([]);
-	const navigate = useNavigate();
 	
 	useEffect(() => {
 		(async () => {
