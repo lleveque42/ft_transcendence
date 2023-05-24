@@ -26,7 +26,6 @@ export default function DirectMessages() {
 					.then((res) => res.json())
 					.then((chans) => {
 						setDirectMessagesState(chans);
-						// console.log(chans);
 					});
 			} catch (e) {}
 		})();
@@ -34,26 +33,6 @@ export default function DirectMessages() {
 
 	const directMessageList = directMessagesState.map((channel) => {
 		const members = channel.members;
-		// console.log(members);
-		// const members = [
-		// 	{ id: 1, userName: "Denis" },
-		// 	{ id: 2, userName: "Denis" },
-		// 	{ id: 3, userName: "Denis" },
-		// 	{ id: 4, userName: "Denis" },
-		// 	{ id: 5, userName: "Denis" },
-		// 	{ id: 6, userName: "Denis" },
-		// 	{ id: 7, userName: "Denis" },
-		// 	{ id: 8, userName: "Denis" },
-		// 	{ id: 9, userName: "Denis" },
-		// 	{ id: 10, userName: "Denis" },
-		// 	{ id: 11, userName: "Denis" },
-		// 	{ id: 12, userName: "Denis" },
-		// 	{ id: 13, userName: "Denis" },
-		// 	{ id: 14, userName: "Denis" },
-		// 	{ id: 15, userName: "Denis" },
-		// 	{ id: 16, userName: "Denis" },
-		// ];
-
 		if (members) {
 			return members.map((member) => {
 				return (
@@ -96,7 +75,13 @@ export default function DirectMessages() {
 						<h2 className="d-flex justify-content p-10">
 							Private messages ({directMessagesState.length})
 						</h2>
-						<ul>{directMessageList}</ul>
+						{directMessageList.length ? (
+							<ul>{directMessageList}</ul>
+						) : (
+							<p className="d-flex justify-content align-items m-10">
+								No private messages...{" "}
+							</p>
+						)}
 					</div>
 					<div className="d-flex justify-content">
 						<NavLink

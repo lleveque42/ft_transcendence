@@ -38,6 +38,10 @@
 				text-decoration-color: var(--primary);
 			}
 		}
+
+		.activeNavLink {
+			color: var(--primary);
+		}
 	}
 	.menuTrigger img {
 		height: 3.5rem;

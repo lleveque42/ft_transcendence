@@ -84,34 +84,32 @@ export default function NewDM() {
 			console.error("Error joining channel");
 		}
 	}
-
-	const userList = usersState.map(
-		(el) =>
-			user.id !== el.id && (
-				<p
-					key={el.id}
-					id={el.id.toString(10)}
-					onClick={handleClick}
-					className={styles.listElems}
-				>
-					{el.userName}
-				</p>
-			),
-	);
+	const userList = usersState.filter((u) => u.id !== user.id);
 
 	return (
 		<div className="d-flex flex-column align-items flex-1">
 			<div className="title mt-20">New DM</div>
 			<ChatNav />
-			{userList.length ? (
-				<div className={`${styles.dmListContainer}`}>
-					<ul>{userList}</ul>
-				</div>
-			) : (
-				<div className="d-flex flex-column align-items mt-30 w-50">
-					There are no private messages avalaible for you...
-				</div>
-			)}
+			<div className={`${styles.dmListContainer}`}>
+				{userList.length ? (
+					<ul>
+						{userList.map((u, i) => (
+							<p
+								key={u.id}
+								id={u.id.toString(10)}
+								onClick={handleClick}
+								className={styles.listElems}
+							>
+								{u.userName}
+							</p>
+						))}
+					</ul>
+				) : (
+					<div className="d-flex align-items justify-content m-30">
+						There are no new private messages avalaible for you...
+					</div>
+				)}
+			</div>
 		</div>
 	);
 }
