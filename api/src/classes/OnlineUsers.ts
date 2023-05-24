@@ -93,10 +93,20 @@ export class OnlineUsers {
 		user.sockets.set(client.id, client);
 	}
 
-	emitAllbyUserId(userId: number, emit: string, content: any) {
-		this.getClientsByUserId(userId).forEach((client) => {
-			client.emit(emit, content);
-		});
+	emitAllbyUserId(
+		userId: number,
+		emit: string,
+		content: any,
+		content2?: any | undefined,
+	) {
+		if (!content2)
+			this.getClientsByUserId(userId).forEach((client) => {
+				client.emit(emit, content);
+			});
+		else
+			this.getClientsByUserId(userId).forEach((client) => {
+				client.emit(emit, content, content2);
+			});
 	}
 
 	joinAllbyUserId(userId: number, room: string) {

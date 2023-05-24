@@ -23,6 +23,7 @@ import { useNavigate } from "react-router-dom";
 import Options from "./components/Common/Options/Options";
 import { MapStatus } from "./enums/MapStatus";
 import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
+import Loader from "react-loaders";
 
 export default function Play() {
 	const { user } = useUser();
@@ -30,7 +31,7 @@ export default function Play() {
 	const { socket } = usePrivateRouteSocket();
 	const { gameSocket } = useGameSocket();
 	const [mapOption, setMapOption] = useState<MapStatus>(
-		MapStatus.default
+		MapStatus.default,
 		// MapStatus.space,
 		// MapStatus.city
 	);
@@ -129,8 +130,12 @@ export default function Play() {
 					);
 					setGameUserStatus(GameUserStatus.choosingOptions);
 				} else setGameUserStatus(GameUserStatus.connected);
+				gameSocket?.off("privateGameDisconnection");
 			},
 		);
+		gameSocket?.once("privateGameDisconnection", () => {
+			setGameUserStatus(GameUserStatus.gameCancelled);
+		});
 		gameSocket?.emit("getConnectionStatus");
 	}
 
@@ -333,7 +338,13 @@ export default function Play() {
 		<div
 			className={`container ${styles.gamePage} d-flex flex-column align-items justify-content`}
 		>
-			{gameUserStatus === GameUserStatus.notConnected && <>Connecting...</>}
+			{gameUserStatus === GameUserStatus.notConnected && (
+				<div
+					className={`${styles.sizeContainer} d-flex flex-column align-items justify-content mb-20`}
+				>
+					<Loader type="ball-zig-zag" innerClassName="nobody-loader" active />
+				</div>
+			)}
 			{gameUserStatus === GameUserStatus.alreadyConnected && (
 				<>
 					You are already playing on another device or browser. Please

@@ -1,65 +1,156 @@
+import { createContext, useContext, useEffect, useState } from "react";
 import {
-	ReactNode,
-	createContext,
-	useContext,
-	useEffect,
-	useState,
-} from "react";
+	AlertContextType,
+	AlertProps,
+	AlertProviderProps,
+	AlertType,
+	InviteProps,
+} from "../types";
+import { useLocation, useNavigate } from "react-router-dom";
 
-type AlertType = "success" | "error" | "info" | "warning";
+export const ALERT_TIMEOUT = 3000;
+export const INVITE_TIMEOUT = 15000;
 
-interface AlertContextType {
-	showAlert: (type: AlertType, message: string) => void;
+function initialAlertState() {
+	const storedAlert = localStorage.getItem("alert");
+	if (storedAlert) return JSON.parse(storedAlert);
+	return null;
 }
 
-interface AlertProviderProps {
-	children: ReactNode;
-}
-
-interface AlertProps {
-	type: AlertType;
-	message: string;
+function initialInviteState() {
+	const storedInvite = localStorage.getItem("invite"); // Not sure if it's secure
+	if (storedInvite) return JSON.parse(storedInvite);
+	return null;
 }
 
 const AlertContext = createContext<AlertContextType>({
 	showAlert: () => {},
+	showInvite: () => {},
 });
 
 export const AlertProvider = ({ children }: AlertProviderProps) => {
-	const [alert, setAlert] = useState<AlertProps | null>(() => {
-		const storedAlert = localStorage.getItem("alert");
-		if (storedAlert) return JSON.parse(storedAlert);
-		return null;
-	});
-	const [isHidden, setIsHidden] = useState<boolean>(true);
+	const location = useLocation();
+	const navigate = useNavigate();
+	const [alert, setAlert] = useState<AlertProps | null>(initialAlertState());
+	const [isHiddenAlert, setIsHiddenAlert] = useState<boolean>(true);
+	const [invite, setInvite] = useState<InviteProps | null>(
+		initialInviteState(),
+	);
+	const [isHiddenInvite, setIsHiddenInvite] = useState<boolean>(true);
 
 	const showAlert = (type: AlertType, message: string) => {
 		setAlert({ type, message });
-		setIsHidden(false);
+		setIsHiddenAlert(false);
 		localStorage.setItem("alert", JSON.stringify({ type, message }));
 	};
+
+	const showInvite = (props: InviteProps) => {
+		const { socket } = { ...props };
+		const alreayInInvite = localStorage.getItem("invite");
+		if (!alreayInInvite) {
+			setInvite({ ...props });
+			setIsHiddenInvite(false);
+			localStorage.setItem(
+				"invite",
+				JSON.stringify({
+					senderId: props.senderId,
+					senderUserName: props.senderUserName,
+					invitedId: props.invitedId,
+					invitedUserName: props.invitedUserName,
+				}),
+			);
+		} else {
+			socket?.emit("declineGameInvite", {
+				senderId: props.senderId,
+				message: `${props.invitedUserName} is already invited, try again later`,
+			});
+		}
+	};
+
+	function declineInvite(props: InviteProps) {
+		const { socket } = { ...props };
+		setIsHiddenInvite(true);
+		setInvite(null);
+		localStorage.removeItem("invite");
+		socket?.emit("declineGameInvite", {
+			senderId: props.senderId,
+			message: `${props.invitedUserName} declined your game invitation.`,
+		});
+	}
+
+	function acceptInvite(props: InviteProps) {
+		const { socket } = { ...props };
+		setIsHiddenInvite(true);
+		setInvite(null);
+		localStorage.removeItem("invite");
+		socket?.emit("acceptGameInvite", {
+			senderId: props.senderId,
+			message: `${props.invitedUserName} accepted your game invitation.`,
+		});
+		setTimeout(() => {
+			if (location.pathname === "/play") navigate(0);
+			else navigate("/play");
+		}, 500);
+	}
 
 	useEffect(() => {
 		let timeoutId: NodeJS.Timeout;
 		if (alert) {
-			setIsHidden(false);
+			setIsHiddenAlert(false);
 			timeoutId = setTimeout(() => {
-				setIsHidden(true);
+				setIsHiddenAlert(true);
 				setAlert(null);
 				localStorage.removeItem("alert");
-			}, 3000);
+			}, ALERT_TIMEOUT);
 		}
-
 		return () => {
 			if (timeoutId) clearTimeout(timeoutId);
 		};
 	}, [alert]);
 
+	useEffect(() => {
+		let timeoutId: NodeJS.Timeout;
+		if (invite) {
+			timeoutId = setTimeout(() => {
+				declineInvite(invite);
+			}, INVITE_TIMEOUT);
+			setIsHiddenInvite(false);
+		}
+		return () => {
+			if (timeoutId) clearTimeout(timeoutId);
+		};
+	}, [invite]);
+
 	return (
-		<AlertContext.Provider value={{ showAlert }}>
-			{alert && !isHidden && (
-				<div className={`alert alert-${alert.type} ${isHidden ? "hide" : ""}`}>
+		<AlertContext.Provider value={{ showAlert, showInvite }}>
+			{alert && !isHiddenAlert && (
+				<div
+					className={`alert alert-${alert.type} ${isHiddenAlert ? "hide" : ""}`}
+				>
 					{alert.message}
+				</div>
+			)}
+			{invite && !isHiddenInvite && (
+				<div
+					className={`d-flex flex-column alert alert-info${
+						isHiddenInvite ? "hide" : ""
+					}`}
+				>
+					{invite.senderUserName} invites you to play.
+					<div className="d-flex flex-row align-items justify-content mt-10">
+						<button
+							className="btn btn-success p-5 mr-10"
+							onClick={() => acceptInvite(invite)}
+						>
+							Accept
+						</button>
+						<button
+							className="btn btn-danger p-5"
+							onClick={() => declineInvite(invite)}
+						>
+							Decline
+						</button>
+					</div>
 				</div>
 			)}
 			{children}
