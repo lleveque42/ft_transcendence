@@ -68,13 +68,3 @@ networks:
 
 volumes:
   database:
-
-
-  # admin:
-  #   image: adminer
-  #   container_name: adminer
-  #   restart: always
-  #   depends_on:
-  #     - db
-  #   ports:
-  #     - 8080:8080

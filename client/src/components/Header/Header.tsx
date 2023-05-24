@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import styles from "./Header.module.scss";
 import { useEffect, useRef, useState } from "react";
 import useAvatar from "../../hooks/useAvatar";
@@ -13,6 +13,9 @@ export default function Header() {
 	const [userAvatar, setUserAvatar] = useState<string>("");
 	const menuRef = useRef<HTMLDivElement>(null);
 	const [isLoading, setIsLoading] = useState<boolean>(true);
+	const location = useLocation();
+	const channelsMatch = location.pathname.startsWith("/chat");
+	const usersMatch = location.pathname.startsWith("/user");
 
 	const signout = () => {
 		logout();
@@ -47,10 +50,16 @@ export default function Header() {
 							}}
 						/>
 						<div className={`${styles.headerNav} d-flex align-items ml-30`}>
-							<h3 className="" onClick={() => navigate("/users")}>
+							<h3
+								className={`${usersMatch ? styles.activeNavLink : ""}`}
+								onClick={() => navigate("/users")}
+							>
 								Users
 							</h3>
-							<h3 className="ml-20" onClick={() => navigate("/chat")}>
+							<h3
+								className={`${channelsMatch ? styles.activeNavLink : ""} ml-20`}
+								onClick={() => navigate("/chat/direct_messages")}
+							>
 								Chat
 							</h3>
 						</div>

@@ -13,10 +13,12 @@ import { Namespace, Socket } from "socket.io";
 import { UserService } from "./user/user.service";
 import { User, UserStatus } from "@prisma/client";
 import { OnlineUsers } from "./classes/OnlineUsers";
+import { GameGateway } from "./game/game.gateway";
+import { DISCONNECTION_TIMEOUT } from "./classes/OngoingGames";
 
 const DISCONNECTION_STATUS_TIMEOUT = 2000;
 
-@WebSocketGateway(8001, { cors: "*" })
+@WebSocketGateway(8001, { cors: process.env.FRONTEND_URL })
 export class AppGateway
 	implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
@@ -26,10 +28,33 @@ export class AppGateway
 	users: OnlineUsers = new OnlineUsers();
 	waitingReconnection: Set<number> = new Set<number>();
 
-	constructor(private userService: UserService) {}
+	constructor(
+		private userService: UserService,
+		private gameSocket: GameGateway,
+	) {}
 
 	afterInit(): any {
 		this.logger.log("Websocket AppGateway initialized.");
+	}
+
+	async emitAllUserFriends(
+		user: User,
+		socketMsg: string,
+		id: number,
+		userName: string,
+		status: UserStatus,
+	) {
+		const onlineFriends = await this.users.getFriendsOfByUserId(
+			user.id,
+			this.userService,
+		);
+		for (let friend of onlineFriends) {
+			this.users.emitAllbyUserId(friend.id, socketMsg, {
+				id: id,
+				userName: userName,
+				status: status,
+			});
+		}
 	}
 
 	async changeUserStatus(
@@ -42,19 +67,22 @@ export class AppGateway
 			: online
 			? UserStatus.ONLINE
 			: UserStatus.OFFLINE;
-		await this.userService.changeUserStatus(user.id, newStatus);
 		this.users.updateStatus(user.id, newStatus);
-		let onlineFriends = await this.users.getFriendsOfByUserId(
+		await this.userService.changeUserStatus(user.id, newStatus);
+		this.emitAllUserFriends(
+			user,
+			"updateOnlineFriend",
 			user.id,
-			this.userService,
+			user.userName,
+			newStatus,
 		);
-		for (let friend of onlineFriends) {
-			this.users.emitAllbyUserId(friend.id, "updateOnlineFriend", {
-				id: user.id,
-				userName: user.userName,
-				status: newStatus,
-			});
-		}
+		this.emitAllUserFriends(
+			user,
+			"userStatusUpdatedUsersList",
+			user.id,
+			user.userName,
+			newStatus,
+		);
 	}
 
 	async handleDisconnect(client: Socket) {
@@ -131,27 +159,23 @@ export class AppGateway
 		@ConnectedSocket() client: Socket,
 		@MessageBody() newUserName: string,
 	) {
-		const user = this.users.getUserByClientId(client.id);
-		this.users.updateUserName(user.id, newUserName);
-
+		let user = this.users.getUserByClientId(client.id);
+		if (!user) return;
+		this.users.updateUserName(user, newUserName);
+		user = this.users.getUserByClientId(client.id);
+		if (!user) return;
 		this.io.emit("userNameUpdatedProfile", {
 			id: user.id,
 			userName: newUserName,
 			status: user.status,
 		});
-
-		const onlineFriends = await this.users.getFriendsOfByUserId(
+		this.emitAllUserFriends(
+			user,
+			"updateOnlineFriend",
 			user.id,
-			this.userService,
+			user.userName,
+			user.status,
 		);
-		for (let friend of onlineFriends) {
-			this.users.emitAllbyUserId(friend.id, "updateOnlineFriend", {
-				id: user.id,
-				userName: newUserName,
-				status: user.status,
-			});
-		}
-
 		this.io.emit("userNameUpdatedUsersList", {
 			id: user.id,
 			userName: newUserName,
@@ -161,7 +185,6 @@ export class AppGateway
 
 	@SubscribeMessage("userStatusInGame")
 	async newInGameStatus(
-		@ConnectedSocket() client: Socket,
 		@MessageBody("ownerId") ownerId: number,
 		@MessageBody("playerId") playerId: number,
 		@MessageBody("inGame") inGame: boolean,
@@ -169,8 +192,56 @@ export class AppGateway
 		const owner = this.users.getUserByUserId(ownerId);
 		const player = this.users.getUserByUserId(playerId);
 		if (owner) await this.changeUserStatus(owner, true, inGame);
-		setTimeout(async () => {
-			if (player) await this.changeUserStatus(player, true, inGame);
-		}, 50);
+		if (player) await this.changeUserStatus(player, true, inGame);
+	}
+
+	@SubscribeMessage("sendGameInvite")
+	sendGameInvite(
+		@MessageBody("sender") sender: number,
+		@MessageBody("invited") invited: number,
+	) {
+		const userInvited = this.users.getUserByUserId(invited);
+		const userSender = this.users.getUserByUserId(sender);
+		if (userInvited) {
+			this.users.emitAllbyUserId(userInvited.id, "inviteGameRequest", {
+				senderId: userSender.id,
+				senderUserName: userSender.userName,
+			});
+		} else {
+			setTimeout(() => {
+				this.declineGameInvite(
+					userSender.id,
+					"Can't find user to invite, try again later.",
+				);
+			}, DISCONNECTION_TIMEOUT);
+		}
+	}
+
+	@SubscribeMessage("acceptGameInvite")
+	acceptGameInvite(
+		@ConnectedSocket() client: Socket,
+		@MessageBody("senderId") senderId: number,
+		@MessageBody("message") message: string,
+	) {
+		const player = this.users.getUserByClientId(client.id);
+		if (!player)
+			return this.users.emitAllbyUserId(senderId, "inviteDeclined", {
+				message,
+			});
+		this.gameSocket.createPrivateGame(senderId, player.id);
+		this.users.emitAllbyUserId(senderId, "inviteAccepted", {
+			playerId: player.id,
+			message,
+		});
+	}
+
+	@SubscribeMessage("declineGameInvite")
+	declineGameInvite(
+		@MessageBody("senderId") senderId: number,
+		@MessageBody("message") message: string,
+	) {
+		this.users.emitAllbyUserId(senderId, "inviteDeclined", {
+			message,
+		});
 	}
 }

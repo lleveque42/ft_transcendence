@@ -23,25 +23,34 @@ export default function Users() {
 	const [isLoading, setIsloading] = useState<boolean>(true);
 	const [usersList, setUsersList] = useState<UsersList[]>([]);
 
-	function sortUsersList(list: UsersList[]) {
-		if (list.length > 1) {
-			list.sort((a: UsersList, b: UsersList) =>
-				a.userName.localeCompare(b.userName),
-			);
-		}
-		return list;
+	function sortUsersList(list: UsersList[]): UsersList[] {
+		return list.sort((a: UsersList, b: UsersList) =>
+			a.userName.localeCompare(b.userName),
+		);
 	}
 
 	function updateUserInList(userToUpdate: NewUserName | Friend | UsersList) {
-		const userInList = usersList.find((u) => u.id === userToUpdate.id);
-		if (!userInList) return;
+		setUsersList((prevUsersList) => {
+			const updatedList = prevUsersList.map((u) => {
+				if (u.id === userToUpdate.id) return { ...u, ...userToUpdate };
+				return u;
+			});
+			return sortUsersList(updatedList);
+		});
+	}
 
-		const userUpdated: UsersList = { ...userInList, ...userToUpdate };
-		const newUsersList = [
-			...usersList.filter((u) => u.id !== userInList.id),
-			userUpdated,
-		];
-		setUsersList(sortUsersList(newUsersList));
+	function updateUsersFriends() {
+		setUsersList((prevUsersList) => {
+			const updatedList = prevUsersList.map((u) => {
+				if (u.isFriend) {
+					const friend = user.friends.find((f) => f.id === u.id);
+					if (friend)
+						return { ...u, status: friend.status, userName: friend.userName };
+				}
+				return u;
+			});
+			return sortUsersList(updatedList);
+		});
 	}
 
 	function updateUsersListFriendship(userId: number, nowFriend: boolean) {
@@ -58,24 +67,6 @@ export default function Users() {
 			userToUpdate.status = null;
 			updateUserInList(userToUpdate);
 		}
-	}
-
-	function cleanUsersList(data: any) {
-		let list: UsersList[] = [];
-		list = data
-			.filter((u: UsersList) => u.userName !== user.userName)
-			.map((u: UsersList) => {
-				const friend: Friend | undefined = user.friends.find(
-					(f: Friend) => f.userName === u.userName,
-				);
-				u.status = null;
-				if (friend) {
-					u.isFriend = true;
-					u.status = friend.status;
-				} else u.isFriend = false;
-				return u;
-			});
-		setUsersList(sortUsersList(list));
 	}
 
 	async function toggleFriendship(
@@ -100,6 +91,17 @@ export default function Users() {
 		}
 	}
 
+	function cleanUsersList(data: { id: number; userName: string }[]) {
+		const list = data
+			.filter((u: { id: number; userName: string }) => u.id !== user.id)
+			.map((u: { id: number; userName: string }) => ({
+				...u,
+				isFriend: user.friends.some((f: Friend) => f.id === u.id),
+				status: user.friends.find((f: Friend) => f.id === u.id)?.status || null,
+			}));
+		setUsersList(sortUsersList(list));
+	}
+
 	useEffect(() => {
 		async function getAllUsers() {
 			const res = await getAllUsersRequest(accessToken);
@@ -114,17 +116,15 @@ export default function Users() {
 	}, []);
 
 	useEffect(() => {
+		updateUsersFriends();
 		socket?.on("userNameUpdatedUsersList", (userSender: NewUserName) => {
 			updateUserInList(userSender);
-		});
-		socket?.on("updateOnlineFriend", (friend: Friend) => {
-			updateUserInList(friend);
 		});
 		return () => {
 			socket?.off("userNameUpdatedUsersList");
 		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [socket, user.friends, usersList]);
+	}, [socket, user.friends]);
 
 	return (
 		<>
@@ -141,7 +141,7 @@ export default function Users() {
 					{!usersList.length ? (
 						<>
 							<h1
-								className={` ${styles.nobodyTitle} d-flex flex-1 justify-content mt-20`}
+								className={`${styles.nobodyTitle} d-flex flex-1 justify-content mt-20`}
 							>
 								You are alone...
 							</h1>
@@ -190,10 +190,22 @@ export default function Users() {
 												}
 											/>
 										)}
-										<i
-											className={`${styles.playIcon} fa-solid fa-gamepad ml-20`}
-											onClick={() => navigate("/play")}
-										/>
+										{(u.isFriend && u.status === UserStatus.ONLINE) ||
+										!u.isFriend ? (
+											<i
+												className={`${styles.gamepadIcon} fa-solid fa-gamepad ml-20`}
+												onClick={() =>
+													socket?.emit("sendGameInvite", {
+														sender: user.id,
+														invited: u.id,
+													})
+												}
+											/>
+										) : (
+											<i
+												className={`${styles.gamepadDisconnectedIcon} fa-solid fa-gamepad ml-20`}
+											/>
+										)}
 										<i
 											className={`${styles.dmIcon} fa-solid fa-envelope ml-20 mr-20`}
 											onClick={() => navigate("/chat")}

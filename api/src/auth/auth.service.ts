@@ -93,7 +93,7 @@ export class AuthService {
 			"CLIENT_42_UID",
 		)}&client_secret=${this.config.get(
 			"CLIENT_42_SECRET",
-		)}&code=${code}&redirect_uri=http%3A%2F%2Flocalhost%3A3001%2Flogin42`;
+		)}&code=${code}&redirect_uri=http%3A%2F%2F${this.config.get("DUMP_NAME")}%3A3001%2Flogin42`;
 		const res = await fetch(urlToken, {
 			method: "POST",
 		});
@@ -198,8 +198,8 @@ export class AuthService {
 
 	createAuthCookie(token: string, res: Response) {
 		res.cookie("_jwt", token, {
+			// secure: true, for httpsonly or localhost
 			sameSite: "strict",
-			secure: true,
 			httpOnly: true,
 			maxAge: 36000000, // 1h=3600000 | 10h=36000000
 		});

@@ -64,9 +64,13 @@ export class AuthController {
 	async refresh(
 		@GetCurrentUser("email") userEmail: string,
 	): Promise<{ accessToken: string; userData: UserDataRefresh }> {
-		const accessToken = await this.authService.newTokens(userEmail);
 		const user = await this.userService.getUserByEmail(userEmail);
+		if (!user)
+			throw new HttpException("Can't find user", HttpStatus.UNAUTHORIZED);
+		const accessToken = await this.authService.newTokens(userEmail);
 		const { friends } = await this.userService.getUserFriends(user);
+		const { blockList } = await this.userService.getUserBlockList(user);
+
 		return {
 			accessToken: accessToken.access_token,
 			userData: {
@@ -78,6 +82,7 @@ export class AuthController {
 				status: user.status,
 				isTfaEnable: user.isTfaEnable,
 				friends: friends,
+				blockList: blockList,
 			},
 		};
 	}

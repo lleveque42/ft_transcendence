@@ -38,19 +38,16 @@ export class ChannelController {
 	}
 
 	@UseGuards(AtGuard)
-	@Get("")
+	@Get("/join")
 	async getPublicChannelsToJoin(
 		@GetCurrentUser("sub") userName: string,
 	): Promise<Channel[]> {
 		try {
 			const user = await this.userService.getUserByUserName(userName);
-			console.log(user);
-
 			const channels = await this.channelService.getPublicChannelsToJoin(
 				user.id,
 			);
 			console.log(channels);
-
 			return channels;
 		} catch (e) {
 			throw new HttpException(e.message, e.status);
@@ -102,11 +99,15 @@ export class ChannelController {
 	}
 
 	@Get("/dm/chan/:title")
-	async getDMsMessages(@Param("title") title: string): Promise<Message[]> {
+	async getDMsMessages(
+		@Param("title") title: string,
+	): Promise<Message[] | null> {
 		try {
 			const msgs = await this.channelService.getDMsMessages(title);
 			return msgs;
 		} catch (e) {
+			console.log("NULL");
+
 			throw new HttpException(e.message, e.status);
 		}
 	}
@@ -160,11 +161,90 @@ export class ChannelController {
 		}
 	}
 
+	@Post("leave")
+	async leaveFromChannel(
+		@Body() body,
+		@Res({ passthrough: true }) res: Response,
+	) {
+		try {
+			const chan = await this.channelService.leaveFromChannel(
+				body.userName,
+				body.id,
+				body.room,
+			);
+			res.json("OK");
+		} catch (e) {
+			res.json("Error while leaving");
+		}
+	}
+
+	@Post("kick")
+	async kickFromChannel(
+		@Body() body,
+		@Res({ passthrough: true }) res: Response,
+	) {
+		try {
+			const chan = await this.channelService.kickFromChannel(
+				body.userName,
+				body.id,
+			);
+			res.json("OK");
+		} catch (e) {
+			res.json("Error while kicking");
+		}
+	}
+
+	@Post("ban")
+	async banFromChannel(
+		@Body() body,
+		@Res({ passthrough: true }) res: Response,
+	) {
+		try {
+			const chan = await this.channelService.banFromChannel(
+				body.userName,
+				body.id,
+			);
+			res.json("OK");
+		} catch (e) {
+			res.json("Error while banishing");
+		}
+	}
+
+	@Post("mute")
+	async muteInChannel(@Body() body, @Res({ passthrough: true }) res: Response) {
+		try {
+			const chan = await this.channelService.muteInChannel(
+				body.chanId,
+				body.userId,
+				body.mutedEnd,
+			);
+			res.json("OK");
+		} catch (e) {
+			res.json("Error while muting");
+		}
+	}
+
+	@Post("admin")
+	async adminOfChannel(
+		@Body() body,
+		@Res({ passthrough: true }) res: Response,
+	) {
+		try {
+			const chan = await this.channelService.adminOfChannel(
+				body.userName,
+				body.id,
+			);
+			res.json("OK");
+		} catch (e) {
+			res.json("Error while adminishing");
+		}
+	}
+
 	@Post("create_join_dm")
 	async createDM(
 		@Body() body,
 		@Res({ passthrough: true }) res: Response,
-	): Promise<Channel> {
+	): Promise<void> {
 		try {
 			const channel = await this.channelService.createDM(
 				{
@@ -176,9 +256,9 @@ export class ChannelController {
 				body.id1,
 				body.id2,
 			);
-			return channel;
+			res.json("OK");
 		} catch (e) {
-			throw new HttpException(e.message, e.status);
+			res.json("Duplicate");
 		}
 	}
 

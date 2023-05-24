@@ -7,11 +7,9 @@ import {
 } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { userInfo42Dto } from "../auth/dto";
-import { User, UserStatus } from "@prisma/client";
-import { createReadStream } from "fs";
+import { Prisma, User, UserStatus , AvatarFile} from "@prisma/client";
 import { authenticator } from "otplib";
 import { toDataURL } from "qrcode";
-import * as fs from "fs";
 import { GameType } from "../game/types/game.type";
 import { GameInfosType } from "../common/types";
 
@@ -74,33 +72,51 @@ export class UserService {
 	async uploadAvatar(userName: string, file: Express.Multer.File) {
 		const user = await this.getUserByUserName(userName);
 		if (!user) throw new ForbiddenException("Can't find user, try again");
-		try {
-			await fs.promises.unlink(user.avatar);
-		} catch (e) {}
-		const fileUrl = process.cwd() + `./files/avatars/${file.filename}`;
-		await this.prisma.user.update({
-			where: {
-				email: user.email,
-			},
-			data: {
-				avatar: fileUrl,
+		const avatarFile = await this.getAvatarFile(user);
+		if (!avatarFile) {
+			const newAvatarFile = await this.prisma.avatarFile.create({
+				data: {
+					name: `${user.id}_avatar`,
+					size: file.size,
+					data: file.buffer,
+					user: { connect: { id: user.id } },
+				},
+			});
+			await this.prisma.user.update({
+				where: { id: user.id },
+				data: {
+					avatarFile: { connect: { id: newAvatarFile.id } },
+				},
+			});
+		} else {
+			await this.prisma.avatarFile.update({
+				where: {
+					id: avatarFile.id,
+				},
+				data: {
+					size: file.size,
+					data: file.buffer,
+				},
+			});
+		}
+	}
+
+	async getAvatarFile(user: User): Promise<AvatarFile | null> {
+		const avatarFile = await this.prisma.user.findUnique({
+			where: { id: user.id },
+			select: {
+				avatarFile: true,
 			},
 		});
+		return avatarFile.avatarFile;
 	}
 
 	async getAvatar(user: User): Promise<StreamableFile | String> {
-		if (!user.avatar || user.avatar === "") {
-			throw new HttpException("Can't provide avatar", HttpStatus.NO_CONTENT);
-		} else if (
-			user.avatar.includes("/files/avatars/") &&
-			fs.existsSync(user.avatar)
-		) {
-			return new StreamableFile(createReadStream(user.avatar));
-		} else if (user.avatar.includes("https://cdn.intra.42.fr/users/")) {
+		const avatarFile = await this.getAvatarFile(user);
+		if (avatarFile) return new StreamableFile(avatarFile.data);
+		if (user.avatar && user.avatar.includes("https://cdn.intra.42.fr/users/"))
 			return user.avatar;
-		} else {
-			throw new HttpException("Can't provide avatar", HttpStatus.NO_CONTENT);
-		}
+		throw new HttpException("Can't provide avatar", HttpStatus.NO_CONTENT);
 	}
 
 	async updateUserName(userName: string, newUserName: string): Promise<User> {
@@ -142,6 +158,27 @@ export class UserService {
 		});
 		list.friends.sort((a: any, b: any) => a.userName.localeCompare(b.userName));
 		return list;
+	}
+
+	async getUserBlockList(user: User): Promise<{
+		blockList: {
+			id: number;
+			userName: string;
+		}[];
+	}> {
+		return await this.prisma.user.findUnique({
+			where: {
+				id: user.id,
+			},
+			select: {
+				blockList: {
+					select: {
+						id: true,
+						userName: true,
+					},
+				},
+			},
+		});
 	}
 
 	async getUserFriendsOf(user: User): Promise<{
@@ -190,6 +227,10 @@ export class UserService {
 						},
 					},
 				},
+				userName: { not: userName },
+			},
+			include: {
+				blockList: true,
 			},
 		});
 		return users;
@@ -383,5 +424,34 @@ export class UserService {
 	async dropdb(): Promise<void> {
 		// to del
 		await this.prisma.user.deleteMany({});
+	}
+
+	async blockUser(
+		userTopName: string,
+		userTopId: number,
+		userBottomName: string,
+		userBottomId: number,
+	) {
+		try {
+			const chan = await this.prisma.user.update({
+				where: {
+					id: userTopId,
+				},
+				data: {
+					blockList: {
+						connect: { id: userBottomId },
+					},
+				},
+			});
+		} catch (error) {
+			if (
+				error instanceof Prisma.PrismaClientKnownRequestError &&
+				error.code === "P2002"
+			) {
+				throw new ForbiddenException("Duplicate key value");
+			} else {
+				console.log("Error in update");
+			}
+		}
 	}
 }

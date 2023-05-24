@@ -15,6 +15,7 @@ type UserContextValue = {
 		lastName: string;
 		isTfaEnable: boolean;
 		status: UserStatus;
+		blockList: { id : number; userName: string}[];
 		friends: Friend[];
 	};
 };
@@ -33,6 +34,7 @@ const UserContext = createContext<UserContextValue>({
 		isTfaEnable: false,
 		status: UserStatus.ONLINE,
 		friends: [],
+		blockList: [],
 	},
 });
 
@@ -48,6 +50,7 @@ export type UserDataState = {
 	lastName: string;
 	isTfaEnable: boolean;
 	status: UserStatus;
+	blockList: { id : number; userName: string}[];
 	friends: Friend[];
 };
 
@@ -62,14 +65,14 @@ export const UserProvider = ({ children }: UserProviderProps) => {
 		isTfaEnable: false,
 		status: UserStatus.ONLINE,
 		friends: [],
+		blockList: [],
 	});
 
 	const isAuth = async (): Promise<boolean> => {
 		const res = await isAuthRequest();
 		if (res && res.ok) {
-			if (res.status === 204) {
+			if (res.status === 204)
 				return false;
-			}
 			const data = await res.json();
 			setAccessToken(data.accessToken);
 			setUser(data.userData);
@@ -87,14 +90,16 @@ export const UserProvider = ({ children }: UserProviderProps) => {
 	};
 
 	const updateOnlineFriend = (friend: Friend) => {
-		const newFriendsList = [
-			...user.friends.filter((f) => f.id !== friend.id),
-			friend,
-		];
-		newFriendsList.sort((a: Friend, b: Friend) =>
-			a.userName.localeCompare(b.userName),
-		);
-		setUser({ ...user, friends: newFriendsList });
+		setUser((prevUser) => {
+			const updatedFriendsList = prevUser.friends.map((f) => {
+				if (f.id === friend.id) return { ...f, ...friend };
+				return f;
+			});
+			updatedFriendsList.sort((a: Friend, b: Friend) =>
+				a.userName.localeCompare(b.userName),
+			);
+			return { ...prevUser, friends: updatedFriendsList };
+		});
 	};
 
 	return (

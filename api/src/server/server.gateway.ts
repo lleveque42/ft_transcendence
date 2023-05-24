@@ -16,7 +16,7 @@ import { HttpException, Logger } from "@nestjs/common";
 import { OnlineUsers } from "../classes/OnlineUsers";
 import { User } from "@prisma/client";
 
-@WebSocketGateway(8001, { namespace: "chat", cors: "*" })
+@WebSocketGateway(8001, { namespace: "chat", cors: process.env.FRONTEND_URL })
 export class ServerGateway
 	implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
@@ -67,14 +67,12 @@ export class ServerGateway
 		// Function to join all rooms
 		const clients = this.users.getClientsByUserId(user.id);
 		const channels = await this.channelService.getUsersChannels(user.userName);
-		console.log("Joining Channels");
 		clients.forEach((value) => {
 			for (let chan of channels) {
 				console.log("This socket : " + value.id + " joined " + chan.title);
 				value.join(chan.title);
 			}
 		});
-		console.log("Joining DM's");
 		const dms = await this.channelService.getUsersDMs(user.userName);
 		clients.forEach((value) => {
 			for (let dm of dms) {
@@ -82,7 +80,6 @@ export class ServerGateway
 				value.join(dm.title);
 			}
 		});
-
 		this.logger.log(`WS Client ${client.id} (${user.userName}) connected !`);
 		this.logger.log(`${this.users.size} user(s) connected !`);
 	}
@@ -91,10 +88,6 @@ export class ServerGateway
 	async handlePrivateMessage(
 		@MessageBody() data: { sender; message; socket; receiver },
 	): Promise<void> {
-		console.log("Sender :" + data.sender);
-		console.log("Content :" + data.message);
-		console.log("Socket :" + data.socket);
-		console.log("Receiver :" + data.receiver);
 		try {
 			this.userService.setUserSocket(data.sender, data.socket);
 			const sender = await this.userService.getUserByUserName(data.sender);
@@ -126,31 +119,37 @@ export class ServerGateway
 		data: {
 			room: string;
 			message: string;
-			value: string;
+			// value: string;
 		},
 	): Promise<void> {
+		console.log(client.rooms);
+		const rooms: Set<string> = client.rooms;
+		const val = [...rooms][0];
+		let isInChannel: boolean = false;
+		rooms.forEach((room) => {
+			if (room === data.room) {
+				isInChannel = true;
+			}
+		});
+		if (!isInChannel) {
+			console.log(val);
+			this.io
+				.to(val)
+				.emit(
+					"errorSendingMessage",
+					await this.users.getUserByClientId(client.id).userName,
+				);
+			return;
+		}
 		try {
 			const msg = await this.messageService.createNewNessage(
 				{
 					content: data.message,
 				},
-				this.users.getUserByClientId(client.id).userName,
+				this.users.getUserByClientId(client.id).id,
 				data.room,
 			);
-			console.log(msg);
 			if (msg) {
-				console.log(
-					"Sender " +
-						msg.authorId +
-						" in channel : *" +
-						msg.channelId +
-						"* content: *" +
-						msg.content +
-						"* at *" +
-						data.room +
-						"*" +
-						" ",
-				);
 				this.io.to(data.room).emit("receivedMessage", msg);
 			} else {
 				console.log("No msg created");
@@ -173,6 +172,9 @@ export class ServerGateway
 		for (const socket of sockets) {
 			socket[1].join(chanName);
 		}
+		const chan = await this.channelService.getChannelByTitle(chanName);
+		this.io.to(chanName).emit("userJoinedChan", chan);
+		this.io.emit("addChannelToJoin", chan);
 	}
 
 	@SubscribeMessage("joinDMRoom")
@@ -182,17 +184,9 @@ export class ServerGateway
 		data: {
 			room: string;
 			userId2: string;
+			userId: string;
 		},
 	): Promise<void> {
-		console.log(
-			"The socket " +
-				client.id +
-				" trying to connect to the dm " +
-				data.room +
-				" with " +
-				data.userId2 +
-				".",
-		);
 		const sockets = this.users.getClientsByClientId(client.id);
 		const sockets2 = this.users.getClientsByUserId(parseInt(data.userId2, 10));
 		for (const socket of sockets) {
@@ -201,11 +195,80 @@ export class ServerGateway
 		for (const socket of sockets2) {
 			socket[1].join(data.room);
 		}
+		this.io.to(data.room).emit("userExpel", data.userId);
+		const chan = await this.channelService.getChannelByTitle(data.room);
+		this.io.to(data.room).emit("userJoinedDM", chan);
+	}
+
+	@SubscribeMessage("exitChatRoom")
+	async handleExitChanRoom(
+		@ConnectedSocket() client: Socket,
+		@MessageBody()
+		data: {
+			id: number;
+			room: string;
+			userName: string;
+			mode: string;
+		},
+	): Promise<void> {
+		console.log(data);
+
 		this.io
 			.to(data.room)
 			.emit(
-				"receivedDirectMessage",
+				"kickOrBanOrLeaveFromChannel",
 				await this.channelService.getChannelByTitle(data.room),
+				data.userName,
+				data.mode,
+			);
+		const user = await this.userService.getUserByUserName(data.userName);
+		const sockets = await this.users.getClientsByUserId(user.id);
+		for (const socket of sockets) {
+			socket[1].leave(data.room);
+		}
+	}
+
+	@SubscribeMessage("MuteInChatRoom")
+	async handleMuteInChatChanRoom(
+		@ConnectedSocket() client: Socket,
+		@MessageBody()
+		data: {
+			id: string;
+			room: string;
+			userName: string;
+			mode: string;
+		},
+	): Promise<void> {
+		console.log(data);
+		console.log(data.room);
+		this.io
+			.to(data.id)
+			.emit(
+				"refreshMute",
+				await this.channelService.getChannelByTitle(data.id),
+				data.userName,
+				data.mode,
+			);
+	}
+
+	@SubscribeMessage("adminChatRoom")
+	async handleAdminChanRoom(
+		@ConnectedSocket() client: Socket,
+		@MessageBody()
+		data: {
+			id: number;
+			room: string;
+			userName: string;
+			mode: string;
+		},
+	): Promise<void> {
+		this.io
+			.to(data.room)
+			.emit(
+				"adminJoinedChan",
+				await this.channelService.getChannelByTitle(data.room),
+				data.userName,
+				data.mode,
 			);
 	}
 }

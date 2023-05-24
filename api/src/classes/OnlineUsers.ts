@@ -51,11 +51,9 @@ export class OnlineUsers {
 		});
 	}
 
-	updateUserName(userId: number, newUserName: string) {
-		const user: User = this.getUserByUserId(userId);
-		if (!user) return;
-		const sockets: Map<string, Socket> = this.getClientsByUserId(userId);
-		this._users.set(userId, {
+	updateUserName(user: User, newUserName: string) {
+		const sockets: Map<string, Socket> = this.getClientsByUserId(user.id);
+		this._users.set(user.id, {
 			user: { ...user, userName: newUserName },
 			sockets: sockets,
 		});
@@ -95,10 +93,20 @@ export class OnlineUsers {
 		user.sockets.set(client.id, client);
 	}
 
-	emitAllbyUserId(userId: number, emit: string, content: any) {
-		this.getClientsByUserId(userId).forEach((client) => {
-			client.emit(emit, content);
-		});
+	emitAllbyUserId(
+		userId: number,
+		emit: string,
+		content: any,
+		content2?: any | undefined,
+	) {
+		if (!content2)
+			this.getClientsByUserId(userId).forEach((client) => {
+				client.emit(emit, content);
+			});
+		else
+			this.getClientsByUserId(userId).forEach((client) => {
+				client.emit(emit, content, content2);
+			});
 	}
 
 	joinAllbyUserId(userId: number, room: string) {

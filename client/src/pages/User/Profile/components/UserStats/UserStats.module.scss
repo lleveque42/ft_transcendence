@@ -74,6 +74,9 @@
 .listTitle {
 	@include mixin.sm-lt {
 		font-size: 0.6rem;
+		p {
+			padding-left: 1.7rem;
+		}
 	}
 }
 
@@ -96,6 +99,9 @@
 			text-decoration: underline;
 			text-underline-offset: 0.3em;
 			text-decoration-color: var(--primary);
+		}
+		@include mixin.sm-lt {
+			padding-left: 1rem;
 		}
 	}
 

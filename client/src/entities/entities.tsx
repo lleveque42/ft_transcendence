@@ -54,28 +54,32 @@ export class MessageModel implements Message {
 
 export interface Channel {
 	id: number;
-	title?: string;
+	title: string;
 	password?: string;
 	type: string;
 	mode: string;
 	// owner?: User;
 	ownerId?: number;
-	// operators: User[];
+	operators: User[];
 	members: User[];
 	messages: Message[];
+	banList: User[];
+	mutedList: Muted[];
   }
 
   export class ChannelModel implements Channel {
 	id: number;
-	title?: string;
+	title: string;
 	password?: string;
 	type: string;
 	mode: string;
 	// owner?: UserModel;
 	ownerId?: number;
-	// operators: UserModel[];
+	operators: UserModel[];
 	members: UserModel[];
 	messages: Message[];
+	banList: User[];
+	mutedList: Muted[];
   
 	constructor(data: Channel) {
 	  this.id = data.id;
@@ -85,8 +89,27 @@ export interface Channel {
 	  this.mode = data.mode;
 	  this.ownerId = data.ownerId;
 	//   this.owner = data.owner ? new UserModel(data.owner) : undefined;
-	//   this.operators = data.operators.map(user => new UserModel(user));
+	  this.operators = data.operators.map(user => new UserModel(user));
 	  this.members = data.members.map(user => new UserModel(user));
 	  this.messages = data.messages;
+	  this.banList = data.banList;
+	  this.mutedList = data.mutedList;
+	}
+  }
+  export interface Muted {
+	id: number;
+	userId :number;
+	muteExpiration: Date;
+  }
+
+  export class MutedModel implements Muted {
+	id: number;
+	userId :number;
+	muteExpiration: Date;
+
+	constructor(data: Muted) {
+	  this.id = data.id;
+	  this.userId = data.userId;
+	  this.muteExpiration = data.muteExpiration;
 	}
   }

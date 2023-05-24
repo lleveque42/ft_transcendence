@@ -4,7 +4,7 @@ import styles from "./UserPresentation.module.scss";
 import { toggleFriendshipRequest } from "../../../../../api";
 import { UserStatus } from "../../../../../types/UserStatus.enum";
 
-type UserProfileProps = {
+type UserPresentationProps = {
 	userProfile: {
 		userName: string;
 		firstName: string;
@@ -20,7 +20,7 @@ const UserPresentation = ({
 	userProfile,
 	userProfileAvatar,
 	isFriend,
-}: UserProfileProps) => {
+}: UserPresentationProps) => {
 	const { accessToken, isAuth, user } = useUser();
 	const { showAlert } = useAlert();
 	const navigate = useNavigate();
