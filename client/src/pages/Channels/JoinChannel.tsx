@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../../context/UserProvider";
 import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
+import { Channel, ChannelModel } from "../../entities/entities";
 
 type FormValues = {
 	userId: number;
@@ -11,8 +12,8 @@ type FormValues = {
 
 export default function JoinChannel() {
 	const { accessToken, user } = useUser();
-	const [channelsState, setChannelsState] = useState([]);
-
+	const [channelsState, setChannelsState] = useState<ChannelModel[]>([]);
+	const {chatSocket} = usePrivateRouteSocket();
 	const socket = usePrivateRouteSocket();
 
 	const navigate = useNavigate();
@@ -34,13 +35,19 @@ export default function JoinChannel() {
 		})();
 	}, [user.userName, accessToken]);
 
-	async function handleClick(event: MouseEvent) {
-		const target = event.target as HTMLButtonElement;
-		const value = target.value;
-		const channelId = parseInt(value);
-		const userId = user.id;
+	useEffect(() => {
+		const chanListener = (chan: ChannelModel, username: string, mode : string) => {
+			setChannelsState([...channelsState , chan ]);
+		}
+		chatSocket?.on("addChannelToJoin", chanListener)
+		return () => {
+			chatSocket?.off("addChannelToJoin",);
+		}
+	  }, [chatSocket, navigate, user.userName])
+
+	async function handleClick(channelId: number, title: string) {
 		const formValues: FormValues = {
-			userId: userId,
+			userId: user.id,
 			channelId: channelId,
 		};
 		try {
@@ -52,11 +59,9 @@ export default function JoinChannel() {
 				},
 				body: JSON.stringify(formValues),
 			});
-			socket.chatSocket?.emit("joinChatRoom", target.textContent);
+			socket.chatSocket?.emit("joinChatRoom", title);
 			if (res.status === 201) {
-				navigate("/chat/channels");
-			} else if (res.ok) {
-				navigate("/chat/channels");
+				navigate(`/chat/channels/${title}`);
 			}else {
 				// to dooooooooo
 			}
@@ -65,30 +70,23 @@ export default function JoinChannel() {
 		}
 	}
 
-	const buttons = document.querySelectorAll("button");
-	buttons.forEach((button) => button.addEventListener("click", handleClick));
-
-	const channelsList = channelsState.map(({ id, title, ownerId }) => (
-		<li key={id}>
+	const channelsList = channelsState.map(({ id, title, ownerId }) => {
+		return (
+			<li key={id}>
 			<div>
 				{user.id !== ownerId ? (
 					<>
-						<button className={` btn-primary m-10`} value={id}>
+						<button className={` btn-primary m-10`} value={id} onClick={()=> handleClick(id, title)}>
 							{title}
 						</button>
 					</>
 				) : (
 					<>
-						{/* <NavLink className={`m-10`}  to={`/chat/channels/${title}`} >
-						<span>
-							{title}
-						</span>
-					</NavLink> */}
 					</>
 				)}
 			</div>
 		</li>
-	));
+)} );
 
 	return (
 		<div className="d-flex flex-column align-items flex-1">

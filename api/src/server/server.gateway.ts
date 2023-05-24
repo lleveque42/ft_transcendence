@@ -174,6 +174,7 @@ export class ServerGateway
 		}
 		const chan = await this.channelService.getChannelByTitle(chanName);
 		this.io.to(chanName).emit("userJoinedChan", chan);
+		this.io.emit("addChannelToJoin", chan);
 	}
 
 	@SubscribeMessage("joinDMRoom")
