@@ -1,14 +1,12 @@
-import React from "react";
 import ChatNav from "../../components/Chat/ChatNav/ChatNav";
 import { useEffect, useState } from "react";
-import { NavLink} from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { useUser } from "../../context/UserProvider";
 import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
 import { ChannelModel } from "../../entities/entities";
 import { useAlert } from "../../context/AlertProvider";
 
 export default function Channels() {
-  
 	const { accessToken, user } = useUser();
 	const {chatSocket} = usePrivateRouteSocket();
 	const { showAlert } = useAlert();
@@ -23,16 +21,13 @@ export default function Channels() {
 						Authorization: `Bearer ${accessToken}`,
 					},
 				})
-				.then((res) => res.json())
-				.then(
-				(chans) => {
-					setChannelsState(chans);
-				}
-				);
-            } catch (e) {
-			}
-        })();
-    }, [user.userName, accessToken]);
+					.then((res) => res.json())
+					.then((chans) => {
+						setChannelsState(chans);
+					});
+			} catch (e) {}
+		})();
+	}, [user.userName, accessToken]);
 
 	async function handleLeaveClick(userName : string, id: number, room: string) {
 		
@@ -97,18 +92,24 @@ export default function Channels() {
 	  }, [channelsState, chatSocket, showAlert, user.userName])
 
 	return (
-		<div className="container d-flex flex-column justify-content align-items">
-			<div className="title">Chat channels</div>
+		<div className="d-flex flex-column align-items flex-1">
+			<div className="title mt-20">Channels</div>
 			<div>
-				<ChatNav/>
+				<ChatNav />
 				{
 					<>
 						<h1 className="mt-20">Channels ({channelsState.length})</h1>
 						<ul className="List m-20">{channelsList}</ul>
-						<NavLink className={`btn-primary m-10 d-flex flex-column justify-content align-items`}  to='/chat/channels/new_channel' >
+						<NavLink
+							className={`btn-primary m-10 d-flex flex-column justify-content align-items`}
+							to="/chat/channels/new_channel"
+						>
 							New Channel
 						</NavLink>
-						<NavLink className={`btn-primary m-10 d-flex flex-column justify-content align-items`}  to='/chat/channels/join_channel' >
+						<NavLink
+							className={`btn-primary m-10 d-flex flex-column justify-content align-items`}
+							to="/chat/channels/join_channel"
+						>
 							Join Channel
 						</NavLink>
 					</>

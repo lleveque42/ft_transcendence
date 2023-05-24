@@ -6,27 +6,27 @@ import { useUser } from "../../context/UserProvider";
 import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
 import { useAlert } from "../../context/AlertProvider";
 import { UserModel } from "../../entities/entities";
+import styles from "./DirectMessages.module.scss";
 
 type FormValues = {
 	title: string;
 	mode: string;
 	password: string;
-    type: string;
-    id1: number;
-    id2: number;
+	type: string;
+	id1: number;
+	id2: number;
 };
 
 const initialFormValues: FormValues = {
-    title: "",
+	title: "",
 	mode: "public",
 	password: "",
-    type: "",
-	id1 : 0,
-	id2 : 0,
+	type: "",
+	id1: 0,
+	id2: 0,
 };
 
 export default function NewDM() {
-  
 	const { accessToken, user } = useUser();
 	const [usersState, setUsersState] = useState<{ id: number; userName: string ; blockList: UserModel[]}[]>([]);
 	const [usersList, setUsersList] = useState<JSX.Element[]>([]);
@@ -44,20 +44,17 @@ export default function NewDM() {
 						Authorization: `Bearer ${accessToken}`,
 					},
 				})
-				.then((res) => res.json())
-				.then(
-				(users) => {
-					setUsersState(users);
-				}
-				);
-            } catch (e) {
-			}
-        })();
-    }, [user.userName, accessToken]);
+					.then((res) => res.json())
+					.then((users) => {
+						setUsersState(users);
+					});
+			} catch (e) {}
+		})();
+	}, [user.userName, accessToken]);
 
 	async function handleClick(event: React.MouseEvent<HTMLLIElement>) {
 		event.preventDefault();
-		const target = event.target as HTMLLIElement;
+		const target = event.target as HTMLParagraphElement;
 		const userId = target.id;
 		let formValues: FormValues = initialFormValues;
 		formValues.id1 = user.id;
@@ -94,7 +91,9 @@ export default function NewDM() {
 		} catch (e) {
 			console.error("Error joining channel");
 		}
-	};
+	}
+
+	const userList = usersState.filter((u) => u.id !== user.id);
 
 	useEffect(() => {
 	setUsersList(usersState.map((el) => {
@@ -128,7 +127,7 @@ export default function NewDM() {
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [chatSocket, usersState])
 	
-return (
+	return (
 		<div className="container d-flex flex-column justify-content align-items">
 			<div className="title">Start a new private chat</div>
 			<div>
@@ -144,7 +143,31 @@ return (
 						</div>
 					}
 				</div>
-			</div>
+				</div>
 		</div>
-	);
+	)
 }
+	{/* return (
+		<div className="d-flex flex-column align-items flex-1">
+			<div className="title mt-20">New DM</div>
+			<ChatNav />
+			<div className={`${styles.dmListContainer}`}>
+				{userList.length ? (
+					<ul>
+						{userList.map((u, i) => (
+							<p
+								key={u.id}
+								id={u.id.toString(10)}
+								onClick={handleClick}
+								className={styles.listElems}
+							>
+								{u.userName}
+							</p>
+						))}
+					</ul>
+				) : (
+					<div className="d-flex align-items justify-content m-30">
+						There are no new private messages avalaible for you...
+					</div>
+				)}
+			</div>) */}

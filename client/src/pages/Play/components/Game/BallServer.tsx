@@ -11,6 +11,9 @@ import {
 	PADDLE_WIDTH,
 	BALL_REBOUND_Y_MULTIPLIER,
 	BALL_1ST_REBOUND_X_SPEED_MULTIPLIER,
+	BALL_SPACE_COLOR,
+	BALL_CITY_COLOR,
+	BALL_DEFAULT_COLOR,
 } from "../GameUtils/Constant";
 import {
 	randomBallDir,
@@ -20,6 +23,7 @@ import {
 	floorToDecimal,
 } from "../GameUtils/Utils";
 import { Socket } from "socket.io-client";
+import { MapStatus } from "../../enums/MapStatus";
 
 const enum Collision {
 	NO_HIT,
@@ -47,6 +51,7 @@ interface BallProps {
 	socket: Socket | null;
 	room: string;
 	ballMultiplier: number;
+	map: MapStatus;
 }
 
 export default function BallServer({
@@ -55,10 +60,23 @@ export default function BallServer({
 	socket,
 	room,
 	ballMultiplier,
+	map,
 }: BallProps) {
 	const ball = useRef<THREE.Mesh>(null!);
 	const [xSpeedMultiplier, setXSpeedMultiplier] = useState(ballMultiplier);
 	const [dirVector, setDirVector] = useState(randomBallDir());
+	let ballColor;
+
+	switch (map) {
+		case MapStatus.space:
+			ballColor = BALL_SPACE_COLOR;
+			break;
+		case MapStatus.city:
+			ballColor = BALL_CITY_COLOR;
+			break;
+		default:
+			ballColor = BALL_DEFAULT_COLOR;
+	}
 
 	function newBall(): void {
 		ball.current.position.x = 0;
@@ -222,9 +240,16 @@ export default function BallServer({
 	return (
 		<mesh position={[0, 0, 0]} ref={ball}>
 			<sphereGeometry args={[BALL_RADIUS]} />
-
-			{/* <boxGeometry args={[PADDLE_WIDTH, PADDLE_WIDTH, PADDLE_WIDTH]} /> */}
-			<meshStandardMaterial color="#74b9ff" />
+			{/* {map === MapStatus.space && (
+				<pointLight
+					position={[
+						ball.current?.position.x | 0,
+						ball.current?.position.y | 0,
+						0,
+					]}
+				/>
+			)} */}
+			<meshStandardMaterial color={ballColor} />
 		</mesh>
 	);
 }

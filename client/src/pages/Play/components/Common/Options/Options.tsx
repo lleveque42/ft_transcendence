@@ -4,7 +4,9 @@ import { useState } from "react";
 import { Toggle } from "../../../../../components/Toggle/Toggle";
 import { MapStatus } from "../../../enums/MapStatus";
 import styles from "./Options.module.scss";
-import map from "../../../../../assets/images/70233661-49009838.jpg";
+import defaultMap from "../../../../../assets/images/maps/default.png";
+import cityMap from "../../../../../assets/images/maps/city.png";
+import spaceMap from "../../../../../assets/images/maps/space.png";
 
 interface OptionsProps {
 	gameSocket: Socket | null;
@@ -40,7 +42,7 @@ export default function Options({
 			<div className={`${styles.mapToggler} mb-10`}>
 				<div className="underTitle mb-10">Chose map:</div>
 				<img
-					src={map}
+					src={defaultMap}
 					alt="default"
 					className={`${
 						mapToggle === MapStatus.default
@@ -53,7 +55,7 @@ export default function Options({
 					}}
 				/>
 				<img
-					src={map}
+					src={cityMap}
 					alt="city"
 					className={`${
 						mapToggle === MapStatus.city
@@ -65,7 +67,7 @@ export default function Options({
 						setMapOption(MapStatus.city);
 					}}
 				/>
-				<img
+				{/* <img
 					src={map}
 					alt="postApo"
 					className={`${
@@ -77,9 +79,9 @@ export default function Options({
 						setMapToggle(MapStatus.postApo);
 						setMapOption(MapStatus.postApo);
 					}}
-				/>
+				/> */}
 				<img
-					src={map}
+					src={spaceMap}
 					alt="space"
 					className={`${
 						mapToggle === MapStatus.space

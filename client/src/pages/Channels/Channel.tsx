@@ -1,4 +1,3 @@
-
 import ChatNav from "../../components/Chat/ChatNav/ChatNav";
 import Message from "../../components/Message/Message";
 import { useEffect, useState } from "react";
@@ -30,7 +29,7 @@ export default function Channel() {
 	const navigate = useNavigate();
 
 	useEffect(() => {
-	(async () => {
+		(async () => {
 			try {
 				await fetch(`http://localhost:3000/channels/chan/${id}`, {
 					credentials: "include",

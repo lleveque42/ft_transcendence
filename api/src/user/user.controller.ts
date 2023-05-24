@@ -22,30 +22,12 @@ import {
 import { UserService } from "./user.service";
 import { GetCurrentUser } from "../common/decorators";
 import { AtGuard } from "../auth/guards";
-import { UserLoginDto } from "../auth/dto/channel.dto";
-import { User } from "@prisma/client";
-import { UserInfo } from "os";
 import { UserNameDto, updateUserNameDto } from "./dto";
 import { tfaVerificationCode } from "./dto";
 import { FileInterceptor } from "@nestjs/platform-express";
-import { diskStorage } from "multer";
-import { extname } from "path";
 import { NotImageExeptionFilter } from "../common/filters/notImageExeptionFilter.filter";
 import { UserInfosType } from "../common/types";
 import { Response } from "express";
-
-const storageOptions = {
-	storage: diskStorage({
-		destination: "./files/avatars",
-		filename: (req, file, cb) => {
-			const randomName = Array(16)
-				.fill(null)
-				.map(() => Math.round(Math.random() * 16).toString(16))
-				.join("");
-			return cb(null, `${randomName}${extname(file.originalname)}`);
-		},
-	}),
-};
 
 const parseFileOptions = new ParseFilePipe({
 	validators: [
@@ -61,15 +43,9 @@ const parseFileOptions = new ParseFilePipe({
 export class UserController {
 	constructor(private userService: UserService) {}
 
-	@Delete("temporary_dropdb") // To del
-	@HttpCode(HttpStatus.GONE)
-	async dropdb(): Promise<void> {
-		await this.userService.dropdb();
-	}
-
 	@UseGuards(AtGuard)
 	@Get("users")
-	async getAllUsers(): Promise<{ userName: string }[]> {
+	async getAllUsers(): Promise<{ id: number; userName: string }[]> {
 		return await this.userService.getAllUsers();
 	}
 
@@ -88,14 +64,18 @@ export class UserController {
 
 	@UseGuards(AtGuard)
 	@Patch("upload/avatar")
-	@UseInterceptors(FileInterceptor("file", storageOptions))
+	@UseInterceptors(FileInterceptor("file"))
 	@UseFilters(NotImageExeptionFilter)
 	async updateAvatar(
 		@GetCurrentUser("sub") userName: string,
 		@UploadedFile(parseFileOptions)
 		file: Express.Multer.File,
 	): Promise<void> {
-		await this.userService.uploadAvatar(userName, file);
+		try {
+			await this.userService.uploadAvatar(userName, file);
+		} catch (e) {
+			throw new HttpException(e.message, e.status);
+		}
 	}
 
 	@UseGuards(AtGuard)
@@ -119,6 +99,9 @@ export class UserController {
 			lastName: user.lastName,
 			email: user.email,
 			status: user.status,
+			wins: user.wins,
+			losses: user.losses,
+			games: await this.userService.getAllGames(user.id),
 		};
 	}
 

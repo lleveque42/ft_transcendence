@@ -1,2 +1,3 @@
 export * from "./UserStatus.enum";
-export * from "./Friend.type"
+export * from "./NewUserName.type";
+export * from "./UserProfile.type"

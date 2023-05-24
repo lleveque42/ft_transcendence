@@ -14,7 +14,6 @@ import {
 import { MessageService } from "./message.service";
 import { AtGuard } from "../auth/guards";
 import { GetCurrentUser } from "../common/decorators";
-import { ChannelDto } from "./../auth/dto/channel.dto";
 import { Message } from "@prisma/client";
 
 @Controller("message")

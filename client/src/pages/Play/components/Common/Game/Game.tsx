@@ -4,12 +4,14 @@ import { GameStatus } from "../../../types/gameStatus.type";
 import OwnerGameRender from "../../OwnerView/OwnerGameRender";
 import PlayerGameRender from "../../PlayerView/PlayerGameRender";
 import styles from "../../../Play.module.scss";
+import { MapStatus } from "../../../enums/MapStatus";
 
 interface GameProps {
 	showGames: () => void; // tmp
 	gameStatus: GameStatus;
 	gameSocket: Socket | null;
 	accelerator: boolean;
+	map: MapStatus;
 }
 
 export default function Game({
@@ -17,6 +19,7 @@ export default function Game({
 	gameStatus,
 	gameSocket,
 	accelerator,
+	map,
 }: GameProps) {
 	return (
 		<>
@@ -26,8 +29,12 @@ export default function Game({
 				<div
 					className={`${styles.pointContainer} d-flex flex-row align-items justify-content-space-between`}
 				>
-					<div className={styles.leftPoints}>{gameStatus.playerScore} p</div>
-					<div className={styles.rightPoints}>o {gameStatus.ownerScore}</div>
+					<div className={styles.leftPoints}>
+						{gameStatus.playerScore} {gameStatus.playerUserName}
+					</div>
+					<div className={styles.rightPoints}>
+						{gameStatus.ownerUserName} {gameStatus.ownerScore}
+					</div>
 				</div>
 				<div className={`${styles.gameContainer}`}>
 					{gameStatus.owner ? (
@@ -35,11 +42,12 @@ export default function Game({
 							<OwnerGameRender
 								room={gameStatus.room}
 								accelerator={accelerator}
+								map={map}
 							/>
 						</GameSocketContext.Provider>
 					) : (
 						<GameSocketContext.Provider value={{ gameSocket }}>
-							<PlayerGameRender room={gameStatus.room} />
+							<PlayerGameRender room={gameStatus.room} map={map} />
 						</GameSocketContext.Provider>
 					)}
 				</div>

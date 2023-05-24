@@ -4,7 +4,7 @@ import styles from "./UserPresentation.module.scss";
 import { toggleFriendshipRequest } from "../../../../../api";
 import { UserStatus } from "../../../../../types/UserStatus.enum";
 
-type UserProfileProps = {
+type UserPresentationProps = {
 	userProfile: {
 		userName: string;
 		firstName: string;
@@ -20,7 +20,7 @@ const UserPresentation = ({
 	userProfile,
 	userProfileAvatar,
 	isFriend,
-}: UserProfileProps) => {
+}: UserPresentationProps) => {
 	const { accessToken, isAuth, user } = useUser();
 	const { showAlert } = useAlert();
 	const navigate = useNavigate();
@@ -31,10 +31,10 @@ const UserPresentation = ({
 		try {
 			const res = await toggleFriendshipRequest(accessToken, userName, method);
 			if (method === "DELETE" && res.status === 204) {
-				isAuth();
+				await isAuth();
 				showAlert("warning", "Removed from friends");
 			} else if (res.ok) {
-				isAuth();
+				await isAuth();
 				showAlert("info", "Added to friends");
 			} else showAlert("error", "A problem occured, try again later");
 		} catch (e) {

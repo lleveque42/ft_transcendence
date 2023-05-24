@@ -14,10 +14,21 @@ export type UserDataRefresh = {
 	blockList: { id: number; userName: string }[];
 };
 
+export type GameInfosType = {
+	id: number;
+	opponentUsername: string;
+	won: boolean;
+	ownScore: number;
+	playerScore: number;
+};
+
 export type UserInfosType = {
 	userName: string;
 	firstName: string;
 	lastName: string;
 	email: string;
 	status: UserStatus;
+	wins: number;
+	losses: number;
+	games: GameInfosType[];
 };

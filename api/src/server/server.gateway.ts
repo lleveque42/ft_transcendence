@@ -16,7 +16,7 @@ import { HttpException, Logger } from "@nestjs/common";
 import { OnlineUsers } from "../classes/OnlineUsers";
 import { User } from "@prisma/client";
 
-@WebSocketGateway(8001, { namespace: "chat", cors: "*" })
+@WebSocketGateway(8001, { namespace: "chat", cors: process.env.FRONTEND_URL })
 export class ServerGateway
 	implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {

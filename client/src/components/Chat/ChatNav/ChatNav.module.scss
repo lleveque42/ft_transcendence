@@ -1,6 +1,6 @@
-.navContainer{
-    background: #3d4c53;
-	width: 70vw;
+.navContainer {
+	background: #3d4c53;
+	max-width: 50rem;
 	height: 5em;
 	overflow: hidden;
 	text-align: center;
@@ -12,24 +12,17 @@
 	max-width: 70vw;
 }
 
-.navLink{
-	width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: var(--primary);
-
-	&:focus {
-		border: 1px solid var(--primary);
-		border-radius: 4px;
-		box-shadow: var(--box-shadow-login42);
-	}
+.navLink {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	color: var(--light-grey);
 
 	&:hover {
 		box-shadow: var(--box-shadow-login42);
 	}
+}
 
-	&:focus &:hover {
-		box-shadow: none;
-	}
+.activeNavLink {
+	color: var(--primary);
 }

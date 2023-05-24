@@ -1,0 +1,55 @@
+@use "../../assets/styles/mixins" as mixin;
+
+.dmListContainer {
+	display: flex;
+	flex-direction: column;
+	margin-top: 1.5rem;
+	border: 1px solid var(--secondary-dark);
+	border-radius: 5px;
+	box-shadow: var(--box-shadow);
+	max-height: 55vh;
+	width: 50vw;
+
+	@include mixin.sm-lt {
+		width: 80vw;
+	}
+
+	ul {
+		overflow-y: scroll;
+	}
+
+	.listElems {
+		padding: 1rem;
+		border-bottom: 1px solid var(--secondary-dark);
+		font-size: 1.5rem;
+		cursor: pointer;
+		text-decoration: none;
+		text-decoration-color: transparent;
+		transition: color 0.3s ease-in-out, text-decoration-color 0.3s ease-in-out;
+
+		&:hover {
+			color: var(--primary);
+			text-decoration: underline;
+			text-underline-offset: 0.3em;
+			text-decoration-color: var(--primary);
+			box-shadow: var(--box-shadow);
+		}
+
+		@include mixin.sm-lt {
+			padding: 0.8rem;
+			font-size: 1rem;
+		}
+	}
+
+	h2 {
+		@include mixin.sm-lt {
+			font-size: 1.3rem;
+		}
+	}
+}
+
+.newDmBtn {
+	@include mixin.sm-lt {
+		font-size: 0.7rem;
+	}
+}

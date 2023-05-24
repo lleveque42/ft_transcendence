@@ -4,6 +4,10 @@
 	@include mixin.sm-lt {
 		margin-top: 1.5rem;
 	}
+
+	h2 {
+		overflow-wrap: break-word;
+	}
 }
 
 .profileContainer {

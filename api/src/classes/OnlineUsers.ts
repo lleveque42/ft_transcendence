@@ -14,6 +14,10 @@ export class OnlineUsers {
 		this.size = 0;
 	}
 
+	getUsers() {
+		return this._users;
+	}
+
 	addNewUser(user: User, client: Socket): void {
 		this._clients.set(client.id, user.id);
 		const clientMap = new Map<string, Socket>([[client.id, client]]);
@@ -37,6 +41,24 @@ export class OnlineUsers {
 		}
 	}
 
+	updateStatus(userId: number, newStatus: UserStatus) {
+		const user: User = this.getUserByUserId(userId);
+		if (!user) return;
+		const sockets: Map<string, Socket> = this.getClientsByUserId(userId);
+		this._users.set(userId, {
+			user: { ...user, status: newStatus },
+			sockets: sockets,
+		});
+	}
+
+	updateUserName(user: User, newUserName: string) {
+		const sockets: Map<string, Socket> = this.getClientsByUserId(user.id);
+		this._users.set(user.id, {
+			user: { ...user, userName: newUserName },
+			sockets: sockets,
+		});
+	}
+
 	hasByUserId(userId: number): boolean {
 		return this._users.has(userId);
 	}
@@ -46,23 +68,23 @@ export class OnlineUsers {
 	}
 
 	getClientsByUserId(userId: number): Map<string, Socket> | null {
-		return this._users.get(userId).sockets || null;
+		return this._users.get(userId)?.sockets || null;
 	}
 
 	getClientsByClientId(clientId: string): Map<string, Socket> | null {
 		const userId = this._clients.get(clientId);
-		if (userId !== undefined) return this._users.get(userId).sockets || null;
+		if (userId !== undefined) return this._users.get(userId)?.sockets || null;
 		return null;
 	}
 
 	getUserByClientId(clientId: string): User | null {
 		const userId = this._clients.get(clientId);
-		if (userId !== undefined) return this._users.get(userId).user;
+		if (userId !== undefined) return this._users.get(userId)?.user;
 		return null;
 	}
 
 	getUserByUserId(userId: number): User | null {
-		return this._users.get(userId).user || null;
+		return this._users.get(userId)?.user || null;
 	}
 
 	addClientToUserId(userId: number, client: Socket): void {

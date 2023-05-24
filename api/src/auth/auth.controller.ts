@@ -18,7 +18,6 @@ import { GetCurrentUser } from "../common/decorators";
 import { AtGuard, RtGuard } from "./guards";
 import { UserDataRefresh } from "../common/types";
 import { tfaVerificationCode } from "../user/dto";
-import { UserStatus } from "@prisma/client";
 
 @Controller("auth")
 export class AuthController {
@@ -65,8 +64,10 @@ export class AuthController {
 	async refresh(
 		@GetCurrentUser("email") userEmail: string,
 	): Promise<{ accessToken: string; userData: UserDataRefresh }> {
-		const accessToken = await this.authService.newTokens(userEmail);
 		const user = await this.userService.getUserByEmail(userEmail);
+		if (!user)
+			throw new HttpException("Can't find user", HttpStatus.UNAUTHORIZED);
+		const accessToken = await this.authService.newTokens(userEmail);
 		const { friends } = await this.userService.getUserFriends(user);
 		const { blockList } = await this.userService.getUserBlockList(user);
 

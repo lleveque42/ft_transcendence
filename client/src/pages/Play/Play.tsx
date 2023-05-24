@@ -22,15 +22,23 @@ import Queue from "./components/Common/Queue/Queue";
 import { useNavigate } from "react-router-dom";
 import Options from "./components/Common/Options/Options";
 import { MapStatus } from "./enums/MapStatus";
+import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
 
 export default function Play() {
 	const { user } = useUser();
 	const navigate = useNavigate();
+	const { socket } = usePrivateRouteSocket();
 	const { gameSocket } = useGameSocket();
-	const [mapOption, setMapOption] = useState<MapStatus>(MapStatus.default);
+	const [mapOption, setMapOption] = useState<MapStatus>(
+		MapStatus.default
+		// MapStatus.space,
+		// MapStatus.city
+	);
 	const [acceleratorOption, setAcceleratorOption] = useState<boolean>(false);
 	const [gameUserStatus, setGameUserStatus] = useState<GameUserStatus>(
 		GameUserStatus.notConnected,
+		// GameUserStatus.inGame,
+		// GameUserStatus.choosingOptions
 	);
 	const [gameStatus, setGameStatus] = useState<GameStatus>(defaultGameStatus);
 
@@ -62,13 +70,21 @@ export default function Play() {
 		gameSocket?.once(
 			"connectionStatus",
 			(
-				status: { success: boolean; inGame: boolean },
+				status: {
+					success: boolean;
+					inGame: boolean;
+					inOption?: boolean | false;
+				},
 				game: {
 					room: string;
 					ownerId: number;
+					ownerUserName: string;
 					playerId: number;
+					playerUserName: string;
 					ownerScore: number;
 					playerScore: number;
+					accelerator: boolean;
+					map: MapStatus;
 				},
 			) => {
 				gameSocket?.removeListener("connectionStatusError");
@@ -85,10 +101,33 @@ export default function Play() {
 							game.ownerScore,
 							game.playerScore,
 							game.ownerId,
+							game.ownerUserName,
 							game.playerId,
+							game.playerUserName,
+							game.map,
+							game.accelerator,
 						),
 					);
+					setAcceleratorOption(game.accelerator);
+					setMapOption(game.map);
 					setGameUserStatus(GameUserStatus.waitingGameRestart);
+				} else if (status.inOption) {
+					setGameStatus(
+						alreadyInGame(
+							gameStatus,
+							user,
+							game.room,
+							game.ownerScore,
+							game.playerScore,
+							game.ownerId,
+							game.ownerUserName,
+							game.playerId,
+							game.playerUserName,
+							game.map,
+							game.accelerator,
+						),
+					);
+					setGameUserStatus(GameUserStatus.choosingOptions);
 				} else setGameUserStatus(GameUserStatus.connected);
 			},
 		);
@@ -110,12 +149,54 @@ export default function Play() {
 	function inQueue() {
 		gameSocket?.once(
 			"joinedGame",
-			(room: string, ownerId: number, playerId: number) => {
-				setGameStatus(joinedGame(gameStatus, user, room, ownerId, playerId));
+			(
+				room: string,
+				ownerId: number,
+				ownerUserName: string,
+				playerId: number,
+				playerUserName: string,
+			) => {
+				setGameStatus(
+					joinedGame(
+						gameStatus,
+						user,
+						room,
+						ownerId,
+						ownerUserName,
+						playerId,
+						playerUserName,
+					),
+				);
 				setGameUserStatus(GameUserStatus.choosingOptions);
 				gameSocket.removeListener("leftQueue");
+				if (ownerId === user.id) {
+					socket?.emit("userStatusInGame", {
+						ownerId,
+						playerId,
+						inGame: true,
+					});
+				}
 			},
 		);
+	}
+
+	function choosingOptions() {
+		gameSocket?.once("reconnection", () => {
+			setGameUserStatus(GameUserStatus.choosingOptions);
+			gameSocket?.off("gameCancelled");
+		});
+		gameSocket?.once("gameCancelled", () => {
+			setGameUserStatus(GameUserStatus.gameCancelled);
+			setGameStatus(gameEnded(gameStatus));
+			if (gameStatus.ownerId === user.id) {
+				socket?.emit("userStatusInGame", {
+					ownerId: gameStatus.ownerId,
+					playerId: gameStatus.playerId,
+					inGame: false,
+				});
+			}
+			gameSocket?.off("reconnection");
+		});
 	}
 
 	function readyToStart() {
@@ -125,15 +206,37 @@ export default function Play() {
 				setAcceleratorOption(accelerator);
 				setMapOption(map);
 				setGameUserStatus(GameUserStatus.waitingGameStart);
+				gameSocket!.off("gameCancelled");
 			},
 		);
+		gameSocket?.once("gameCancelled", () => {
+			setGameUserStatus(GameUserStatus.gameCancelled);
+			setGameStatus(gameEnded(gameStatus));
+			if (gameStatus.ownerId === user.id) {
+				socket?.emit("userStatusInGame", {
+					ownerId: gameStatus.ownerId,
+					playerId: gameStatus.playerId,
+					inGame: false,
+				});
+			}
+			gameSocket!.off("bothPlayersReady");
+		});
 	}
 
 	function waitingToStart() {
+		let opponentDisconnected = false;
 		setTimeout(() => {
-			setGameUserStatus(GameUserStatus.inGame);
-			setGameStatus(gameStarted(gameStatus));
+			if (!opponentDisconnected) {
+				gameSocket!.off("disconnection");
+				setGameUserStatus(GameUserStatus.inGame);
+				setGameStatus(gameStarted(gameStatus));
+			}
 		}, 3000);
+		gameSocket?.once("disconnection", () => {
+			setGameUserStatus(GameUserStatus.waitingOpponentReconnection);
+			setGameStatus(gamePaused(gameStatus));
+			opponentDisconnected = true;
+		});
 	}
 
 	function inGame() {
@@ -143,12 +246,20 @@ export default function Play() {
 		});
 		gameSocket?.once("gameEnded", (winner: number) => {
 			gameSocket!.off("scoreUpdate");
+			gameSocket!.off("disconnection");
 			let newUserStatus: GameUserStatus;
 			user.id === winner
 				? (newUserStatus = GameUserStatus.gameWinner)
 				: (newUserStatus = GameUserStatus.gameLoser);
 			setGameUserStatus(newUserStatus);
 			setGameStatus(gameEnded(gameStatus));
+			if (gameStatus.ownerId === user.id) {
+				socket?.emit("userStatusInGame", {
+					ownerId: gameStatus.ownerId,
+					playerId: gameStatus.playerId,
+					inGame: false,
+				});
+			}
 		});
 		gameSocket?.once("disconnection", () => {
 			gameSocket!.off("scoreUpdate");
@@ -161,6 +272,7 @@ export default function Play() {
 		gameSocket?.once("reconnection", () => {
 			setGameStatus(gameUnpaused(gameStatus));
 			setGameUserStatus(GameUserStatus.waitingGameRestart);
+			gameSocket!.off("gameEnded");
 		});
 		gameSocket?.once("gameEnded", (winner) => {
 			let newUserStatus: GameUserStatus;
@@ -170,6 +282,14 @@ export default function Play() {
 			setGameUserStatus(newUserStatus);
 			setGameStatus(gameUnpaused(gameStatus));
 			setGameStatus(gameEnded(gameStatus));
+			if (gameStatus.ownerId === user.id) {
+				socket?.emit("userStatusInGame", {
+					ownerId: gameStatus.ownerId,
+					playerId: gameStatus.playerId,
+					inGame: false,
+				});
+			}
+			gameSocket!.off("reconnection");
 		});
 	}
 
@@ -187,6 +307,7 @@ export default function Play() {
 				inQueue();
 				break;
 			case GameUserStatus.choosingOptions:
+				choosingOptions();
 				break;
 			case GameUserStatus.readyToStart:
 				readyToStart();
@@ -217,7 +338,8 @@ export default function Play() {
 				<>
 					You are already playing on another device or browser. Please
 					disconnect from this other session and try again. You will be
-					redirected, please do not refresh.
+					redirected, please do not refresh. If the problem persists, wait 15
+					seconds.
 				</>
 			)}
 			{gameUserStatus === GameUserStatus.connected && (
@@ -240,6 +362,9 @@ export default function Play() {
 			{gameUserStatus === GameUserStatus.readyToStart && (
 				<>Waiting for other player...</>
 			)}
+			{gameUserStatus === GameUserStatus.gameCancelled && (
+				<>Game cancelled, opponent disconnected.</>
+			)}
 			{gameUserStatus === GameUserStatus.waitingGameStart && (
 				<>
 					<div>Game starting...</div>
@@ -251,6 +376,8 @@ export default function Play() {
 			{gameUserStatus === GameUserStatus.waitingGameRestart && (
 				<>
 					<div>Game restarting...</div>
+					<div>Accelerator : {gameStatus.accelerator ? "true" : "false"}</div>
+					<div>Map : {gameStatus.map}</div>
 					<Countdown />
 				</>
 			)}
@@ -260,6 +387,7 @@ export default function Play() {
 					gameStatus={gameStatus}
 					gameSocket={gameSocket}
 					accelerator={acceleratorOption}
+					map={mapOption}
 				/>
 			)}
 			{gameUserStatus === GameUserStatus.waitingOpponentReconnection && (

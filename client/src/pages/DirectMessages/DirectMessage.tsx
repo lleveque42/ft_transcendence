@@ -2,7 +2,7 @@ import ChatNav from "../../components/Chat/ChatNav/ChatNav";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useUser } from "../../context/UserProvider";
-import { KeyboardEvent } from "react"
+import { KeyboardEvent } from "react";
 import Message from "../../components/Message/Message";
 import { MessageModel } from "../../entities/entities";
 import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
@@ -18,9 +18,9 @@ export default function DirectMessage() {
 	const [messagesList, setMessagesList] = useState<JSX.Element[]>([]);
 	 
 	const { id } = useParams();
-	
+
 	useEffect(() => {
-	(async () => {
+		(async () => {
 			try {
 				await fetch(`http://localhost:3000/channels/dm/chan/${id}`, {
 					credentials: "include",
@@ -64,17 +64,17 @@ export default function DirectMessage() {
 	}))},[messagesState, user.blockList]);
 
 	const messageListener = (msg: MessageModel) => {
-	const {id, authorId, author, content} = msg
-	setMessagesState([...messagesState, {id, authorId, author, content}]);
-	}
+		const { id, authorId, author, content } = msg;
+		setMessagesState([...messagesState, { id, authorId, author, content }]);
+	};
 
 	useEffect(() => {
 		chatSocket?.on("receivedMessage", messageListener);
 		return () => {
-		  chatSocket?.off("receivedMessage", messageListener);
-		}
-	  // eslint-disable-next-line react-hooks/exhaustive-deps
-	  }, [messageListener, messagesList, messagesState])
+			chatSocket?.off("receivedMessage", messageListener);
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [messageListener, messagesList, messagesState]);
 
 	const handleKeyDown =  (event : KeyboardEvent<HTMLInputElement>) => {
 		if (event.key === "Enter" && value !== ""){
@@ -86,7 +86,7 @@ export default function DirectMessage() {
 			}
 		}
 	};
-	
+
 	return (
 		<div className="container d-flex flex-column justify-content align-items">
 			<div className="title">Chat channels</div>
@@ -97,7 +97,7 @@ export default function DirectMessage() {
 					<>
 						<h1>Messages ({messagesList.length})</h1>
 						<ul className="List">{messagesList}</ul>
-					</> 
+					</>
 					)
 				}
 			</div>

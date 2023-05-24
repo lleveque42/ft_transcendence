@@ -7,34 +7,34 @@ import Loader from "react-loaders";
 import default_avatar from "../../../assets/images/punk.png";
 import UserStats from "./components/UserStats/UserStats";
 import UserPresentation from "./components/UserPresentation/UserPresentation";
-import { UserStatus } from "../../../types/UserStatus.enum";
-
-type UserProfileType = {
-	userName: string;
-	firstName: string;
-	lastName: string;
-	email: string;
-	status: UserStatus;
-};
-
-const UserProfileValues: UserProfileType = {
-	userName: "",
-	firstName: "",
-	lastName: "",
-	email: "",
-	status: UserStatus.ONLINE,
-};
+import {
+	NewUserName,
+	UserProfileType,
+	UserProfileValues,
+} from "../../../types";
+import { usePrivateRouteSocket } from "../../../context/PrivateRouteProvider";
 
 export default function Profile() {
 	const { accessToken, user } = useUser();
+	const { socket } = usePrivateRouteSocket();
 	const { showAlert } = useAlert();
 	const navigate = useNavigate();
 	const { username } = useParams();
-	const [isLoading, setIsLoading] = useState<boolean>(true);
 	const [userProfile, setUserProfile] =
 		useState<UserProfileType>(UserProfileValues);
 	const [userProfileAvatar, setUserProfileAvatar] = useState<string>("");
 	const [isFriend, setIsFriend] = useState<boolean>(false);
+	const [isLoading, setIsLoading] = useState<boolean>(true);
+
+	useEffect(() => {
+		socket?.on("userNameUpdatedProfile", (userSender: NewUserName) => {
+			navigate(`/user/${userSender.userName}`);
+		});
+		return () => {
+			socket?.off("userNameUpdatedProfile");
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [socket]);
 
 	useEffect(() => {
 		const getUserProfile = async () => {
@@ -43,7 +43,7 @@ export default function Profile() {
 				if (res.ok) {
 					const data = await res.json();
 					setUserProfile(data);
-					if (user.friends.some((f) => f.userName === data.userName))
+					if (user.friends.find((f) => f.userName === data.userName))
 						setIsFriend(true);
 					else setIsFriend(false);
 				} else {
@@ -54,13 +54,9 @@ export default function Profile() {
 				console.error("Error user profile", e);
 			}
 		};
-		getUserProfile();
-	}, [username, accessToken, user.friends, showAlert, navigate, isFriend]);
-
-	useEffect(() => {
 		const getUserAvatar = async () => {
 			try {
-				const res = await userAvatarRequest(accessToken, userProfile.userName);
+				const res = await userAvatarRequest(accessToken, username as string);
 				if (res.ok) {
 					if (res.headers.get("content-type") === "application/octet-stream") {
 						const data = await res.blob();
@@ -77,10 +73,15 @@ export default function Profile() {
 				console.error("Error get User Avatar", e);
 				setUserProfileAvatar(default_avatar);
 			}
-			setIsLoading(false);
 		};
-		if (userProfile.userName) getUserAvatar();
-	}, [userProfile, accessToken]);
+
+		if (username) {
+			getUserProfile();
+			getUserAvatar();
+			setIsLoading(false);
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [username, accessToken, user.friends, showAlert, navigate, isFriend]);
 
 	return (
 		<>
@@ -107,7 +108,7 @@ export default function Profile() {
 							/>
 						</div>
 						<div className={`${styles.userStatsContainer} d-flex flex-column`}>
-							<UserStats />
+							<UserStats userProfile={userProfile} />
 						</div>
 					</div>
 				</>

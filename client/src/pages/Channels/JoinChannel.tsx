@@ -1,7 +1,6 @@
-import React from "react";
 import ChatNav from "../../components/Chat/ChatNav/ChatNav";
 import { useEffect, useState } from "react";
-import { useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useUser } from "../../context/UserProvider";
 import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
 
@@ -11,14 +10,13 @@ type FormValues = {
 };
 
 export default function JoinChannel() {
-  
-	const { accessToken, user } = useUser();	
+	const { accessToken, user } = useUser();
 	const [channelsState, setChannelsState] = useState([]);
-	
+
 	const socket = usePrivateRouteSocket();
-	
+
 	const navigate = useNavigate();
-	
+
 	useEffect(() => {
 		(async () => {
 			try {
@@ -28,17 +26,14 @@ export default function JoinChannel() {
 						Authorization: `Bearer ${accessToken}`,
 					},
 				})
-				.then((res) => res.json())
-				.then(
-				(chans) => {
-					setChannelsState(chans);
-				}
-				);
-            } catch (e) {
-			}
-        })();
-    }, [user.userName, accessToken]);
-	
+					.then((res) => res.json())
+					.then((chans) => {
+						setChannelsState(chans);
+					});
+			} catch (e) {}
+		})();
+	}, [user.userName, accessToken]);
+
 	async function handleClick(event: MouseEvent) {
 		const target = event.target as HTMLButtonElement;
 		const value = target.value;
@@ -47,7 +42,7 @@ export default function JoinChannel() {
 		const formValues: FormValues = {
 			userId: userId,
 			channelId: channelId,
-		}
+		};
 		try {
 			const res = await fetch("http://localhost:3000/channels/join_channel", {
 				method: "POST",
@@ -62,49 +57,47 @@ export default function JoinChannel() {
 				navigate("/chat/channels");
 			} else if (res.ok) {
 				navigate("/chat/channels");
-            }
+			}
 		} catch (e) {
 			console.error("Error joining channel");
 		}
-	  }
-	  
-	const buttons = document.querySelectorAll('button');
-	buttons.forEach(button => button.addEventListener('click', handleClick));
-	  
-	const channelsList = channelsState.map(({ id, title, ownerId}) => (
+	}
+
+	const buttons = document.querySelectorAll("button");
+	buttons.forEach((button) => button.addEventListener("click", handleClick));
+
+	const channelsList = channelsState.map(({ id, title, ownerId }) => (
 		<li key={id}>
 			<div>
-			{ ( user.id !== ownerId) ?
-				<>
-					<button className={` btn-primary m-10`} value={id}>
-						{title}
-					</button>
-				</>
-			:
-				<>
-					{/* <NavLink className={`m-10`}  to={`/chat/channels/${title}`} >
+				{user.id !== ownerId ? (
+					<>
+						<button className={` btn-primary m-10`} value={id}>
+							{title}
+						</button>
+					</>
+				) : (
+					<>
+						{/* <NavLink className={`m-10`}  to={`/chat/channels/${title}`} >
 						<span>
 							{title}
 						</span>
 					</NavLink> */}
-				</>
-			}
+					</>
+				)}
 			</div>
 		</li>
 	));
-	
+
 	return (
-		<div className="container d-flex flex-column justify-content align-items">
-			<div className="title">Chat channels</div>
-			<div>
-					<ChatNav/>
-					{
-						<>
-							<h1>Channels ({channelsState.length})</h1>
-							<ul className="List">{channelsList}</ul>
-						</>
-					}
-			</div>
+		<div className="d-flex flex-column align-items flex-1">
+			<div className="title mt-20">Join channels</div>
+			<ChatNav />
+			{
+				<>
+					<h1>Channels ({channelsState.length})</h1>
+					<ul>{channelsList}</ul>
+				</>
+			}
 		</div>
 	);
 }
