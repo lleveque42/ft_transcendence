@@ -20,18 +20,6 @@ import { Message } from "@prisma/client";
 export class MessageController {
 	constructor(private messageService: MessageService) {}
 
-	@Delete("temporary_dropdb")
-	@HttpCode(HttpStatus.GONE)
-	async dropdb() {
-		await this.messageService.dropdb();
-	}
-
-	@UseGuards(AtGuard)
-	@Get("test")
-	test(@GetCurrentUser("sub") userName: string): string {
-		return userName;
-	}
-
 	@Post("")
 	async createNewMessage(
 		@Body() body,

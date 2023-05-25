@@ -1,6 +1,7 @@
 import {
 	Body,
 	Controller,
+	Delete,
 	Get,
 	HttpException,
 	Param,
@@ -15,7 +16,7 @@ import { GetCurrentUser } from "../common/decorators";
 import { Channel, Message, User } from "@prisma/client";
 import { Response } from "express";
 import { GetUserList } from "../common/types";
-import { createDmDto } from "./dto/channel.dto";
+import { createDmDto, titleDmDto } from "./dto/channel.dto";
 
 @Controller("channels")
 export class ChannelController {
@@ -64,10 +65,13 @@ export class ChannelController {
 			throw new HttpException(e.message, e.status);
 		}
 	}
-	
+
 	@UseGuards(AtGuard)
 	@Get("/chan/:title")
-	async getChanMessages(@GetCurrentUser("sub") userName: string, @Param("title") title: string): Promise<Message[] | null> {
+	async getChanMessages(
+		@GetCurrentUser("sub") userName: string,
+		@Param("title") title: string,
+	): Promise<Message[] | null> {
 		try {
 			const msgs = await this.channelService.getChanMessages(userName, title);
 			return msgs;
@@ -88,7 +92,8 @@ export class ChannelController {
 
 	@UseGuards(AtGuard)
 	@Get("/dm/chan/:title")
-	async getDMsMessages(@GetCurrentUser("sub") userName: string,
+	async getDMsMessages(
+		@GetCurrentUser("sub") userName: string,
 		@Param("title") title: string,
 	): Promise<Message[] | null> {
 		try {
@@ -232,8 +237,6 @@ export class ChannelController {
 		@Body() body: createDmDto,
 		@Res({ passthrough: true }) res: Response,
 	): Promise<void> {
-		console.log(body);
-
 		try {
 			await this.channelService.createDM(
 				{
@@ -248,6 +251,21 @@ export class ChannelController {
 			res.json("OK");
 		} catch (e) {
 			res.json("Duplicate");
+		}
+	}
+
+	@UseGuards(AtGuard)
+	@Delete("delDm")
+	async delDm(
+		@GetCurrentUser("sub") userName: string,
+		@Body() body: titleDmDto,
+	) {
+		console.log("Title", body);
+
+		try {
+			await this.channelService.deleteDm(userName, body.title);
+		} catch (e) {
+			throw new HttpException(e.message, e.status);
 		}
 	}
 
@@ -273,10 +291,10 @@ export class ChannelController {
 		@Body() body,
 		@GetCurrentUser("sub") userName: string,
 		@Res({ passthrough: true }) res: Response,
-	): Promise<{id : number, userName: string}[]> {
+	): Promise<{ id: number; userName: string }[]> {
 		try {
 			const users = await this.channelService.getInviteList(
-				body.title ,
+				body.title,
 				userName,
 			);
 			return users;
@@ -284,5 +302,4 @@ export class ChannelController {
 			throw new HttpException(e.message, e.status);
 		}
 	}
-	
 }

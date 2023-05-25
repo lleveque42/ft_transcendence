@@ -36,3 +36,15 @@ export async function createDmRequest(
 		},
 	);
 }
+
+export async function delDmRequest(title: string, accessToken: string) {
+	await fetch(`${process.env.REACT_APP_BACKEND_URL}/channels/delDm`, {
+		method: "DELETE",
+		credentials: "include",
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: `Bearer ${accessToken}`,
+		},
+		body: JSON.stringify({title}),
+	});
+}

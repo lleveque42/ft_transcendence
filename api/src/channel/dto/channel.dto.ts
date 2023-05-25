@@ -24,3 +24,9 @@ export class createDmDto {
 	@IsNumber()
 	id2: number;
 }
+
+export class titleDmDto {
+	@IsNotEmpty()
+	@IsString()
+	title: string;
+}

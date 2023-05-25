@@ -1,26 +1,68 @@
 import { useNavigate } from "react-router-dom";
-import { useUser } from "../../../context";
+import { useAlert, useUser } from "../../../context";
 import styles from "./FriendsList.module.scss";
 import { UserStatus } from "../../../types/UserStatus.enum";
 import trimUserName from "../../../utils/trimUserName";
 import { usePrivateRouteSocket } from "../../../context/PrivateRouteProvider";
-import { usersListDmRequest } from "../../../api";
+import {
+	createDmRequest,
+	delDmRequest,
+	usersListDmRequest,
+} from "../../../api";
+import { UserModel } from "../../../entities/entities";
 
 export default function FriendsList() {
 	const { user, accessToken } = useUser();
 	const { socket } = usePrivateRouteSocket();
+	const { showAlert } = useAlert();
 	const navigate = useNavigate();
 
 	function sendGameInvite(invited: number) {
 		socket?.emit("sendGameInvite", { sender: user.id, invited });
 	}
 
-	async function handleDmRedir() {
+	async function handleDmRedir(friendId: number, friendUserName: string) {
+		const type = "DM";
+		const mode = "Public";
+		const password = "";
+		const title =
+			user.id < friendId ? user.id + "_" + friendId : friendId + "_" + user.id;
+
 		try {
-			const res = await usersListDmRequest(accessToken);
+			const res = await createDmRequest(accessToken, {
+				title,
+				mode,
+				password,
+				type,
+				id1: user.id,
+				id2: friendId,
+			});
 			if (res.ok) {
 				const data = await res.json();
-				console.log(data);
+				if (data === "Duplicate") {
+					navigate(`/chat/direct_messages/${title}`);
+					return;
+				}
+				const users = await usersListDmRequest(accessToken);
+				if (users.ok) {
+					const usersJoinbale: {
+						id: number;
+						userName: string;
+						blockList: UserModel[];
+					}[] = await users.json();
+					console.log(usersJoinbale);
+
+					if (usersJoinbale.some((u) => u.id === user.id)) {
+						navigate(`/chat/direct_messages/${title}`);
+						return;
+					} else {
+						await delDmRequest(title, accessToken);
+						showAlert(
+							"error",
+							`You or ${friendUserName} have blocked each other`,
+						);
+					}
+				}
 			}
 		} catch (e) {
 			console.error(e);
@@ -71,7 +113,7 @@ export default function FriendsList() {
 									)}
 									<i
 										className="d-flex flex-1 justify-content fa-solid fa-envelope"
-										onClick={handleDmRedir}
+										onClick={() => handleDmRedir(f.id, f.userName)}
 									/>
 								</li>
 							))}

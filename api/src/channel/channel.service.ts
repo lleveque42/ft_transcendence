@@ -369,6 +369,20 @@ export class ChannelService {
 		}
 	}
 
+	async deleteDm(userName: string, title: string) {
+		const user = await this.userService.getUserByUserName(userName);
+		if (!user)
+			throw new ForbiddenException("Can't find user friend, try again");
+		const userChans = await this.getUsersDMs(userName);
+		if (userChans.some((dm: Channel) => dm.title === title)) {
+			await this.prisma.channel.delete({
+				where: {
+					title,
+				},
+			});
+		}
+	}
+
 	async joinPublicChannel(userId: number, channelId: number) {
 		const updatedChannel = await this.prisma.channel.update({
 			where: { id: channelId },
@@ -463,7 +477,7 @@ export class ChannelService {
 		return chans;
 	}
 
-	async getUsersDMs(username) {
+	async getUsersDMs(username: string) {
 		const user = await this.prisma.user.findUnique({
 			where: {
 				userName: username,
@@ -523,18 +537,18 @@ export class ChannelService {
 				title: title,
 			},
 			include: {
-				members:true,
-			}
+				members: true,
+			},
 		});
-		if (!chan){
+		if (!chan) {
 			return null;
 		}
 		const user = await this.userService.getUserByUserName(userName);
-		const match = chan.members.filter((el) =>{
-			return (el.id === user.id);
-		} )
-		const boolMatch : boolean = match.length > 0 ? true : false;
-		if (chan && user && boolMatch){
+		const match = chan.members.filter((el) => {
+			return el.id === user.id;
+		});
+		const boolMatch: boolean = match.length > 0 ? true : false;
+		if (chan && user && boolMatch) {
 			const chanWithoutMembers = await this.prisma.channel.findUnique({
 				where: {
 					title: title,
@@ -561,18 +575,18 @@ export class ChannelService {
 				title: title,
 			},
 			include: {
-				members:true,
-			}
+				members: true,
+			},
 		});
-		if (!chan){
+		if (!chan) {
 			return null;
 		}
 		const user = await this.userService.getUserByUserName(userName);
-		const match = chan.members.filter((el) =>{
-			return (el.id === user.id);
-		} )
-		const boolMatch : boolean = match.length > 0 ? true : false;
-		if (chan && user && boolMatch){
+		const match = chan.members.filter((el) => {
+			return el.id === user.id;
+		});
+		const boolMatch: boolean = match.length > 0 ? true : false;
+		if (chan && user && boolMatch) {
 			const chanWithoutMembers = await this.prisma.channel.findUnique({
 				where: {
 					title: title,
@@ -587,31 +601,34 @@ export class ChannelService {
 					channelId: chanWithoutMembers.id,
 				},
 			});
-			if (msgs){
+			if (msgs) {
 				console.log(msgs);
 				return msgs;
-			} else {return null}
+			} else {
+				return null;
+			}
 		} else {
 			return null;
 		}
 	}
 
-	async getInviteList(title : string, userName : string) : Promise<{ id: number; userName: string; }[]> {
+	async getInviteList(
+		title: string,
+		userName: string,
+	): Promise<{ id: number; userName: string }[]> {
 		const user = await this.userService.getUserByUserName(userName);
-		if (!user)
-			return null;
+		if (!user) return null;
 		const allUsers = await this.prisma.user.findMany({
 			where: {
-				NOT:{
+				NOT: {
 					id: user.id,
-				}
+				},
 			},
 			select: {
 				id: true,
 				userName: true,
-			}
-		}
-		);
+			},
+		});
 		const banned = await this.prisma.channel.findUnique({
 			where: {
 				title: title,
@@ -621,18 +638,18 @@ export class ChannelService {
 					select: {
 						id: true,
 						userName: true,
-					}
-				}
-			}
+					},
+				},
+			},
 		});
-		if (!banned || !allUsers){
+		if (!banned || !allUsers) {
 			return null;
 		}
-		const bannedList : Array<{id: number, userName: string}> = banned.banList;
-		const difference = allUsers.filter( x => !bannedList.includes(x) );
+		const bannedList: Array<{ id: number; userName: string }> = banned.banList;
+		const difference = allUsers.filter((x) => !bannedList.includes(x));
 		return difference;
 	}
-	
+
 	async dropdb() {
 		await this.prisma.channel.deleteMany({});
 	}
