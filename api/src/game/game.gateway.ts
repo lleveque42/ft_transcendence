@@ -38,6 +38,7 @@ export class GameGateway
 	privateGames: PrivateGames = new PrivateGames();
 	waitingReconnection: Map<number, string> = new Map<number, string>();
 	reconnecting: Set<number> = new Set<number>();
+	afk: Set<number> = new Set<number>();
 	constructor(
 		private userService: UserService,
 		private gameService: GameService,
@@ -161,6 +162,7 @@ export class GameGateway
 		setTimeout(() => {
 			if (this.waitingReconnection.has(user.id)) {
 				this.waitingReconnection.delete(user.id);
+				this.afk.add(user.id);
 				this.logger.log(
 					`${game.owner.userName} vs ${game.player.userName} : ended or cancelled (Reconnection timeout).`,
 				);
@@ -299,6 +301,13 @@ export class GameGateway
 		else if (this.ongoing.alreadyInGame(user.id)) {
 			this.connectInGame(client, user);
 			this.reconnecting.delete(user.id);
+		} else if (this.afk.has(user.id)) {
+			client.emit("connectionStatus", {
+				success: true,
+				inGame: false,
+				afk: true,
+			});
+			this.afk.delete(user.id);
 		} else client.emit("connectionStatus", { success: true, inGame: false });
 	}
 

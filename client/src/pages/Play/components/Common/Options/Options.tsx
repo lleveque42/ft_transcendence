@@ -67,19 +67,6 @@ export default function Options({
 						setMapOption(MapStatus.city);
 					}}
 				/>
-				{/* <img
-					src={map}
-					alt="postApo"
-					className={`${
-						mapToggle === MapStatus.postApo
-							? styles.imgFocused
-							: styles.imgUnfocused
-					}`}
-					onClick={() => {
-						setMapToggle(MapStatus.postApo);
-						setMapOption(MapStatus.postApo);
-					}}
-				/> */}
 				<img
 					src={spaceMap}
 					alt="space"

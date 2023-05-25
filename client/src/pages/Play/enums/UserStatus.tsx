@@ -10,6 +10,7 @@ export enum GameUserStatus {
 	waitingGameRestart,
 	inGame,
 	waitingOpponentReconnection,
+	detectedAfk,
 	opponentDisconnected,
 	gameWinner,
 	gameLoser,

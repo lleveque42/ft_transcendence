@@ -1,5 +1,7 @@
 import { Socket } from "socket.io-client";
 import { GameUserStatus } from "../../../enums/UserStatus";
+import styles from "../../../Play.module.scss";
+import Loader from "react-loaders";
 
 interface QueueProps {
 	gameSocket: Socket | null;
@@ -16,10 +18,15 @@ export default function Queue({ gameSocket, setGameUserStatus }: QueueProps) {
 
 	return (
 		<>
-			<div className="mb-10">IN QUEUE...</div>
-			<button className="btn-primary" onClick={leaveQueue}>
-				Leave queue...
-			</button>
+			<div className="underTitle mb-10">In queue...</div>
+			<Loader type="ball-zig-zag" innerClassName="nobody-loader" active />
+			<div
+				className={`${styles.buttonContainer} d-flex align-items justify-content`}
+			>
+				<button className="btn-primary" onClick={leaveQueue}>
+					Leave queue...
+				</button>
+			</div>
 		</>
 	);
 }
