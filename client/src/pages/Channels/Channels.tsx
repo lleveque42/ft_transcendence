@@ -1,6 +1,6 @@
 import ChatNav from "../../components/Chat/ChatNav/ChatNav";
 import { useEffect, useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useUser } from "../../context/UserProvider";
 import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
 import { ChannelModel } from "../../entities/entities";
@@ -25,7 +25,8 @@ export default function Channels() {
 					.then((chans) => {
 						setChannelsState(chans);
 					});
-			} catch (e) {}
+			} catch (e) {
+			}
 		})();
 	}, [user.userName, accessToken]);
 

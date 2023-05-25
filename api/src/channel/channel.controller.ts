@@ -64,11 +64,12 @@ export class ChannelController {
 			throw new HttpException(e.message, e.status);
 		}
 	}
-
+	
+	@UseGuards(AtGuard)
 	@Get("/chan/:title")
-	async getChanMessages(@Param("title") title: string): Promise<Message[]> {
+	async getChanMessages(@GetCurrentUser("sub") userName: string, @Param("title") title: string): Promise<Message[] | null> {
 		try {
-			const msgs = await this.channelService.getChanMessages(title);
+			const msgs = await this.channelService.getChanMessages(userName, title);
 			return msgs;
 		} catch (e) {
 			throw new HttpException(e.message, e.status);
@@ -85,16 +86,15 @@ export class ChannelController {
 		}
 	}
 
+	@UseGuards(AtGuard)
 	@Get("/dm/chan/:title")
-	async getDMsMessages(
+	async getDMsMessages(@GetCurrentUser("sub") userName: string,
 		@Param("title") title: string,
 	): Promise<Message[] | null> {
 		try {
-			const msgs = await this.channelService.getDMsMessages(title);
+			const msgs = await this.channelService.getDMsMessages(userName, title);
 			return msgs;
 		} catch (e) {
-			console.log("NULL");
-
 			throw new HttpException(e.message, e.status);
 		}
 	}
@@ -266,4 +266,23 @@ export class ChannelController {
 			throw new HttpException(e.message, e.status);
 		}
 	}
+
+	@UseGuards(AtGuard)
+	@Post("/retrieve_invite_list")
+	async retrieveInviteChannel(
+		@Body() body,
+		@GetCurrentUser("sub") userName: string,
+		@Res({ passthrough: true }) res: Response,
+	): Promise<{id : number, userName: string}[]> {
+		try {
+			const users = await this.channelService.getInviteList(
+				body.title ,
+				userName,
+			);
+			return users;
+		} catch (e) {
+			throw new HttpException(e.message, e.status);
+		}
+	}
+	
 }

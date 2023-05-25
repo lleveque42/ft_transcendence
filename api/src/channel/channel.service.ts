@@ -1,7 +1,7 @@
 import { ForbiddenException, HttpException, Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { UserService } from "../user/user.service";
-import { Channel, Muted, Prisma } from "@prisma/client";
+import { Channel, Muted, Prisma, User } from "@prisma/client";
 import * as argon2 from "argon2";
 import { OnlineUsers } from "../classes/OnlineUsers";
 
@@ -517,37 +517,36 @@ export class ChannelService {
 		return chans;
 	}
 
-	async getChanMessages(title) {
+	async getChanMessages(userName, title) {
 		const chan = await this.prisma.channel.findUnique({
 			where: {
 				title: title,
 			},
-		});
-		const msgs = await this.prisma.message.findMany({
 			include: {
-				author: true,
-				channel: true,
-			},
-			where: {
-				channel: chan,
-			},
+				members:true,
+			}
 		});
-		return msgs;
-	}
-	async getDMsMessages(title) {
-		const chan = await this.prisma.channel.findUnique({
-			where: {
-				title: title,
-			},
-		});
-		if (chan) {
+		if (!chan){
+			return null;
+		}
+		const user = await this.userService.getUserByUserName(userName);
+		const match = chan.members.filter((el) =>{
+			return (el.id === user.id);
+		} )
+		const boolMatch : boolean = match.length > 0 ? true : false;
+		if (chan && user && boolMatch){
+			const chanWithoutMembers = await this.prisma.channel.findUnique({
+				where: {
+					title: title,
+				},
+			});
 			const msgs = await this.prisma.message.findMany({
 				include: {
 					author: true,
 					channel: true,
 				},
 				where: {
-					channel: chan,
+					channel: chanWithoutMembers,
 				},
 			});
 			return msgs;
@@ -555,6 +554,85 @@ export class ChannelService {
 			return null;
 		}
 	}
+
+	async getDMsMessages(userName, title) {
+		const chan = await this.prisma.channel.findUnique({
+			where: {
+				title: title,
+			},
+			include: {
+				members:true,
+			}
+		});
+		if (!chan){
+			return null;
+		}
+		const user = await this.userService.getUserByUserName(userName);
+		const match = chan.members.filter((el) =>{
+			return (el.id === user.id);
+		} )
+		const boolMatch : boolean = match.length > 0 ? true : false;
+		if (chan && user && boolMatch){
+			const chanWithoutMembers = await this.prisma.channel.findUnique({
+				where: {
+					title: title,
+				},
+			});
+			const msgs = await this.prisma.message.findMany({
+				include: {
+					author: true,
+					channel: true,
+				},
+				where: {
+					channelId: chanWithoutMembers.id,
+				},
+			});
+			if (msgs){
+				console.log(msgs);
+				return msgs;
+			} else {return null}
+		} else {
+			return null;
+		}
+	}
+
+	async getInviteList(title : string, userName : string) : Promise<{ id: number; userName: string; }[]> {
+		const user = await this.userService.getUserByUserName(userName);
+		if (!user)
+			return null;
+		const allUsers = await this.prisma.user.findMany({
+			where: {
+				NOT:{
+					id: user.id,
+				}
+			},
+			select: {
+				id: true,
+				userName: true,
+			}
+		}
+		);
+		const banned = await this.prisma.channel.findUnique({
+			where: {
+				title: title,
+			},
+			include: {
+				banList: {
+					select: {
+						id: true,
+						userName: true,
+					}
+				}
+			}
+		});
+		if (!banned || !allUsers){
+			return null;
+		}
+		const bannedList : Array<{id: number, userName: string}> = banned.banList;
+		const difference = allUsers.filter( x => !bannedList.includes(x) );
+		return difference;
+	}
+	
 	async dropdb() {
 		await this.prisma.channel.deleteMany({});
 	}
