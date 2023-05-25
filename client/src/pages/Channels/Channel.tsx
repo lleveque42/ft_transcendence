@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { NavLink, useNavigate, useParams } from "react-router-dom";
 import { useUser } from "../../context/UserProvider";
 import { KeyboardEvent } from "react"
-import { ChannelModel, MessageModel } from "../../entities/entities";
+import { ChannelModel, MessageModel, UserModel } from "../../entities/entities";
 import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
 import { useAlert } from "../../context/AlertProvider";
 import { isAfter } from 'date-fns';
@@ -18,7 +18,9 @@ export default function Channel() {
 	const [value, setValue] = useState("");
 	const [infoBool, setInfoBool] = useState(false);
 	const [userBool, setuserBool] = useState(false);
+	const [inviteBool, setInviteBool] = useState(false);
 	const [messagesState, setMessagesState] = useState<Array<MessageModel>>([]);
+	const [inviteState, setInviteState] = useState<Array<UserModel>>([]);
 	const [messagesList, setMessagesList] = useState<JSX.Element[]>([]);
 	const [chanInfo, setChanInfo] = useState<ChannelModel>();
 	const [currentUserName, setCurrentUserName] = useState("");
@@ -54,6 +56,7 @@ export default function Channel() {
 					.then(
 					(chan) => {
 						setuserBool(false);
+						setInviteBool(false);
 						setInfoBool(true);
 						setChanInfo(chan);
 					}
@@ -64,7 +67,7 @@ export default function Channel() {
 			}
 
         })();
-    }, [accessToken, id]);
+    }, [accessToken, id, showAlert]);
 
 	useEffect(() => {
 		const timer = setInterval(() => {
@@ -78,6 +81,7 @@ export default function Channel() {
 	function handleChanClick(event: MouseEvent) {
 		setuserBool(false);
 		setInfoBool(true);
+		setInviteBool(false);
 	}
 	
 	function handleMsgClick(userName: string, userId: number) {
@@ -92,6 +96,7 @@ export default function Channel() {
 		});
 		setuserBool(true);
 		setInfoBool(false);
+		setInviteBool(false);
 	}
 			
 	const chanClick = document.querySelectorAll('h1');
@@ -212,6 +217,7 @@ export default function Channel() {
 			if (res.status === 201) {
 				setInfoBool(true);
 				setuserBool(false);
+				setInviteBool(false);
 			}
 			else{
 				// To dOOOOOOOOOOOOOO
@@ -241,6 +247,7 @@ export default function Channel() {
 				showAlert("success", userBottomName + " has been blocked");
 				setInfoBool(true);
 				setuserBool(false);
+				setInviteBool(false);
 				isAuth();
 			}
 		} catch (e) {
@@ -272,6 +279,7 @@ export default function Channel() {
 				showAlert("success", userName + " has been banned");
 				setInfoBool(true);
 				setuserBool(false);
+				setInviteBool(false);
 			}
 			else {
 				// To dooooooooooooooo
@@ -283,10 +291,7 @@ export default function Channel() {
 
 	  async function handleMute(userName : string, userId: number) {
 		const chanId = chanInfo?.id;
-		// const room = chanInfo?.title;
 		const mutedEnd = new Date(currentTime.getTime() + 30000);
-		// console.log(currentTime);
-		// console.log(mutedEnd);
 		const data = {chanId, userId, mutedEnd};
 		const mode = "mute";
 		const toEmit = {id, userId, userName, mode}
@@ -308,6 +313,7 @@ export default function Channel() {
 				showAlert("success", userName + " has been muted for 30 seconds");
 				setInfoBool(true);
 				setuserBool(false);
+				setInviteBool(false);
 			}
 			else {
 				// To dooooooooooooooo
@@ -336,6 +342,7 @@ export default function Channel() {
 			if (res.status === 201) {
 				setInfoBool(true);
 				setuserBool(false);
+				setInviteBool(false);
 			}
 			else {
 				// To dooooooooooooooo
@@ -344,9 +351,63 @@ export default function Channel() {
 			console.error("Error adminishing from channel");
 		}
 	  }
+
 	  async function handleReturnToList() {
 		setInfoBool(true);
 		setuserBool(false);
+		setInviteBool(false);
+	  }
+
+	  async function handleInviteListClick() {
+		if (!chanInfo?.title){ return }
+		const data = {title : chanInfo?.title};
+		try {
+			await fetch(`${process.env.REACT_APP_BACKEND_URL}/channels/retrieve_invite_list`, {
+				method: "POST",
+				credentials: "include",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${accessToken}`,
+				},
+				body: JSON.stringify(data),
+			})
+			.then((res) => res.json())
+			.then(
+				(users) => {
+					setInviteState(users);
+				}
+				);
+			} catch (e) {
+				console.error("Error retieving invite users from channel");
+			}
+			setInviteBool(true);
+			setInfoBool(false);
+			setuserBool(false)
+	  }
+
+	  async function handleInviteClick(userId : number) {
+		if (!chanInfo?.title || !userId){ return }
+		const data = {title : chanInfo?.title, userId };
+		try {
+			console.log("Invite");
+			await fetch(`${process.env.REACT_APP_BACKEND_URL}/channels/invite`, {
+				method: "POST",
+				credentials: "include",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${accessToken}`,
+				},
+				body: JSON.stringify(data),
+			})
+			.then((res) => res.json())
+			.then(
+				(users) => {
+				}
+				);
+			navigate(`/chat/channels/${chanInfo?.title}`);
+			} catch (e) {
+				console.error("Error retieving invite users from channel");
+			}
 	  }
 
 	  useEffect(() => {
@@ -375,7 +436,7 @@ export default function Channel() {
 			chatSocket?.off("refreshMute",);
 		}
 	  }, [chatSocket, navigate, showAlert, user.userName])
-	  
+
 	return (
 		<div className="container d-flex flex-column justify-content align-items">
 			<div className="title">Chat channels</div>
@@ -399,6 +460,10 @@ export default function Channel() {
 						{
 							infoBool &&
 							<div className="d-flex flex-column">
+								<div className={`btn-primary m-20`} onClick={() => {
+									 handleInviteListClick()}}>
+									Invite
+								</div>
 								<div>
 									<h2 className="ml-10">
 										Users List
@@ -454,6 +519,28 @@ export default function Channel() {
 									Return
 								</button>
 							</div>
+						}
+						{ inviteBool && chanInfo &&
+							<div className="d-flex flex-column">
+							<div className={`btn-primary m-20`} onClick={() => {
+								 handleInviteListClick()}}>
+								Invite
+							</div>
+							<div>
+								<h2 className="ml-10">
+									Invite List
+								</h2>
+								<ul>
+									{inviteState.map((member)=>{							
+										return (
+											<li onClick={() => handleInviteClick(member.id)} key={member.id} className="ml-10">
+												{member.userName}
+											</li>
+										)
+									})}
+								</ul>
+							</div>
+						</div>
 						}
 				</div>
 			</div>

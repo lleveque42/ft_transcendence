@@ -1,7 +1,7 @@
 import { ForbiddenException, HttpException, Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { UserService } from "../user/user.service";
-import { Channel, Muted, Prisma } from "@prisma/client";
+import { Channel, Muted, Prisma, User } from "@prisma/client";
 import * as argon2 from "argon2";
 import { OnlineUsers } from "../classes/OnlineUsers";
 
@@ -554,6 +554,7 @@ export class ChannelService {
 			return null;
 		}
 	}
+
 	async getDMsMessages(userName, title) {
 		const chan = await this.prisma.channel.findUnique({
 			where: {
@@ -595,6 +596,43 @@ export class ChannelService {
 		}
 	}
 
+	async getInviteList(title : string, userName : string) : Promise<{ id: number; userName: string; }[]> {
+		const user = await this.userService.getUserByUserName(userName);
+		if (!user)
+			return null;
+		const allUsers = await this.prisma.user.findMany({
+			where: {
+				NOT:{
+					id: user.id,
+				}
+			},
+			select: {
+				id: true,
+				userName: true,
+			}
+		}
+		);
+		const banned = await this.prisma.channel.findUnique({
+			where: {
+				title: title,
+			},
+			include: {
+				banList: {
+					select: {
+						id: true,
+						userName: true,
+					}
+				}
+			}
+		});
+		if (!banned || !allUsers){
+			return null;
+		}
+		const bannedList : Array<{id: number, userName: string}> = banned.banList;
+		const difference = allUsers.filter( x => !bannedList.includes(x) );
+		return difference;
+	}
+	
 	async dropdb() {
 		await this.prisma.channel.deleteMany({});
 	}

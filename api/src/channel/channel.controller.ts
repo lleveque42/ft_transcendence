@@ -277,4 +277,23 @@ export class ChannelController {
 			throw new HttpException(e.message, e.status);
 		}
 	}
+
+	@UseGuards(AtGuard)
+	@Post("/retrieve_invite_list")
+	async retrieveInviteChannel(
+		@Body() body,
+		@GetCurrentUser("sub") userName: string,
+		@Res({ passthrough: true }) res: Response,
+	): Promise<{id : number, userName: string}[]> {
+		try {
+			const users = await this.channelService.getInviteList(
+				body.title ,
+				userName,
+			);
+			return users;
+		} catch (e) {
+			throw new HttpException(e.message, e.status);
+		}
+	}
+	
 }
