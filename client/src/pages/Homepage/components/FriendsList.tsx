@@ -4,14 +4,27 @@ import styles from "./FriendsList.module.scss";
 import { UserStatus } from "../../../types/UserStatus.enum";
 import trimUserName from "../../../utils/trimUserName";
 import { usePrivateRouteSocket } from "../../../context/PrivateRouteProvider";
+import { usersListDmRequest } from "../../../api";
 
 export default function FriendsList() {
-	const { user } = useUser();
+	const { user, accessToken } = useUser();
 	const { socket } = usePrivateRouteSocket();
 	const navigate = useNavigate();
 
 	function sendGameInvite(invited: number) {
 		socket?.emit("sendGameInvite", { sender: user.id, invited });
+	}
+
+	async function handleDmRedir() {
+		try {
+			const res = await usersListDmRequest(accessToken);
+			if (res.ok) {
+				const data = await res.json();
+				console.log(data);
+			}
+		} catch (e) {
+			console.error(e);
+		}
 	}
 
 	return (
@@ -58,7 +71,7 @@ export default function FriendsList() {
 									)}
 									<i
 										className="d-flex flex-1 justify-content fa-solid fa-envelope"
-										onClick={() => navigate("/chat")}
+										onClick={handleDmRedir}
 									/>
 								</li>
 							))}

@@ -50,10 +50,10 @@ export default function NewDM() {
 				showAlert("error", "An error occured, try again later");
 			}
 		})();
-	}, [user.userName, accessToken]);
+	}, [user.userName, accessToken, showAlert]);
 
 	async function createDm(userId: number) {
-		let formValues: FormValues = initialFormValues;
+		const formValues: FormValues = initialFormValues;
 		formValues.id1 = user.id;
 		formValues.id2 = userId;
 		if (formValues.id1 < formValues.id2) {
@@ -137,8 +137,8 @@ export default function NewDM() {
 		</div>
 	);
 }
-{
-	/* return (
+// {
+/* return (
 		<div className="d-flex flex-column align-items flex-1">
 			<div className="title mt-20">New DM</div>
 			<ChatNav />
@@ -162,4 +162,4 @@ export default function NewDM() {
 					</div>
 				)}
 			</div>) */
-}
+// }

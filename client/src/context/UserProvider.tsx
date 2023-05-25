@@ -2,22 +2,24 @@ import { createContext, useContext, useState } from "react";
 import { isAuthRequest, logoutRequest } from "../api";
 import { UserStatus, Friend } from "../types";
 
+export type UserContextType = {
+	id: number;
+	userName: string;
+	email: string;
+	firstName: string;
+	lastName: string;
+	isTfaEnable: boolean;
+	status: UserStatus;
+	blockList: { id: number; userName: string }[];
+	friends: Friend[];
+};
+
 type UserContextValue = {
 	isAuth: () => Promise<boolean>;
 	logout: () => void;
 	updateOnlineFriend: (friend: Friend) => void;
 	accessToken: string;
-	user: {
-		id: number;
-		userName: string;
-		email: string;
-		firstName: string;
-		lastName: string;
-		isTfaEnable: boolean;
-		status: UserStatus;
-		blockList: { id : number; userName: string}[];
-		friends: Friend[];
-	};
+	user: UserContextType;
 };
 
 const UserContext = createContext<UserContextValue>({
@@ -50,7 +52,7 @@ export type UserDataState = {
 	lastName: string;
 	isTfaEnable: boolean;
 	status: UserStatus;
-	blockList: { id : number; userName: string}[];
+	blockList: { id: number; userName: string }[];
 	friends: Friend[];
 };
 
@@ -71,8 +73,7 @@ export const UserProvider = ({ children }: UserProviderProps) => {
 	const isAuth = async (): Promise<boolean> => {
 		const res = await isAuthRequest();
 		if (res && res.ok) {
-			if (res.status === 204)
-				return false;
+			if (res.status === 204) return false;
 			const data = await res.json();
 			setAccessToken(data.accessToken);
 			setUser(data.userData);

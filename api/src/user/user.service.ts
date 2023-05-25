@@ -214,7 +214,16 @@ export class UserService {
 		return users;
 	}
 
-	async getJoignableUsers(userName: string) {
+	async getJoignableUsers(userName: string): Promise<
+		{
+			id: number;
+			userName: string;
+			blockList: {
+				id: number;
+				userName: string;
+			}[];
+		}[]
+	> {
 		const users = await this.prisma.user.findMany({
 			where: {
 				NOT: {

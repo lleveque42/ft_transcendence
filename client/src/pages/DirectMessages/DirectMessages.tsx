@@ -122,6 +122,7 @@ export default function DirectMessages() {
 							>
 								{member.userName}
 							</p>
+							<button className="btn btn-danger pl-10 pr-10 p-5" onClick={() => handleBlock(channel)}>Block</button>
 						</li>
 					)
 				);
