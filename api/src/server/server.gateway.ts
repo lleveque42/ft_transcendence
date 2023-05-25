@@ -161,13 +161,6 @@ export class ServerGateway
 
 	@SubscribeMessage("joinChatRoom")
 	async handleJoinChanRoom(socket: Socket, chanName: string): Promise<void> {
-		console.log(
-			"The socket " +
-				socket.id +
-				" trying to connect to the chan " +
-				chanName +
-				".",
-		);
 		const sockets = this.users.getClientsByClientId(socket.id);
 		for (const socket of sockets) {
 			socket[1].join(chanName);
@@ -270,5 +263,27 @@ export class ServerGateway
 				data.userName,
 				data.mode,
 			);
+	}
+
+	@SubscribeMessage("addUserToChan")
+	async handleAddUserToChan(
+		@ConnectedSocket() client: Socket,
+		@MessageBody()
+		data: {
+			room: string;
+			userId: string;
+		},
+	): Promise<void> {
+		const sockets = this.users.getClientsByClientId(client.id);
+		if (sockets){
+			for (const socket of sockets) {
+				socket[1].join(data.room);
+			}
+		}
+		const chan = await this.channelService.getChannelByTitle(data.room);
+		this.io.to(chan.title).emit("userJoinedChan", chan);
+
+		// this.io.to(data.room).emit("joinChannel", chan, data.userId, "");
+		// this.io.to(data.room).emit("userJoinedDM", chan);
 	}
 }

@@ -602,16 +602,28 @@ export class ChannelService {
 			return null;
 		const allUsers = await this.prisma.user.findMany({
 			where: {
-				NOT:{
-					id: user.id,
+				NOT: {
+					userName: userName,
 				}
 			},
 			select: {
 				id: true,
 				userName: true,
 			}
-		}
-		);
+		});
+		const members = await this.prisma.channel.findUnique({
+			where: {
+				title: title,
+			},
+			include: {
+				members: {
+					select: {
+						id: true,
+						userName: true,
+					}
+				}
+			}
+		});
 		const banned = await this.prisma.channel.findUnique({
 			where: {
 				title: title,
@@ -622,15 +634,49 @@ export class ChannelService {
 						id: true,
 						userName: true,
 					}
-				}
+				},
 			}
 		});
-		if (!banned || !allUsers){
+		if (!banned || !members || !allUsers){
 			return null;
 		}
 		const bannedList : Array<{id: number, userName: string}> = banned.banList;
-		const difference = allUsers.filter( x => !bannedList.includes(x) );
-		return difference;
+		const membersList : Array<{id: number, userName: string}> = members.members;
+		// const differenceBanned = allUsers.filter( x => !bannedList.includes(x) && !membersList.includes(x) );
+		const differenceBanned = allUsers.filter( x => !bannedList.some((banned) => banned.id !== x.id) && !membersList.some((member) => member.id !== x.id));
+		console.log(allUsers);
+		console.log(bannedList);
+		console.log(membersList);
+		console.log(differenceBanned);
+			
+		
+		// const filteredUsers = allUsers.filter((u) => {
+        //     const blockedUsers = u.banned.map((blocked) => blocked.id);
+        //     return (
+        //         !blockedUsers.includes(user.id) &&
+        //         !usersBlocked.blockList.some((blockedUser) => blockedUser.id === u.id)
+        //     );
+        // });
+		return allUsers;
+	}
+
+	async addToChannel(title : string, userId : number) : Promise<void> {
+		try {
+			await this.prisma.channel.update({
+				where: {
+					title: title,
+				},
+				data : {
+					members : {
+						connect : {
+							id: userId,
+						}
+					}
+				}
+			});
+		} catch ( error ){
+			throw new ForbiddenException("Can't add a user in chan");
+		}
 	}
 	
 	async dropdb() {

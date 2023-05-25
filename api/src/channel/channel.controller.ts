@@ -295,5 +295,20 @@ export class ChannelController {
 			throw new HttpException(e.message, e.status);
 		}
 	}
-	
+
+	@UseGuards(AtGuard)
+	@Post("/invite")
+	async raddInviteChannel(
+		@Body() body,
+		@Res({ passthrough: true }) res: Response,
+	): Promise<void> {
+		try {
+			const users = await this.channelService.addToChannel(
+				body.title ,
+				body.userId
+			);
+		} catch (e) {
+			throw new HttpException(e.message, e.status);
+		}
+	}
 }

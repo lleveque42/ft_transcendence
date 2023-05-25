@@ -388,9 +388,9 @@ export default function Channel() {
 	  async function handleInviteClick(userId : number) {
 		if (!chanInfo?.title || !userId){ return }
 		const data = {title : chanInfo?.title, userId };
+		const toEmit = { room : chanInfo.title, userId,  };
 		try {
-			console.log("Invite");
-			await fetch(`${process.env.REACT_APP_BACKEND_URL}/channels/invite`, {
+			const res : Response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/channels/invite`, {
 				method: "POST",
 				credentials: "include",
 				headers: {
@@ -399,14 +399,19 @@ export default function Channel() {
 				},
 				body: JSON.stringify(data),
 			})
-			.then((res) => res.json())
-			.then(
-				(users) => {
-				}
-				);
+			if (res.status === 201) {
+				chatSocket?.emit("addUserToChan", toEmit);
+
+				setInfoBool(true);
+				setuserBool(false);
+				setInviteBool(false);
+			}
+			else {
+				// To dooooooooooooooo
+			}
 			navigate(`/chat/channels/${chanInfo?.title}`);
 			} catch (e) {
-				console.error("Error retieving invite users from channel");
+				console.error("Error adding user to chan");
 			}
 	  }
 
@@ -460,8 +465,7 @@ export default function Channel() {
 						{
 							infoBool &&
 							<div className="d-flex flex-column">
-								<div className={`btn-primary m-20`} onClick={() => {
-									 handleInviteListClick()}}>
+								<div className={`btn-primary m-20`} onClick={() => {handleInviteListClick()}}>
 									Invite
 								</div>
 								<div>

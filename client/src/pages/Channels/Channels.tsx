@@ -78,8 +78,6 @@ export default function Channels() {
 	
 	useEffect(() => {
 		const chanListener = (chan: ChannelModel, username: string, mode : string) => {
-			// console.log((username !== user.userName && mode === "leave"));
-			
 			if (username === user.userName && mode === "leave"){
 				setChannelsState(channelsState.filter(c => c.id !== chan.id));
 			}else if (username !== user.userName && mode === "leave") {
