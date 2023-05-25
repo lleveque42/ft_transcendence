@@ -598,66 +598,32 @@ export class ChannelService {
 
 	async getInviteList(title : string, userName : string) : Promise<{ id: number; userName: string; }[]> {
 		const user = await this.userService.getUserByUserName(userName);
-		if (!user)
+		const chan = await this.getChannelByTitle(title);
+		if (!user || !chan)
 			return null;
-		const allUsers = await this.prisma.user.findMany({
+		const membersNotInChannel = await this.prisma.user.findMany({
 			where: {
 				NOT: {
-					userName: userName,
-				}
-			},
-			select: {
-				id: true,
-				userName: true,
-			}
-		});
-		const members = await this.prisma.channel.findUnique({
-			where: {
-				title: title,
-			},
-			include: {
-				members: {
-					select: {
-						id: true,
-						userName: true,
+				channels: {
+					some: {
+					id: chan.id
 					}
+				},
 				}
 			}
-		});
-		const banned = await this.prisma.channel.findUnique({
+			});
+		const membersBanned = await this.prisma.user.findMany({
 			where: {
-				title: title,
-			},
-			include: {
-				banList: {
-					select: {
-						id: true,
-						userName: true,
+				chanBans: {
+					some: {
+					id: chan.id
 					}
 				},
 			}
 		});
-		if (!banned || !members || !allUsers){
-			return null;
-		}
-		const bannedList : Array<{id: number, userName: string}> = banned.banList;
-		const membersList : Array<{id: number, userName: string}> = members.members;
-		// const differenceBanned = allUsers.filter( x => !bannedList.includes(x) && !membersList.includes(x) );
-		const differenceBanned = allUsers.filter( x => !bannedList.some((banned) => banned.id !== x.id) && !membersList.some((member) => member.id !== x.id));
-		console.log(allUsers);
-		console.log(bannedList);
-		console.log(membersList);
-		console.log(differenceBanned);
-			
-		
-		// const filteredUsers = allUsers.filter((u) => {
-        //     const blockedUsers = u.banned.map((blocked) => blocked.id);
-        //     return (
-        //         !blockedUsers.includes(user.id) &&
-        //         !usersBlocked.blockList.some((blockedUser) => blockedUser.id === u.id)
-        //     );
-        // });
-		return allUsers;
+		const difference = membersNotInChannel.filter( x => membersNotInChannel.includes(x) );
+		console.log(difference);
+		return difference;
 	}
 
 	async addToChannel(title : string, userId : number) : Promise<void> {
