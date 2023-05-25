@@ -281,7 +281,7 @@ export default function Channel() {
 
 	  async function handleMute(userName : string, userId: number) {
 		const chanId = chanInfo?.id;
-		const room = chanInfo?.title;
+		// const room = chanInfo?.title;
 		const mutedEnd = new Date(currentTime.getTime() + 30000);
 		// console.log(currentTime);
 		// console.log(mutedEnd);

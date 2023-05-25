@@ -38,6 +38,13 @@
 		border: 2px solid var(--danger);
 	}
 
+	&-success {
+		@extend .btn;
+		background-color: var(--success);
+		border: 2px solid var(--success);
+	}
+
+
 	&:hover {
 		transition: 0.3s;
 		box-shadow: var(--box-shadow-login42);

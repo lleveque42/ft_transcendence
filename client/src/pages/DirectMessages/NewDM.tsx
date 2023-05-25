@@ -6,7 +6,6 @@ import { useUser } from "../../context/UserProvider";
 import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
 import { useAlert } from "../../context/AlertProvider";
 import { UserModel } from "../../entities/entities";
-import styles from "./DirectMessages.module.scss";
 
 type FormValues = {
 	title: string;
@@ -104,7 +103,7 @@ export default function NewDM() {
 		}
 	}
 
-	const userList = usersState.filter((u) => u.id !== user.id);
+	// const userList = usersState.filter((u) => u.id !== user.id);
 
 	useEffect(() => {
 		setUsersList(

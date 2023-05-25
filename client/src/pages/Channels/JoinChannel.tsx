@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../../context/UserProvider";
 import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
-import { Channel, ChannelModel } from "../../entities/entities";
+import { ChannelModel } from "../../entities/entities";
 
 type FormValues = {
 	userId: number;
@@ -43,7 +43,7 @@ export default function JoinChannel() {
 		return () => {
 			chatSocket?.off("addChannelToJoin",);
 		}
-	  }, [chatSocket, navigate, user.userName])
+	  }, [chatSocket, channelsState])
 
 	async function handleClick(channelId: number, title: string) {
 		const formValues: FormValues = {
