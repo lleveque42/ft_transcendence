@@ -113,9 +113,10 @@ export default function DirectMessages() {
 			return members.map((member) => {
 				return (
 					member.id !== user.id && (
-						<p className={styles.listElems} key={member.id}>
-							{member.userName}
-						</p>
+						<li className={styles.listElems} key={member.id}>
+							<p>{member.userName}</p>
+							
+						</li>
 					)
 				);
 			});
@@ -145,7 +146,7 @@ export default function DirectMessages() {
 		return <p key={"0"}></p>;
 	});
 
-			/* const directMessageList = directMessagesState.map((channel) => {
+	/* const directMessageList = directMessagesState.map((channel) => {
 		const members = channel.members;
 		if (members) {
 			return members.map((member) => {

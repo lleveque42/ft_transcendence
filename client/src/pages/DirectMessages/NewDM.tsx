@@ -28,22 +28,27 @@ const initialFormValues: FormValues = {
 
 export default function NewDM() {
 	const { accessToken, user } = useUser();
-	const [usersState, setUsersState] = useState<{ id: number; userName: string ; blockList: UserModel[]}[]>([]);
+	const [usersState, setUsersState] = useState<
+		{ id: number; userName: string; blockList: UserModel[] }[]
+	>([]);
 	const [usersList, setUsersList] = useState<JSX.Element[]>([]);
 	const socket = usePrivateRouteSocket();
 	const { showAlert } = useAlert();
 	const navigate = useNavigate();
-	const {chatSocket} = usePrivateRouteSocket();
+	const { chatSocket } = usePrivateRouteSocket();
 
 	useEffect(() => {
 		(async () => {
 			try {
-				await fetch(`${process.env.REACT_APP_BACKEND_URL}/channels/users_list/retrieve`, {
-					credentials: "include",
-					headers: {
-						Authorization: `Bearer ${accessToken}`,
+				await fetch(
+					`${process.env.REACT_APP_BACKEND_URL}/channels/users_list/retrieve`,
+					{
+						credentials: "include",
+						headers: {
+							Authorization: `Bearer ${accessToken}`,
+						},
 					},
-				})
+				)
 					.then((res) => res.json())
 					.then((users) => {
 						setUsersState(users);
@@ -59,31 +64,37 @@ export default function NewDM() {
 		let formValues: FormValues = initialFormValues;
 		formValues.id1 = user.id;
 		formValues.id2 = parseInt(userId);
-		if (formValues.id1 < formValues.id2){
-			formValues.title = user.id  + "_" + userId;
+		if (formValues.id1 < formValues.id2) {
+			formValues.title = user.id + "_" + userId;
 		} else {
-			formValues.title = userId  + "_" + user.id;			
+			formValues.title = userId + "_" + user.id;
 		}
-        formValues.type = "DM";
+		formValues.type = "DM";
 		formValues.mode = "Public";
 		formValues.password = "";
 		try {
-			const res : Response= await fetch(`${process.env.REACT_APP_BACKEND_URL}/channels/create_join_dm`, {
-				method: "POST",
-				credentials: "include",
-				headers: {
-					"Content-Type": "application/json",
+			const res: Response = await fetch(
+				`${process.env.REACT_APP_BACKEND_URL}/channels/create_join_dm`,
+				{
+					method: "POST",
+					credentials: "include",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify(formValues),
 				},
-				body: JSON.stringify(formValues),
-			});
+			);
 			if (res.status === 201) {
 				const body = await res.json();
-				if (body != null && body === "Duplicate"){
+				if (body != null && body === "Duplicate") {
 					showAlert("error", "This conversation already exists");
-				}
-				else {
+				} else {
 					showAlert("success", "A private message connection is established");
-					socket.chatSocket?.emit("joinDMRoom",{room: formValues.title, userId2: formValues.id2, userId: formValues.id1});
+					socket.chatSocket?.emit("joinDMRoom", {
+						room: formValues.title,
+						userId2: formValues.id2,
+						userId: formValues.id1,
+					});
 				}
 				navigate("/chat/direct_messages");
 				return true;
@@ -96,58 +107,57 @@ export default function NewDM() {
 	const userList = usersState.filter((u) => u.id !== user.id);
 
 	useEffect(() => {
-	setUsersList(usersState.map((el) => {
-		const match = user.blockList.filter((b) =>{
-			return (el.id === b.id);
-		} )
-		console.log(match.length);
-		
-		const boolMatch : boolean = match.length > 0 ? true : false;
-		return ( !boolMatch ?
-			<li key={el.id} id={el.id.toString(10)} onClick={handleClick} >{el.userName}</li>
-			:
-			<li key={el.id}>
-				<span className={"barre"}>	
-					{el.userName}
-				</span>
-			</li>
-			)
-		}));
-	// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [usersState])
+		setUsersList(
+			usersState.map((el) => {
+				const match = user.blockList.filter((b) => {
+					return el.id === b.id;
+				});
+				console.log(match.length);
+
+				const boolMatch: boolean = match.length > 0 ? true : false;
+				return !boolMatch ? (
+					<li key={el.id} id={el.id.toString(10)} onClick={handleClick}>
+						{el.userName}
+					</li>
+				) : (
+					<li key={el.id}>
+						<span className={"barre"}>{el.userName}</span>
+					</li>
+				);
+			}),
+		);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [usersState]);
 
 	useEffect(() => {
 		const usersListener = (userId: number) => {
-			setUsersState(usersState.filter(usr => usr.id !== userId));
-		}
+			setUsersState(usersState.filter((usr) => usr.id !== userId));
+		};
 		chatSocket?.on("userExpel", usersListener);
 		return () => {
-		  chatSocket?.off("userExpel");
-		}
-	// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [chatSocket, usersState])
-	
+			chatSocket?.off("userExpel");
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [chatSocket, usersState]);
+
 	return (
 		<div className="container d-flex flex-column justify-content align-items">
 			<div className="title">Start a new private chat</div>
 			<div>
-				<ChatNav/>
+				<ChatNav />
 				<div className="d-flex flex-column align-items justify-content p-20">
-					{usersList.length !== 0 ?
-						<ul>
-							{usersList}
-						</ul>
-					:
-						<div>
-							There is no private messages avalaible for you
-						</div>
-					}
+					{usersList.length !== 0 ? (
+						<ul>{usersList}</ul>
+					) : (
+						<div>There is no private messages avalaible for you</div>
+					)}
 				</div>
-				</div>
+			</div>
 		</div>
-	)
+	);
 }
-	{/* return (
+{
+	/* return (
 		<div className="d-flex flex-column align-items flex-1">
 			<div className="title mt-20">New DM</div>
 			<ChatNav />
@@ -170,4 +180,5 @@ export default function NewDM() {
 						There are no new private messages avalaible for you...
 					</div>
 				)}
-			</div>) */}
+			</div>) */
+}
