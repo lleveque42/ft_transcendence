@@ -88,21 +88,13 @@ export default function NewDM() {
 	useEffect(() => {
 		setUsersList(
 			usersState.map((el) => {
-				const match = user.blockList.filter((b) => {
-					return el.id === b.id;
-				});
-				const boolMatch: boolean = match.length > 0 ? true : false;
-				return !boolMatch ? (
+				return (
 					<li
 						key={el.id}
 						id={el.id.toString(10)}
 						onClick={() => createDm(el.id)}
 					>
 						{el.userName}
-					</li>
-				) : (
-					<li key={el.id}>
-						<span className={"barre"}>{el.userName}</span>
 					</li>
 				);
 			}),
@@ -130,7 +122,7 @@ export default function NewDM() {
 					{usersList.length !== 0 ? (
 						<ul>{usersList}</ul>
 					) : (
-						<div>There is no private messages avalaible for you</div>
+						<div>There are no private messages avalaible for you</div>
 					)}
 				</div>
 			</div>

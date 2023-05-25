@@ -224,7 +224,9 @@ export class UserService {
 			}[];
 		}[]
 	> {
-		const users = await this.prisma.user.findMany({
+		const user = await this.getUserByUserName(userName);
+		if (!user) throw new HttpException("Can't find user", HttpStatus.NOT_FOUND);
+		const allUsers = await this.prisma.user.findMany({
 			where: {
 				NOT: {
 					channels: {
@@ -236,7 +238,7 @@ export class UserService {
 						},
 					},
 				},
-				userName: { not: userName },
+				id: { not: user.id },
 			},
 			select: {
 				id: true,
@@ -249,7 +251,15 @@ export class UserService {
 				},
 			},
 		});
-		return users;
+		const usersBlocked = await this.getUserBlockList(user);
+		const filteredUsers = allUsers.filter((u) => {
+			const blockedUsers = u.blockList.map((blocked) => blocked.id);
+			return (
+				!blockedUsers.includes(user.id) &&
+				!usersBlocked.blockList.some((blockedUser) => blockedUser.id === u.id)
+			);
+		});
+		return filteredUsers;
 	}
 
 	async getAllGames(userId: number): Promise<GameInfosType[]> {
