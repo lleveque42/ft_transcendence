@@ -38,6 +38,7 @@ export class GameGateway
 	privateGames: PrivateGames = new PrivateGames();
 	waitingReconnection: Map<number, string> = new Map<number, string>();
 	reconnecting: Set<number> = new Set<number>();
+	afk: Set<number> = new Set<number>();
 	constructor(
 		private userService: UserService,
 		private gameService: GameService,
@@ -142,11 +143,7 @@ export class GameGateway
 		}, DISCONNECTION_TIMEOUT);
 	}
 
-	handleInGameDisconnect(
-		user: User,
-		client: Socket,
-		minimized?: boolean | false,
-	) {
+	handleInGameDisconnect(user: User, client: Socket) {
 		const room = this.ongoing.getGameIdByUserId(user.id);
 		const game = this.ongoing.getGameById(room);
 		this.waitingReconnection.set(user.id, room);
@@ -159,13 +156,13 @@ export class GameGateway
 			this.waitingReconnection.delete(opponent.id);
 			this.waitingReconnection.delete(user.id);
 			this.users.removeClientId(client.id);
-			// if (minimized) client.disconnect();
 			return;
 		}
 		this.io.to(room).emit("disconnection");
 		setTimeout(() => {
 			if (this.waitingReconnection.has(user.id)) {
 				this.waitingReconnection.delete(user.id);
+				this.afk.add(user.id);
 				this.logger.log(
 					`${game.owner.userName} vs ${game.player.userName} : ended or cancelled (Reconnection timeout).`,
 				);
@@ -173,7 +170,6 @@ export class GameGateway
 				this.changeUserStatus(opponent, false);
 			}
 			this.users.removeClientId(client.id);
-			if (minimized) client.disconnect();
 		}, DISCONNECTION_TIMEOUT);
 	}
 
@@ -305,6 +301,13 @@ export class GameGateway
 		else if (this.ongoing.alreadyInGame(user.id)) {
 			this.connectInGame(client, user);
 			this.reconnecting.delete(user.id);
+		} else if (this.afk.has(user.id)) {
+			client.emit("connectionStatus", {
+				success: true,
+				inGame: false,
+				afk: true,
+			});
+			this.afk.delete(user.id);
 		} else client.emit("connectionStatus", { success: true, inGame: false });
 	}
 
@@ -415,23 +418,5 @@ export class GameGateway
 		if (!ownerScored) {
 			if (this.ongoing.playerScored(room)) this.endGame(room, true, false);
 		} else if (this.ongoing.ownerScored(room)) this.endGame(room, true, false);
-	}
-
-	@SubscribeMessage("minimized")
-	ownerMinimized(@ConnectedSocket() client: Socket) {
-		const user = this.users.getUserByClientId(client.id);
-		this.handleInGameDisconnect(user, client, true);
-	}
-
-	@SubscribeMessage("maximized")
-	ownerMaximized(@ConnectedSocket() client: Socket) {
-		const user = this.users.getUserByClientId(client.id);
-		if (this.waitingReconnection.get(user.id)) {
-			this.waitingReconnection.delete(user.id);
-			client.emit("reconnectionMaximized", true);
-		} else {
-			client.emit("reconnectionMaximized", false);
-			client.disconnect();
-		}
 	}
 }

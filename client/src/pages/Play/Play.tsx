@@ -38,6 +38,7 @@ export default function Play() {
 	const [acceleratorOption, setAcceleratorOption] = useState<boolean>(false);
 	const [gameUserStatus, setGameUserStatus] = useState<GameUserStatus>(
 		GameUserStatus.notConnected,
+		// GameUserStatus.waitingGameStart,
 		// GameUserStatus.inGame,
 		// GameUserStatus.choosingOptions
 	);
@@ -74,6 +75,7 @@ export default function Play() {
 				status: {
 					success: boolean;
 					inGame: boolean;
+					afk?: boolean | false;
 					inOption?: boolean | false;
 				},
 				game: {
@@ -129,7 +131,8 @@ export default function Play() {
 						),
 					);
 					setGameUserStatus(GameUserStatus.choosingOptions);
-				} else setGameUserStatus(GameUserStatus.connected);
+				} else if (status.afk) setGameUserStatus(GameUserStatus.detectedAfk);
+				else setGameUserStatus(GameUserStatus.connected);
 				gameSocket?.off("privateGameDisconnection");
 			},
 		);
@@ -299,15 +302,11 @@ export default function Play() {
 	}
 
 	function handleVisibilityChange() {
-		if (document.visibilityState === "visible") gameSocket?.emit("maximized");
-		else gameSocket?.emit("minimized");
+		if (document.visibilityState === "hidden") navigate("/playMinimized");
 	}
 
 	useEffect(() => {
 		document.addEventListener("visibilitychange", handleVisibilityChange);
-		gameSocket?.once("disconnect", (reason) => {
-			setGameUserStatus(GameUserStatus.disconnectedAfk);
-		});
 		switch (gameUserStatus) {
 			case GameUserStatus.notConnected:
 				notConnected();
@@ -363,10 +362,7 @@ export default function Play() {
 				</>
 			)}
 			{gameUserStatus === GameUserStatus.connected && (
-				<Default
-					showUsers={() => gameSocket?.emit("showUsers")}
-					joinQueue={joinQueue}
-				/>
+				<Default joinQueue={joinQueue} />
 			)}
 			{gameUserStatus === GameUserStatus.inQueue && (
 				<Queue gameSocket={gameSocket} setGameUserStatus={setGameUserStatus} />
@@ -385,25 +381,10 @@ export default function Play() {
 			{gameUserStatus === GameUserStatus.gameCancelled && (
 				<>Game cancelled, opponent disconnected.</>
 			)}
-			{gameUserStatus === GameUserStatus.waitingGameStart && (
-				<>
-					<div>Game starting...</div>
-					<div>Accelerator : {acceleratorOption ? "true" : "false"}</div>
-					<div>Map : {mapOption}</div>
-					<Countdown />
-				</>
-			)}
-			{gameUserStatus === GameUserStatus.waitingGameRestart && (
-				<>
-					<div>Game restarting...</div>
-					<div>Accelerator : {gameStatus.accelerator ? "true" : "false"}</div>
-					<div>Map : {gameStatus.map}</div>
-					<Countdown />
-				</>
-			)}
+			{gameUserStatus === GameUserStatus.waitingGameStart && <Countdown />}
+			{gameUserStatus === GameUserStatus.waitingGameRestart && <Countdown />}
 			{gameUserStatus === GameUserStatus.inGame && (
 				<Game
-					showGames={() => gameSocket?.emit("showGames")}
 					gameStatus={gameStatus}
 					gameSocket={gameSocket}
 					accelerator={acceleratorOption}
@@ -431,11 +412,13 @@ export default function Play() {
 					LOSE
 				</div>
 			)}
-			{gameUserStatus === GameUserStatus.disconnectedAfk && (
+			{gameUserStatus === GameUserStatus.detectedAfk && (
 				<div
 					className={`${styles.sizeContainer} d-flex flex-column align-items justify-content mb-20`}
 				>
-					DISCONNECTED BECAUSE AFK
+					YOU VE BEEN DETECTED AFK IN ONE OF YOUR PRECEDENT GAME
+					<br></br>
+					THIS GAME HAS BEEN COUNTED HAS A LOSS
 					<br></br>
 					ADD UN BOUTON RECONNECT
 				</div>
@@ -455,20 +438,6 @@ export default function Play() {
 					</button>
 				</>
 			)}
-			<button
-				className="btn-primary mb-10"
-				onClick={() => {
-					gameSocket?.emit("showUsers");
-				}}
-			>
-				Show users
-			</button>
-			<button
-				className="btn-primary mb-10"
-				onClick={() => console.log(gameStatus)}
-			>
-				Show game status
-			</button>
 		</div>
 	);
 }
