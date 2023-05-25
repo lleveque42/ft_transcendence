@@ -67,7 +67,7 @@ export default function Channel() {
 			}
 
         })();
-    }, [accessToken, id, showAlert]);
+    }, [accessToken, id, showAlert, navigate]);
 
 	useEffect(() => {
 		const timer = setInterval(() => {
@@ -137,7 +137,6 @@ export default function Channel() {
 		})
 	}, [chanInfo?.operators, isOp, user.id])
 	
-
 	useEffect(() => {
 		const messageListener = (msg: MessageModel) => {
 			const {id, authorId, author, content} = msg
@@ -388,7 +387,7 @@ export default function Channel() {
 	  async function handleInviteClick(userId : number) {
 		if (!chanInfo?.title || !userId){ return }
 		const data = {title : chanInfo?.title, userId };
-		const toEmit = { room : chanInfo.title, userId,  };
+		const toEmit = { room : chanInfo.title, userId : userId};
 		try {
 			const res : Response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/channels/invite`, {
 				method: "POST",
@@ -414,6 +413,34 @@ export default function Channel() {
 				console.error("Error adding user to chan");
 			}
 	  }
+
+	  useEffect(() => {
+		const joinedListener = (chan: ChannelModel) => {
+			setChanInfo(chan);
+		}
+		chatSocket?.on("userJoinedChan", joinedListener)
+		return () => {
+			chatSocket?.off("userJoinedChan",);
+		}
+	  }, [chanInfo, chatSocket])
+
+	  useEffect(() => {
+		const inviteListener = (chan: ChannelModel, user : UserModel) => {
+			console.log(user.userName);
+			console.log(inviteState);
+			console.log("Remove from invite list");
+			const rendu = 	inviteState.filter(userCompare =>{
+				console.log(userCompare.id + " " + user.id );
+				return (userCompare.id !== user.id)
+			} )
+			console.log(rendu);
+			setInviteState(inviteState.filter(userCompare => userCompare.id !== user.id));
+		}
+		chatSocket?.on("removeFromInviteList", inviteListener)
+		return () => {
+			chatSocket?.off("removeFromInviteList",);
+		}
+	  }, [chanInfo, chatSocket, inviteState])
 
 	  useEffect(() => {
 		const chanListener = (chan: ChannelModel, username: string, mode : string) => {

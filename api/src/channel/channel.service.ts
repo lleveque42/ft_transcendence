@@ -604,25 +604,33 @@ export class ChannelService {
 		const membersNotInChannel = await this.prisma.user.findMany({
 			where: {
 				NOT: {
-				channels: {
-					some: {
-					id: chan.id
-					}
-				},
+					channels: {
+						some: {
+						id: chan.id
+						}
+					},
 				}
+			},
+			select : {
+				id: true,
+				userName: true,
 			}
-			});
+		});
+	
 		const membersBanned = await this.prisma.user.findMany({
 			where: {
 				chanBans: {
 					some: {
-					id: chan.id
+						id: chan.id
 					}
-				},
+				},		
+			},
+			select : {
+				id: true,
+				userName: true,
 			}
 		});
 		const difference = membersNotInChannel.filter( x => membersNotInChannel.includes(x) );
-		console.log(difference);
 		return difference;
 	}
 

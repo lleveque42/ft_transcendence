@@ -92,8 +92,6 @@ export default function NewDM() {
 		}
 	}
 
-	// const userList = usersState.filter((u) => u.id !== user.id);
-
 	useEffect(() => {
 	setUsersList(usersState.map((el) => {
 		const match = user.blockList.filter((b) =>{

@@ -298,7 +298,7 @@ export class ChannelController {
 
 	@UseGuards(AtGuard)
 	@Post("/invite")
-	async raddInviteChannel(
+	async addInviteChannel(
 		@Body() body,
 		@Res({ passthrough: true }) res: Response,
 	): Promise<void> {

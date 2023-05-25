@@ -1,6 +1,6 @@
 import ChatNav from "../../components/Chat/ChatNav/ChatNav";
 import { useEffect, useState } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { useUser } from "../../context/UserProvider";
 import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
 import { ChannelModel } from "../../entities/entities";
@@ -75,7 +75,19 @@ export default function Channels() {
 			</div>
 		</li>
 	)});
-	
+
+	useEffect(() => {
+		const inviteListener = (chan: ChannelModel, userId : number) => {
+			if (userId === user.id){	
+				setChannelsState([...channelsState, chan]);
+			}
+		}
+		chatSocket?.on("newInvitedChan", inviteListener)
+		return () => {
+			chatSocket?.off("newInvitedChan",);
+		}
+	  }, [chatSocket, channelsState, user.id])
+
 	useEffect(() => {
 		const chanListener = (chan: ChannelModel, username: string, mode : string) => {
 			if (username === user.userName && mode === "leave"){

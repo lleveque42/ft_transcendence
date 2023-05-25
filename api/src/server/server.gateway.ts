@@ -271,19 +271,22 @@ export class ServerGateway
 		@MessageBody()
 		data: {
 			room: string;
-			userId: string;
+			userId: number;
 		},
 	): Promise<void> {
-		const sockets = this.users.getClientsByClientId(client.id);
+		const sockets = this.users.getClientsByUserId(data.userId);
 		if (sockets){
 			for (const socket of sockets) {
 				socket[1].join(data.room);
 			}
 		}
+		const user = await this.userService.getUserById(data.userId);
 		const chan = await this.channelService.getChannelByTitle(data.room);
-		this.io.to(chan.title).emit("userJoinedChan", chan);
-
-		// this.io.to(data.room).emit("joinChannel", chan, data.userId, "");
-		// this.io.to(data.room).emit("userJoinedDM", chan);
+		if (user && chan){
+			console.log(user);
+			this.io.to(chan.title).emit("userJoinedChan", chan);
+			this.io.to(chan.title).emit("removeFromInviteList", chan, user);
+			this.io.to(chan.title).emit("newInvitedChan", chan, data.userId);
+		}
 	}
 }
