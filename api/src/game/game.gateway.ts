@@ -403,6 +403,8 @@ export class GameGateway
 		@MessageBody("ownerScored") ownerScored: boolean,
 	): void {
 		this.io.to(room).emit("resetPaddles");
+		this.io.to(room).emit("ownerPaddlePosUpdate", 0);
+		this.io.to(room).emit("playerPaddlePosUpdate", 0);
 		this.io.to(room).emit("scoreUpdate", ownerScored);
 		if (!ownerScored) {
 			if (this.ongoing.playerScored(room)) this.endGame(room, true, false);

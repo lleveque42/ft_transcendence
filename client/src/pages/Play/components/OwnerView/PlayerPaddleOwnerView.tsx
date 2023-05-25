@@ -40,15 +40,11 @@ export default function PlayerPaddle({
 	}
 
 	useEffect(() => {
-		socket!.on("resetPaddles", () => {
-			paddle.current.position.y = 0;
-		});
 		socket!.on("playerPaddlePosUpdate", (y: number) => {
 			paddle.current.position.y = y;
 		});
 		return () => {
 			socket!.off("playerPaddlePosUpdate");
-			socket!.off("resetPaddles");
 		};
 	});
 
