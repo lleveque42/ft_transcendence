@@ -1,11 +1,8 @@
 import {
 	Body,
 	Controller,
-	Delete,
 	Get,
-	HttpCode,
 	HttpException,
-	HttpStatus,
 	Param,
 	Post,
 	Res,
@@ -17,6 +14,8 @@ import { AtGuard } from "../auth/guards";
 import { GetCurrentUser } from "../common/decorators";
 import { Channel, Message, User } from "@prisma/client";
 import { Response } from "express";
+import { GetUserList } from "../common/types";
+import { createDmDto } from "./dto/channel.dto";
 
 @Controller("channels")
 export class ChannelController {
@@ -24,18 +23,6 @@ export class ChannelController {
 		private channelService: ChannelService,
 		private userService: UserService,
 	) {}
-
-	@Delete("temporary_dropdb")
-	@HttpCode(HttpStatus.GONE)
-	async dropdb() {
-		await this.channelService.dropdb();
-	}
-
-	@UseGuards(AtGuard)
-	@Get("test")
-	test(@GetCurrentUser("sub") userName: string): string {
-		return userName;
-	}
 
 	@UseGuards(AtGuard)
 	@Get("/join")
@@ -113,13 +100,12 @@ export class ChannelController {
 	}
 
 	@UseGuards(AtGuard)
-	@Get("/users_list/:test")
+	@Get("/users_list/retrieve")
 	async getUsersList(
 		@GetCurrentUser("sub") userName: string,
-	): Promise<{ id: number; userName: string }[]> {
+	): Promise<GetUserList[]> {
 		try {
-			const users = await this.userService.getJoignableUsers(userName);
-			return users;
+			return await this.userService.getJoignableUsers(userName);
 		} catch (e) {
 			throw new HttpException(e.message, e.status);
 		}
@@ -240,13 +226,16 @@ export class ChannelController {
 		}
 	}
 
+	@UseGuards(AtGuard)
 	@Post("create_join_dm")
 	async createDM(
-		@Body() body,
+		@Body() body: createDmDto,
 		@Res({ passthrough: true }) res: Response,
 	): Promise<void> {
+		console.log(body);
+
 		try {
-			const channel = await this.channelService.createDM(
+			await this.channelService.createDM(
 				{
 					title: body.title,
 					type: body.type,

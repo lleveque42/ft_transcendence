@@ -1,7 +1,7 @@
 interface User {
 	id: number;
-	email: string;
 	userName: string;
+	email?: string;
 	firstName?: string;
 	lastName?: string;
 	avatar?: string;
@@ -10,8 +10,8 @@ interface User {
 
 export class UserModel implements User {
 	id: number;
-	email: string;
 	userName: string;
+	email?: string;
 	firstName?: string;
 	lastName?: string;
 	avatar?: string;
@@ -65,9 +65,9 @@ export interface Channel {
 	messages: Message[];
 	banList: User[];
 	mutedList: Muted[];
-  }
+}
 
-  export class ChannelModel implements Channel {
+export class ChannelModel implements Channel {
 	id: number;
 	title: string;
 	password?: string;
@@ -80,36 +80,36 @@ export interface Channel {
 	messages: Message[];
 	banList: User[];
 	mutedList: Muted[];
-  
-	constructor(data: Channel) {
-	  this.id = data.id;
-	  this.title = data.title;
-	  this.password = data.password;
-	  this.type = data.type;
-	  this.mode = data.mode;
-	  this.ownerId = data.ownerId;
-	//   this.owner = data.owner ? new UserModel(data.owner) : undefined;
-	  this.operators = data.operators.map(user => new UserModel(user));
-	  this.members = data.members.map(user => new UserModel(user));
-	  this.messages = data.messages;
-	  this.banList = data.banList;
-	  this.mutedList = data.mutedList;
-	}
-  }
-  export interface Muted {
-	id: number;
-	userId :number;
-	muteExpiration: Date;
-  }
 
-  export class MutedModel implements Muted {
+	constructor(data: Channel) {
+		this.id = data.id;
+		this.title = data.title;
+		this.password = data.password;
+		this.type = data.type;
+		this.mode = data.mode;
+		this.ownerId = data.ownerId;
+		//   this.owner = data.owner ? new UserModel(data.owner) : undefined;
+		this.operators = data.operators.map((user) => new UserModel(user));
+		this.members = data.members.map((user) => new UserModel(user));
+		this.messages = data.messages;
+		this.banList = data.banList;
+		this.mutedList = data.mutedList;
+	}
+}
+export interface Muted {
 	id: number;
-	userId :number;
+	userId: number;
+	muteExpiration: Date;
+}
+
+export class MutedModel implements Muted {
+	id: number;
+	userId: number;
 	muteExpiration: Date;
 
 	constructor(data: Muted) {
-	  this.id = data.id;
-	  this.userId = data.userId;
-	  this.muteExpiration = data.muteExpiration;
+		this.id = data.id;
+		this.userId = data.userId;
+		this.muteExpiration = data.muteExpiration;
 	}
-  }
+}

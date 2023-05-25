@@ -6,6 +6,7 @@ import { useUser } from "../../context/UserProvider";
 import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
 import { useAlert } from "../../context/AlertProvider";
 import { UserModel } from "../../entities/entities";
+import { createDmRequest, usersListDmRequest } from "../../api";
 
 type FormValues = {
 	title: string;
@@ -39,30 +40,22 @@ export default function NewDM() {
 	useEffect(() => {
 		(async () => {
 			try {
-				await fetch(
-					`${process.env.REACT_APP_BACKEND_URL}/channels/users_list/retrieve`,
-					{
-						credentials: "include",
-						headers: {
-							Authorization: `Bearer ${accessToken}`,
-						},
-					},
-				)
-					.then((res) => res.json())
-					.then((users) => {
-						setUsersState(users);
-					});
-			} catch (e) {}
+				const res = await usersListDmRequest(accessToken);
+				if (res.ok) {
+					const data = await res.json();
+					setUsersState(data);
+				}
+			} catch (e) {
+				console.error("Error get users list retrieve", e);
+				showAlert("error", "An error occured, try again later");
+			}
 		})();
 	}, [user.userName, accessToken]);
 
-	async function handleClick(event: React.MouseEvent<HTMLLIElement>) {
-		event.preventDefault();
-		const target = event.target as HTMLParagraphElement;
-		const userId = target.id;
+	async function createDm(userId: number) {
 		let formValues: FormValues = initialFormValues;
 		formValues.id1 = user.id;
-		formValues.id2 = parseInt(userId);
+		formValues.id2 = userId;
 		if (formValues.id1 < formValues.id2) {
 			formValues.title = user.id + "_" + userId;
 		} else {
@@ -72,17 +65,7 @@ export default function NewDM() {
 		formValues.mode = "Public";
 		formValues.password = "";
 		try {
-			const res: Response = await fetch(
-				`${process.env.REACT_APP_BACKEND_URL}/channels/create_join_dm`,
-				{
-					method: "POST",
-					credentials: "include",
-					headers: {
-						"Content-Type": "application/json",
-					},
-					body: JSON.stringify(formValues),
-				},
-			);
+			const res = await createDmRequest(accessToken, formValues);
 			if (res.status === 201) {
 				const body = await res.json();
 				if (body != null && body === "Duplicate") {
@@ -95,15 +78,12 @@ export default function NewDM() {
 						userId: formValues.id1,
 					});
 				}
-				navigate("/chat/direct_messages");
-				return true;
+				navigate(`/chat/direct_messages/${formValues.title}`);
 			}
 		} catch (e) {
 			console.error("Error joining channel");
 		}
 	}
-
-	// const userList = usersState.filter((u) => u.id !== user.id);
 
 	useEffect(() => {
 		setUsersList(
@@ -111,11 +91,13 @@ export default function NewDM() {
 				const match = user.blockList.filter((b) => {
 					return el.id === b.id;
 				});
-				console.log(match.length);
-
 				const boolMatch: boolean = match.length > 0 ? true : false;
 				return !boolMatch ? (
-					<li key={el.id} id={el.id.toString(10)} onClick={handleClick}>
+					<li
+						key={el.id}
+						id={el.id.toString(10)}
+						onClick={() => createDm(el.id)}
+					>
 						{el.userName}
 					</li>
 				) : (
@@ -167,7 +149,7 @@ export default function NewDM() {
 							<p
 								key={u.id}
 								id={u.id.toString(10)}
-								onClick={handleClick}
+								onClick={createDm}
 								className={styles.listElems}
 							>
 								{u.userName}

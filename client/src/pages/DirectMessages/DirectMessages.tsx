@@ -1,6 +1,6 @@
 import ChatNav from "../../components/Chat/ChatNav/ChatNav";
 import { useEffect, useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useUser } from "../../context/UserProvider";
 import { ChannelModel } from "../../entities/entities";
 import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
@@ -14,6 +14,7 @@ export default function DirectMessages() {
 	>([]);
 	const { chatSocket } = usePrivateRouteSocket();
 	const { showAlert } = useAlert();
+	const navigate = useNavigate();
 
 	useEffect(() => {
 		(async () => {
@@ -85,42 +86,46 @@ export default function DirectMessages() {
 	}
 
 	const directMessageList = directMessagesState.map((channel) => {
-		// const members = channel.members;
+		const members = channel.members;
 
-		const members = [
-			{ id: 1, userName: "Denis" },
-			{ id: 2, userName: "Denis" },
-			{ id: 3, userName: "Denis" },
-			{ id: 4, userName: "Denis" },
-			{ id: 5, userName: "Denis" },
-			{ id: 6, userName: "Denis" },
-			{ id: 7, userName: "Denis" },
-			{ id: 8, userName: "Denis" },
-			{ id: 9, userName: "Denis" },
-			{ id: 10, userName: "Denis" },
-			{ id: 11, userName: "Denis" },
-			{ id: 12, userName: "Denis" },
-			{ id: 13, userName: "Denis" },
-			{ id: 14, userName: "Denis" },
-			{ id: 15, userName: "Denis" },
-			{ id: 17, userName: "Denis" },
-			{ id: 16, userName: "Denis" },
-			{ id: 18, userName: "Denis" },
-			{ id: 19, userName: "Denis" },
-		];
+		// const members = [
+		// 	{ id: 1, userName: "Denis" },
+		// 	{ id: 2, userName: "Denis" },
+		// 	{ id: 3, userName: "Denis" },
+		// 	{ id: 4, userName: "Denis" },
+		// 	{ id: 5, userName: "Denis" },
+		// 	{ id: 6, userName: "Denis" },
+		// 	{ id: 7, userName: "Denis" },
+		// 	{ id: 8, userName: "Denis" },
+		// 	{ id: 9, userName: "Denis" },
+		// 	{ id: 10, userName: "Denis" },
+		// 	{ id: 11, userName: "Denis" },
+		// 	{ id: 12, userName: "Denis" },
+		// 	{ id: 13, userName: "Denis" },
+		// 	{ id: 14, userName: "Denis" },
+		// 	{ id: 15, userName: "Denis" },
+		// 	{ id: 17, userName: "Denis" },
+		// 	{ id: 16, userName: "Denis" },
+		// 	{ id: 18, userName: "Denis" },
+		// 	{ id: 19, userName: "Denis" },
+		// ];
 		// let membersDetails;
 		if (members) {
 			return members.map((member) => {
 				return (
 					member.id !== user.id && (
 						<li className={styles.listElems} key={member.id}>
-							<p>{member.userName}</p>
-							
+							<p
+								onClick={() =>
+									navigate(`/chat/direct_messages/${channel.title}`)
+								}
+							>
+								{member.userName}
+							</p>
 						</li>
 					)
 				);
 			});
-
 			// return (
 			// 	<div
 			// 		key={channel.id}

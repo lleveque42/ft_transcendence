@@ -7,7 +7,7 @@ import {
 } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { userInfo42Dto } from "../auth/dto";
-import { Prisma, User, UserStatus , AvatarFile} from "@prisma/client";
+import { Prisma, User, UserStatus, AvatarFile } from "@prisma/client";
 import { authenticator } from "otplib";
 import { toDataURL } from "qrcode";
 import { GameType } from "../game/types/game.type";
@@ -229,8 +229,15 @@ export class UserService {
 				},
 				userName: { not: userName },
 			},
-			include: {
-				blockList: true,
+			select: {
+				id: true,
+				userName: true,
+				blockList: {
+					select: {
+						id: true,
+						userName: true,
+					},
+				},
 			},
 		});
 		return users;

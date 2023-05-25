@@ -3,16 +3,15 @@ import Message from "../../components/Message/Message";
 import { useEffect, useState } from "react";
 import { NavLink, useNavigate, useParams } from "react-router-dom";
 import { useUser } from "../../context/UserProvider";
-import { KeyboardEvent } from "react"
+import { KeyboardEvent } from "react";
 import { ChannelModel, MessageModel } from "../../entities/entities";
 import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
 import { useAlert } from "../../context/AlertProvider";
-import { isAfter } from 'date-fns';
+import { isAfter } from "date-fns";
 
 export default function Channel() {
-  
 	const { user, isAuth, accessToken } = useUser();
-	const {chatSocket} = usePrivateRouteSocket();
+	const { chatSocket } = usePrivateRouteSocket();
 	const { id } = useParams();
 	const { showAlert } = useAlert();
 	const [value, setValue] = useState("");
@@ -31,210 +30,233 @@ export default function Channel() {
 	useEffect(() => {
 		(async () => {
 			try {
-				// await getAllMessagesInChan(id, accessToken, setMessagesState); 
-				await fetch(`${process.env.REACT_APP_BACKEND_URL}/channels/chan/${id}`, {
-					credentials: "include",
-					headers: {
-						Authorization: `Bearer ${accessToken}`,
+				// await getAllMessagesInChan(id, accessToken, setMessagesState);
+				await fetch(
+					`${process.env.REACT_APP_BACKEND_URL}/channels/chan/${id}`,
+					{
+						credentials: "include",
+						headers: {
+							Authorization: `Bearer ${accessToken}`,
+						},
 					},
-				})
-				.then((res) => res.json())
-				.then(
-				(messages) => {
-					setMessagesState(messages);
-				}
-				);
-				await fetch(`${process.env.REACT_APP_BACKEND_URL}/channels/edit/${id}`, {
-				credentials: "include",
-				headers: {
-					Authorization: `Bearer ${accessToken}`,
-				},
-				})
-				.then((res) => res.json())
-					.then(
-					(chan) => {
+				)
+					.then((res) => res.json())
+					.then((messages) => {
+						setMessagesState(messages);
+					});
+				await fetch(
+					`${process.env.REACT_APP_BACKEND_URL}/channels/edit/${id}`,
+					{
+						credentials: "include",
+						headers: {
+							Authorization: `Bearer ${accessToken}`,
+						},
+					},
+				)
+					.then((res) => res.json())
+					.then((chan) => {
 						setuserBool(false);
 						setInfoBool(true);
 						setChanInfo(chan);
-					}
-					);
-            } catch (e) {
-			}
-
-        })();
-    }, [accessToken, id]);
+					});
+			} catch (e) {}
+		})();
+	}, [accessToken, id]);
 
 	useEffect(() => {
 		const timer = setInterval(() => {
-		  setCurrentTime(new Date());
+			setCurrentTime(new Date());
 		}, 1000);
 		return () => {
-		  clearInterval(timer)
+			clearInterval(timer);
 		};
-	  }, []);
+	}, []);
 
 	function handleChanClick(event: MouseEvent) {
 		setuserBool(false);
 		setInfoBool(true);
 	}
-	
+
 	function handleMsgClick(userName: string, userId: number) {
-		if (userName === user.userName)
-		{return}
+		if (userName === user.userName) {
+			return;
+		}
 		setCurrentUserName(userName);
 		setCurrentUserId(userId);
-		chanInfo?.operators.forEach((op)=>{
-			if (op.id === userId){
+		chanInfo?.operators.forEach((op) => {
+			if (op.id === userId) {
 				setCurrentUserAdmin(true);
 			}
 		});
 		setuserBool(true);
 		setInfoBool(false);
 	}
-			
-	const chanClick = document.querySelectorAll('h1');
-	chanClick.forEach(chan => chan.addEventListener('click', handleChanClick));
+
+	const chanClick = document.querySelectorAll("h1");
+	chanClick.forEach((chan) => chan.addEventListener("click", handleChanClick));
 
 	useEffect(() => {
-	setMessagesList(messagesState.map(({ id, author, content }) => 
-	{
-		const match = user.blockList.filter((el) =>{
-			return (el.id === author.id);
-		} )
-		const boolMatch : boolean = match.length > 0 ? true : false;
-		return ( !boolMatch ?
-			<li  onClick={() => handleMsgClick(author.userName, author.id)} key={id}>
-				<Message
-					allMessages={messagesState}
-					// removeMessages={setMessagesState}
-					username ={author.userName}
-					content={content}
-				/>
-			</li>
-			:
-			<li key={id}>
-				Blocked Message from {author.userName}
-			</li>
-		)
-	}
-	  ));
-	// eslint-disable-next-line react-hooks/exhaustive-deps
-	},[messagesState]);
+		setMessagesList(
+			messagesState.map(({ id, author, content }) => {
+				const match = user.blockList.filter((el) => {
+					return el.id === author.id;
+				});
+				const boolMatch: boolean = match.length > 0 ? true : false;
+				return !boolMatch ? (
+					<li
+						onClick={() => handleMsgClick(author.userName, author.id)}
+						key={id}
+					>
+						<Message
+							allMessages={messagesState}
+							// removeMessages={setMessagesState}
+							username={author.userName}
+							content={content}
+						/>
+					</li>
+				) : (
+					<li key={id}>Blocked Message from {author.userName}</li>
+				);
+			}),
+		);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [messagesState]);
 
-	useEffect(()=>{	
-		chanInfo?.operators.map((op)=>{
-			if (op.id === user.id){
-				setOp(true);	
+	useEffect(() => {
+		chanInfo?.operators.map((op) => {
+			if (op.id === user.id) {
+				setOp(true);
 			}
-			return ("");
-		})
-	}, [chanInfo?.operators, isOp, user.id])
-	
+			return "";
+		});
+	}, [chanInfo?.operators, isOp, user.id]);
 
 	useEffect(() => {
 		const messageListener = (msg: MessageModel) => {
-			const {id, authorId, author, content} = msg
-			setMessagesState([...messagesState, {id, authorId, author, content}]);
-		}
+			const { id, authorId, author, content } = msg;
+			setMessagesState([...messagesState, { id, authorId, author, content }]);
+		};
 		chatSocket?.on("receivedMessage", messageListener);
 		return () => {
-		  chatSocket?.off("receivedMessage", messageListener);
-		}
-	}, [messagesList, messagesState, chatSocket])
+			chatSocket?.off("receivedMessage", messageListener);
+		};
+	}, [messagesList, messagesState, chatSocket]);
 
-	const handleKeyDown =  (event : KeyboardEvent<HTMLInputElement>) => {
-		if (event.key === "Enter" && value !== ""){
-			const data = chanInfo?.mutedList?.filter((mutedUser) => mutedUser.userId === user.id);
+	const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+		if (event.key === "Enter" && value !== "") {
+			const data = chanInfo?.mutedList?.filter(
+				(mutedUser) => mutedUser.userId === user.id,
+			);
 			const retrieveDate = data?.at(0)?.muteExpiration;
 			let newDate = currentTime;
 			let unMuted: boolean = false;
-			if (retrieveDate){
+			if (retrieveDate) {
 				newDate = new Date(retrieveDate);
 			}
-			if (newDate){
+			if (newDate) {
 				unMuted = isAfter(currentTime.getTime(), newDate.getTime());
 			}
-			if (unMuted){
+			if (unMuted) {
 				// Might be worthy to delete the mutedList item
 				console.log("Need to be unMuted");
 			}
-			if (!chanInfo?.mutedList?.some((mutedUser) => mutedUser.userId === user.id) || unMuted){
-				chatSocket?.emit("chanMessage", {room: id, message: value});
+			if (
+				!chanInfo?.mutedList?.some(
+					(mutedUser) => mutedUser.userId === user.id,
+				) ||
+				unMuted
+			) {
+				chatSocket?.emit("chanMessage", { room: id, message: value });
 				setValue("");
-				const inputValue : HTMLElement | null = document.getElementById("newMsg");
-				if (inputValue!= null){
+				const inputValue: HTMLElement | null =
+					document.getElementById("newMsg");
+				if (inputValue != null) {
 					inputValue.nodeValue = "";
 				}
-			}
-			else{
+			} else {
 				console.log("Muted");
 				showAlert("error", "You are currently muted");
 			}
 		}
 	};
-	
+
 	useEffect(() => {
-		chatSocket?.on("errorSendingMessage", (username:string)=>{
+		chatSocket?.on("errorSendingMessage", (username: string) => {
 			console.log("Error username : " + username);
-			if (username === user.userName){
-				showAlert("error", "You're not able to send a message in this channel, sorry :(");
+			if (username === user.userName) {
+				showAlert(
+					"error",
+					"You're not able to send a message in this channel, sorry :(",
+				);
 			}
 		});
 		return () => {
-		  chatSocket?.off("errorSendingMessage",);
-		}
-	  // eslint-disable-next-line react-hooks/exhaustive-deps
-	  }, [messagesList, messagesState])
+			chatSocket?.off("errorSendingMessage");
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [messagesList, messagesState]);
 
-		
-	async function handleKick(userName : string, userId: number) {
+	async function handleKick(userName: string, userId: number) {
 		const id = chanInfo?.id;
 		const room = chanInfo?.title;
-		const data = {userName, id}
+		const data = { userName, id };
 		const mode = "kick";
-		const toEmit = {id, room, userName, mode}
-		if (chanInfo?.ownerId === userId){
-			showAlert("error", "Error, you can't kick, ban or mute the channel owner bro");
-			return ;
+		const toEmit = { id, room, userName, mode };
+		if (chanInfo?.ownerId === userId) {
+			showAlert(
+				"error",
+				"Error, you can't kick, ban or mute the channel owner bro",
+			);
+			return;
 		}
 		try {
-			const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/channels/kick`, {
-				method: "POST",
-				credentials: "include",
-				headers: {
-					"Content-Type": "application/json",
+			const res = await fetch(
+				`${process.env.REACT_APP_BACKEND_URL}/channels/kick`,
+				{
+					method: "POST",
+					credentials: "include",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify(data),
 				},
-				body: JSON.stringify(data),
-			})
-			chatSocket?.emit("blockUser", toEmit);			
+			);
+			chatSocket?.emit("blockUser", toEmit);
 			if (res.status === 201) {
 				setInfoBool(true);
 				setuserBool(false);
-			}
-			else{
+			} else {
 				// To dOOOOOOOOOOOOOO
 			}
 		} catch (e) {
 			console.error("Error kicking from channel");
 		}
-	  }
+	}
 
-	  async function handleBlock(userTopName:string, userTopId: number, userBottomName : string, userBottomId: number) {
+	async function handleBlock(
+		userTopName: string,
+		userTopId: number,
+		userBottomName: string,
+		userBottomId: number,
+	) {
 		const room = chanInfo?.title;
 		const id = chanInfo?.id;
 		const mode = "block";
-		const data = {userTopName, userTopId, userBottomName, userBottomId}
-		const toEmit = {id, room, userTopName, mode}
+		const data = { userTopName, userTopId, userBottomName, userBottomId };
+		const toEmit = { id, room, userTopName, mode };
 		try {
-			const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/user/block`, {
-				method: "POST",
-				credentials: "include",
-				headers: {
-					"Content-Type": "application/json",
+			const res = await fetch(
+				`${process.env.REACT_APP_BACKEND_URL}/user/block`,
+				{
+					method: "POST",
+					credentials: "include",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify(data),
 				},
-				body: JSON.stringify(data),
-			})
-			chatSocket?.emit("blockUser", toEmit);			
+			);
+			chatSocket?.emit("blockUser", toEmit);
 			if (res.status === 201) {
 				showAlert("success", userBottomName + " has been blocked");
 				setInfoBool(true);
@@ -244,208 +266,254 @@ export default function Channel() {
 		} catch (e) {
 			console.error("Error blocking from user");
 		}
-	  }
+	}
 
-	  async function handleBan(userName : string, userId: number) {
+	async function handleBan(userName: string, userId: number) {
 		const id = chanInfo?.id;
 		const room = chanInfo?.title;
-		const data = {userName, id}
+		const data = { userName, id };
 		const mode = "ban";
-		const toEmit = {id, room, userName, mode}
-		if (chanInfo?.ownerId === userId){
-			showAlert("error", "Error, you can't kick, ban or mute the channel owner bro");
-			return ;
+		const toEmit = { id, room, userName, mode };
+		if (chanInfo?.ownerId === userId) {
+			showAlert(
+				"error",
+				"Error, you can't kick, ban or mute the channel owner bro",
+			);
+			return;
 		}
 		try {
-			const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/channels/ban`, {
-				method: "POST",
-				credentials: "include",
-				headers: {
-					"Content-Type": "application/json",
+			const res = await fetch(
+				`${process.env.REACT_APP_BACKEND_URL}/channels/ban`,
+				{
+					method: "POST",
+					credentials: "include",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify(data),
 				},
-				body: JSON.stringify(data),
-			})
-			chatSocket?.emit("exitChatRoom", toEmit);			
+			);
+			chatSocket?.emit("exitChatRoom", toEmit);
 			if (res.status === 201) {
 				showAlert("success", userName + " has been banned");
 				setInfoBool(true);
 				setuserBool(false);
-			}
-			else {
+			} else {
 				// To dooooooooooooooo
 			}
 		} catch (e) {
 			console.error("Error bannishing from channel");
 		}
-	  }
+	}
 
-	  async function handleMute(userName : string, userId: number) {
+	async function handleMute(userName: string, userId: number) {
 		const chanId = chanInfo?.id;
 		// const room = chanInfo?.title;
 		const mutedEnd = new Date(currentTime.getTime() + 30000);
 		// console.log(currentTime);
 		// console.log(mutedEnd);
-		const data = {chanId, userId, mutedEnd};
+		const data = { chanId, userId, mutedEnd };
 		const mode = "mute";
-		const toEmit = {id, userId, userName, mode}
-		if (chanInfo?.ownerId === userId){
-			showAlert("error", "Error, you can't kick, ban or mute the channel owner bro");
-			return ;
+		const toEmit = { id, userId, userName, mode };
+		if (chanInfo?.ownerId === userId) {
+			showAlert(
+				"error",
+				"Error, you can't kick, ban or mute the channel owner bro",
+			);
+			return;
 		}
 		try {
-			const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/channels/mute`, {
-				method: "POST",
-				credentials: "include",
-				headers: {
-					"Content-Type": "application/json",
+			const res = await fetch(
+				`${process.env.REACT_APP_BACKEND_URL}/channels/mute`,
+				{
+					method: "POST",
+					credentials: "include",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify(data),
 				},
-				body: JSON.stringify(data),
-			})
+			);
 			if (res.status === 201) {
-				chatSocket?.emit("MuteInChatRoom", toEmit);			
+				chatSocket?.emit("MuteInChatRoom", toEmit);
 				showAlert("success", userName + " has been muted for 30 seconds");
 				setInfoBool(true);
 				setuserBool(false);
-			}
-			else {
+			} else {
 				// To dooooooooooooooo
 			}
 		} catch (e) {
 			console.error("Error muting from channel");
 		}
-	  }
+	}
 
-	  async function handleAdmin(userName : string, userId: number) {
+	async function handleAdmin(userName: string, userId: number) {
 		const id = chanInfo?.id;
 		const room = chanInfo?.title;
-		const data = {userName, id}
+		const data = { userName, id };
 		const mode = "admin";
-		const toEmit = {id, room, userName, mode}
+		const toEmit = { id, room, userName, mode };
 		try {
-			const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/channels/admin`, {
-				method: "POST",
-				credentials: "include",
-				headers: {
-					"Content-Type": "application/json",
+			const res = await fetch(
+				`${process.env.REACT_APP_BACKEND_URL}/channels/admin`,
+				{
+					method: "POST",
+					credentials: "include",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify(data),
 				},
-				body: JSON.stringify(data),
-			})
+			);
 			chatSocket?.emit("adminChatRoom", toEmit);
 			if (res.status === 201) {
 				setInfoBool(true);
 				setuserBool(false);
-			}
-			else {
+			} else {
 				// To dooooooooooooooo
 			}
 		} catch (e) {
 			console.error("Error adminishing from channel");
 		}
-	  }
+	}
 
-	  useEffect(() => {
-		const chanListener = (chan: ChannelModel, username: string, mode : string) => {
-			if (username === user.userName && (mode === "ban" || mode === "kick")){
-				showAlert("error","You've been"+ mode + " from " + chan.title);
+	useEffect(() => {
+		const chanListener = (
+			chan: ChannelModel,
+			username: string,
+			mode: string,
+		) => {
+			if (username === user.userName && (mode === "ban" || mode === "kick")) {
+				showAlert("error", "You've been" + mode + " from " + chan.title);
 				navigate(-1);
+			} else if (username === user.userName && mode === "admin") {
+				showAlert("success", "You've been made " + mode + " of " + chan.title);
+			} else if (username !== user.userName && mode === "leave") {
+				showAlert("success", username + " leaved the channel");
+			} else if (username === user.userName && mode === "mute") {
+				showAlert("success", "You've been muted 30 seconds from this channel");
 			}
-			else if (username === user.userName && mode === "admin"){
-				showAlert("success","You've been made "+ mode + " of " + chan.title);
-			}else if (username !== user.userName && mode === "leave") {
-				showAlert("success",username + " leaved the channel");
-			}else if (username === user.userName && mode === "mute") {
-			showAlert("success", "You've been muted 30 seconds from this channel");
-		}
 			setChanInfo(chan);
-		}
-		chatSocket?.on("kickOrBanOrLeaveFromChannel", chanListener)
-		chatSocket?.on("userJoinedChan", chanListener)
-		chatSocket?.on("adminJoinedChan", chanListener)
-		chatSocket?.on("refreshMute", chanListener)
+		};
+		chatSocket?.on("kickOrBanOrLeaveFromChannel", chanListener);
+		chatSocket?.on("userJoinedChan", chanListener);
+		chatSocket?.on("adminJoinedChan", chanListener);
+		chatSocket?.on("refreshMute", chanListener);
 		return () => {
-			chatSocket?.off("kickOrBanOrLeaveFromChannel",);
-			chatSocket?.off("userJoinedChan",);
-			chatSocket?.off("adminJoinedChan",);
-			chatSocket?.off("refreshMute",);
-		}
-	  }, [chatSocket, navigate, showAlert, user.userName])
-	  
+			chatSocket?.off("kickOrBanOrLeaveFromChannel");
+			chatSocket?.off("userJoinedChan");
+			chatSocket?.off("adminJoinedChan");
+			chatSocket?.off("refreshMute");
+		};
+	}, [chatSocket, navigate, showAlert, user.userName]);
+
 	return (
 		<div className="container d-flex flex-column justify-content align-items">
 			<div className="title">Chat channels</div>
 			<div>
-			<ChatNav/>
-					<h1 className="m-20">{id}</h1>
-					<div className="d-flex flex-row justify-content-space-between">
-						<div className="d-flex flex-column">
+				<ChatNav />
+				<h1 className="m-20">{id}</h1>
+				<div className="d-flex flex-row justify-content-space-between">
+					<div className="d-flex flex-column">
 						{
-							(
-								<>
+							<>
 								<div className="d-flex flex-column justify-content">
 									<ul className="List">{messagesList}</ul>
 								</div>
-							</> 
-							)
+							</>
 						}
-						<input id="newMsg" className={`btn-primary m-20 d-flex flex-column justify-content align-items`} onKeyDown={handleKeyDown}
-						onChange={(e)=>{setValue(e.target.value)}}  type="text" placeholder="Write a message" value={value}/>
-						</div>
-						{
-							infoBool &&
-							<div className="d-flex flex-column">
-								<div>
-									<h2 className="ml-10">
-										Users List
-									</h2>
-									<ul>
-									{chanInfo?.members.map((member)=>{
+						<input
+							id="newMsg"
+							className={`btn-primary m-20 d-flex flex-column justify-content align-items`}
+							onKeyDown={handleKeyDown}
+							onChange={(e) => {
+								setValue(e.target.value);
+							}}
+							type="text"
+							placeholder="Write a message"
+							value={value}
+						/>
+					</div>
+					{infoBool && (
+						<div className="d-flex flex-column">
+							<div>
+								<h2 className="ml-10">Users List</h2>
+								<ul>
+									{chanInfo?.members.map((member) => {
 										const username = member.userName;
 										const userId = member.id;
 										return (
-											<li onClick={() => handleMsgClick(username, userId)} key={userId} className="ml-10">
+											<li
+												onClick={() => handleMsgClick(username, userId)}
+												key={userId}
+												className="ml-10"
+											>
 												{username}
 											</li>
-										)
+										);
 									})}
-									</ul>
-								</div>
+								</ul>
 							</div>
-						}
-						{ userBool && chanInfo &&
-							<div className="d-flex flex-column">
-								<h2 className="ml-10">
-									Manage {currentUserName}
-								</h2>
-								<NavLink className="btn-primary ml-10 d-flex justify-content" to={`/user/${currentUserName}`}>
-									Profile
-								</NavLink>
-								<button className="btn-primary ml-10">
-									Play
-								</button>
-								<button onClick={() => handleBlock(user.userName, user.id, currentUserName, currentUserId)} className="btn-danger ml-10">
-									Block
-								</button>
-								{
-									user.id === chanInfo.ownerId && !currentUserAdmin &&
-									<button onClick={() => handleAdmin(currentUserName, currentUserId)} className="btn-primary ml-10">
-										Admin
-									</button>
+						</div>
+					)}
+					{userBool && chanInfo && (
+						<div className="d-flex flex-column">
+							<h2 className="ml-10">Manage {currentUserName}</h2>
+							<NavLink
+								className="btn-primary ml-10 d-flex justify-content"
+								to={`/user/${currentUserName}`}
+							>
+								Profile
+							</NavLink>
+							<button className="btn-primary ml-10">Play</button>
+							<button
+								onClick={() =>
+									handleBlock(
+										user.userName,
+										user.id,
+										currentUserName,
+										currentUserId,
+									)
 								}
-								{ isOp &&
+								className="btn-danger ml-10"
+							>
+								Block
+							</button>
+							{user.id === chanInfo.ownerId && !currentUserAdmin && (
+								<button
+									onClick={() => handleAdmin(currentUserName, currentUserId)}
+									className="btn-primary ml-10"
+								>
+									Admin
+								</button>
+							)}
+							{isOp && (
 								<>
-									<button id="Kick" onClick={() => handleKick(currentUserName, currentUserId)} className="btn-danger ml-10">
+									<button
+										id="Kick"
+										onClick={() => handleKick(currentUserName, currentUserId)}
+										className="btn-danger ml-10"
+									>
 										Kick
 									</button>
-									<button id="Ban" onClick={() => handleBan(currentUserName, currentUserId)} className="btn-danger ml-10">
+									<button
+										id="Ban"
+										onClick={() => handleBan(currentUserName, currentUserId)}
+										className="btn-danger ml-10"
+									>
 										Ban
 									</button>
-									<button id="Mute" onClick={() => handleMute(currentUserName, currentUserId)} className="btn-danger ml-10">
+									<button
+										id="Mute"
+										onClick={() => handleMute(currentUserName, currentUserId)}
+										className="btn-danger ml-10"
+									>
 										Mute
 									</button>
 								</>
-								}	
-							</div>
-						}
+							)}
+						</div>
+					)}
 				</div>
 			</div>
 		</div>

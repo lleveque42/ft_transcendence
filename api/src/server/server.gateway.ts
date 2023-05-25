@@ -69,14 +69,14 @@ export class ServerGateway
 		const channels = await this.channelService.getUsersChannels(user.userName);
 		clients.forEach((value) => {
 			for (let chan of channels) {
-				console.log("This socket : " + value.id + " joined " + chan.title);
+				// console.log("This socket : " + value.id + " joined " + chan.title);
 				value.join(chan.title);
 			}
 		});
 		const dms = await this.channelService.getUsersDMs(user.userName);
 		clients.forEach((value) => {
 			for (let dm of dms) {
-				console.log("This socket : " + value.id + " joined " + dm.title);
+				// console.log("This socket : " + value.id + " joined " + dm.title);
 				value.join(dm.title);
 			}
 		});
@@ -183,17 +183,19 @@ export class ServerGateway
 		@MessageBody()
 		data: {
 			room: string;
-			userId2: string;
-			userId: string;
+			userId2: number;
+			userId: number;
 		},
 	): Promise<void> {
 		const sockets = this.users.getClientsByClientId(client.id);
-		const sockets2 = this.users.getClientsByUserId(parseInt(data.userId2, 10));
+		const sockets2 = this.users.getClientsByUserId(data.userId2);
 		for (const socket of sockets) {
 			socket[1].join(data.room);
 		}
-		for (const socket of sockets2) {
-			socket[1].join(data.room);
+		if (sockets2) {
+			for (const socket of sockets2) {
+				socket[1].join(data.room);
+			}
 		}
 		this.io.to(data.room).emit("userExpel", data.userId);
 		const chan = await this.channelService.getChannelByTitle(data.room);
@@ -211,8 +213,6 @@ export class ServerGateway
 			mode: string;
 		},
 	): Promise<void> {
-		console.log(data);
-
 		this.io
 			.to(data.room)
 			.emit(
