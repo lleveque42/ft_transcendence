@@ -298,7 +298,16 @@ export default function Play() {
 		});
 	}
 
+	function handleVisibilityChange() {
+		if (document.visibilityState === "visible") gameSocket?.emit("maximized");
+		else gameSocket?.emit("minimized");
+	}
+
 	useEffect(() => {
+		document.addEventListener("visibilitychange", handleVisibilityChange);
+		gameSocket?.once("disconnect", (reason) => {
+			setGameUserStatus(GameUserStatus.disconnectedAfk);
+		});
 		switch (gameUserStatus) {
 			case GameUserStatus.notConnected:
 				notConnected();
@@ -420,6 +429,15 @@ export default function Play() {
 					className={`${styles.sizeContainer} d-flex flex-column align-items justify-content mb-20`}
 				>
 					LOSE
+				</div>
+			)}
+			{gameUserStatus === GameUserStatus.disconnectedAfk && (
+				<div
+					className={`${styles.sizeContainer} d-flex flex-column align-items justify-content mb-20`}
+				>
+					DISCONNECTED BECAUSE AFK
+					<br></br>
+					ADD UN BOUTON RECONNECT
 				</div>
 			)}
 			{gameStatus.ended && (

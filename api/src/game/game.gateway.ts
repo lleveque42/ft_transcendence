@@ -142,7 +142,11 @@ export class GameGateway
 		}, DISCONNECTION_TIMEOUT);
 	}
 
-	handleInGameDisconnect(user: User, client: Socket) {
+	handleInGameDisconnect(
+		user: User,
+		client: Socket,
+		minimized?: boolean | false,
+	) {
 		const room = this.ongoing.getGameIdByUserId(user.id);
 		const game = this.ongoing.getGameById(room);
 		this.waitingReconnection.set(user.id, room);
@@ -155,6 +159,7 @@ export class GameGateway
 			this.waitingReconnection.delete(opponent.id);
 			this.waitingReconnection.delete(user.id);
 			this.users.removeClientId(client.id);
+			// if (minimized) client.disconnect();
 			return;
 		}
 		this.io.to(room).emit("disconnection");
@@ -168,6 +173,7 @@ export class GameGateway
 				this.changeUserStatus(opponent, false);
 			}
 			this.users.removeClientId(client.id);
+			if (minimized) client.disconnect();
 		}, DISCONNECTION_TIMEOUT);
 	}
 
@@ -411,13 +417,13 @@ export class GameGateway
 		} else if (this.ongoing.ownerScored(room)) this.endGame(room, true, false);
 	}
 
-	@SubscribeMessage("ownerMinimized")
+	@SubscribeMessage("minimized")
 	ownerMinimized(@ConnectedSocket() client: Socket) {
 		const user = this.users.getUserByClientId(client.id);
-		this.handleInGameDisconnect(user, client);
+		this.handleInGameDisconnect(user, client, true);
 	}
 
-	@SubscribeMessage("ownerMaximized")
+	@SubscribeMessage("maximized")
 	ownerMaximized(@ConnectedSocket() client: Socket) {
 		const user = this.users.getUserByClientId(client.id);
 		if (this.waitingReconnection.get(user.id)) {
