@@ -21,26 +21,25 @@ import { Default } from "./components/Common/Default/Default";
 import Queue from "./components/Common/Queue/Queue";
 import { useNavigate } from "react-router-dom";
 import Options from "./components/Common/Options/Options";
+import NotConnected from "./components/Common/NotConnected/NotConnected";
 import { MapStatus } from "./enums/MapStatus";
 import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
-import Loader from "react-loaders";
+import ReadyToStart from "./components/Common/ReadyToStart/ReadyToStart";
+import GameCancelled from "./components/Common/GameCancelled/GameCancelled";
+import WaitingOpponentReconnection from "./components/Common/WaitingOpponentReconnection/WaitingOpponentReconnection";
+import GameWinner from "./components/Common/GameWinner/GameWinner";
+import GameLoser from "./components/Common/GameLoser/GameLoser";
+import DetectedAfk from "./components/Common/DetectedAfk/DetectedAfk";
 
 export default function Play() {
 	const { user } = useUser();
 	const navigate = useNavigate();
 	const { socket } = usePrivateRouteSocket();
 	const { gameSocket } = useGameSocket();
-	const [mapOption, setMapOption] = useState<MapStatus>(
-		MapStatus.default,
-		// MapStatus.space,
-		// MapStatus.city
-	);
+	const [mapOption, setMapOption] = useState<MapStatus>(MapStatus.default);
 	const [acceleratorOption, setAcceleratorOption] = useState<boolean>(false);
 	const [gameUserStatus, setGameUserStatus] = useState<GameUserStatus>(
 		GameUserStatus.notConnected,
-		// GameUserStatus.waitingGameStart,
-		// GameUserStatus.inGame,
-		// GameUserStatus.choosingOptions
 	);
 	const [gameStatus, setGameStatus] = useState<GameStatus>(defaultGameStatus);
 
@@ -346,20 +345,14 @@ export default function Play() {
 		<div
 			className={`container ${styles.gamePage} d-flex flex-column align-items justify-content`}
 		>
-			{gameUserStatus === GameUserStatus.notConnected && (
-				<div
-					className={`${styles.sizeContainer} d-flex flex-column align-items justify-content mb-20`}
-				>
-					<Loader type="ball-zig-zag" innerClassName="nobody-loader" active />
-				</div>
-			)}
+			{gameUserStatus === GameUserStatus.notConnected && <NotConnected />}
 			{gameUserStatus === GameUserStatus.alreadyConnected && (
-				<>
-					You are already playing on another device or browser. Please
-					disconnect from this other session and try again. You will be
-					redirected, please do not refresh. If the problem persists, wait 15
-					seconds.
-				</>
+				<div className={`${styles.alertContainer} underTitle`}>
+					You are already playing on another device or browser. <br />
+					<br /> Please disconnect from this other session and try again. <br />
+					<br /> You will be redirected, please do not refresh. If the problem
+					persists, wait 15 seconds.
+				</div>
 			)}
 			{gameUserStatus === GameUserStatus.connected && (
 				<Default joinQueue={joinQueue} />
@@ -375,12 +368,8 @@ export default function Play() {
 					setMapOption={setMapOption}
 				/>
 			)}
-			{gameUserStatus === GameUserStatus.readyToStart && (
-				<>Waiting for other player...</>
-			)}
-			{gameUserStatus === GameUserStatus.gameCancelled && (
-				<>Game cancelled, opponent disconnected.</>
-			)}
+			{gameUserStatus === GameUserStatus.readyToStart && <ReadyToStart />}
+			{gameUserStatus === GameUserStatus.gameCancelled && <GameCancelled />}
 			{gameUserStatus === GameUserStatus.waitingGameStart && <Countdown />}
 			{gameUserStatus === GameUserStatus.waitingGameRestart && <Countdown />}
 			{gameUserStatus === GameUserStatus.inGame && (
@@ -392,39 +381,16 @@ export default function Play() {
 				/>
 			)}
 			{gameUserStatus === GameUserStatus.waitingOpponentReconnection && (
-				<div
-					className={`${styles.sizeContainer} d-flex flex-column align-items justify-content mb-20`}
-				>
-					WAITING FOR OPPONENT RECONNECTION
-				</div>
+				<WaitingOpponentReconnection />
 			)}
-			{gameUserStatus === GameUserStatus.gameWinner && (
+			{gameUserStatus === GameUserStatus.gameWinner && <GameWinner />}
+			{gameUserStatus === GameUserStatus.gameLoser && <GameLoser />}
+			{gameUserStatus === GameUserStatus.detectedAfk && <DetectedAfk />}
+			{(gameUserStatus === GameUserStatus.gameCancelled ||
+				gameStatus.ended) && (
 				<div
-					className={`${styles.sizeContainer} d-flex flex-column align-items justify-content mb-20`}
+					className={`${styles.buttonContainer} d-flex flex-row justify-content-space-between align-items`}
 				>
-					WIN
-				</div>
-			)}
-			{gameUserStatus === GameUserStatus.gameLoser && (
-				<div
-					className={`${styles.sizeContainer} d-flex flex-column align-items justify-content mb-20`}
-				>
-					LOSE
-				</div>
-			)}
-			{gameUserStatus === GameUserStatus.detectedAfk && (
-				<div
-					className={`${styles.sizeContainer} d-flex flex-column align-items justify-content mb-20`}
-				>
-					YOU VE BEEN DETECTED AFK IN ONE OF YOUR PRECEDENT GAME
-					<br></br>
-					THIS GAME HAS BEEN COUNTED HAS A LOSS
-					<br></br>
-					ADD UN BOUTON RECONNECT
-				</div>
-			)}
-			{gameStatus.ended && (
-				<>
 					<button
 						className="btn-primary mb-10"
 						onClick={() => {
@@ -436,7 +402,7 @@ export default function Play() {
 					<button className="btn-primary mb-10" onClick={backToPlay}>
 						Go back
 					</button>
-				</>
+				</div>
 			)}
 		</div>
 	);
