@@ -27,16 +27,6 @@ export default function Profile() {
 	const [isLoading, setIsLoading] = useState<boolean>(true);
 
 	useEffect(() => {
-		socket?.on("userNameUpdatedProfile", (userSender: NewUserName) => {
-			navigate(`/user/${userSender.userName}`);
-		});
-		return () => {
-			socket?.off("userNameUpdatedProfile");
-		};
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [socket]);
-
-	useEffect(() => {
 		const getUserProfile = async () => {
 			try {
 				const res = await userProfileInfosRequest(accessToken, username);
@@ -83,6 +73,20 @@ export default function Profile() {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [username, accessToken, user.friends, showAlert, navigate, isFriend]);
 
+	useEffect(() => {
+		socket?.on(
+			"userNameUpdatedProfile",
+			(userSender: NewUserName & { oldUserName: string }) => {
+				if (username === userSender.oldUserName)
+					navigate(`/user/${userSender.userName}`);
+			},
+		);
+		return () => {
+			socket?.off("userNameUpdatedProfile");
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [socket]);
+
 	return (
 		<>
 			{isLoading ? (
@@ -108,7 +112,10 @@ export default function Profile() {
 							/>
 						</div>
 						<div className={`${styles.userStatsContainer} d-flex flex-column`}>
-							<UserStats userProfile={userProfile} />
+							<UserStats
+								userProfile={userProfile}
+								setUserProfile={setUserProfile}
+							/>
 						</div>
 					</div>
 				</>

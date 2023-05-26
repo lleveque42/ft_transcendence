@@ -1,5 +1,5 @@
 import ChatNav from "../../../components/Chat/ChatNav/ChatNav";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useUser } from "../../../context/UserProvider";
 import { KeyboardEvent } from "react";
@@ -27,6 +27,23 @@ export default function DirectMessage() {
 	}>({ id: -1, userName: "User" });
 	const { id } = useParams();
 	const [isLoading, setIsLoading] = useState(true);
+	const messagesListRef = useRef<HTMLDivElement>(null);
+
+	const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+		if (event.key === "Enter" && value !== "") {
+			chatSocket?.emit("chanMessage", { room: id, message: value });
+			setValue("");
+			const inputValue: HTMLElement | null = document.getElementById("newMsg");
+			if (inputValue != null) {
+				inputValue.nodeValue = "";
+			}
+		}
+	};
+
+	const messageListener = (msg: MessageModel) => {
+		const { id, authorId, author, content } = msg;
+		setMessagesState([...messagesState, { id, authorId, author, content }]);
+	};
 
 	useEffect(() => {
 		(async () => {
@@ -84,35 +101,23 @@ export default function DirectMessage() {
 				);
 			}),
 		);
+		if (messagesListRef.current)
+			messagesListRef.current.scrollTop = messagesListRef.current.scrollHeight;
 	}, [messagesState, user.blockList]);
-
-	const messageListener = (msg: MessageModel) => {
-		const { id, authorId, author, content } = msg;
-		setMessagesState([...messagesState, { id, authorId, author, content }]);
-	};
 
 	useEffect(() => {
 		chatSocket?.on("receivedMessage", messageListener);
 		socket?.on("userNameUpdatedDm", (userSender: NewUserName) => {
 			if (userSender.id === otherUser?.id) setOtherUser(userSender);
 		});
+		if (messagesListRef.current)
+			messagesListRef.current.scrollTop = messagesListRef.current.scrollHeight;
 		return () => {
 			chatSocket?.off("receivedMessage", messageListener);
 			socket?.off("userNameUpdatedDm");
 		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [messageListener, messagesList, messagesState]);
-
-	const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-		if (event.key === "Enter" && value !== "") {
-			chatSocket?.emit("chanMessage", { room: id, message: value });
-			setValue("");
-			const inputValue: HTMLElement | null = document.getElementById("newMsg");
-			if (inputValue != null) {
-				inputValue.nodeValue = "";
-			}
-		}
-	};
 
 	return (
 		<>
@@ -146,7 +151,7 @@ export default function DirectMessage() {
 							Invite to play
 						</button>
 					</div>
-					<div className={styles.messagesList}>
+					<div className={`${styles.messagesList} mb-10`} ref={messagesListRef}>
 						{messagesState.length ? (
 							<ul className="mt-10">{messagesList}</ul>
 						) : (
@@ -164,6 +169,7 @@ export default function DirectMessage() {
 						onChange={(e: any) => {
 							setValue(e.target.value);
 						}}
+						onKeyDown={handleKeyDown}
 					/>
 				</div>
 			)}

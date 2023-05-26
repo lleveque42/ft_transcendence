@@ -1,3 +1,5 @@
+@use "../../../assets/styles/mixins" as mixin;
+
 .dmHeader {
 	h2 {
 		font-size: 1.5rem;
@@ -8,6 +10,19 @@
 			color: var(--primary);
 		}
 	}
+
+	@include mixin.sm-lt {
+		margin-top: 1rem;
+
+		h2 {
+			font-size: 1.3rem;
+		}
+
+		button {
+			font-size: 0.7rem;
+		}
+	}
+
 }
 
 .messagesList {
@@ -18,4 +33,9 @@
 	height: 40vh;
 	width: 50vw;
 	overflow-y: scroll;
+
+	@include mixin.sm-lt {
+		height: 35vh;
+		width: 70vw;
+	}
 }

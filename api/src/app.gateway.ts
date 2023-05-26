@@ -171,6 +171,7 @@ export class AppGateway
 	) {
 		let user = this.users.getUserByClientId(client.id);
 		if (!user) return;
+		const oldUserName = user.userName;
 		this.users.updateUserName(user, newUserName);
 		user = this.users.getUserByClientId(client.id);
 		if (!user) return;
@@ -178,6 +179,13 @@ export class AppGateway
 			id: user.id,
 			userName: newUserName,
 			status: user.status,
+			oldUserName,
+		});
+		this.io.emit("userNameUpdatedGameHistory", {
+			id: user.id,
+			userName: newUserName,
+			status: user.status,
+			oldUserName,
 		});
 		this.emitAllUserFriends(
 			user,

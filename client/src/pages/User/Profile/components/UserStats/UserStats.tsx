@@ -1,19 +1,31 @@
 import { useNavigate } from "react-router-dom";
 import styles from "./UserStats.module.scss";
-import { GameInfosType } from "../../../../../types";
+import {
+	GameInfosType,
+	NewUserName,
+	UserProfileType,
+} from "../../../../../types";
 import { useEffect, useState } from "react";
 import trimUserName from "../../../../../utils/trimUserName";
+import { usePrivateRouteSocket } from "../../../../../context/PrivateRouteProvider";
 
-type UserStatsProps = {
-	userProfile: {
-		wins: number;
-		losses: number;
-		games: GameInfosType[];
-	};
+type UserStatsType = {
+	wins: number;
+	losses: number;
+	games: GameInfosType[];
 };
 
-export default function UserStats({ userProfile }: UserStatsProps) {
+type UserStatsProps = {
+	userProfile: UserStatsType;
+	setUserProfile: React.Dispatch<React.SetStateAction<UserProfileType>>;
+};
+
+export default function UserStats({
+	userProfile,
+	setUserProfile,
+}: UserStatsProps) {
 	const navigate = useNavigate();
+	const { socket } = usePrivateRouteSocket();
 	const { wins, losses, games } = userProfile;
 	const [winRate, setWinRate] = useState<number>(0);
 
@@ -23,6 +35,29 @@ export default function UserStats({ userProfile }: UserStatsProps) {
 		}
 		setWinRate(calcWinRate());
 	}, [wins, games]);
+
+	useEffect(() => {
+		socket?.on(
+			"userNameUpdatedGameHistory",
+			(userSender: NewUserName & { oldUserName: string }) => {
+				setUserProfile((prevProfile) => {
+					const updatedGames = prevProfile.games.map((game) => {
+						if (game.opponentUsername === userSender.oldUserName) {
+							return {
+								...game,
+								opponentUsername: userSender.userName,
+							};
+						}
+						return game;
+					});
+					return {
+						...prevProfile,
+						games: updatedGames,
+					};
+				});
+			},
+		);
+	});
 
 	return (
 		<>
@@ -74,7 +109,9 @@ export default function UserStats({ userProfile }: UserStatsProps) {
 					</div>
 				</>
 			) : (
-				<h2 className={`${styles.titleStats} pl-20 p-10`}>No games played...</h2>
+				<h2 className={`${styles.titleStats} pl-20 p-10`}>
+					No games played...
+				</h2>
 			)}
 		</>
 	);

@@ -1,6 +1,8 @@
+@use "../../../assets/styles/mixins" as mixin;
+
 .navContainer {
 	background: #3d4c53;
-	overflow: hidden;
+	// overflow: hidden;
 	text-align: center;
 	transition: 0.3s;
 	cursor: pointer;
@@ -8,6 +10,11 @@
 	box-shadow: var(--box-shadow-nav);
 	height: 5rem;
 	max-width: 90vw;
+
+	@include mixin.sm-lt {
+		margin-top: 1rem;
+		height: 3rem;
+	}
 }
 
 .navLink {

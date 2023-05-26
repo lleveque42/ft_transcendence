@@ -7,6 +7,7 @@ export default function Input(props: {
 	placeholder: string;
 	value: any;
 	onChange: any;
+	onKeyDown?: any;
 }) {
 	return (
 		<label className={styles.inputContainer}>
@@ -17,6 +18,7 @@ export default function Input(props: {
 				placeholder={props.placeholder}
 				value={props.value}
 				onChange={props.onChange}
+				onKeyDown={props.onKeyDown}
 			/>
 		</label>
 	);

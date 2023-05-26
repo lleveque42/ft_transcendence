@@ -10,7 +10,9 @@ export default function ChatNav() {
 
 	return (
 		<>
-			<div className={`${styles.navContainer} d-flex flex-row mt-20`}>
+			<div
+				className={`${styles.navContainer} d-flex flex-row align-items justify-content mt-20`}
+			>
 				<NavLink
 					className={`${styles.navLink} ${
 						directMessagesMatch ? styles.activeNavLink : ""
