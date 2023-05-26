@@ -42,17 +42,7 @@ export default function Ball({ socket, map }: BallProps) {
 	return (
 		<mesh position={[0, 0, 0]} ref={ball}>
 			<sphereGeometry args={[BALL_RADIUS]} />
-			{map === MapStatus.space && (
-				<pointLight
-					position={[
-						ball.current?.position.x | 0,
-						ball.current?.position.y | 0,
-						0,
-					]}
-				/>
-			)}
 			<meshStandardMaterial color={ballColor} />
-			{/* <meshStandardMaterial color="#4E342E" /> */}
 		</mesh>
 	);
 }

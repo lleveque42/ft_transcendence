@@ -88,7 +88,7 @@ export const AlertProvider = ({ children }: AlertProviderProps) => {
 			message: `${props.invitedUserName} accepted your game invitation.`,
 		});
 		setTimeout(() => {
-			if (location.pathname === "/play") navigate(0);
+			if (location.pathname === "/play") navigate("/playMinimized");
 			else navigate("/play");
 		}, 500);
 	}

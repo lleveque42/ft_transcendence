@@ -21,6 +21,7 @@ import DirectMessage from "./pages/DirectMessages/DirectMessage";
 import Users from "./pages/Users/Users";
 import EditChannel from "./pages/Channels/EditChannel";
 import Play from "./pages/Play/Play";
+import PlayMinimized from "./pages/Play/minimized/PlayMinimized";
 // import Play from "./pages/Play/Play";
 // import { defaultGameStatus } from "./pages/Play/types/gameStatus.type";
 // import { GameUserStatus } from "./pages/Play/enums/UserStatus";
@@ -53,6 +54,10 @@ export default function Router() {
 					element={<PrivateRoute element={<Play />} play={true} />}
 				/>
 				<Route
+					path="/playMinimized"
+					element={<PrivateRoute element={<PlayMinimized />} />}
+				/>
+				<Route
 					path="/chat/direct_messages"
 					element={<PrivateRoute element={<DirectMessages />} />}
 				/>
@@ -62,7 +67,7 @@ export default function Router() {
 				/>
 				<Route
 					path="/chat/direct_messages/new_dm"
-					element={<PrivateRoute element={<NewDM/>} />}
+					element={<PrivateRoute element={<NewDM />} />}
 				/>
 				<Route
 					path="/chat/channels"
@@ -70,19 +75,19 @@ export default function Router() {
 				/>
 				<Route
 					path="/chat/channels/:id"
-					element={<PrivateRoute element={<Channel/>} />}
+					element={<PrivateRoute element={<Channel />} />}
 				/>
 				<Route
 					path="/chat/channels/new_channel"
-					element={<PrivateRoute element={<NewChannel/>} />}
+					element={<PrivateRoute element={<NewChannel />} />}
 				/>
 				<Route
 					path="/chat/channels/join_channel"
-					element={<PrivateRoute element={<JoinChannel/>} />}
+					element={<PrivateRoute element={<JoinChannel />} />}
 				/>
 				<Route
-				path="/chat/channels/edit_channel/:title"
-				element={<PrivateRoute element={<EditChannel/>} />}
+					path="/chat/channels/edit_channel/:title"
+					element={<PrivateRoute element={<EditChannel />} />}
 				/>
 				<Route path="/users" element={<PrivateRoute element={<Users />} />} />
 				<Route path="*" element={<NotFound />} />
