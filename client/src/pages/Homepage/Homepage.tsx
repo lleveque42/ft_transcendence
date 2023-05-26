@@ -25,27 +25,25 @@ export default function Homepage() {
 					className={`${styles.homepageButtonContainer} d-flex flex-column align-items justify-content`}
 				>
 					<button
-						className="btn-primary mb-10 pl-10 pr-10 p-5"
+						className={`btn-primary mb-10 pl-10 pr-10 p-5 ${styles.play}`}
 						onClick={handlePlay}
 					>
-						<i className="fa-solid fa-gamepad"></i>
-						Play
+						<i className="fa-solid fa-gamepad"></i> Play
 					</button>
 					<button
-						className="btn-primary mb-10 pl-10 pr-10 p-5"
+						className={`btn-primary mb-10 pl-10 pr-10 p-5 ${styles.chat}`}
 						onClick={handlePlay}
 					>
-						<i className="fa-sharp fa-solid fa-comments"></i>
-						Chat
+						<i className="fa-sharp fa-solid fa-comments"></i> Chat
 					</button>
 					<button
-						className="btn-primary mb-10 pl-10 pr-10 p-5"
+						className={`btn-primary mb-10 pl-10 pr-10 p-5 ${styles.users}`}
 						onClick={handlePlay}
-						onMouseEnter={() => (setHover(true))}
-						onMouseLeave={() => (setHover(false))}
+						onMouseEnter={() => setHover(true)}
+						onMouseLeave={() => setHover(false)}
 					>
-						<i className="fa-solid fa-users"></i>
-						{hover && "Users"}
+						<i className="fa-solid fa-users"></i> Users
+						{/* {hover && "Users"} */}
 					</button>
 				</div>
 			</div>
