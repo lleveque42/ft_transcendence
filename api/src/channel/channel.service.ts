@@ -616,7 +616,6 @@ export class ChannelService {
 				userName: true,
 			}
 		});
-	
 		const membersBanned = await this.prisma.user.findMany({
 			where: {
 				chanBans: {
@@ -630,8 +629,10 @@ export class ChannelService {
 				userName: true,
 			}
 		});
-		const difference = membersNotInChannel.filter( x => membersNotInChannel.includes(x) );
-		return difference;
+		const filteredMembers = membersNotInChannel.filter(member => {
+			return !membersBanned.some(bannedMember => bannedMember.id === member.id);
+		  });
+		return filteredMembers;
 	}
 
 	async addToChannel(title : string, userId : number) : Promise<void> {

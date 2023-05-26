@@ -47,7 +47,6 @@ export class ChannelController {
 			const channels = await this.channelService.getPublicChannelsToJoin(
 				user.id,
 			);
-			console.log(channels);
 			return channels;
 		} catch (e) {
 			throw new HttpException(e.message, e.status);

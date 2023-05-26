@@ -102,16 +102,6 @@ export default function EditChannel() {
 		if (formValues.mode !== "Protected") {
 			formValues.password = "";
 		}
-		console.log(
-			"Body: " +
-				channelState?.title +
-				" " +
-				channelState?.type +
-				" " +
-				channelState?.mode +
-				" " +
-				channelState?.password,
-		);
 		try {
 			const res: Response = await fetch(
 				`${process.env.REACT_APP_BACKEND_URL}/channels/edit_channel`,

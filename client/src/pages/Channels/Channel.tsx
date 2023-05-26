@@ -162,7 +162,6 @@ export default function Channel() {
 			}
 			if (unMuted){
 				// Might be worthy to delete the mutedList item
-				console.log("Need to be unMuted");
 			}
 			if (!chanInfo?.mutedList?.some((mutedUser) => mutedUser.userId === user.id) || unMuted){
 				chatSocket?.emit("chanMessage", {room: id, message: value});
@@ -173,7 +172,6 @@ export default function Channel() {
 				}
 			}
 			else{
-				console.log("Muted");
 				showAlert("error", "You are currently muted");
 			}
 		}
@@ -181,7 +179,6 @@ export default function Channel() {
 	
 	useEffect(() => {
 		chatSocket?.on("errorSendingMessage", (username:string)=>{
-			console.log("Error username : " + username);
 			if (username === user.userName){
 				showAlert("error", "You're not able to send a message in this channel, sorry :(");
 			}
@@ -426,14 +423,9 @@ export default function Channel() {
 
 	  useEffect(() => {
 		const inviteListener = (chan: ChannelModel, user : UserModel) => {
-			console.log(user.userName);
-			console.log(inviteState);
-			console.log("Remove from invite list");
 			const rendu = 	inviteState.filter(userCompare =>{
-				console.log(userCompare.id + " " + user.id );
 				return (userCompare.id !== user.id)
 			} )
-			console.log(rendu);
 			setInviteState(inviteState.filter(userCompare => userCompare.id !== user.id));
 		}
 		chatSocket?.on("removeFromInviteList", inviteListener)
