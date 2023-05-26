@@ -167,6 +167,7 @@ export class GameGateway
 					`${game.owner.userName} vs ${game.player.userName} : ended or cancelled (Reconnection timeout).`,
 				);
 				this.endGame(room, false, false, opponent.id);
+				this.changeUserStatus(user, false);
 				this.changeUserStatus(opponent, false);
 			}
 			this.users.removeClientId(client.id);

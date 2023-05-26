@@ -22,6 +22,48 @@
 	}
 }
 
+.play {
+	background-color: var(--yellow);
+	border-color: var(--yellow);
+	color: var(--primary-dark);
+	& > i {
+		color: var(--primary-dark);
+	}
+	&:hover {
+		scale: 1.1;
+		background-color: var(--primary);
+		border-color: var(--primary);
+	}
+}
+
+.chat {
+	background-color: var(--orange);
+	border-color: var(--orange);
+	color: var(--primary-dark);
+	& > i {
+		color: var(--primary-dark);
+	}
+	&:hover {
+		scale: 1.1;
+		background-color: var(--primary);
+		border-color: var(--primary);
+	}
+}
+
+.users {
+	background-color: var(--pink);
+	border-color: var(--pink);
+	color: var(--primary-dark);
+	& > i {
+		color: var(--primary-dark);
+	}
+	&:hover {
+		scale: 1.1;
+		background-color: var(--primary);
+		border-color: var(--primary);
+	}
+}
+
 @include mixin.sm-lt {
 	.homepageContainer {
 		flex-direction: column-reverse;
@@ -29,7 +71,7 @@
 
 	.homepageButtonContainer {
 		flex: 1%;
-		justify-content:right;
+		justify-content: right;
 		button {
 			margin-left: 0;
 			margin-bottom: 0;

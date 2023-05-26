@@ -1,14 +1,15 @@
 @use "../../assets/styles/mixins" as mixin;
 
 .footerContainer {
+	p {
+		font-family: var(--game-font);
+		font-size: 0.8rem;
+	}
+
 	@include mixin.sm-lt {
 		p {
-			font-size: 0.7rem;
-			padding-bottom: 0;
-		}
-
-		button {
-			margin: 0;
+			font-size: 0.5rem;
+			// padding-bottom: 0.2rem;
 		}
 	}
 }
