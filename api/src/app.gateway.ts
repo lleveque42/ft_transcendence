@@ -271,4 +271,14 @@ export class AppGateway
 			message,
 		});
 	}
+
+	@SubscribeMessage("gameInviteReceived")
+	gameInviteReceived(
+		@MessageBody("senderId") senderId: number,
+		@MessageBody("message") message: string,
+	) {
+		this.users.emitAllbyUserId(senderId, "inviteReceived", {
+			message,
+		});
+	}
 }
