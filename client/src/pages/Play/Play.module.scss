@@ -1,6 +1,6 @@
 .gamePage {
 	background-color: var(--primary-dark);
-	// padding: 4rem;
+	flex: 1;
 }
 
 .sizeContainer {
@@ -15,24 +15,81 @@
 	border-radius: 4px;
 	aspect-ratio: 5 / 4;
 	box-shadow: var(--box-shadow-nav);
-	// scale: 0.9;
 }
 
 .pointContainer {
 	width: 100%;
-	padding: 2rem 4rem 2rem 4rem;
+	padding: 1.5rem;
+	border-radius: 5px;
+	margin-bottom: 2rem;
+	background-color: var(--primary-dark);
+	box-shadow: var(--box-shadow-login42);
 }
 
-.rightPoints {
+.points {
+	width: 49em;
 	font-size: 1.5rem;
 	font-family: var(--game-font);
+	display: flex;
+	justify-content: space-evenly;
+	align-items: center;
 	color: var(--primary);
 }
 
-.leftPoints {
-	font-size: 1.5rem;
+.delimiter {
+	text-align: center;
+	font-family: var(--game-font);
+	width: 2em;
+	color: var(--primary);
+}
+
+.score {
 	font-family: var(--game-font);
 	color: var(--primary);
+	flex: 0.3;
+	text-align: center;
+}
+
+.playerPoints {
+	flex: 0.7;
+	& > img {
+		font-size: 0.7rem;
+		font-weight: 500;
+		height: 3rem;
+		width: 3rem;
+		border-radius: 50%;
+		border: 2px var(--yellow) solid;
+	}
+
+	& > div {
+		text-align: center;
+		margin-top: 1rem;
+		font-size: 0.7rem;
+		font-weight: 500;
+		font-family: var(--game-font);
+		color: var(--yellow);
+	}
+}
+
+.ownerPoints {
+	flex: 0.7;
+	& > img {
+		font-size: 0.7rem;
+		font-weight: 500;
+		height: 3rem;
+		width: 3rem;
+		border-radius: 50%;
+		border: 2px var(--pink) solid;
+	}
+
+	& > div {
+		text-align: center;
+		margin-top: 1rem;
+		font-size: 0.7rem;
+		font-weight: 500;
+		font-family: var(--game-font);
+		color: var(--pink);
+	}
 }
 
 .buttonContainer {
@@ -49,5 +106,5 @@
 	background-color: var(--danger);
 	padding: 2rem;
 	border-radius: 5px;
-	color: var(--light-grey)
+	color: var(--light-grey);
 }

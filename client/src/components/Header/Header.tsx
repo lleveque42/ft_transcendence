@@ -14,6 +14,7 @@ export default function Header() {
 	const menuRef = useRef<HTMLDivElement>(null);
 	const [isLoading, setIsLoading] = useState<boolean>(true);
 	const location = useLocation();
+	const playMatch = location.pathname.startsWith("/play");
 	const channelsMatch = location.pathname.startsWith("/chat");
 	const usersMatch = location.pathname.startsWith("/user");
 
@@ -41,32 +42,46 @@ export default function Header() {
 			) : (
 				<header>
 					<div className={`${styles.headerContainer} d-flex align-items`}>
-						<img
-							src={logo}
-							alt=""
-							className={styles.logo}
-							onClick={() => {
-								navigate("/");
-							}}
-						/>
-						<div className={`${styles.headerNav} d-flex align-items ml-30`}>
+						<div
+							className={`${styles.headerNav} d-flex align-items justify-content-space-between`}
+						>
+							<img
+								src={logo}
+								alt=""
+								className={styles.logo}
+								onClick={() => {
+									navigate("/");
+								}}
+							/>
 							<h3
-								className={`${usersMatch ? styles.activeNavLink : ""}`}
-								onClick={() => navigate("/users")}
+								className={`${playMatch ? styles.activeNavLink : styles.play}`}
+								onClick={() => navigate("/play")}
 							>
-								Users
+								PLAY
 							</h3>
 							<h3
-								className={`${channelsMatch ? styles.activeNavLink : ""} ml-20`}
+								className={`${
+									channelsMatch ? styles.activeNavLink : styles.chat
+								}`}
 								onClick={() => navigate("/chat/direct_messages")}
 							>
-								Chat
+								CHAT
+							</h3>
+							<h3
+								className={`${
+									usersMatch ? styles.activeNavLink : styles.users
+								}`}
+								onClick={() => navigate("/users")}
+							>
+								USERS
 							</h3>
 						</div>
 
 						<div className="d-flex align-end" ref={menuRef}>
 							<div
-								className={`${styles.menuTrigger} d-flex`}
+								className={`${styles.menuTrigger} d-flex ${
+									openMenu ? styles.menuTriggerActive : ""
+								}`}
 								onClick={() => setOpenMenu(!openMenu)}
 							>
 								<img src={userAvatar} alt="Avatar" />
@@ -85,7 +100,7 @@ export default function Header() {
 											setOpenMenu(false);
 										}}
 									>
-										<button>My Profile</button>
+										<button>Profile</button>
 									</li>
 									<li
 										className={`${styles.dropdownItem}`}
@@ -97,7 +112,7 @@ export default function Header() {
 										<button>Settings</button>
 									</li>
 									<li className={`${styles.dropdownItem}`} onClick={signout}>
-										<button>Logout</button>
+										<button>Log out</button>
 									</li>
 								</ul>
 							</div>
