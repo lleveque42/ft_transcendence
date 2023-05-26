@@ -5,6 +5,10 @@ import OwnerGameRender from "../../OwnerView/OwnerGameRender";
 import PlayerGameRender from "../../PlayerView/PlayerGameRender";
 import styles from "../../../Play.module.scss";
 import { MapStatus } from "../../../enums/MapStatus";
+// import trimUserName from "../../../../../utils/trimUserName";
+import { useState } from "react";
+import { useUser } from "../../../../../context";
+import useAvatar from "../../../../../hooks/useAvatar";
 
 interface GameProps {
 	gameStatus: GameStatus;
@@ -19,6 +23,14 @@ export default function Game({
 	accelerator,
 	map,
 }: GameProps) {
+	const { accessToken } = useUser();
+	const [playerAvatar, setPlayerAvatar] = useState<string>("");
+	const [ownerAvatar, setOwnerAvatar] = useState<string>("");
+	const [isLoading, setIsLoading] = useState<boolean>(true);
+
+	useAvatar(accessToken, setOwnerAvatar, setIsLoading, "a");
+	useAvatar(accessToken, setPlayerAvatar, setIsLoading, "b");
+
 	return (
 		<>
 			<div
@@ -27,11 +39,16 @@ export default function Game({
 				<div
 					className={`${styles.pointContainer} d-flex flex-row align-items justify-content-space-between`}
 				>
-					<div className={styles.leftPoints}>
-						{gameStatus.playerScore} {gameStatus.playerUserName}
+					<div className={styles.points}>
+						{/* {gameStatus.playerScore} {trimUserName(gameStatus.playerUserName)} */}
+						<img src={playerAvatar} alt="Avatar" />
+						{gameStatus.playerScore}
+						 {/* {trimUserName("lleewvuviuygvquywgduqwygdqwyud")} */}
 					</div>
-					<div className={styles.rightPoints}>
-						{gameStatus.ownerUserName} {gameStatus.ownerScore}
+					<div className={styles.points}>
+						{/* {trimUserName("cqweiugdqiowydgqowudgqwuoyg")}  */}
+						{gameStatus.ownerScore}
+						<img src={ownerAvatar} alt="Avatar" />
 					</div>
 				</div>
 				<div className={`${styles.gameContainer}`}>

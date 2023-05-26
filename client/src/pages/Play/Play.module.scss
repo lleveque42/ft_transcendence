@@ -1,5 +1,8 @@
 .gamePage {
 	background-color: var(--primary-dark);
+	flex: 1;
+	// height: 100vh;
+	// width: 100vw;
 	// padding: 4rem;
 }
 
@@ -15,24 +18,52 @@
 	border-radius: 4px;
 	aspect-ratio: 5 / 4;
 	box-shadow: var(--box-shadow-nav);
-	// scale: 0.9;
 }
 
 .pointContainer {
 	width: 100%;
-	padding: 2rem 4rem 2rem 4rem;
+	padding: 2rem;
+	border: 4px dashed var(--primary);
+	border-radius: 5px;
+	margin-bottom: 2rem;
 }
 
-.rightPoints {
+// .rightPoints {
+// 	font-size: 1.5rem;
+// 	font-family: var(--game-font);
+// 	color: var(--primary);
+
+// 	& > img {
+// 		height: 4rem;
+// 		width: 4rem;
+// 		border-radius: 50%;
+// 		border: 2px var(--light-grey) solid;
+// 	}
+// }
+
+.points {
+	width: 50%;
 	font-size: 1.5rem;
 	font-family: var(--game-font);
 	color: var(--primary);
+	display: flex;
+	justify-content: space-evenly;
+	align-items: center;
+
+	& > img {
+		height: 4rem;
+		width: 4rem;
+		border-radius: 50%;
+		border: 2px var(--primary) solid;
+	}
 }
 
-.leftPoints {
-	font-size: 1.5rem;
-	font-family: var(--game-font);
-	color: var(--primary);
+.playerPoints {
+
+}
+
+.ownerPoints {
+
 }
 
 .buttonContainer {
@@ -49,5 +80,5 @@
 	background-color: var(--danger);
 	padding: 2rem;
 	border-radius: 5px;
-	color: var(--light-grey)
+	color: var(--light-grey);
 }

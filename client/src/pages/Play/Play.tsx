@@ -39,7 +39,8 @@ export default function Play() {
 	const [mapOption, setMapOption] = useState<MapStatus>(MapStatus.default);
 	const [acceleratorOption, setAcceleratorOption] = useState<boolean>(false);
 	const [gameUserStatus, setGameUserStatus] = useState<GameUserStatus>(
-		GameUserStatus.notConnected,
+		// GameUserStatus.notConnected,
+		GameUserStatus.inGame
 	);
 	const [gameStatus, setGameStatus] = useState<GameStatus>(defaultGameStatus);
 
@@ -56,7 +57,6 @@ export default function Play() {
 				}
 			});
 		}
-		// else could not join game/ redirect to login ?
 	}
 
 	function backToPlay() {
@@ -343,7 +343,7 @@ export default function Play() {
 
 	return (
 		<div
-			className={`container ${styles.gamePage} d-flex flex-column align-items justify-content`}
+			className={`${styles.gamePage} d-flex flex-column align-items justify-content`}
 		>
 			{gameUserStatus === GameUserStatus.notConnected && <NotConnected />}
 			{gameUserStatus === GameUserStatus.alreadyConnected && (
