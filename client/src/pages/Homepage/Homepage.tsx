@@ -1,11 +1,11 @@
 import styles from "./Homepage.module.scss";
 import { useNavigate } from "react-router-dom";
 import FriendsList from "./components/FriendsList";
-import { useState } from "react";
+// import { useState } from "react";
 
 export default function Homepage() {
 	const navigate = useNavigate();
-	const [hover, setHover] = useState<boolean>(false);
+	// const [hover, setHover] = useState<boolean>(false);
 
 	function handlePlay() {
 		navigate("/play");
@@ -39,8 +39,8 @@ export default function Homepage() {
 					<button
 						className={`btn-primary mb-10 pl-10 pr-10 p-5 ${styles.users}`}
 						onClick={handlePlay}
-						onMouseEnter={() => setHover(true)}
-						onMouseLeave={() => setHover(false)}
+						// onMouseEnter={() => setHover(true)}
+						// onMouseLeave={() => setHover(false)}
 					>
 						<i className="fa-solid fa-users"></i> Users
 						{/* {hover && "Users"} */}

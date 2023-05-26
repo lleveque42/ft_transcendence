@@ -26,6 +26,7 @@ export default function Game({
 	const { user, accessToken } = useUser();
 	const [playerAvatar, setPlayerAvatar] = useState<string>("");
 	const [ownerAvatar, setOwnerAvatar] = useState<string>("");
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const [isLoading, setIsLoading] = useState<boolean>(true);
 
 	useAvatar(
