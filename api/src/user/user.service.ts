@@ -447,11 +447,6 @@ export class UserService {
 		});
 	}
 
-	async dropdb(): Promise<void> {
-		// to del
-		await this.prisma.user.deleteMany({});
-	}
-
 	async blockUser(
 		userTopName: string,
 		userTopId: number,
