@@ -20,6 +20,7 @@ export default function Channel() {
 	const [userBool, setuserBool] = useState(false);
 	const [inviteBool, setInviteBool] = useState(false);
 	const [messagesState, setMessagesState] = useState<Array<MessageModel>>([]);
+	const [authenticate, setAuthenticate] = useState(false);
 	const [inviteState, setInviteState] = useState<Array<UserModel>>([]);
 	const [messagesList, setMessagesList] = useState<JSX.Element[]>([]);
 	const [chanInfo, setChanInfo] = useState<ChannelModel>();
@@ -33,7 +34,6 @@ export default function Channel() {
 	useEffect(() => {
 		(async () => {
 			try {
-				// await getAllMessagesInChan(id, accessToken, setMessagesState); 
 				await fetch(`${process.env.REACT_APP_BACKEND_URL}/channels/chan/${id}`, {
 					credentials: "include",
 					headers: {
@@ -173,6 +173,45 @@ export default function Channel() {
 			}
 			else{
 				showAlert("error", "You are currently muted");
+			}
+		}
+	};
+
+	const handleKeyDownPassword = async (event : KeyboardEvent<HTMLInputElement>) => {
+		if (event.key === "Enter" && value && value !== ""){
+			const data = {chanId : chanInfo?.id, secret : value};
+			try {
+				const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/channels/secret`, {
+					method: "POST",
+					credentials: "include",
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `Bearer ${accessToken}`,
+					},
+					body: JSON.stringify(data),
+				})		
+				if (res.status === 201) {
+					showAlert("success", "Password valid, please enter");
+					setValue("");
+					const inputValue : HTMLElement | null = document.getElementById("newMsg");
+					if (inputValue!= null){
+						inputValue.nodeValue = "";
+					}
+					setAuthenticate(true);
+					setInfoBool(true);
+					setuserBool(false);
+					setInviteBool(false);
+				}
+				else{
+					showAlert("error", "Invalid password, little gourgandin");
+					setValue("");
+					const inputValue : HTMLElement | null = document.getElementById("newMsg");
+					if (inputValue!= null){
+						inputValue.nodeValue = "";
+					}
+				}
+			} catch (e) {
+				console.error("Error kicking from channel");
 			}
 		}
 	};
@@ -423,9 +462,6 @@ export default function Channel() {
 
 	  useEffect(() => {
 		const inviteListener = (chan: ChannelModel, user : UserModel) => {
-			const rendu = 	inviteState.filter(userCompare =>{
-				return (userCompare.id !== user.id)
-			} )
 			setInviteState(inviteState.filter(userCompare => userCompare.id !== user.id));
 		}
 		chatSocket?.on("removeFromInviteList", inviteListener)
@@ -467,7 +503,18 @@ export default function Channel() {
 			<div>
 			<ChatNav/>
 					<h1 className="m-20">{id}</h1>
-					<div className="d-flex flex-row justify-content-space-between">
+					<div className="d-flex flex-raw justify-content-space-between">
+						{ (chanInfo?.mode === "Protected" && !authenticate) ?
+							<>
+							<div className="d-flex flex-column justify-content-space-between">
+								<h1>Enter the secret password of {chanInfo.title}</h1>
+								<input className={`btn-primary m-20 d-flex flex-column justify-content align-items`} onKeyDown={handleKeyDownPassword}
+								type="password" name="secret" id="secret"
+								onChange={(e)=>{setValue(e.target.value)}} value={value}/>
+							</div>
+							</>
+							:
+							<>
 						<div className="d-flex flex-column">
 						{
 							(
@@ -484,40 +531,40 @@ export default function Channel() {
 						{
 							infoBool &&
 							<div className="d-flex flex-column">
-								<div className={`btn-primary m-20`} onClick={() => {handleInviteListClick()}}>
-									Invite
-								</div>
-								<div>
-									<h2 className="ml-10">
-										Users List
-									</h2>
-									<ul>
-									{chanInfo?.members.map((member)=>{
-										const username = member.userName;
-										const userId = member.id;
-										return (
-											<li onClick={() => handleMsgClick(username, userId)} key={userId} className="ml-10">
+							<div className={`btn-primary m-20`} onClick={() => {handleInviteListClick()}}>
+							Invite
+							</div>
+							<div>
+							<h2 className="ml-10">
+							Users List
+							</h2>
+							<ul>
+							{chanInfo?.members.map((member)=>{
+								const username = member.userName;
+								const userId = member.id;
+								return (
+									<li onClick={() => handleMsgClick(username, userId)} key={userId} className="ml-10">
 												{username}
 											</li>
 										)
 									})}
 									</ul>
-								</div>
-							</div>
-						}
+									</div>
+									</div>
+								}
 						{ userBool && chanInfo &&
 							<div className="d-flex flex-column">
-								<h2 className="ml-10">
-									Manage {currentUserName}
-								</h2>
-								<NavLink className="btn-primary ml-10 d-flex justify-content" to={`/user/${currentUserName}`}>
-									Profile
-								</NavLink>
-								<button className="btn-primary ml-10">
-									Play
+							<h2 className="ml-10">
+							Manage {currentUserName}
+							</h2>
+							<NavLink className="btn-primary ml-10 d-flex justify-content" to={`/user/${currentUserName}`}>
+							Profile
+							</NavLink>
+							<button className="btn-primary ml-10">
+							Play
 								</button>
 								<button onClick={() => handleBlock(user.userName, user.id, currentUserName, currentUserId)} className="btn-danger ml-10">
-									Block
+								Block
 								</button>
 								{
 									user.id === chanInfo.ownerId && !currentUserAdmin &&
@@ -526,7 +573,7 @@ export default function Channel() {
 									</button>
 								}
 								{ isOp &&
-								<>
+									<>
 									<button id="Kick" onClick={() => handleKick(currentUserName, currentUserId)} className="btn-danger ml-10">
 										Kick
 									</button>
@@ -539,32 +586,34 @@ export default function Channel() {
 								</>
 								}
 								<button onClick={() => handleReturnToList()} className="btn-primary ml-10">
-									Return
+								Return
 								</button>
-							</div>
-						}
+								</div>
+							}
 						{ inviteBool && chanInfo &&
 							<div className="d-flex flex-column">
 							<div className={`btn-primary m-20`} onClick={() => {
-								 handleInviteListClick()}}>
+								handleInviteListClick()}}>
 								Invite
-							</div>
-							<div>
+								</div>
+								<div>
 								<h2 className="ml-10">
-									Invite List
+								Invite List
 								</h2>
 								<ul>
-									{inviteState.map((member)=>{							
-										return (
-											<li onClick={() => handleInviteClick(member.id)} key={member.id} className="ml-10">
+								{inviteState.map((member)=>{							
+									return (
+										<li onClick={() => handleInviteClick(member.id)} key={member.id} className="ml-10">
 												{member.userName}
 											</li>
 										)
 									})}
 								</ul>
-							</div>
+								</div>
 						</div>
-						}
+					}
+					</>
+				}
 				</div>
 			</div>
 		</div>

@@ -31,7 +31,6 @@ export default function Channels() {
 	}, [user.userName, accessToken]);
 
 	async function handleLeaveClick(userName : string, id: number, room: string) {
-		
 		const data = {userName, id, room}
 		const mode = "leave";
 		const toEmit = {id, room, userName, mode}
@@ -52,16 +51,16 @@ export default function Channels() {
 		}
 	  }
 
-	const channelsList = channelsState.map(({ id, title, ownerId}) => {
+	const channelsList = channelsState.map(({ id, title, ownerId, mode}) => {
 		const chanTitle = title;
 		return (
 		<li key={id}>
-			<div className="d-flex flex-row m-10 justify-content-space-between">	
-				<NavLink className={``}  to={`/chat/channels/${title}`} >
-					<span>
-						{title}
-					</span>
-				</NavLink>
+			<div className="d-flex flex-row m-10 justify-content-space-between">
+					<NavLink className={``}  to={`/chat/channels/${title}`} >
+						<span>
+							{title}
+						</span>
+					</NavLink>
 				<div className="d-flex flex-row" >
 					{ user.id === ownerId &&
 						<NavLink className={`btn-primary`}  to={`/chat/channels/edit_channel/${title}`} >

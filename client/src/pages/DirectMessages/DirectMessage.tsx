@@ -41,7 +41,7 @@ export default function DirectMessage() {
 				navigate("/chat/direct_messages/");
 			}
         })();
-    }, [accessToken, id, navigate]);
+    }, [accessToken, id, navigate, showAlert]);
 
 
 	useEffect(() => {
