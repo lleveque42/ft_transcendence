@@ -47,6 +47,7 @@ export default function Channels() {
 						"Content-Type": "application/json",
 						Authorization: `Bearer ${accessToken}`,
 					},
+					body: JSON.stringify(data),
 				},
 			);
 			if (res.status === 201) {

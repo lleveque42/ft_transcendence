@@ -276,6 +276,7 @@ export default function Channel() {
 						"Content-Type": "application/json",
 						Authorization: `Bearer ${accessToken}`,
 					},
+					body: JSON.stringify(data),
 				},
 			);
 			chatSocket?.emit("blockUser", toEmit);
@@ -312,6 +313,7 @@ export default function Channel() {
 						"Content-Type": "application/json",
 						Authorization: `Bearer ${accessToken}`,
 					},
+					body: JSON.stringify(data),
 				},
 			);
 			chatSocket?.emit("blockUser", toEmit);
@@ -350,6 +352,7 @@ export default function Channel() {
 						"Content-Type": "application/json",
 						Authorization: `Bearer ${accessToken}`,
 					},
+					body: JSON.stringify(data),
 				},
 			);
 			chatSocket?.emit("exitChatRoom", toEmit);
@@ -389,6 +392,7 @@ export default function Channel() {
 						"Content-Type": "application/json",
 						Authorization: `Bearer ${accessToken}`,
 					},
+					body: JSON.stringify(data),
 				},
 			);
 			if (res.status === 201) {
@@ -421,6 +425,7 @@ export default function Channel() {
 						"Content-Type": "application/json",
 						Authorization: `Bearer ${accessToken}`,
 					},
+					body: JSON.stringify(data),
 				},
 			);
 			chatSocket?.emit("adminChatRoom", toEmit);

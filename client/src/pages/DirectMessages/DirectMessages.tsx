@@ -74,6 +74,7 @@ export default function DirectMessages() {
 						"Content-Type": "application/json",
 						Authorization: `Bearer ${accessToken}`,
 					},
+					body: JSON.stringify(data),
 				},
 			);
 			chatSocket?.emit("blockUser", toEmit);
