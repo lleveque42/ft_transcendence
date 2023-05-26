@@ -122,7 +122,6 @@ export class ServerGateway
 			// value: string;
 		},
 	): Promise<void> {
-		console.log(client.rooms);
 		const rooms: Set<string> = client.rooms;
 		const val = [...rooms][0];
 		let isInChannel: boolean = false;
@@ -132,7 +131,6 @@ export class ServerGateway
 			}
 		});
 		if (!isInChannel) {
-			console.log(val);
 			this.io
 				.to(val)
 				.emit(

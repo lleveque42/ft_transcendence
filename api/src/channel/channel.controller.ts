@@ -95,10 +95,15 @@ export class ChannelController {
 	async getDMsMessages(
 		@GetCurrentUser("sub") userName: string,
 		@Param("title") title: string,
-	): Promise<Message[] | null> {
+	): Promise<{
+		msgs: (Message & {
+			author: { id: number; userName: string };
+			channel: Channel;
+		})[];
+		otherUser: { id: number; userName: string };
+	}> {
 		try {
-			const msgs = await this.channelService.getDMsMessages(userName, title);
-			return msgs;
+			return await this.channelService.getDMsMessages(userName, title);
 		} catch (e) {
 			throw new HttpException(e.message, e.status);
 		}

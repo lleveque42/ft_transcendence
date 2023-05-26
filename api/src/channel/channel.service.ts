@@ -588,33 +588,27 @@ export class ChannelService {
 		const match = chan.members.some((el) => {
 			return el.id === user.id;
 		});
-		const otherUser = chan.members.filter((u) => u.id !== user.id);
-		console.log("Other User", otherUser);
-
-		// const boolMatch: boolean = match.length > 0 ? true : false;
-		if (match) {
-			// const chanWithoutMembers = await this.prisma.channel.findUnique({
-			// 	where: {
-			// 		title: title,
-			// 	},
-			// });
-			const msgs = await this.prisma.message.findMany({
-				include: {
-					author: true,
-					channel: true,
+		if (!match)
+			throw new HttpException("Unauthorized", HttpStatus.UNAUTHORIZED);
+		const otherUser = chan.members.find((u) => u.id !== user.id);
+		const msgs = await this.prisma.message.findMany({
+			include: {
+				author: {
+					select: {
+						id: true,
+						userName: true,
+					},
 				},
-				where: {
-					channelId: chan.id,
-				},
-			});
-			if (msgs) {
-				// console.log(msgs);
-				return msgs;
-			} else {
-				return null;
-			}
-		}
-		throw new HttpException("Unauthorized", HttpStatus.UNAUTHORIZED);
+				channel: true,
+			},
+			where: {
+				channelId: chan.id,
+			},
+		});
+		return {
+			msgs,
+			otherUser: { id: otherUser.id, userName: otherUser.userName },
+		};
 	}
 
 	async getInviteList(

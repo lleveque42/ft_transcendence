@@ -1,0 +1,21 @@
+.dmHeader {
+	h2 {
+		font-size: 1.5rem;
+		cursor: pointer;
+		transition: color 0.3s ease-in-out;
+
+		&:hover {
+			color: var(--primary);
+		}
+	}
+}
+
+.messagesList {
+	margin-top: 1.5rem;
+	border: 1px solid var(--secondary-dark);
+	border-radius: 5px;
+	box-shadow: var(--box-shadow);
+	height: 40vh;
+	width: 50vw;
+	overflow-y: scroll;
+}

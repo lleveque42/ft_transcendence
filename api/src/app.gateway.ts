@@ -191,6 +191,10 @@ export class AppGateway
 			userName: newUserName,
 			status: user.status,
 		});
+		this.io.emit("userNameUpdatedDm", {
+			id: user.id,
+			userName: newUserName,
+		});
 	}
 
 	@SubscribeMessage("userStatusInGame")
