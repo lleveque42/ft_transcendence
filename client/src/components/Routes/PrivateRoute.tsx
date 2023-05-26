@@ -75,13 +75,16 @@ export default function PrivateRoute(props: {
 			appSocket.on(
 				"inviteAccepted",
 				(data: { playerId: number; message: string }) => {
-					showAlert("success", data.message);
+					showAlert("success", data.message + " You will be redirected.");
 					setTimeout(() => {
 						if (location.pathname === "/play") navigate("/playMinimized");
 						else navigate("/play");
-					}, 500);
+					}, 2000);
 				},
 			);
+			appSocket.on("inviteReceived", (data: { message: string }) => {
+				showAlert("success", data.message);
+			});
 			appSocket.on("inviteDeclined", (data: { message: string }) => {
 				showAlert("warning", data.message);
 			});
