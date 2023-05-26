@@ -1,15 +1,11 @@
 import styles from "./Homepage.module.scss";
 import { useNavigate } from "react-router-dom";
-import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
 import FriendsList from "./components/FriendsList";
+import { useState } from "react";
 
 export default function Homepage() {
-	const { socket } = usePrivateRouteSocket();
 	const navigate = useNavigate();
-
-	function showUsers() {
-		socket!.emit("showUsers");
-	}
+	const [hover, setHover] = useState<boolean>(false);
 
 	function handlePlay() {
 		navigate("/play");
@@ -32,13 +28,24 @@ export default function Homepage() {
 						className="btn-primary mb-10 pl-10 pr-10 p-5"
 						onClick={handlePlay}
 					>
+						<i className="fa-solid fa-gamepad"></i>
 						Play
 					</button>
 					<button
-						className="btn-primary mt-5 mb-10 pl-10 pr-10 p-5"
-						onClick={showUsers}
+						className="btn-primary mb-10 pl-10 pr-10 p-5"
+						onClick={handlePlay}
 					>
-						Show users
+						<i className="fa-sharp fa-solid fa-comments"></i>
+						Chat
+					</button>
+					<button
+						className="btn-primary mb-10 pl-10 pr-10 p-5"
+						onClick={handlePlay}
+						onMouseEnter={() => (setHover(true))}
+						onMouseLeave={() => (setHover(false))}
+					>
+						<i className="fa-solid fa-users"></i>
+						{hover && "Users"}
 					</button>
 				</div>
 			</div>
