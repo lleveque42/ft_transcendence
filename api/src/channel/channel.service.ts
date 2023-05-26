@@ -4,6 +4,7 @@ import { UserService } from "../user/user.service";
 import { Channel, Muted, Prisma, User } from "@prisma/client";
 import * as argon2 from "argon2";
 import { OnlineUsers } from "../classes/OnlineUsers";
+import { error } from "console";
 
 @Injectable()
 export class ChannelService {
@@ -651,6 +652,31 @@ export class ChannelService {
 		}
 	}
 	
+	async checkSecret( chanId : number, secret : string, userName : string) : Promise<boolean> {
+		
+			const chan = await this.prisma.channel.findUnique({
+				where: {
+					id : chanId,
+				},
+				select : {
+					password : true,
+				}
+			});
+			let hash: string = null;
+			if (chan && secret && secret !== "") {
+				hash = await argon2.hash(secret);
+				if (await argon2.verify(chan.password, secret)) {
+					return true;
+				}
+				else {
+					throw new ForbiddenException("Password doesn't match");
+				}
+			}
+			return false;
+		
+	}
+	
+
 	async dropdb() {
 		await this.prisma.channel.deleteMany({});
 	}

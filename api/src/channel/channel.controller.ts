@@ -310,4 +310,19 @@ export class ChannelController {
 			throw new HttpException(e.message, e.status);
 		}
 	}
+
+	@UseGuards(AtGuard)
+	@Post("secret")
+	async checkSecret(@Body() body, @GetCurrentUser("sub") userName: string, @Res({ passthrough: true }) res: Response) {
+		try {
+			await this.channelService.checkSecret(
+				body.chanId,
+				body.secret,
+				userName,
+			);
+		} catch (e) {
+			console.log(e.message);
+			throw new HttpException(e.message, HttpStatus.FORBIDDEN);
+		}
+	}
 }
