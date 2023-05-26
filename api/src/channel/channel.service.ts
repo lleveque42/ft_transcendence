@@ -378,8 +378,6 @@ export class ChannelService {
 	}
 
 	async getChannelByTitle(title: string) {
-		console.log(title);
-
 		return await this.prisma.channel.findUnique({
 			where: {
 				title: title,
@@ -588,7 +586,6 @@ export class ChannelService {
 				},
 			});
 			if (msgs){
-				console.log(msgs);
 				return msgs;
 			} else {return null}
 		} else {

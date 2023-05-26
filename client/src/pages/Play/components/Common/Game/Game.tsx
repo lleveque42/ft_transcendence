@@ -7,7 +7,6 @@ import styles from "../../../Play.module.scss";
 import { MapStatus } from "../../../enums/MapStatus";
 
 interface GameProps {
-	showGames: () => void; // tmp
 	gameStatus: GameStatus;
 	gameSocket: Socket | null;
 	accelerator: boolean;
@@ -15,7 +14,6 @@ interface GameProps {
 }
 
 export default function Game({
-	showGames,
 	gameStatus,
 	gameSocket,
 	accelerator,
@@ -52,9 +50,6 @@ export default function Game({
 					)}
 				</div>
 			</div>
-			<button className="btn-primary mb-10" onClick={showGames}>
-				Show ongoing games
-			</button>
 		</>
 	);
 }
