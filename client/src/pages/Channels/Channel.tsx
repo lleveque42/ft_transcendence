@@ -105,28 +105,28 @@ export default function Channel() {
 	chanClick.forEach(chan => chan.addEventListener('click', handleChanClick));
 
 	useEffect(() => {
-	setMessagesList(messagesState.map(({ id, author, content }) => 
-	{
-		const match = user.blockList.filter((el) =>{
-			return (el.id === author.id);
-		} )
-		const boolMatch : boolean = match.length > 0 ? true : false;
-		return ( !boolMatch ?
-			<li  onClick={() => handleMsgClick(author.userName, author.id)} key={id}>
-				<Message
-					allMessages={messagesState}
-					// removeMessages={setMessagesState}
-					username ={author.userName}
-					content={content}
-				/>
-			</li>
-			:
-			<li key={id}>
-				Blocked Message from {author.userName}
-			</li>
-		)
-	}
-	  ));
+		setMessagesList(messagesState.map(({ id, author, content }) => 
+		{
+			const match = user.blockList.filter((el) =>{
+				return (el.id === author.id);
+			} )
+			const boolMatch : boolean = match.length > 0 ? true : false;
+			return ( !boolMatch ?
+				<li  onClick={() => handleMsgClick(author.userName, author.id)} key={id}>
+					<Message
+						allMessages={messagesState}
+						// removeMessages={setMessagesState}
+						username ={author.userName}
+						content={content}
+					/>
+				</li>
+				:
+				<li key={id}>
+					Blocked Message from {author.userName}
+				</li>
+			)
+		}
+	));
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	},[messagesState]);
 
@@ -479,30 +479,41 @@ export default function Channel() {
 
 	  useEffect(() => {
 		const chanListener = (chan: ChannelModel, username: string, mode : string) => {
-			if (username === user.userName && (mode === "ban" || mode === "kick")){
-				showAlert("error","You've been"+ mode + " from " + chan.title);
-				navigate(-1);
+				if (username === user.userName && (mode === "ban" || mode === "kick")){
+					showAlert("error","You've been"+ mode + " from " + chan.title);
+					navigate(-1);
+				}
+				else if (username === user.userName && mode === "admin"){
+					showAlert("success","You've been made "+ mode + " of " + chan.title);
+				}else if (username !== user.userName && mode === "leave") {
+					showAlert("success",username + " leaved the channel");
+				}else if (username === user.userName && mode === "mute") {
+				showAlert("success", "You've been muted 30 seconds from this channel");
 			}
-			else if (username === user.userName && mode === "admin"){
-				showAlert("success","You've been made "+ mode + " of " + chan.title);
-			}else if (username !== user.userName && mode === "leave") {
-				showAlert("success",username + " leaved the channel");
-			}else if (username === user.userName && mode === "mute") {
-			showAlert("success", "You've been muted 30 seconds from this channel");
-		}
 			setChanInfo(chan);
 		}
+		const updateUsernameListener = (data : {id : number, userName : string}) => {
+			setChanInfo((chan) => {
+				// eslint-disable-next-line
+				const updatedUser = chan?.members.filter((user)=>{if (user.id === data.id) return user.userName = data.userName});
+				console.log(updatedUser);				
+				return chan; 
+			});
+		}
+
+		socket?.on("userNameUpdatedChannel", updateUsernameListener)
 		chatSocket?.on("kickOrBanOrLeaveFromChannel", chanListener)
 		chatSocket?.on("userJoinedChan", chanListener)
 		chatSocket?.on("adminJoinedChan", chanListener)
 		chatSocket?.on("refreshMute", chanListener)
 		return () => {
+			socket?.off("userNameUpdatedChannel",);
 			chatSocket?.off("kickOrBanOrLeaveFromChannel",);
 			chatSocket?.off("userJoinedChan",);
 			chatSocket?.off("adminJoinedChan",);
 			chatSocket?.off("refreshMute",);
 		}
-	  }, [chatSocket, navigate, showAlert, user.userName])
+	  }, [chatSocket, socket, navigate, showAlert, user.userName])
 
 	return (
 		<div className="container d-flex flex-column justify-content align-items">

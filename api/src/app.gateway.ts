@@ -181,6 +181,10 @@ export class AppGateway
 			userName: newUserName,
 			status: user.status,
 		});
+		this.io.emit("userNameUpdatedChannel", {
+			id: user.id,
+			userName: newUserName,
+		});
 	}
 
 	@SubscribeMessage("userStatusInGame")
