@@ -49,11 +49,17 @@ export default function NewChannel() {
 
 	async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
 		event.preventDefault();
+		
 		formValues.username = user.userName;
 		formValues.type = "Channel";
 		formValues.mode = radioValue;
 		if (formValues.mode !== "Protected") {
 			formValues.password = "";
+		}
+		else if (!formValues.password || formValues.password === "")
+		{
+			showAlert("error", "The password must be not empty");
+			return ;
 		}
 		try {
 			const res: Response = await fetch(

@@ -507,7 +507,7 @@ export default function Channel() {
 						{ (chanInfo?.mode === "Protected" && !authenticate) ?
 							<>
 							<div className="d-flex flex-column justify-content-space-between">
-								<h1>Enter the secret password of {chanInfo.title}</h1>
+								<h1>Enter the secret password</h1>
 								<input className={`btn-primary m-20 d-flex flex-column justify-content align-items`} onKeyDown={handleKeyDownPassword}
 								type="password" name="secret" id="secret"
 								onChange={(e)=>{setValue(e.target.value)}} value={value}/>
