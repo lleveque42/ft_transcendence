@@ -371,6 +371,13 @@ export class ChannelService {
 	}
 
 	async joinPublicChannel(userId: number, channelId: number) {
+		const user = await this.prisma.user.findUnique({
+			where :{
+				id : userId,
+			}
+		})
+
+		
 		const updatedChannel = await this.prisma.channel.update({
 			where: { id: channelId },
 			data: { members: { connect: { id: userId } } },
@@ -598,7 +605,7 @@ export class ChannelService {
 		const user = await this.userService.getUserByUserName(userName);
 		const chan = await this.getChannelByTitle(title);
 		if (!user || !chan)
-			return null;
+			throw new ForbiddenException("Can't retrieve invite list");
 		const membersNotInChannel = await this.prisma.user.findMany({
 			where: {
 				NOT: {
@@ -627,6 +634,9 @@ export class ChannelService {
 				userName: true,
 			}
 		});
+		if (!membersNotInChannel || !membersBanned){
+			throw new ForbiddenException("Can't retrieve invite list");
+		}
 		const filteredMembers = membersNotInChannel.filter(member => {
 			return !membersBanned.some(bannedMember => bannedMember.id === member.id);
 		  });
@@ -652,30 +662,26 @@ export class ChannelService {
 		}
 	}
 	
-	async checkSecret( chanId : number, secret : string, userName : string) : Promise<boolean> {
-		
-			const chan = await this.prisma.channel.findUnique({
-				where: {
-					id : chanId,
-				},
-				select : {
-					password : true,
-				}
-			});
-			let hash: string = null;
-			if (chan && secret && secret !== "") {
-				hash = await argon2.hash(secret);
-				if (await argon2.verify(chan.password, secret)) {
-					return true;
-				}
-				else {
-					throw new ForbiddenException("Password doesn't match");
-				}
+	async checkSecret( chanId : number, secret : string, userName : string) : Promise<void> {
+		const chan = await this.prisma.channel.findUnique({
+			where: {
+				id : chanId,
+			},
+			select : {
+				password : true,
 			}
-			return false;
-		
+		});
+		let hash: string = null;
+		if (chan && secret && secret !== "") {
+			hash = await argon2.hash(secret);
+			if (await argon2.verify(chan.password, secret)) {
+				return;
+			}
+			else {
+				throw new ForbiddenException("Password doesn't match");
+			}
+		}
 	}
-	
 
 	async dropdb() {
 		await this.prisma.channel.deleteMany({});

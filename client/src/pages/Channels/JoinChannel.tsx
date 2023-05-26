@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useUser } from "../../context/UserProvider";
 import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
 import { ChannelModel } from "../../entities/entities";
+import { useAlert } from "../../context/AlertProvider";
 
 type FormValues = {
 	userId: number;
@@ -15,6 +16,7 @@ export default function JoinChannel() {
 	const [channelsState, setChannelsState] = useState<ChannelModel[]>([]);
 	const {chatSocket} = usePrivateRouteSocket();
 	const socket = usePrivateRouteSocket();
+	const { showAlert } = useAlert();
 
 	const navigate = useNavigate();
 
@@ -61,11 +63,13 @@ export default function JoinChannel() {
 				},
 				body: JSON.stringify(formValues),
 			});
-			socket.chatSocket?.emit("joinChatRoom", title);
 			if (res.status === 201) {
+				socket.chatSocket?.emit("joinChatRoom", title);
+				showAlert("success", `You've been add to the chan`);
 				navigate(`/chat/channels/${title}`);
 			}else {
-				// to dooooooooo
+				showAlert("error", "This channel doesn't exist");
+				navigate(`/chat/channels`);
 			}
 		} catch (e) {
 			console.error("Error joining channel");

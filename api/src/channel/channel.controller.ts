@@ -277,13 +277,12 @@ export class ChannelController {
 	async joinChannel(
 		@Body() body,
 		@Res({ passthrough: true }) res: Response,
-	): Promise<Channel> {
+	): Promise<void> {
 		try {
 			const channel = await this.channelService.joinPublicChannel(
 				body.userId,
 				body.channelId,
 			);
-			return channel;
 		} catch (e) {
 			throw new HttpException(e.message, e.status);
 		}
@@ -303,7 +302,7 @@ export class ChannelController {
 			);
 			return users;
 		} catch (e) {
-			throw new HttpException(e.message, e.status);
+			throw new HttpException(e.message, HttpStatus.NOT_FOUND);
 		}
 	}
 
@@ -319,13 +318,13 @@ export class ChannelController {
 				body.userId
 			);
 		} catch (e) {
-			throw new HttpException(e.message, e.status);
+			throw new HttpException(e.message, HttpStatus.NOT_FOUND);
 		}
 	}
 
 	@UseGuards(AtGuard)
 	@Post("secret")
-	async checkSecret(@Body() body, @GetCurrentUser("sub") userName: string, @Res({ passthrough: true }) res: Response) {
+	async checkSecret(@Body() body, @GetCurrentUser("sub") userName: string, @Res({ passthrough: true }) res: Response): Promise<void> {
 		try {
 			await this.channelService.checkSecret(
 				body.chanId,
@@ -333,7 +332,6 @@ export class ChannelController {
 				userName,
 			);
 		} catch (e) {
-			console.log(e.message);
 			throw new HttpException(e.message, HttpStatus.FORBIDDEN);
 		}
 	}
