@@ -24,6 +24,7 @@ export default function DirectMessages() {
 					{
 						credentials: "include",
 						headers: {
+							"Content-Type": "application/json",
 							Authorization: `Bearer ${accessToken}`,
 						},
 					},
@@ -71,8 +72,8 @@ export default function DirectMessages() {
 					credentials: "include",
 					headers: {
 						"Content-Type": "application/json",
+						Authorization: `Bearer ${accessToken}`,
 					},
-					body: JSON.stringify(data),
 				},
 			);
 			chatSocket?.emit("blockUser", toEmit);
@@ -87,29 +88,6 @@ export default function DirectMessages() {
 
 	const directMessageList = directMessagesState.map((channel) => {
 		const members = channel.members;
-
-		// const members = [
-		// 	{ id: 1, userName: "Denis" },
-		// 	{ id: 2, userName: "Denis" },
-		// 	{ id: 3, userName: "Denis" },
-		// 	{ id: 4, userName: "Denis" },
-		// 	{ id: 5, userName: "Denis" },
-		// 	{ id: 6, userName: "Denis" },
-		// 	{ id: 7, userName: "Denis" },
-		// 	{ id: 8, userName: "Denis" },
-		// 	{ id: 9, userName: "Denis" },
-		// 	{ id: 10, userName: "Denis" },
-		// 	{ id: 11, userName: "Denis" },
-		// 	{ id: 12, userName: "Denis" },
-		// 	{ id: 13, userName: "Denis" },
-		// 	{ id: 14, userName: "Denis" },
-		// 	{ id: 15, userName: "Denis" },
-		// 	{ id: 17, userName: "Denis" },
-		// 	{ id: 16, userName: "Denis" },
-		// 	{ id: 18, userName: "Denis" },
-		// 	{ id: 19, userName: "Denis" },
-		// ];
-		// let membersDetails;
 		if (members) {
 			return members.map((member) => {
 				return (
@@ -122,55 +100,19 @@ export default function DirectMessages() {
 							>
 								{member.userName}
 							</p>
-							<button className="btn btn-danger pl-10 pr-10 p-5" onClick={() => handleBlock(channel)}>Block</button>
+							<button
+								className="btn btn-danger pl-10 pr-10 p-5"
+								onClick={() => handleBlock(channel)}
+							>
+								Block
+							</button>
 						</li>
 					)
 				);
 			});
-			// return (
-			// 	<div
-			// 		key={channel.id}
-			// 		className="d-flex flex-row justify-content align-items"
-			// 	>
-			// 		<NavLink
-			// 			key={channel.id}
-			// 			className={``}
-			// 			to={`/chat/direct_messages/${channel.title}`}
-			// 		>
-			// 			{membersDetails}
-			// 		</NavLink>
-
-			// 		<button
-			// 			onClick={() => handleBlock(channel)}
-			// 			className="btn-danger ml-10"
-			// 		>
-			// 			Block
-			// 		</button>
-			// 	</div>
-			// );
 		}
 		return <p key={"0"}></p>;
 	});
-
-	/* const directMessageList = directMessagesState.map((channel) => {
-		const members = channel.members;
-		if (members) {
-			return members.map((member) => {
-				return (
-					member.id !== user.id && (
-						<p
-							className={styles.listElems}
-							key={member.id}
-							onClick={() => navigate(`/chat/direct_messages/${channel.title}`)}
-						>
-							{member.userName}
-						</p>
-					)
-				);
-			});
-		}
-		return <p key={"0"}></p>;
-	}); */
 
 	useEffect(() => {
 		const DirectMessagesListener = (chan: ChannelModel) => {

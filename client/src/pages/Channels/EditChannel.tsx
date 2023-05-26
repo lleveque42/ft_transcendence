@@ -41,6 +41,7 @@ export default function EditChannel() {
 				await fetch(`${process.env.REACT_APP_BACKEND_URL}/channels/edit/${title}`, {
 					credentials: "include",
 					headers: {
+						"Content-Type": "application/json",
 						Authorization: `Bearer ${accessToken}`,
 					},
 				})
@@ -102,16 +103,6 @@ export default function EditChannel() {
 		if (formValues.mode !== "Protected") {
 			formValues.password = "";
 		}
-		console.log(
-			"Body: " +
-				channelState?.title +
-				" " +
-				channelState?.type +
-				" " +
-				channelState?.mode +
-				" " +
-				channelState?.password,
-		);
 		try {
 			const res: Response = await fetch(
 				`${process.env.REACT_APP_BACKEND_URL}/channels/edit_channel`,
@@ -120,6 +111,7 @@ export default function EditChannel() {
 					credentials: "include",
 					headers: {
 						"Content-Type": "application/json",
+						Authorization: `Bearer ${accessToken}`,
 					},
 					body: JSON.stringify(formValues),
 				},

@@ -11,7 +11,7 @@ import { isAfter } from "date-fns";
 
 export default function Channel() {
 	const { user, isAuth, accessToken } = useUser();
-	const { chatSocket } = usePrivateRouteSocket();
+	const { chatSocket, socket } = usePrivateRouteSocket();
 	const { id } = useParams();
 	const { showAlert } = useAlert();
 	const [value, setValue] = useState("");
@@ -19,6 +19,7 @@ export default function Channel() {
 	const [userBool, setuserBool] = useState(false);
 	const [inviteBool, setInviteBool] = useState(false);
 	const [messagesState, setMessagesState] = useState<Array<MessageModel>>([]);
+	const [authenticate, setAuthenticate] = useState(false);
 	const [inviteState, setInviteState] = useState<Array<UserModel>>([]);
 	const [messagesList, setMessagesList] = useState<JSX.Element[]>([]);
 	const [chanInfo, setChanInfo] = useState<ChannelModel>();
@@ -32,12 +33,12 @@ export default function Channel() {
 	useEffect(() => {
 		(async () => {
 			try {
-				// await getAllMessagesInChan(id, accessToken, setMessagesState);
 				await fetch(
 					`${process.env.REACT_APP_BACKEND_URL}/channels/chan/${id}`,
 					{
 						credentials: "include",
 						headers: {
+							"Content-Type": "application/json",
 							Authorization: `Bearer ${accessToken}`,
 						},
 					},
@@ -51,6 +52,7 @@ export default function Channel() {
 					{
 						credentials: "include",
 						headers: {
+							"Content-Type": "application/json",
 							Authorization: `Bearer ${accessToken}`,
 						},
 					},
@@ -93,6 +95,8 @@ export default function Channel() {
 		}
 		setCurrentUserName(userName);
 		setCurrentUserId(userId);
+		console.log("click", currentUserId, currentUserName);
+
 		chanInfo?.operators.forEach((op) => {
 			if (op.id === userId) {
 				setCurrentUserAdmin(true);
@@ -169,7 +173,6 @@ export default function Channel() {
 			}
 			if (unMuted) {
 				// Might be worthy to delete the mutedList item
-				console.log("Need to be unMuted");
 			}
 			if (
 				!chanInfo?.mutedList?.some(
@@ -185,15 +188,58 @@ export default function Channel() {
 					inputValue.nodeValue = "";
 				}
 			} else {
-				console.log("Muted");
 				showAlert("error", "You are currently muted");
+			}
+		}
+	};
+
+	const handleKeyDownPassword = async (
+		event: KeyboardEvent<HTMLInputElement>,
+	) => {
+		if (event.key === "Enter" && value && value !== "") {
+			const data = { chanId: chanInfo?.id, secret: value };
+			try {
+				const res = await fetch(
+					`${process.env.REACT_APP_BACKEND_URL}/channels/secret`,
+					{
+						method: "POST",
+						credentials: "include",
+						headers: {
+							"Content-Type": "application/json",
+							Authorization: `Bearer ${accessToken}`,
+						},
+						body: JSON.stringify(data),
+					},
+				);
+				if (res.status === 201) {
+					showAlert("success", "Password valid, please enter");
+					setValue("");
+					const inputValue: HTMLElement | null =
+						document.getElementById("newMsg");
+					if (inputValue != null) {
+						inputValue.nodeValue = "";
+					}
+					setAuthenticate(true);
+					setInfoBool(true);
+					setuserBool(false);
+					setInviteBool(false);
+				} else {
+					showAlert("error", "Invalid password, little gourgandin");
+					setValue("");
+					const inputValue: HTMLElement | null =
+						document.getElementById("newMsg");
+					if (inputValue != null) {
+						inputValue.nodeValue = "";
+					}
+				}
+			} catch (e) {
+				console.error("Error kicking from channel");
 			}
 		}
 	};
 
 	useEffect(() => {
 		chatSocket?.on("errorSendingMessage", (username: string) => {
-			console.log("Error username : " + username);
 			if (username === user.userName) {
 				showAlert(
 					"error",
@@ -228,8 +274,8 @@ export default function Channel() {
 					credentials: "include",
 					headers: {
 						"Content-Type": "application/json",
+						Authorization: `Bearer ${accessToken}`,
 					},
-					body: JSON.stringify(data),
 				},
 			);
 			chatSocket?.emit("blockUser", toEmit);
@@ -264,8 +310,8 @@ export default function Channel() {
 					credentials: "include",
 					headers: {
 						"Content-Type": "application/json",
+						Authorization: `Bearer ${accessToken}`,
 					},
-					body: JSON.stringify(data),
 				},
 			);
 			chatSocket?.emit("blockUser", toEmit);
@@ -302,8 +348,8 @@ export default function Channel() {
 					credentials: "include",
 					headers: {
 						"Content-Type": "application/json",
+						Authorization: `Bearer ${accessToken}`,
 					},
-					body: JSON.stringify(data),
 				},
 			);
 			chatSocket?.emit("exitChatRoom", toEmit);
@@ -341,8 +387,8 @@ export default function Channel() {
 					credentials: "include",
 					headers: {
 						"Content-Type": "application/json",
+						Authorization: `Bearer ${accessToken}`,
 					},
-					body: JSON.stringify(data),
 				},
 			);
 			if (res.status === 201) {
@@ -373,8 +419,8 @@ export default function Channel() {
 					credentials: "include",
 					headers: {
 						"Content-Type": "application/json",
+						Authorization: `Bearer ${accessToken}`,
 					},
-					body: JSON.stringify(data),
 				},
 			);
 			chatSocket?.emit("adminChatRoom", toEmit);
@@ -431,24 +477,56 @@ export default function Channel() {
 			return;
 		}
 		const data = { title: chanInfo?.title, userId };
+		const toEmit = { room: chanInfo.title, userId: userId };
 		try {
-			console.log("Invite");
-			await fetch(`${process.env.REACT_APP_BACKEND_URL}/channels/invite`, {
-				method: "POST",
-				credentials: "include",
-				headers: {
-					"Content-Type": "application/json",
-					Authorization: `Bearer ${accessToken}`,
+			const res: Response = await fetch(
+				`${process.env.REACT_APP_BACKEND_URL}/channels/invite`,
+				{
+					method: "POST",
+					credentials: "include",
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `Bearer ${accessToken}`,
+					},
+					body: JSON.stringify(data),
 				},
-				body: JSON.stringify(data),
-			})
-				.then((res) => res.json())
-				.then((users) => {});
+			);
+			if (res.status === 201) {
+				chatSocket?.emit("addUserToChan", toEmit);
+
+				setInfoBool(true);
+				setuserBool(false);
+				setInviteBool(false);
+			} else {
+				// To dooooooooooooooo
+			}
 			navigate(`/chat/channels/${chanInfo?.title}`);
 		} catch (e) {
-			console.error("Error retieving invite users from channel");
+			console.error("Error adding user to chan");
 		}
 	}
+
+	useEffect(() => {
+		const joinedListener = (chan: ChannelModel) => {
+			setChanInfo(chan);
+		};
+		chatSocket?.on("userJoinedChan", joinedListener);
+		return () => {
+			chatSocket?.off("userJoinedChan");
+		};
+	}, [chanInfo, chatSocket]);
+
+	useEffect(() => {
+		const inviteListener = (chan: ChannelModel, user: UserModel) => {
+			setInviteState(
+				inviteState.filter((userCompare) => userCompare.id !== user.id),
+			);
+		};
+		chatSocket?.on("removeFromInviteList", inviteListener);
+		return () => {
+			chatSocket?.off("removeFromInviteList");
+		};
+	}, [chanInfo, chatSocket, inviteState]);
 
 	useEffect(() => {
 		const chanListener = (
@@ -468,17 +546,41 @@ export default function Channel() {
 			}
 			setChanInfo(chan);
 		};
+
+		const updateUsernameListener = (data: {
+			id: number;
+			userName: string;
+			oldUserName: string;
+		}) => {
+			setChanInfo((chan) => {
+				// eslint-disable-next-line
+				const updatedUser = chan?.members.filter((user) => {
+					if (user.id === data.id) return (user.userName = data.userName);
+				});
+				// console.log(updatedUser);
+				// console.log(data.id, data.oldUserName);
+				// console.log(currentUserId, currentUserName);
+				// if (data.id === currentUserId){
+				// 	setCurrentUserName(data.userName);
+				// 	setCurrentUserId(data.id);
+				// }
+				return chan;
+			});
+		};
+
+		socket?.on("userNameUpdatedChannel", updateUsernameListener);
 		chatSocket?.on("kickOrBanOrLeaveFromChannel", chanListener);
 		chatSocket?.on("userJoinedChan", chanListener);
 		chatSocket?.on("adminJoinedChan", chanListener);
 		chatSocket?.on("refreshMute", chanListener);
 		return () => {
+			socket?.off("userNameUpdatedChannel");
 			chatSocket?.off("kickOrBanOrLeaveFromChannel");
 			chatSocket?.off("userJoinedChan");
 			chatSocket?.off("adminJoinedChan");
 			chatSocket?.off("refreshMute");
 		};
-	}, [chatSocket, navigate, showAlert, user.userName]);
+	}, [chatSocket, socket, navigate, showAlert, user.userName]);
 
 	return (
 		<div className="container d-flex flex-column justify-content align-items">
@@ -486,148 +588,187 @@ export default function Channel() {
 			<div>
 				<ChatNav />
 				<h1 className="m-20">{id}</h1>
-				<div className="d-flex flex-row justify-content-space-between">
-					<div className="d-flex flex-column">
-						{
-							<>
-								<div className="d-flex flex-column justify-content">
-									<ul className="List">{messagesList}</ul>
-								</div>
-							</>
-						}
-						<input
-							id="newMsg"
-							className={`btn-primary m-20 d-flex flex-column justify-content align-items`}
-							onKeyDown={handleKeyDown}
-							onChange={(e) => {
-								setValue(e.target.value);
-							}}
-							type="text"
-							placeholder="Write a message"
-							value={value}
-						/>
-					</div>
-					{infoBool && (
-						<div className="d-flex flex-column">
-							<div
-								className={`btn-primary m-20`}
-								onClick={() => {
-									handleInviteListClick();
-								}}
-							>
-								Invite
+				<div className="d-flex flex-raw justify-content-space-between">
+					{chanInfo?.mode === "Protected" && !authenticate ? (
+						<>
+							<div className="d-flex flex-column justify-content-space-between">
+								<h1>Enter the secret password</h1>
+								<input
+									className={`btn-primary m-20 d-flex flex-column justify-content align-items`}
+									onKeyDown={handleKeyDownPassword}
+									type="password"
+									name="secret"
+									id="secret"
+									onChange={(e) => {
+										setValue(e.target.value);
+									}}
+									value={value}
+								/>
 							</div>
-							<div>
-								<h2 className="ml-10">Users List</h2>
-								<ul>
-									{chanInfo?.members.map((member) => {
-										const username = member.userName;
-										const userId = member.id;
-										return (
-											<li
-												onClick={() => handleMsgClick(username, userId)}
-												key={userId}
-												className="ml-10"
-											>
-												{username}
-											</li>
-										);
-									})}
-								</ul>
-							</div>
-						</div>
-					)}
-					{userBool && chanInfo && (
-						<div className="d-flex flex-column">
-							<h2 className="ml-10">Manage {currentUserName}</h2>
-							<NavLink
-								className="btn-primary ml-10 d-flex justify-content"
-								to={`/user/${currentUserName}`}
-							>
-								Profile
-							</NavLink>
-							<button className="btn-primary ml-10">Play</button>
-							<button
-								onClick={() =>
-									handleBlock(
-										user.userName,
-										user.id,
-										currentUserName,
-										currentUserId,
-									)
+						</>
+					) : (
+						<>
+							<div className="d-flex flex-column">
+								{
+									<>
+										<div className="d-flex flex-column justify-content">
+											<ul className="List">{messagesList}</ul>
+										</div>
+									</>
 								}
-								className="btn-danger ml-10"
-							>
-								Block
-							</button>
-							{user.id === chanInfo.ownerId && !currentUserAdmin && (
-								<button
-									onClick={() => handleAdmin(currentUserName, currentUserId)}
-									className="btn-primary ml-10"
-								>
-									Admin
-								</button>
-							)}
-							{isOp && (
-								<>
-									<button
-										id="Kick"
-										onClick={() => handleKick(currentUserName, currentUserId)}
-										className="btn-danger ml-10"
-									>
-										Kick
-									</button>
-									<button
-										id="Ban"
-										onClick={() => handleBan(currentUserName, currentUserId)}
-										className="btn-danger ml-10"
-									>
-										Ban
-									</button>
-									<button
-										id="Mute"
-										onClick={() => handleMute(currentUserName, currentUserId)}
-										className="btn-danger ml-10"
-									>
-										Mute
-									</button>
-								</>
-							)}
-							<button
-								onClick={() => handleReturnToList()}
-								className="btn-primary ml-10"
-							>
-								Return
-							</button>
-						</div>
-					)}
-					{inviteBool && chanInfo && (
-						<div className="d-flex flex-column">
-							<div
-								className={`btn-primary m-20`}
-								onClick={() => {
-									handleInviteListClick();
-								}}
-							>
-								Invite
+								<input
+									id="newMsg"
+									className={`btn-primary m-20 d-flex flex-column justify-content align-items`}
+									onKeyDown={handleKeyDown}
+									onChange={(e) => {
+										setValue(e.target.value);
+									}}
+									type="text"
+									placeholder="Write a message"
+									value={value}
+								/>
 							</div>
-							<div>
-								<h2 className="ml-10">Invite List</h2>
-								<ul>
-									{inviteState.map((member) => {
-										return (
-											<li
-												onClick={() => handleInviteClick(member.id)}
-												key={member.id}
-												className="ml-10"
+							{infoBool && (
+								<div className="d-flex flex-column">
+									<div
+										className={`btn-primary m-20`}
+										onClick={() => {
+											handleInviteListClick();
+										}}
+									>
+										Invite
+									</div>
+									<div>
+										<h2 className="ml-10">Users List</h2>
+										<ul>
+											{chanInfo?.members.map((member) => {
+												const username = member.userName;
+												const userId = member.id;
+												return (
+													<li
+														onClick={() => handleMsgClick(username, userId)}
+														key={userId}
+														className="ml-10"
+													>
+														{username}
+													</li>
+												);
+											})}
+										</ul>
+									</div>
+								</div>
+							)}
+							{userBool && chanInfo && (
+								<div className="d-flex flex-column">
+									<h2 className="ml-10">Manage {currentUserName}</h2>
+									<NavLink
+										className="btn-primary ml-10 d-flex justify-content"
+										to={`/user/${currentUserName}`}
+									>
+										Profile
+									</NavLink>
+									<button
+										className="btn-primary ml-10"
+										onClick={() =>
+											socket?.emit("sendGameInvite", {
+												sender: user.id,
+												invited: currentUserId,
+											})
+										}
+									>
+										Play
+									</button>
+									<button
+										onClick={() =>
+											handleBlock(
+												user.userName,
+												user.id,
+												currentUserName,
+												currentUserId,
+											)
+										}
+										className="btn-danger ml-10"
+									>
+										Block
+									</button>
+									{user.id === chanInfo.ownerId && !currentUserAdmin && (
+										<button
+											onClick={() =>
+												handleAdmin(currentUserName, currentUserId)
+											}
+											className="btn-primary ml-10"
+										>
+											Admin
+										</button>
+									)}
+									{isOp && (
+										<>
+											<button
+												id="Kick"
+												onClick={() =>
+													handleKick(currentUserName, currentUserId)
+												}
+												className="btn-danger ml-10"
 											>
-												{member.userName}
-											</li>
-										);
-									})}
-								</ul>
-							</div>
-						</div>
+												Kick
+											</button>
+											<button
+												id="Ban"
+												onClick={() =>
+													handleBan(currentUserName, currentUserId)
+												}
+												className="btn-danger ml-10"
+											>
+												Ban
+											</button>
+											<button
+												id="Mute"
+												onClick={() =>
+													handleMute(currentUserName, currentUserId)
+												}
+												className="btn-danger ml-10"
+											>
+												Mute
+											</button>
+										</>
+									)}
+									<button
+										onClick={() => handleReturnToList()}
+										className="btn-primary ml-10"
+									>
+										Return
+									</button>
+								</div>
+							)}
+							{inviteBool && chanInfo && (
+								<div className="d-flex flex-column">
+									<div
+										className={`btn-primary m-20`}
+										onClick={() => {
+											handleInviteListClick();
+										}}
+									>
+										Invite
+									</div>
+									<div>
+										<h2 className="ml-10">Invite List</h2>
+										<ul>
+											{inviteState.map((member) => {
+												return (
+													<li
+														onClick={() => handleInviteClick(member.id)}
+														key={member.id}
+														className="ml-10"
+													>
+														{member.userName}
+													</li>
+												);
+											})}
+										</ul>
+									</div>
+								</div>
+							)}
+						</>
 					)}
 				</div>
 			</div>

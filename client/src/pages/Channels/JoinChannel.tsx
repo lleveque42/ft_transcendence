@@ -24,6 +24,7 @@ export default function JoinChannel() {
 				await fetch(`${process.env.REACT_APP_BACKEND_URL}/channels/join`, {
 					credentials: "include",
 					headers: {
+						"Content-Type": "application/json",
 						Authorization: `Bearer ${accessToken}`,
 					},
 				})
@@ -56,6 +57,7 @@ export default function JoinChannel() {
 				credentials: "include",
 				headers: {
 					"Content-Type": "application/json",
+					Authorization: `Bearer ${accessToken}`,
 				},
 				body: JSON.stringify(formValues),
 			});

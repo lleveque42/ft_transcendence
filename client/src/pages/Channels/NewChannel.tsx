@@ -23,7 +23,7 @@ const initialFormValues: FormValues = {
 };
 
 export default function NewChannel() {
-	const { user } = useUser();
+	const { user, accessToken } = useUser();
 	const [radioValue, setRadioValue] = useState("Public");
 	const [chanProtected, setChanProtected] = useState(false);
 	const [formValues, setFormValues] = useState<FormValues>(initialFormValues);
@@ -49,11 +49,17 @@ export default function NewChannel() {
 
 	async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
 		event.preventDefault();
+		
 		formValues.username = user.userName;
 		formValues.type = "Channel";
 		formValues.mode = radioValue;
 		if (formValues.mode !== "Protected") {
 			formValues.password = "";
+		}
+		else if (!formValues.password || formValues.password === "")
+		{
+			showAlert("error", "The password must be not empty");
+			return ;
 		}
 		try {
 			const res: Response = await fetch(
@@ -63,6 +69,7 @@ export default function NewChannel() {
 					credentials: "include",
 					headers: {
 						"Content-Type": "application/json",
+						Authorization: `Bearer ${accessToken}`,
 					},
 					body: JSON.stringify(formValues),
 				},

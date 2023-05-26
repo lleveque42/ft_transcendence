@@ -59,7 +59,6 @@ export class ServerGateway
 			client.disconnect();
 			return;
 		}
-
 		if (this.users.hasByUserId(user.id))
 			this.users.addClientToUserId(user.id, client);
 		else this.users.addNewUser(user, client);
@@ -91,22 +90,10 @@ export class ServerGateway
 		try {
 			this.userService.setUserSocket(data.sender, data.socket);
 			const sender = await this.userService.getUserByUserName(data.sender);
-			if (sender) {
-				console.log(
-					"Sender " + sender.userName + " at socket: *" + sender.socket + "*",
-				);
-			} else {
-				console.log("No sender found");
-			}
 			const user = await this.userService.getUserByUserName(data.receiver);
-			if (user) {
-				console.log(
-					"Receiver " + user.userName + " at socket: *" + user.socket + "*",
-				);
-			} else {
-				console.log("No user found");
+			if (sender && user) {
+				this.io.emit("private_message", sender.userName, data.message);
 			}
-			this.io.emit("private_message", sender.userName, data.message);
 		} catch (e) {
 			throw new HttpException(e.message, e.status);
 		}
@@ -119,7 +106,6 @@ export class ServerGateway
 		data: {
 			room: string;
 			message: string;
-			// value: string;
 		},
 	): Promise<void> {
 		const rooms: Set<string> = client.rooms;
@@ -159,20 +145,17 @@ export class ServerGateway
 
 	@SubscribeMessage("joinChatRoom")
 	async handleJoinChanRoom(socket: Socket, chanName: string): Promise<void> {
-		console.log(
-			"The socket " +
-				socket.id +
-				" trying to connect to the chan " +
-				chanName +
-				".",
-		);
 		const sockets = this.users.getClientsByClientId(socket.id);
-		for (const socket of sockets) {
-			socket[1].join(chanName);
+		if (sockets){
+			for (const socket of sockets) {
+				socket[1].join(chanName);
+			}
 		}
 		const chan = await this.channelService.getChannelByTitle(chanName);
-		this.io.to(chanName).emit("userJoinedChan", chan);
-		this.io.emit("addChannelToJoin", chan);
+		if (chan){
+			this.io.to(chanName).emit("userJoinedChan", chan);
+			this.io.emit("addChannelToJoin", chan);
+		}
 	}
 
 	@SubscribeMessage("joinDMRoom")
@@ -187,17 +170,21 @@ export class ServerGateway
 	): Promise<void> {
 		const sockets = this.users.getClientsByClientId(client.id);
 		const sockets2 = this.users.getClientsByUserId(data.userId2);
-		for (const socket of sockets) {
-			socket[1].join(data.room);
+		if (sockets){
+			for (const socket of sockets) {
+				socket[1].join(data.room);
+			}
 		}
-		if (sockets2) {
+		if (sockets2){
 			for (const socket of sockets2) {
 				socket[1].join(data.room);
 			}
 		}
 		this.io.to(data.room).emit("userExpel", data.userId);
 		const chan = await this.channelService.getChannelByTitle(data.room);
-		this.io.to(data.room).emit("userJoinedDM", chan);
+		if (chan){
+			this.io.to(data.room).emit("userJoinedDM", chan);
+		}
 	}
 
 	@SubscribeMessage("exitChatRoom")
@@ -221,8 +208,10 @@ export class ServerGateway
 			);
 		const user = await this.userService.getUserByUserName(data.userName);
 		const sockets = await this.users.getClientsByUserId(user.id);
-		for (const socket of sockets) {
-			socket[1].leave(data.room);
+		if (sockets){
+			for (const socket of sockets) {
+				socket[1].leave(data.room);
+			}
 		}
 	}
 
@@ -268,5 +257,31 @@ export class ServerGateway
 				data.userName,
 				data.mode,
 			);
+	}
+
+	@SubscribeMessage("addUserToChan")
+	async handleAddUserToChan(
+		@ConnectedSocket() client: Socket,
+		@MessageBody()
+		data: {
+			room: string;
+			userId: number;
+		},
+	): Promise<void> {
+		if (data.room && data.userId){
+			const sockets = this.users.getClientsByUserId(data.userId);
+			if (sockets){
+				for (const socket of sockets) {
+					socket[1].join(data.room);
+				}
+			}
+			const user = await this.userService.getUserById(data.userId);
+			const chan = await this.channelService.getChannelByTitle(data.room);
+			if (user && chan){
+				this.io.to(chan.title).emit("userJoinedChan", chan);
+				this.io.to(chan.title).emit("removeFromInviteList", chan, user);
+				this.io.to(chan.title).emit("newInvitedChan", chan, data.userId);
+			}
+		}
 	}
 }

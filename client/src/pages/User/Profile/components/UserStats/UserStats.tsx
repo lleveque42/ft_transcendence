@@ -67,7 +67,7 @@ export default function UserStats({
 					<h2 className="pl-20">{wins}</h2>
 				</div>
 				<div className="flex-1">
-					<p className="pl-20 p-5">Losses</p>
+					<p className="pl-20 p-5">Defeats</p>
 					<h2 className="pl-20">{losses}</h2>
 				</div>
 				<div className="flex-1">

@@ -20,6 +20,7 @@ export default function Channels() {
 					{
 						credentials: "include",
 						headers: {
+							"Content-Type": "application/json",
 							Authorization: `Bearer ${accessToken}`,
 						},
 					},
@@ -44,8 +45,8 @@ export default function Channels() {
 					credentials: "include",
 					headers: {
 						"Content-Type": "application/json",
+						Authorization: `Bearer ${accessToken}`,
 					},
-					body: JSON.stringify(data),
 				},
 			);
 			if (res.status === 201) {
@@ -56,7 +57,7 @@ export default function Channels() {
 		}
 	}
 
-	const channelsList = channelsState.map(({ id, title, ownerId }) => {
+	const channelsList = channelsState.map(({ id, title, ownerId, mode }) => {
 		const chanTitle = title;
 		return (
 			<li key={id}>
@@ -88,13 +89,23 @@ export default function Channels() {
 	});
 
 	useEffect(() => {
+		const inviteListener = (chan: ChannelModel, userId: number) => {
+			if (userId === user.id) {
+				setChannelsState([...channelsState, chan]);
+			}
+		};
+		chatSocket?.on("newInvitedChan", inviteListener);
+		return () => {
+			chatSocket?.off("newInvitedChan");
+		};
+	}, [chatSocket, channelsState, user.id]);
+
+	useEffect(() => {
 		const chanListener = (
 			chan: ChannelModel,
 			username: string,
 			mode: string,
 		) => {
-			// console.log((username !== user.userName && mode === "leave"));
-
 			if (username === user.userName && mode === "leave") {
 				setChannelsState(channelsState.filter((c) => c.id !== chan.id));
 			} else if (username !== user.userName && mode === "leave") {

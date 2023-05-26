@@ -9,6 +9,7 @@ import { UserService } from "../user/user.service";
 import { Channel, Muted, Prisma, User } from "@prisma/client";
 import * as argon2 from "argon2";
 import { OnlineUsers } from "../classes/OnlineUsers";
+import { error } from "console";
 
 @Injectable()
 export class ChannelService {
@@ -616,11 +617,16 @@ export class ChannelService {
 		userName: string,
 	): Promise<{ id: number; userName: string }[]> {
 		const user = await this.userService.getUserByUserName(userName);
-		if (!user) return null;
-		const allUsers = await this.prisma.user.findMany({
+		const chan = await this.getChannelByTitle(title);
+		if (!user || !chan) return null;
+		const membersNotInChannel = await this.prisma.user.findMany({
 			where: {
 				NOT: {
-					id: user.id,
+					channels: {
+						some: {
+							id: chan.id,
+						},
+					},
 				},
 			},
 			select: {
@@ -628,28 +634,68 @@ export class ChannelService {
 				userName: true,
 			},
 		});
-		const banned = await this.prisma.channel.findUnique({
+		const membersBanned = await this.prisma.user.findMany({
 			where: {
-				title: title,
-			},
-			include: {
-				banList: {
-					select: {
-						id: true,
-						userName: true,
+				chanBans: {
+					some: {
+						id: chan.id,
 					},
 				},
 			},
+			select: {
+				id: true,
+				userName: true,
+			},
 		});
-		if (!banned || !allUsers) {
-			return null;
-		}
-		const bannedList: Array<{ id: number; userName: string }> = banned.banList;
-		const difference = allUsers.filter((x) => !bannedList.includes(x));
-		return difference;
+		const filteredMembers = membersNotInChannel.filter((member) => {
+			return !membersBanned.some(
+				(bannedMember) => bannedMember.id === member.id,
+			);
+		});
+		return filteredMembers;
 	}
 
-	async dropdb() {
-		await this.prisma.channel.deleteMany({});
+	async addToChannel(title: string, userId: number): Promise<void> {
+		try {
+			await this.prisma.channel.update({
+				where: {
+					title: title,
+				},
+				data: {
+					members: {
+						connect: {
+							id: userId,
+						},
+					},
+				},
+			});
+		} catch (error) {
+			throw new ForbiddenException("Can't add a user in chan");
+		}
+	}
+
+	async checkSecret(
+		chanId: number,
+		secret: string,
+		userName: string,
+	): Promise<boolean> {
+		const chan = await this.prisma.channel.findUnique({
+			where: {
+				id: chanId,
+			},
+			select: {
+				password: true,
+			},
+		});
+		let hash: string = null;
+		if (chan && secret && secret !== "") {
+			hash = await argon2.hash(secret);
+			if (await argon2.verify(chan.password, secret)) {
+				return true;
+			} else {
+				throw new ForbiddenException("Password doesn't match");
+			}
+		}
+		return false;
 	}
 }

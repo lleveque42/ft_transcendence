@@ -27,6 +27,7 @@ export default function Users() {
 	const { socket, chatSocket } = usePrivateRouteSocket();
 	const { showAlert } = useAlert();
 	const navigate = useNavigate();
+	// const [invited, setInvited] = useState<boolean>(false);
 	const [isLoading, setIsloading] = useState<boolean>(true);
 	const [usersList, setUsersList] = useState<UsersList[]>([]);
 
@@ -261,12 +262,18 @@ export default function Users() {
 										!u.isFriend ? (
 											<i
 												className={`${styles.gamepadIcon} fa-solid fa-gamepad ml-20`}
-												onClick={() =>
-													socket?.emit("sendGameInvite", {
-														sender: user.id,
-														invited: u.id,
-													})
-												}
+												onClick={() => {
+													// if (!invited) {
+														socket?.emit("sendGameInvite", {
+															sender: user.id,
+															invited: u.id,
+														});
+													// 	setInvited(true);
+													// 	setTimeout(() => {
+													// 		setInvited(false);
+													// 	});
+													// } else showAlert("error", "You just invited this user.")
+												}}
 											/>
 										) : (
 											<i
