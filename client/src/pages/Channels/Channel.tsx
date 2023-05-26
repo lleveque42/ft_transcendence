@@ -91,6 +91,8 @@ export default function Channel() {
 		{return}
 		setCurrentUserName(userName);
 		setCurrentUserId(userId);
+		console.log('click', currentUserId, currentUserName);
+		
 		chanInfo?.operators.forEach((op)=>{
 			if (op.id === userId){
 				setCurrentUserAdmin(true);
@@ -492,11 +494,18 @@ export default function Channel() {
 			}
 			setChanInfo(chan);
 		}
-		const updateUsernameListener = (data : {id : number, userName : string}) => {
+
+		const updateUsernameListener = (data : {id : number, userName : string, oldUserName: string}) => {
 			setChanInfo((chan) => {
 				// eslint-disable-next-line
 				const updatedUser = chan?.members.filter((user)=>{if (user.id === data.id) return user.userName = data.userName});
-				console.log(updatedUser);				
+				// console.log(updatedUser);
+				// console.log(data.id, data.oldUserName);
+				// console.log(currentUserId, currentUserName);
+				// if (data.id === currentUserId){
+				// 	setCurrentUserName(data.userName);				
+				// 	setCurrentUserId(data.id);				
+				// }
 				return chan; 
 			});
 		}
@@ -557,26 +566,26 @@ export default function Channel() {
 							Users List
 							</h2>
 							<ul>
-							{chanInfo?.members.map((member)=>{
-								const username = member.userName;
-								const userId = member.id;
-								return (
-									<li onClick={() => handleMsgClick(username, userId)} key={userId} className="ml-10">
-												{username}
-											</li>
-										)
-									})}
-									</ul>
-									</div>
-									</div>
-								}
+								{chanInfo?.members.map((member)=>{
+									const username = member.userName;
+									const userId = member.id;
+									return (
+										<li onClick={() => handleMsgClick(username, userId)} key={userId} className="ml-10">
+													{username}
+												</li>
+											)
+										})}
+							</ul>
+							</div>
+							</div>
+						}
 						{ userBool && chanInfo &&
 							<div className="d-flex flex-column">
 							<h2 className="ml-10">
-							Manage {currentUserName}
+								Manage {currentUserName}
 							</h2>
 							<NavLink className="btn-primary ml-10 d-flex justify-content" to={`/user/${currentUserName}`}>
-							Profile
+								Profile
 							</NavLink>
 							<button className="btn-primary ml-10" onClick={
 								()=> socket?.emit(
@@ -589,7 +598,7 @@ export default function Channel() {
 								Play
 							</button>
 								<button onClick={() => handleBlock(user.userName, user.id, currentUserName, currentUserId)} className="btn-danger ml-10">
-								Block
+									Block
 								</button>
 								{
 									user.id === chanInfo.ownerId && !currentUserAdmin &&
