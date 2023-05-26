@@ -112,6 +112,13 @@ export default function Play() {
 					setAcceleratorOption(game.accelerator);
 					setMapOption(game.map);
 					setGameUserStatus(GameUserStatus.waitingGameRestart);
+					if (game.ownerId === user.id) {
+						socket?.emit("userStatusInGame", {
+							ownerId: game.ownerId,
+							playerId: game.playerId,
+							inGame: true,
+						});
+					}
 				} else if (status.inOption) {
 					setGameStatus(
 						alreadyInGame(
@@ -129,8 +136,23 @@ export default function Play() {
 						),
 					);
 					setGameUserStatus(GameUserStatus.choosingOptions);
+					if (game.ownerId === user.id) {
+						socket?.emit("userStatusInGame", {
+							ownerId: game.ownerId,
+							playerId: game.playerId,
+							inGame: true,
+						});
+					}
 				} else if (status.afk) setGameUserStatus(GameUserStatus.detectedAfk);
 				else setGameUserStatus(GameUserStatus.connected);
+				if (status.inGame || status.inOption)
+					if (game.ownerId === user.id) {
+						socket?.emit("userStatusInGame", {
+							ownerId: game.ownerId,
+							playerId: game.playerId,
+							inGame: true,
+						});
+					}
 				gameSocket?.off("privateGameDisconnection");
 			},
 		);
@@ -194,13 +216,11 @@ export default function Play() {
 		gameSocket?.once("gameCancelled", () => {
 			setGameUserStatus(GameUserStatus.gameCancelled);
 			setGameStatus(gameEnded(gameStatus));
-			if (gameStatus.ownerId === user.id) {
-				socket?.emit("userStatusInGame", {
-					ownerId: gameStatus.ownerId,
-					playerId: gameStatus.playerId,
-					inGame: false,
-				});
-			}
+			socket?.emit("userStatusInGame", {
+				ownerId: gameStatus.ownerId,
+				playerId: gameStatus.playerId,
+				inGame: false,
+			});
 			gameSocket?.off("reconnection");
 		});
 	}
@@ -218,13 +238,11 @@ export default function Play() {
 		gameSocket?.once("gameCancelled", () => {
 			setGameUserStatus(GameUserStatus.gameCancelled);
 			setGameStatus(gameEnded(gameStatus));
-			if (gameStatus.ownerId === user.id) {
-				socket?.emit("userStatusInGame", {
-					ownerId: gameStatus.ownerId,
-					playerId: gameStatus.playerId,
-					inGame: false,
-				});
-			}
+			socket?.emit("userStatusInGame", {
+				ownerId: gameStatus.ownerId,
+				playerId: gameStatus.playerId,
+				inGame: false,
+			});
 			gameSocket!.off("bothPlayersReady");
 		});
 	}
@@ -288,13 +306,11 @@ export default function Play() {
 			setGameUserStatus(newUserStatus);
 			setGameStatus(gameUnpaused(gameStatus));
 			setGameStatus(gameEnded(gameStatus));
-			if (gameStatus.ownerId === user.id) {
-				socket?.emit("userStatusInGame", {
-					ownerId: gameStatus.ownerId,
-					playerId: gameStatus.playerId,
-					inGame: false,
-				});
-			}
+			socket?.emit("userStatusInGame", {
+				ownerId: gameStatus.ownerId,
+				playerId: gameStatus.playerId,
+				inGame: false,
+			});
 			gameSocket!.off("reconnection");
 		});
 	}
