@@ -39,8 +39,7 @@ export default function Play() {
 	const [mapOption, setMapOption] = useState<MapStatus>(MapStatus.default);
 	const [acceleratorOption, setAcceleratorOption] = useState<boolean>(false);
 	const [gameUserStatus, setGameUserStatus] = useState<GameUserStatus>(
-		// GameUserStatus.notConnected,
-		GameUserStatus.inGame
+		GameUserStatus.notConnected,
 	);
 	const [gameStatus, setGameStatus] = useState<GameStatus>(defaultGameStatus);
 
