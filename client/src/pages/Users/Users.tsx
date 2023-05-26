@@ -1,12 +1,19 @@
 import { useEffect, useState } from "react";
 import Loader from "react-loaders";
-import { getAllUsersRequest, toggleFriendshipRequest } from "../../api";
+import {
+	createDmRequest,
+	delDmRequest,
+	getAllUsersRequest,
+	toggleFriendshipRequest,
+	usersListDmRequest,
+} from "../../api";
 import { useAlert, useUser } from "../../context";
 import { Friend, NewUserName, UserStatus } from "../../types";
 import styles from "./Users.module.scss";
 import { useNavigate } from "react-router-dom";
 import trimUserName from "../../utils/trimUserName";
 import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
+import { UserModel } from "../../entities/entities";
 
 type UsersList = {
 	id: number;
@@ -17,7 +24,7 @@ type UsersList = {
 
 export default function Users() {
 	const { accessToken, user, isAuth } = useUser();
-	const { socket } = usePrivateRouteSocket();
+	const { socket, chatSocket } = usePrivateRouteSocket();
 	const { showAlert } = useAlert();
 	const navigate = useNavigate();
 	const [isLoading, setIsloading] = useState<boolean>(true);
@@ -100,6 +107,66 @@ export default function Users() {
 				status: user.friends.find((f: Friend) => f.id === u.id)?.status || null,
 			}));
 		setUsersList(sortUsersList(list));
+	}
+
+	async function checkJoinbaleUsers(userToDmId: number): Promise<boolean> {
+		try {
+			const users = await usersListDmRequest(accessToken);
+			if (users.ok) {
+				const usersJoinable: {
+					id: number;
+					userName: string;
+					blockList: UserModel[];
+				}[] = await users.json();
+				if (usersJoinable.some((u) => u.id === userToDmId)) return true;
+			}
+		} catch (e) {
+			showAlert("error", "An error occured, try again later");
+			console.error(e);
+		}
+		return false;
+	}
+
+	async function handleDmRedir(userToDmId: number, friendUserName: string) {
+		const type = "DM";
+		const mode = "Public";
+		const password = "";
+		const title =
+			user.id < userToDmId
+				? user.id + "_" + userToDmId
+				: userToDmId + "_" + user.id;
+		const canJoinUser = await checkJoinbaleUsers(userToDmId);
+
+		try {
+			const res = await createDmRequest(accessToken, {
+				title,
+				mode,
+				password,
+				type,
+				id1: user.id,
+				id2: userToDmId,
+			});
+			if (res.ok) {
+				const data = await res.json();
+				if (data === "Duplicate") {
+					navigate(`/chat/direct_messages/${title}`);
+					return;
+				} else if (canJoinUser) {
+					chatSocket?.emit("joinDMRoom", {
+						room: title,
+						userId2: userToDmId,
+						userId: user.id,
+					});
+					navigate(`/chat/direct_messages/${title}`);
+					return;
+				}
+			}
+			await delDmRequest(title, accessToken);
+			showAlert("error", `You or ${friendUserName} have blocked each other`);
+		} catch (e) {
+			showAlert("error", "An error occured, try again later");
+			console.error(e);
+		}
 	}
 
 	useEffect(() => {
@@ -208,7 +275,7 @@ export default function Users() {
 										)}
 										<i
 											className={`${styles.dmIcon} fa-solid fa-envelope ml-20 mr-20`}
-											onClick={() => navigate("/chat")}
+											onClick={() => handleDmRedir(u.id, u.userName)}
 										/>
 									</li>
 								))}

@@ -392,8 +392,6 @@ export class ChannelService {
 	}
 
 	async getChannelByTitle(title: string) {
-		console.log(title);
-
 		return await this.prisma.channel.findUnique({
 			where: {
 				title: title,

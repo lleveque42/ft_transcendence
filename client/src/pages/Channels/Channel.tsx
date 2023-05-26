@@ -70,7 +70,7 @@ export default function Channel() {
 				navigate("/chat/channels/");
 			}
 		})();
-	}, [accessToken, id, showAlert]);
+	}, [accessToken, id, showAlert, navigate]);
 
 	useEffect(() => {
 		const timer = setInterval(() => {

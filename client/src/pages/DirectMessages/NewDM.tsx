@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import ChatNav from "../../components/Chat/ChatNav/ChatNav";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
