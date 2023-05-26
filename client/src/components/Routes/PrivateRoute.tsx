@@ -77,7 +77,7 @@ export default function PrivateRoute(props: {
 				(data: { playerId: number; message: string }) => {
 					showAlert("success", data.message);
 					setTimeout(() => {
-						if (location.pathname === "/play") navigate(0);
+						if (location.pathname === "/play") navigate("/playMinimized");
 						else navigate("/play");
 					}, 500);
 				},

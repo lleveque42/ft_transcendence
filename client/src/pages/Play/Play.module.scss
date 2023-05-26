@@ -34,3 +34,20 @@
 	font-family: var(--game-font);
 	color: var(--primary);
 }
+
+.buttonContainer {
+	width: 18rem;
+}
+
+.buttonContainer > button {
+	width: 8rem;
+	height: 1.5rem;
+}
+
+.alertContainer {
+	width: 40vw;
+	background-color: var(--danger);
+	padding: 2rem;
+	border-radius: 5px;
+	color: var(--light-grey)
+}
