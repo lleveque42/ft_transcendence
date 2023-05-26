@@ -12,7 +12,7 @@ import { isAfter } from 'date-fns';
 export default function Channel() {
   
 	const { user, isAuth, accessToken } = useUser();
-	const {chatSocket} = usePrivateRouteSocket();
+	const {chatSocket, socket} = usePrivateRouteSocket();
 	const { id } = useParams();
 	const { showAlert } = useAlert();
 	const [value, setValue] = useState("");
@@ -567,9 +567,16 @@ export default function Channel() {
 							<NavLink className="btn-primary ml-10 d-flex justify-content" to={`/user/${currentUserName}`}>
 							Profile
 							</NavLink>
-							<button className="btn-primary ml-10">
-							Play
-								</button>
+							<button className="btn-primary ml-10" onClick={
+								()=> socket?.emit(
+									"sendGameInvite", 
+									{
+										sender : user.id, 
+										invited : currentUserId
+									}
+								)}>
+								Play
+							</button>
 								<button onClick={() => handleBlock(user.userName, user.id, currentUserName, currentUserId)} className="btn-danger ml-10">
 								Block
 								</button>
