@@ -40,6 +40,7 @@ export default function NewDM() {
 				await fetch(`${process.env.REACT_APP_BACKEND_URL}/channels/users_list/retrieve`, {
 					credentials: "include",
 					headers: {
+						"Content-Type": "application/json",
 						Authorization: `Bearer ${accessToken}`,
 					},
 				})
@@ -72,6 +73,7 @@ export default function NewDM() {
 				credentials: "include",
 				headers: {
 					"Content-Type": "application/json",
+					Authorization: `Bearer ${accessToken}`,
 				},
 				body: JSON.stringify(formValues),
 			});

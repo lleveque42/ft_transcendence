@@ -37,6 +37,7 @@ export default function Channel() {
 				await fetch(`${process.env.REACT_APP_BACKEND_URL}/channels/chan/${id}`, {
 					credentials: "include",
 					headers: {
+						"Content-Type": "application/json",
 						Authorization: `Bearer ${accessToken}`,
 					},
 				})
@@ -49,6 +50,7 @@ export default function Channel() {
 				await fetch(`${process.env.REACT_APP_BACKEND_URL}/channels/edit/${id}`, {
 				credentials: "include",
 				headers: {
+					"Content-Type": "application/json",
 					Authorization: `Bearer ${accessToken}`,
 				},
 				})
@@ -245,6 +247,7 @@ export default function Channel() {
 				credentials: "include",
 				headers: {
 					"Content-Type": "application/json",
+					Authorization: `Bearer ${accessToken}`,
 				},
 				body: JSON.stringify(data),
 			})
@@ -274,6 +277,7 @@ export default function Channel() {
 				credentials: "include",
 				headers: {
 					"Content-Type": "application/json",
+					Authorization: `Bearer ${accessToken}`,
 				},
 				body: JSON.stringify(data),
 			})
@@ -306,6 +310,7 @@ export default function Channel() {
 				credentials: "include",
 				headers: {
 					"Content-Type": "application/json",
+					Authorization: `Bearer ${accessToken}`,
 				},
 				body: JSON.stringify(data),
 			})
@@ -340,6 +345,7 @@ export default function Channel() {
 				credentials: "include",
 				headers: {
 					"Content-Type": "application/json",
+					Authorization: `Bearer ${accessToken}`,
 				},
 				body: JSON.stringify(data),
 			})
@@ -370,6 +376,7 @@ export default function Channel() {
 				credentials: "include",
 				headers: {
 					"Content-Type": "application/json",
+					Authorization: `Bearer ${accessToken}`,
 				},
 				body: JSON.stringify(data),
 			})

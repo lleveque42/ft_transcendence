@@ -20,6 +20,7 @@ export default function DirectMessages() {
 				await fetch(`${process.env.REACT_APP_BACKEND_URL}/channels/dm/${user.userName}`, {
 					credentials: "include",
 					headers: {
+						"Content-Type": "application/json",
 						Authorization: `Bearer ${accessToken}`,
 					},
 				})
@@ -68,6 +69,7 @@ export default function DirectMessages() {
 				credentials: "include",
 				headers: {
 					"Content-Type": "application/json",
+					Authorization: `Bearer ${accessToken}`,
 				},
 				body: JSON.stringify(data),
 			})

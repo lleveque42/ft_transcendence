@@ -23,7 +23,7 @@ const initialFormValues: FormValues = {
 };
 
 export default function NewChannel() {
-	const { user } = useUser();
+	const { user, accessToken } = useUser();
 	const [radioValue, setRadioValue] = useState("Public");
 	const [chanProtected, setChanProtected] = useState(false);
 	const [formValues, setFormValues] = useState<FormValues>(initialFormValues);
@@ -69,6 +69,7 @@ export default function NewChannel() {
 					credentials: "include",
 					headers: {
 						"Content-Type": "application/json",
+						Authorization: `Bearer ${accessToken}`,
 					},
 					body: JSON.stringify(formValues),
 				},

@@ -41,6 +41,7 @@ export default function EditChannel() {
 				await fetch(`${process.env.REACT_APP_BACKEND_URL}/channels/edit/${title}`, {
 					credentials: "include",
 					headers: {
+						"Content-Type": "application/json",
 						Authorization: `Bearer ${accessToken}`,
 					},
 				})
@@ -110,6 +111,7 @@ export default function EditChannel() {
 					credentials: "include",
 					headers: {
 						"Content-Type": "application/json",
+						Authorization: `Bearer ${accessToken}`,
 					},
 					body: JSON.stringify(formValues),
 				},

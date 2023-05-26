@@ -53,6 +53,7 @@ export class ChannelController {
 		}
 	}
 
+	@UseGuards(AtGuard)
 	@Get("/:username")
 	async getUserChans(@Param("username") username: string): Promise<Channel[]> {
 		try {
@@ -63,6 +64,7 @@ export class ChannelController {
 		}
 	}
 
+	@UseGuards(AtGuard)
 	@Get("/dm/:username")
 	async getUserDirectMessages(
 		@Param("username") username: string,
@@ -88,6 +90,7 @@ export class ChannelController {
 		}
 	}
 
+	@UseGuards(AtGuard)
 	@Get("/edit/:title")
 	async getChanInfos(@Param("title") title: string): Promise<Channel> {
 		try {
@@ -124,6 +127,7 @@ export class ChannelController {
 		}
 	}
 
+	@UseGuards(AtGuard)
 	@Post("create_channel")
 	async createChannel(@Body() body, @Res({ passthrough: true }) res: Response) {
 		try {
@@ -142,6 +146,7 @@ export class ChannelController {
 		}
 	}
 
+	@UseGuards(AtGuard)
 	@Post("edit_channel")
 	async editChannel(@Body() body, @Res({ passthrough: true }) res: Response) {
 		try {
@@ -160,6 +165,7 @@ export class ChannelController {
 		}
 	}
 
+	@UseGuards(AtGuard)
 	@Post("leave")
 	async leaveFromChannel(
 		@Body() body,
@@ -177,6 +183,7 @@ export class ChannelController {
 		}
 	}
 
+	@UseGuards(AtGuard)
 	@Post("kick")
 	async kickFromChannel(
 		@Body() body,
@@ -193,6 +200,7 @@ export class ChannelController {
 		}
 	}
 
+	@UseGuards(AtGuard)
 	@Post("ban")
 	async banFromChannel(
 		@Body() body,
@@ -209,6 +217,7 @@ export class ChannelController {
 		}
 	}
 
+	@UseGuards(AtGuard)
 	@Post("mute")
 	async muteInChannel(@Body() body, @Res({ passthrough: true }) res: Response) {
 		try {
@@ -223,6 +232,7 @@ export class ChannelController {
 		}
 	}
 
+	@UseGuards(AtGuard)
 	@Post("admin")
 	async adminOfChannel(
 		@Body() body,
@@ -239,6 +249,7 @@ export class ChannelController {
 		}
 	}
 
+	@UseGuards(AtGuard)
 	@Post("create_join_dm")
 	async createDM(
 		@Body() body,
@@ -261,6 +272,7 @@ export class ChannelController {
 		}
 	}
 
+	@UseGuards(AtGuard)
 	@Post("join_channel")
 	async joinChannel(
 		@Body() body,

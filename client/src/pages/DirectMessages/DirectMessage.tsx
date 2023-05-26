@@ -27,6 +27,7 @@ export default function DirectMessage() {
 				await fetch(`${process.env.REACT_APP_BACKEND_URL}/channels/dm/chan/${id}`, {
 					credentials: "include",
 					headers: {
+						"Content-Type": "application/json",
 						Authorization: `Bearer ${accessToken}`,
 					},
 				})

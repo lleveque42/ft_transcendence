@@ -18,6 +18,7 @@ export default function Channels() {
 				await fetch(`${process.env.REACT_APP_BACKEND_URL}/channels/${user.userName}`, {
 					credentials: "include",
 					headers: {
+						"Content-Type": "application/json",
 						Authorization: `Bearer ${accessToken}`,
 					},
 				})
@@ -40,6 +41,7 @@ export default function Channels() {
 				credentials: "include",
 				headers: {
 					"Content-Type": "application/json",
+					Authorization: `Bearer ${accessToken}`,
 				},
 				body: JSON.stringify(data),
 			})
