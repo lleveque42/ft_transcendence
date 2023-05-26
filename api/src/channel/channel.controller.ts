@@ -256,7 +256,7 @@ export class ChannelController {
 
 	@UseGuards(AtGuard)
 	@Delete("delDm")
-	async delDm(
+	async FdelDm(
 		@GetCurrentUser("sub") userName: string,
 		@Body() body: titleDmDto,
 	) {

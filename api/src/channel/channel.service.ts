@@ -1,4 +1,9 @@
-import { ForbiddenException, HttpException, Injectable } from "@nestjs/common";
+import {
+	ForbiddenException,
+	HttpException,
+	HttpStatus,
+	Injectable,
+} from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { UserService } from "../user/user.service";
 import { Channel, Muted, Prisma, User } from "@prisma/client";
@@ -567,7 +572,9 @@ export class ChannelService {
 		}
 	}
 
-	async getDMsMessages(userName, title) {
+	async getDMsMessages(userName: string, title: string) {
+		const user = await this.userService.getUserByUserName(userName);
+		if (!user) throw new HttpException("User not found", HttpStatus.NOT_FOUND);
 		const chan = await this.prisma.channel.findUnique({
 			where: {
 				title: title,
@@ -576,38 +583,38 @@ export class ChannelService {
 				members: true,
 			},
 		});
-		if (!chan) {
-			return null;
-		}
-		const user = await this.userService.getUserByUserName(userName);
-		const match = chan.members.filter((el) => {
+		if (!chan)
+			throw new HttpException("Can't find channel", HttpStatus.NOT_FOUND);
+		const match = chan.members.some((el) => {
 			return el.id === user.id;
 		});
-		const boolMatch: boolean = match.length > 0 ? true : false;
-		if (chan && user && boolMatch) {
-			const chanWithoutMembers = await this.prisma.channel.findUnique({
-				where: {
-					title: title,
-				},
-			});
+		const otherUser = chan.members.filter((u) => u.id !== user.id);
+		console.log("Other User", otherUser);
+
+		// const boolMatch: boolean = match.length > 0 ? true : false;
+		if (match) {
+			// const chanWithoutMembers = await this.prisma.channel.findUnique({
+			// 	where: {
+			// 		title: title,
+			// 	},
+			// });
 			const msgs = await this.prisma.message.findMany({
 				include: {
 					author: true,
 					channel: true,
 				},
 				where: {
-					channelId: chanWithoutMembers.id,
+					channelId: chan.id,
 				},
 			});
 			if (msgs) {
-				console.log(msgs);
+				// console.log(msgs);
 				return msgs;
 			} else {
 				return null;
 			}
-		} else {
-			return null;
 		}
+		throw new HttpException("Unauthorized", HttpStatus.UNAUTHORIZED);
 	}
 
 	async getInviteList(

@@ -13,17 +13,16 @@ export default function DirectMessage() {
 	const { chatSocket } = usePrivateRouteSocket();
 	const navigate = useNavigate();
 	const { showAlert } = useAlert();
-
 	const [value, setValue] = useState("");
 	const [messagesState, setMessagesState] = useState<Array<MessageModel>>([]);
 	const [messagesList, setMessagesList] = useState<JSX.Element[]>([]);
-
+	// const [otherUserId, setOtherUserId] = useState<number>();
 	const { id } = useParams();
 
 	useEffect(() => {
 		(async () => {
 			try {
-				await fetch(
+				const res = await fetch(
 					`${process.env.REACT_APP_BACKEND_URL}/channels/dm/chan/${id}`,
 					{
 						credentials: "include",
@@ -31,16 +30,24 @@ export default function DirectMessage() {
 							Authorization: `Bearer ${accessToken}`,
 						},
 					},
-				)
-					.then((res) => res.json())
-					.then((messages) => {
-						setMessagesState(messages);
-					});
-			} catch (e) {
-				showAlert(
-					"error",
-					"You tried to enter a dm with no rights to do so. Be careful young entrepeneur!!",
 				);
+				if (res.ok) {
+					const data = await res.json();
+					setMessagesState(data);
+				} else {
+					showAlert(
+						"error",
+						"You tried to enter a dm with no rights to do so. Be careful young entrepeneur!!",
+					);
+					navigate("/chat/direct_messages/");
+				}
+				// .then((res) => res.json())
+				// .then((messages) => {
+				// 	setMessagesState(messages);
+				// 	// setOtherUserId(id);
+				// });
+			} catch (e) {
+				console.error(e);
 				navigate("/chat/direct_messages/");
 			}
 		})();
@@ -94,15 +101,23 @@ export default function DirectMessage() {
 		}
 	};
 
+	function gotToProfile() {}
+
 	return (
-		<div className="container d-flex flex-column justify-content align-items">
-			<div className="title">Chat channels</div>
+		<div className="container d-flex flex-column align-items">
+			<div className="title">Chat</div>
 			<div>
 				<ChatNav />
 				{messagesState.entries() && (
 					<>
-						<h1>Messages ({messagesList.length})</h1>
-						<ul className="List">{messagesList}</ul>
+						<h3 className="mt-20">Messages ({messagesList.length})</h3>
+						<button
+							onClick={() => gotToProfile()}
+							className="btn btn-reverse-primary "
+						>
+							See Profile
+						</button>
+						<ul className="mt-10">{messagesList}</ul>
 					</>
 				)}
 			</div>

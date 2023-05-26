@@ -81,6 +81,7 @@ export default function FriendsList() {
 		}
 	}
 
+
 	return (
 		<>
 			<h3 className="underTitle mt-10">My Friends</h3>
