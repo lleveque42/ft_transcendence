@@ -156,8 +156,6 @@ export class AuthService {
 		);
 	}
 
-	////////////////////////////////// JWT
-
 	async updateRefreshToken(user: User, res: Response): Promise<void> {
 		const token = await this.signRefreshToken(
 			user.id,

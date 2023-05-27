@@ -1,5 +1,5 @@
 import styles from "./Profile.module.scss";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useAlert, useUser } from "../../../context";
 import { userAvatarRequest, userProfileInfosRequest } from "../../../api";
@@ -25,6 +25,7 @@ export default function Profile() {
 	const [userProfileAvatar, setUserProfileAvatar] = useState<string>("");
 	const [isFriend, setIsFriend] = useState<boolean>(false);
 	const [isLoading, setIsLoading] = useState<boolean>(true);
+	const location = useLocation();
 
 	useEffect(() => {
 		const getUserProfile = async () => {
@@ -77,15 +78,16 @@ export default function Profile() {
 		socket?.on(
 			"userNameUpdatedProfile",
 			(userSender: NewUserName & { oldUserName: string }) => {
-				if (username === userSender.oldUserName)
+				const pathParts = location.pathname.split("/");
+				const currentUsername = pathParts[pathParts.length - 1];
+				if (currentUsername === userSender.oldUserName)
 					navigate(`/user/${userSender.userName}`);
 			},
 		);
 		return () => {
 			socket?.off("userNameUpdatedProfile");
 		};
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [socket]);
+	}, [socket, location, navigate]);
 
 	return (
 		<>
