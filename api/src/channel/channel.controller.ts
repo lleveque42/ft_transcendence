@@ -18,7 +18,22 @@ import { GetCurrentUser } from "../common/decorators";
 import { Channel, Message, User } from "@prisma/client";
 import { Response } from "express";
 import { GetUserList } from "../common/types";
-import { createDmDto, titleDmDto } from "./dto/channel.dto";
+import {
+	AddInviteDto,
+	AdminDto,
+	BanOrKickDto,
+	EditChannelDto,
+	JoinDto,
+	LeaveChannelDto,
+	MuteDto,
+	NewChannelDto,
+	RetrieveInviteListDto,
+	SecretDto,
+	createDmDto,
+	titleDmDto,
+	titleDto,
+	userNameDto,
+} from "./dto/channel.dto";
 
 @Controller("channels")
 export class ChannelController {
@@ -48,9 +63,11 @@ export class ChannelController {
 
 	@UseGuards(AtGuard)
 	@Get("/:username")
-	async getUserChans(@Param("username") username: string): Promise<Channel[]> {
+	async getUserChans(@Param() params: userNameDto): Promise<Channel[]> {
 		try {
-			const channels = await this.channelService.getUsersChannels(username);
+			const channels = await this.channelService.getUsersChannels(
+				params.username,
+			);
 			return channels;
 		} catch (e) {
 			throw new HttpException(e.message, HttpStatus.FORBIDDEN);
@@ -60,11 +77,11 @@ export class ChannelController {
 	@UseGuards(AtGuard)
 	@Get("/dm/:username")
 	async getUserDirectMessages(
-		@Param("username") username: string,
+		@Param() params: userNameDto,
 	): Promise<Channel[]> {
 		try {
 			const channels = await this.channelService.getUserDirectMessages(
-				username,
+				params.username,
 			);
 			return channels;
 		} catch (e) {
@@ -76,10 +93,13 @@ export class ChannelController {
 	@Get("/chan/:title")
 	async getChanMessages(
 		@GetCurrentUser("sub") userName: string,
-		@Param("title") title: string,
+		@Param() params: titleDto,
 	): Promise<Message[] | null> {
 		try {
-			const msgs = await this.channelService.getChanMessages(userName, title);
+			const msgs = await this.channelService.getChanMessages(
+				userName,
+				params.title,
+			);
 			return msgs;
 		} catch (e) {
 			throw new HttpException(e.message, HttpStatus.FORBIDDEN);
@@ -88,9 +108,9 @@ export class ChannelController {
 
 	@UseGuards(AtGuard)
 	@Get("/edit/:title")
-	async getChanInfos(@Param("title") title: string): Promise<Channel> {
+	async getChanInfos(@Param() params: titleDto): Promise<Channel> {
 		try {
-			const chan = await this.channelService.getChannelByTitle(title);
+			const chan = await this.channelService.getChannelByTitle(params.title);
 			return chan;
 		} catch (e) {
 			throw new HttpException(e.message, HttpStatus.FORBIDDEN);
@@ -101,7 +121,7 @@ export class ChannelController {
 	@Get("/dm/chan/:title")
 	async getDMsMessages(
 		@GetCurrentUser("sub") userName: string,
-		@Param("title") title: string,
+		@Param() params: titleDto,
 	): Promise<{
 		msgs: (Message & {
 			author: { id: number; userName: string };
@@ -110,7 +130,7 @@ export class ChannelController {
 		otherUser: { id: number; userName: string };
 	}> {
 		try {
-			return await this.channelService.getDMsMessages(userName, title);
+			return await this.channelService.getDMsMessages(userName, params.title);
 		} catch (e) {
 			throw new HttpException(e.message, HttpStatus.FORBIDDEN);
 		}
@@ -130,7 +150,10 @@ export class ChannelController {
 
 	@UseGuards(AtGuard)
 	@Post("create_channel")
-	async createChannel(@Body() body, @Res({ passthrough: true }) res: Response) {
+	async createChannel(
+		@Body() body: NewChannelDto,
+		@Res({ passthrough: true }) res: Response,
+	) {
 		try {
 			const chan = await this.channelService.createChannel(
 				{
@@ -149,7 +172,10 @@ export class ChannelController {
 
 	@UseGuards(AtGuard)
 	@Post("edit_channel")
-	async editChannel(@Body() body, @Res({ passthrough: true }) res: Response) {
+	async editChannel(
+		@Body() body: EditChannelDto,
+		@Res({ passthrough: true }) res: Response,
+	) {
 		try {
 			await this.channelService.updateChannel(
 				{
@@ -169,7 +195,7 @@ export class ChannelController {
 	@UseGuards(AtGuard)
 	@Post("leave")
 	async leaveFromChannel(
-		@Body() body,
+		@Body() body: LeaveChannelDto,
 		@Res({ passthrough: true }) res: Response,
 	) {
 		try {
@@ -186,7 +212,7 @@ export class ChannelController {
 	@UseGuards(AtGuard)
 	@Post("kick")
 	async kickFromChannel(
-		@Body() body,
+		@Body() body: BanOrKickDto,
 		@Res({ passthrough: true }) res: Response,
 	) {
 		try {
@@ -199,7 +225,7 @@ export class ChannelController {
 	@UseGuards(AtGuard)
 	@Post("ban")
 	async banFromChannel(
-		@Body() body,
+		@Body() body: BanOrKickDto,
 		@Res({ passthrough: true }) res: Response,
 	) {
 		try {
@@ -211,7 +237,10 @@ export class ChannelController {
 
 	@UseGuards(AtGuard)
 	@Post("mute")
-	async muteInChannel(@Body() body, @Res({ passthrough: true }) res: Response) {
+	async muteInChannel(
+		@Body() body: MuteDto,
+		@Res({ passthrough: true }) res: Response,
+	) {
 		try {
 			const chan = await this.channelService.muteInChannel(
 				body.chanId,
@@ -227,7 +256,7 @@ export class ChannelController {
 	@UseGuards(AtGuard)
 	@Post("admin")
 	async adminOfChannel(
-		@Body() body,
+		@Body() body: AdminDto,
 		@Res({ passthrough: true }) res: Response,
 	) {
 		try {
@@ -280,7 +309,7 @@ export class ChannelController {
 
 	@Post("join_channel")
 	async joinChannel(
-		@Body() body,
+		@Body() body: JoinDto,
 		@Res({ passthrough: true }) res: Response,
 	): Promise<void> {
 		try {
@@ -296,7 +325,7 @@ export class ChannelController {
 	@UseGuards(AtGuard)
 	@Post("/retrieve_invite_list")
 	async retrieveInviteChannel(
-		@Body() body,
+		@Body() body: RetrieveInviteListDto,
 		@GetCurrentUser("sub") userName: string,
 		@Res({ passthrough: true }) res: Response,
 	): Promise<{ id: number; userName: string }[]> {
@@ -314,7 +343,7 @@ export class ChannelController {
 	@UseGuards(AtGuard)
 	@Post("/invite")
 	async addInviteChannel(
-		@Body() body,
+		@Body() body: AddInviteDto,
 		@Res({ passthrough: true }) res: Response,
 	): Promise<void> {
 		try {
@@ -330,7 +359,7 @@ export class ChannelController {
 	@UseGuards(AtGuard)
 	@Post("secret")
 	async checkSecret(
-		@Body() body,
+		@Body() body: SecretDto,
 		@GetCurrentUser("sub") userName: string,
 		@Res({ passthrough: true }) res: Response,
 	): Promise<void> {

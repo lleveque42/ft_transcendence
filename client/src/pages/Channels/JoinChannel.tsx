@@ -54,7 +54,7 @@ export default function JoinChannel() {
 				(chan.mode === "Private" || chan.mode === "Protected")
 			) {
 				const filterChans = channelsState.filter((el) => {
-					return el.id != chan.id;
+					return el.id !== chan.id;
 				});
 				setChannelsState(filterChans);
 			}

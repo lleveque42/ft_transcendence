@@ -374,6 +374,8 @@ export default function Channel() {
 	async function handleMute(userName: string, userId: number) {
 		const chanId = chanInfo?.id;
 		const mutedEnd = new Date(currentTime.getTime() + 30000);
+		console.log(mutedEnd);
+
 		const data = { chanId, userId, mutedEnd };
 		const mode = "mute";
 		const toEmit = { id, userId, userName, mode };
@@ -590,7 +592,7 @@ export default function Channel() {
 			chatSocket?.off("adminJoinedChan");
 			chatSocket?.off("refreshMute");
 		};
-	}, [chatSocket, socket, navigate, showAlert, user.userName]);
+	}, [chatSocket, socket, navigate, showAlert, user.userName, chanInfo?.title]);
 
 	return (
 		<div className="container d-flex flex-column justify-content align-items">

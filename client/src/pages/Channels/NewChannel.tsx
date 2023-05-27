@@ -80,7 +80,8 @@ export default function NewChannel() {
 				socket.chatSocket?.emit("joinChatRoom", formValues.title);
 				navigate("/chat/channels");
 			} else {
-				showAlert("error", "Channel " + formValues.title + " already exists");
+				showAlert("error", res.statusText);
+				// showAlert("error", "Channel " + formValues.title + " already exists");
 			}
 		} catch (e) {
 			console.error("Error while creating channel");
