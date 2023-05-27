@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../../context/UserProvider";
 import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
-import { ChannelModel } from "../../entities/entities";
+import { ChannelModel, UserModel } from "../../entities/entities";
 import { useAlert } from "../../context/AlertProvider";
 
 type FormValues = {
@@ -49,12 +49,9 @@ export default function JoinChannel() {
 			});
 			if (!match && chan.mode === "Public") {
 				setChannelsState([...channelsState, chan]);
-			} else if (
-				match &&
-				(chan.mode === "Private" || chan.mode === "Protected")
-			) {
+			} else if (match && (mode === "Private" || mode === "Protected")) {
 				const filterChans = channelsState.filter((el) => {
-					return el.id != chan.id;
+					return el.id !== chan.id;
 				});
 				setChannelsState(filterChans);
 			}
@@ -64,6 +61,18 @@ export default function JoinChannel() {
 			chatSocket?.off("addChannelToJoin");
 		};
 	}, [chatSocket, channelsState]);
+
+	useEffect(() => {
+		const inviteListener = (chan: ChannelModel, user: UserModel) => {
+			setChannelsState(
+				channelsState.filter((userCompare) => userCompare.id !== user.id),
+			);
+		};
+		chatSocket?.on("removeFromInviteList", inviteListener);
+		return () => {
+			chatSocket?.off("removeFromInviteList");
+		};
+	}, [channelsState, chatSocket]);
 
 	async function handleClick(channelId: number, title: string) {
 		const formValues: FormValues = {
@@ -88,8 +97,7 @@ export default function JoinChannel() {
 				showAlert("success", `You've been add to the chan`);
 				navigate(`/chat/channels/${title}`);
 			} else {
-				showAlert("error", "This channel doesn't exist");
-				navigate(`/chat/channels`);
+				navigate(`/chat/channels/${title}`);
 			}
 		} catch (e) {
 			console.error("Error joining channel");

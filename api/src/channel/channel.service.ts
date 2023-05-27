@@ -9,7 +9,6 @@ import { UserService } from "../user/user.service";
 import { Channel, Muted, Prisma, User } from "@prisma/client";
 import * as argon2 from "argon2";
 import { OnlineUsers } from "../classes/OnlineUsers";
-import { error } from "console";
 
 @Injectable()
 export class ChannelService {
@@ -168,149 +167,134 @@ export class ChannelService {
 	}
 
 	async muteInChannel(chanId: number, userId: number, mutedEnd: Date) {
-		try {
-			const retrieve = await this.prisma.muted.findMany({
-				where: {
+		const retrieve = await this.prisma.muted.findMany({
+			where: {
+				userId: userId,
+				channelId: chanId,
+			},
+		});
+		let muted: Muted;
+		if (!retrieve.at(0)) {
+			muted = await this.prisma.muted.create({
+				data: {
 					userId: userId,
+					muteExpiration: mutedEnd,
+					channelId: chanId,
 				},
 			});
-			// if (!retrieve){throw new ForbiddenException("This user doesn't exist")}
-			let muted: Muted;
-			if (!retrieve.at(0).id) {
-				muted = await this.prisma.muted.create({
-					data: {
-						userId: userId,
-						muteExpiration: mutedEnd,
-						channelId: chanId,
+		} else {
+			muted = await this.prisma.muted.update({
+				where: {
+					id: retrieve.at(0).id,
+				},
+				data: {
+					userId: userId,
+					muteExpiration: mutedEnd,
+					channelId: chanId,
+				},
+			});
+		}
+		if (!muted) {
+			throw new ForbiddenException("Can't mute this user");
+		}
+		if (muted) {
+			const chan: Channel = await this.prisma.channel.update({
+				where: {
+					id: chanId,
+				},
+				data: {
+					mutedList: {
+						connect: {
+							id: muted.id,
+						},
 					},
-				});
-			} else {
-				muted = await this.prisma.muted.update({
-					where: {
-						id: retrieve.at(0).id,
+				},
+				include: {
+					members: {
+						select: {
+							id: true,
+							userName: true,
+						},
 					},
-					data: {
-						userId: userId,
-						muteExpiration: mutedEnd,
-						channelId: chanId,
+					operators: {
+						select: {
+							id: true,
+							userName: true,
+						},
 					},
-				});
+					mutedList: {
+						select: {
+							id: true,
+							userId: true,
+							muteExpiration: true,
+						},
+					},
+				},
+			});
+			if (!chan) {
+				throw new ForbiddenException(
+					"Error while adding the mute user in channel",
+				);
 			}
-			if (!muted) {
-				throw new ForbiddenException("Can't mute this user");
-			}
-			if (muted) {
-				const chan: Channel = await this.prisma.channel.update({
-					where: {
-						id: chanId,
-					},
-					data: {
-						mutedList: {
-							connect: {
-								id: muted.id,
-							},
-						},
-					},
-					include: {
-						members: {
-							select: {
-								id: true,
-								userName: true,
-							},
-						},
-						operators: {
-							select: {
-								id: true,
-								userName: true,
-							},
-						},
-						mutedList: {
-							select: {
-								id: true,
-								userId: true,
-								muteExpiration: true,
-							},
-						},
-					},
-				});
-				if (!chan) {
-					throw new ForbiddenException(
-						"Error while adding the mute user in channel",
-					);
-				}
-				return chan;
-			}
-		} catch (error) {
-			throw new ForbiddenException("Error while muting");
+			return chan;
 		}
 	}
 
 	async adminOfChannel(userName: string, id: number) {
-		try {
-			const user = await this.userService.getUserByUserName(userName);
-			if (!user) {
-				throw new ForbiddenException("This user doesn't exist");
-			}
-			const channel = await this.prisma.channel.findUnique({
-				where: {
-					id: id,
-				},
-				include: {
-					operators: true,
-				},
-			});
-			if (!channel) {
-				throw new ForbiddenException("Channel doesn't exist");
-			}
-			if (channel && user) {
-				const operatorExists = channel.operators.some(
-					(member) => member.id === user.id,
-				);
-				if (operatorExists) {
-					throw new ForbiddenException("Already an admin");
-				} else {
-					await this.prisma.channel.update({
-						where: {
-							id: id,
-						},
-						data: {
-							operators: {
-								connect: {
-									id: user.id,
-								},
-							},
-						},
-					});
-				}
-				return await this.prisma.channel.findUnique({
+		const user = await this.userService.getUserByUserName(userName);
+		if (!user) {
+			throw new ForbiddenException("This user doesn't exist");
+		}
+		const channel = await this.prisma.channel.findUnique({
+			where: {
+				id: id,
+			},
+			include: {
+				operators: true,
+			},
+		});
+		if (!channel) {
+			throw new ForbiddenException("Channel doesn't exist");
+		}
+		if (channel && user) {
+			const operatorExists = channel.operators.some(
+				(member) => member.id === user.id,
+			);
+			if (operatorExists) {
+				throw new ForbiddenException("Already an admin");
+			} else {
+				await this.prisma.channel.update({
 					where: {
 						id: id,
 					},
-					include: {
-						members: {
-							select: {
-								id: true,
-								userName: true,
-							},
-						},
+					data: {
 						operators: {
-							select: {
-								id: true,
-								userName: true,
+							connect: {
+								id: user.id,
 							},
 						},
 					},
 				});
 			}
-		} catch (error) {
-			if (
-				error instanceof Prisma.PrismaClientKnownRequestError &&
-				error.code === "P2002"
-			) {
-				throw new ForbiddenException("Duplicate key value");
-			} else {
-				console.log("Error in update");
-			}
+			return await this.prisma.channel.findUnique({
+				where: {
+					id: id,
+				},
+				include: {
+					members: {
+						select: {
+							id: true,
+							userName: true,
+						},
+					},
+					operators: {
+						select: {
+							id: true,
+							userName: true,
+						},
+					},
+				},
+			});
 		}
 	}
 

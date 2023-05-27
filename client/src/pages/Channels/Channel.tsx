@@ -95,8 +95,6 @@ export default function Channel() {
 		}
 		setCurrentUserName(userName);
 		setCurrentUserId(userId);
-		console.log("click", currentUserId, currentUserName);
-
 		chanInfo?.operators.forEach((op) => {
 			if (op.id === userId) {
 				setCurrentUserAdmin(true);
@@ -323,6 +321,8 @@ export default function Channel() {
 				setuserBool(false);
 				setInviteBool(false);
 				isAuth();
+			} else if (res.status === 403) {
+				showAlert("error", "User already blocked");
 			} else {
 				showAlert("error", res.statusText);
 			}
@@ -500,7 +500,6 @@ export default function Channel() {
 			);
 			if (res.status === 201) {
 				chatSocket?.emit("addUserToChan", toEmit);
-
 				setInfoBool(true);
 				setuserBool(false);
 				setInviteBool(false);
@@ -552,8 +551,14 @@ export default function Channel() {
 				chanInfo?.title === chan.title
 			) {
 				showAlert("success", username + " leaved the channel");
-			} else if (username === user.userName && mode === "mute") {
+			} else if (
+				username === user.userName &&
+				mode === "mute" &&
+				chan.title === chanInfo?.title
+			) {
 				showAlert("success", "You've been muted 30 seconds from this channel");
+			} else {
+				return;
 			}
 			setChanInfo(chan);
 		};
@@ -568,13 +573,6 @@ export default function Channel() {
 				const updatedUser = chan?.members.filter((user) => {
 					if (user.id === data.id) return (user.userName = data.userName);
 				});
-				// console.log(updatedUser);
-				// console.log(data.id, data.oldUserName);
-				// console.log(currentUserId, currentUserName);
-				// if (data.id === currentUserId){
-				// 	setCurrentUserName(data.userName);
-				// 	setCurrentUserId(data.id);
-				// }
 				return chan;
 			});
 		};
@@ -590,7 +588,7 @@ export default function Channel() {
 			chatSocket?.off("adminJoinedChan");
 			chatSocket?.off("refreshMute");
 		};
-	}, [chatSocket, socket, navigate, showAlert, user.userName]);
+	}, [chatSocket, socket, navigate, showAlert, user.userName, chanInfo?.title]);
 
 	return (
 		<div className="container d-flex flex-column justify-content align-items">

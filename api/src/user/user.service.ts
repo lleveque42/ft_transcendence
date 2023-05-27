@@ -448,7 +448,24 @@ export class UserService {
 	}
 
 	async blockUser(userTopId: number, userBottomId: number) {
-		const user = await this.prisma.user.update({
+		const user = await this.prisma.user.findUnique({
+			where: {
+				id: userTopId,
+			},
+			include: {
+				blockList: { select: { id: true } },
+			},
+		});
+		if (!user) {
+			throw new ForbiddenException("Error while updating user");
+		}
+		const match = user.blockList.some((el) => {
+			return el.id === userBottomId;
+		});
+		if (match) {
+			throw new ForbiddenException("User already blocked");
+		}
+		const userUpdated = await this.prisma.user.update({
 			where: {
 				id: userTopId,
 			},
@@ -458,7 +475,7 @@ export class UserService {
 				},
 			},
 		});
-		if (!user) {
+		if (!userUpdated) {
 			throw new ForbiddenException("Error while updating user");
 		}
 	}
