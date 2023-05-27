@@ -91,7 +91,6 @@
 
 .loader-active {
 	background-color: var(--primary-dark);
-	// display: block;
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -109,6 +108,23 @@
 			width: 2.5vw;
 			height: 2.5vw;
 			background: var(--primary);
+		}
+	}
+
+	.queue-loader {
+		height: 50vh;
+		width: 50vw;
+
+		> div {
+			margin-left: 53%;
+			margin-top: 50%;
+			width: 2.5vw;
+			height: 2.5vw;
+			background: var(--primary);
+		}
+
+		@include mixin.sm-lt {
+			height: 30vh;
 		}
 	}
 }

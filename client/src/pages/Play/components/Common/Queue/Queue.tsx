@@ -19,11 +19,15 @@ export default function Queue({ gameSocket, setGameUserStatus }: QueueProps) {
 	return (
 		<>
 			<div className="underTitle mb-10">In queue...</div>
-			<Loader type="ball-zig-zag" innerClassName="nobody-loader" active />
+			<Loader
+				type="ball-zig-zag"
+				innerClassName="queue-loader"
+				active
+			/>
 			<div
 				className={`${styles.buttonContainer} d-flex align-items justify-content`}
 			>
-				<button className="btn-primary" onClick={leaveQueue}>
+				<button className="btn-primary d-flex align-items justify-content" onClick={leaveQueue}>
 					Leave queue...
 				</button>
 			</div>
