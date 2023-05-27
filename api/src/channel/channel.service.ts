@@ -324,10 +324,16 @@ export class ChannelService {
 		userId1: number,
 		userId2: number,
 	) {
+		const chanAlreadyExist = await this.prisma.channel.findUnique({
+			where: {
+				title: newChannel.title,
+			},
+		});
+		if (chanAlreadyExist)
+			throw new HttpException("Dm already exists", HttpStatus.FOUND);
 		let hash: string = null;
-		if (newChannel.password && newChannel.password !== "") {
+		if (newChannel.password && newChannel.password !== "")
 			hash = await argon2.hash(newChannel.password);
-		}
 		try {
 			const chan = await this.prisma.channel.create({
 				data: {
@@ -344,7 +350,7 @@ export class ChannelService {
 					},
 				},
 			});
-			const updatedChannel = await this.prisma.channel.update({
+			await this.prisma.channel.update({
 				where: { id: chan.id },
 				data: {
 					operators: {
@@ -356,12 +362,7 @@ export class ChannelService {
 				},
 			});
 		} catch (error) {
-			if (
-				error instanceof Prisma.PrismaClientKnownRequestError &&
-				error.code === "P2002"
-			) {
-				throw new ForbiddenException("Duplicate key value");
-			}
+			throw new ForbiddenException("Error creating Dm");
 		}
 	}
 

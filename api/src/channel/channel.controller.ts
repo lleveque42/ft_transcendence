@@ -271,10 +271,7 @@ export class ChannelController {
 
 	@UseGuards(AtGuard)
 	@Post("create_join_dm")
-	async createDM(
-		@Body() body: createDmDto,
-		@Res({ passthrough: true }) res: Response,
-	): Promise<void> {
+	async createDM(@Body() body: createDmDto): Promise<void> {
 		try {
 			await this.channelService.createDM(
 				{
@@ -286,9 +283,8 @@ export class ChannelController {
 				body.id1,
 				body.id2,
 			);
-			res.json("OK");
 		} catch (e) {
-			res.json("Duplicate");
+			throw new HttpException(e.message, e.status);
 		}
 	}
 
@@ -298,8 +294,6 @@ export class ChannelController {
 		@GetCurrentUser("sub") userName: string,
 		@Body() body: titleDmDto,
 	) {
-		console.log("Title", body);
-
 		try {
 			await this.channelService.deleteDm(userName, body.title);
 		} catch (e) {

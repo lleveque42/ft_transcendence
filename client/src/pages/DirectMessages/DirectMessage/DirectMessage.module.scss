@@ -1,6 +1,8 @@
 @use "../../../assets/styles/mixins" as mixin;
 
 .dmHeader {
+	width: 48vw;
+
 	h2 {
 		font-size: 1.5rem;
 		cursor: pointer;
@@ -11,18 +13,27 @@
 		}
 	}
 
+	small {
+		font-size: 1rem;
+	}
+
 	@include mixin.sm-lt {
 		margin-top: 1rem;
+		width: 70vw;
 
 		h2 {
-			font-size: 1.3rem;
+			font-size: 1rem;
+		}
+
+		small {
+			font-size: 0.7rem;
+			margin-left: 0.2rem;
 		}
 
 		button {
 			font-size: 0.7rem;
 		}
 	}
-
 }
 
 .messagesList {
@@ -38,4 +49,19 @@
 		height: 35vh;
 		width: 70vw;
 	}
+
+	.blockedMessageContainer {
+		p {
+			max-width: 50%;
+			display: flex;
+			word-break: break-all;
+			font-size: 0.8rem;
+			color: var(--secondary-dark);
+		}
+
+		small {
+			color: var(--secondary-dark);
+		}
+	}
+
 }

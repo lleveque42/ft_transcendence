@@ -6,6 +6,7 @@ import { ChannelModel } from "../../entities/entities";
 import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
 import { useAlert } from "../../context/AlertProvider";
 import styles from "./DirectMessages.module.scss";
+import trimUserName from "../../utils/trimUserName";
 
 export default function DirectMessages() {
 	const { user, isAuth, accessToken } = useUser();
@@ -89,24 +90,53 @@ export default function DirectMessages() {
 
 	const directMessageList = directMessagesState.map((channel) => {
 		const members = channel.members;
+		// const members = [
+		// 	{ id: 1, userName: "Denis" },
+		// 	{ id: 1, userName: "Denis" },
+		// 	{ id: 1, userName: "Denis" },
+		// 	{ id: 1, userName: "Denis" },
+		// 	{ id: 1, userName: "Denis" },
+		// 	{ id: 1, userName: "Denis" },
+		// 	{ id: 1, userName: "Denis" },
+		// 	{ id: 1, userName: "Denis" },
+		// 	{ id: 1, userName: "Denis" },
+		// 	{ id: 1, userName: "Denis" },
+		// 	{ id: 1, userName: "Denis" },
+		// 	{ id: 1, userName: "Denis" },
+		// 	{ id: 1, userName: "Denis" },
+		// 	{ id: 1, userName: "Denis" },
+		// 	{ id: 1, userName: "Denis" },
+		// 	{ id: 1, userName: "Denis" },
+		// 	{ id: 1, userName: "Denis" },
+		// 	{ id: 1, userName: "Denis" },
+		// 	{ id: 1, userName: "Denis" },
+		// 	{ id: 1, userName: "Denis" },
+		// 	{ id: 1, userName: "Denis" },
+		// 	{ id: 1, userName: "Denis" },
+		// ];
+
 		if (members) {
 			return members.map((member) => {
 				return (
 					member.id !== user.id && (
 						<li className={styles.listElems} key={member.id}>
-							<p
-								onClick={() =>
-									navigate(`/chat/direct_messages/${channel.title}`)
-								}
-							>
-								{member.userName}
-							</p>
-							<button
-								className="btn btn-danger pl-10 pr-10 p-5"
-								onClick={() => handleBlock(channel)}
-							>
-								Block
-							</button>
+							<p>{trimUserName(member.userName)}</p>
+							<div>
+								<button
+									className="btn btn-primary pl-10 pr-10 mr-10"
+									onClick={() =>
+										navigate(`/chat/direct_messages/${channel.title}`)
+									}
+								>
+									Message
+								</button>
+								<button
+									className="btn btn-reverse-danger pl-10 pr-10"
+									onClick={() => handleBlock(channel)}
+								>
+									Block
+								</button>
+							</div>
 						</li>
 					)
 				);
@@ -158,30 +188,28 @@ export default function DirectMessages() {
 		<div className="d-flex flex-column align-items flex-1">
 			<div className="title mt-20">Chat</div>
 			<ChatNav />
-			{
-				<>
-					<div className={`${styles.dmListContainer}`}>
-						<h2 className="d-flex justify-content p-10">
-							Private messages ({directMessagesState.length})
-						</h2>
-						{directMessageList.length ? (
-							<ul>{directMessageList}</ul>
-						) : (
-							<p className="d-flex justify-content align-items m-10">
-								No private messages...
-							</p>
-						)}
-					</div>
-					<div className="d-flex justify-content">
-						<NavLink
-							className={`${styles.newDmBtn} btn-primary d-flex justify-content mt-10 p-5`}
-							to="/chat/direct_messages/new_dm"
-						>
-							New Direct Messages
-						</NavLink>
-					</div>
-				</>
-			}
+			<>
+				<div className={`${styles.dmListContainer}`}>
+					<h2 className="d-flex justify-content p-10">
+						Private messages ({directMessagesState.length})
+					</h2>
+					{directMessageList.length ? (
+						<ul>{directMessageList}</ul>
+					) : (
+						<p className="d-flex justify-content align-items m-10">
+							No private messages...
+						</p>
+					)}
+				</div>
+				<div className="d-flex justify-content">
+					<NavLink
+						className={`${styles.newDmBtn} btn btn-reverse-primary d-flex justify-content mt-10 p-5`}
+						to="/chat/direct_messages/new_dm"
+					>
+						New Direct Messages
+					</NavLink>
+				</div>
+			</>
 		</div>
 	);
 }

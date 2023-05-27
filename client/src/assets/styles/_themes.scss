@@ -44,6 +44,19 @@
 		border: 2px solid var(--success);
 	}
 
+	&-reverse-play {
+		@extend .btn;
+		color: var(--yellow);
+		background-color: var(--dark-grey);
+		border: 2px solid var(--yellow);
+	}
+
+	&-reverse-chat {
+		@extend .btn;
+		color: var(--orange);
+		background-color: var(--dark-grey);
+		border: 2px solid var(--orange);
+	}
 
 	&:hover {
 		transition: 0.3s;

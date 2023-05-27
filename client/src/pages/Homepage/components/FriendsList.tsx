@@ -48,7 +48,6 @@ export default function FriendsList() {
 				? user.id + "_" + userToDmId
 				: userToDmId + "_" + user.id;
 		const canJoinUser = await checkJoinbaleUsers(userToDmId);
-
 		try {
 			const res = await createDmRequest(accessToken, {
 				title,
@@ -58,20 +57,17 @@ export default function FriendsList() {
 				id1: user.id,
 				id2: userToDmId,
 			});
-			if (res.ok) {
-				const data = await res.json();
-				if (data === "Duplicate") {
-					navigate(`/chat/direct_messages/${title}`);
-					return;
-				} else if (canJoinUser) {
-					chatSocket?.emit("joinDMRoom", {
-						room: title,
-						userId2: userToDmId,
-						userId: user.id,
-					});
-					navigate(`/chat/direct_messages/${title}`);
-					return;
-				}
+			if (res.status === 302) {
+				navigate(`/chat/direct_messages/${title}`);
+				return;
+			} else if (res.status === 201 && canJoinUser) {
+				chatSocket?.emit("joinDMRoom", {
+					room: title,
+					userId2: userToDmId,
+					userId: user.id,
+				});
+				navigate(`/chat/direct_messages/${title}`);
+				return;
 			}
 			await delDmRequest(title, accessToken);
 			showAlert("error", `You or ${friendUserName} have blocked each other`);
@@ -80,7 +76,6 @@ export default function FriendsList() {
 			console.error(e);
 		}
 	}
-
 
 	return (
 		<>

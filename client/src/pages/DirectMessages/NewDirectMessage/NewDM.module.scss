@@ -1,0 +1,34 @@
+@use "../../../assets/styles/mixins" as mixin;
+
+.newDmListContainer {
+	margin-top: 1.5rem;
+	border: 1px solid var(--secondary-dark);
+	border-radius: 5px;
+	box-shadow: var(--box-shadow);
+	min-height: 40vh;
+	max-height: 50vh;
+	width: 50vw;
+
+	@include mixin.sm-lt {
+		width: 80vw;
+		padding: 0.2rem;
+	}
+}
+
+.listElems {
+	padding: 1rem;
+	border-bottom: 1px solid var(--secondary-dark);
+	font-size: 1.5rem;
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+
+	p {
+		cursor: default;
+	}
+
+	@include mixin.sm-lt {
+		padding: 0.8rem;
+		font-size: 1rem;
+	}
+}

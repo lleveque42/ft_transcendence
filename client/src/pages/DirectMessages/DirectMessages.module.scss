@@ -7,7 +7,8 @@
 	border: 1px solid var(--secondary-dark);
 	border-radius: 5px;
 	box-shadow: var(--box-shadow);
-	max-height: 55vh;
+	min-height: 40vh;
+	max-height: 50vh;
 	width: 50vw;
 
 	@include mixin.sm-lt {
@@ -16,34 +17,36 @@
 
 	ul {
 		overflow-y: scroll;
+		// padding-left: 0.6rem;
 	}
 
 	.listElems {
 		padding: 1rem;
+		margin: 0.5rem;
 		border-bottom: 1px solid var(--secondary-dark);
 		font-size: 1.5rem;
-		cursor: pointer;
-		text-decoration: none;
-		text-decoration-color: transparent;
-		transition: color 0.3s ease-in-out, text-decoration-color 0.3s ease-in-out;
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
 
-		&:hover {
-			color: var(--primary);
-			text-decoration: underline;
-			text-underline-offset: 0.3em;
-			text-decoration-color: var(--primary);
-			box-shadow: var(--box-shadow);
+		p {
+			cursor: default;
 		}
 
 		@include mixin.sm-lt {
+			flex-direction: column;
 			padding: 0.8rem;
 			font-size: 1rem;
+
+			div {
+				margin-top: 0.5rem;
+			}
 		}
 	}
 
 	h2 {
 		@include mixin.sm-lt {
-			font-size: 1.3rem;
+			font-size: 1rem;
 		}
 	}
 }
