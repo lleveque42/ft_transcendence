@@ -17,10 +17,12 @@
 
 	ul {
 		overflow-y: scroll;
+		// padding-left: 0.6rem;
 	}
 
 	.listElems {
 		padding: 1rem;
+		margin: 0.5rem;
 		border-bottom: 1px solid var(--secondary-dark);
 		font-size: 1.5rem;
 		display: flex;

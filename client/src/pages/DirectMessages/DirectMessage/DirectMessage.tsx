@@ -98,7 +98,14 @@ export default function DirectMessage() {
 						/>
 					</li>
 				) : (
-					<li key={id}>Blocked Message from {author.userName}</li>
+					<li className="m-5" key={id}>
+						<span
+							className={` ${styles.blockedMessageContainer} d-flex flex-column flex-begin`}
+						>
+							<p>blocked message</p>
+							<small>{trimUserName(author.userName)}</small>
+						</span>
+					</li>
 				);
 			}),
 		);
@@ -132,14 +139,15 @@ export default function DirectMessage() {
 				<div className={`d-flex flex-column align-items flex-1`}>
 					<div className="title mt-20">Chat</div>
 					<ChatNav />
-					<div className={`${styles.dmHeader} d-flex flex-row mt-20`}>
-						<h2
-							onClick={() => navigate(`/user/${otherUser?.userName}`)}
-							className="d-flex"
-						>
-							{trimUserName(otherUser?.userName as string)}
-						</h2>
-						<p className="d-flex ml-5">({messagesList.length})</p>
+					<div
+						className={`${styles.dmHeader} d-flex flex-row align-items mt-20`}
+					>
+						<div className="d-flex align-items">
+							<h2 onClick={() => navigate(`/user/${otherUser?.userName}`)}>
+								{trimUserName(otherUser?.userName as string)}
+							</h2>
+							<small className="ml-5">({messagesList.length})</small>
+						</div>
 						<button
 							onClick={() =>
 								socket?.emit("sendGameInvite", {
@@ -147,7 +155,7 @@ export default function DirectMessage() {
 									invited: otherUser?.id,
 								})
 							}
-							className="d-flex btn btn-reverse-play p-5 ml-30"
+							className="btn btn-reverse-play p-5 ml-auto"
 						>
 							Invite to play
 						</button>
@@ -156,7 +164,7 @@ export default function DirectMessage() {
 						{messagesState.length ? (
 							<ul className="mt-10">{messagesList}</ul>
 						) : (
-							<p className="d-flex justify-content mt-20">
+							<p className="d-flex justify-content mt-20 p-10">
 								Start the conversation with {trimUserName(otherUser?.userName)}
 							</p>
 						)}

@@ -7,6 +7,7 @@ import {
 	InviteProps,
 } from "../types";
 import { useLocation, useNavigate } from "react-router-dom";
+import trimUserName from "../utils/trimUserName";
 
 export const ALERT_TIMEOUT = 3000;
 export const INVITE_TIMEOUT = 15000;
@@ -52,7 +53,9 @@ export const AlertProvider = ({ children }: AlertProviderProps) => {
 			setIsHiddenInvite(false);
 			socket?.emit("gameInviteReceived", {
 				senderId: props.senderId,
-				message: `Invitation sent successfully to ${props.invitedUserName}.`,
+				message: `Invitation sent successfully to ${trimUserName(
+					props.invitedUserName,
+				)}.`,
 			});
 			localStorage.setItem(
 				"invite",
@@ -66,7 +69,9 @@ export const AlertProvider = ({ children }: AlertProviderProps) => {
 		} else {
 			socket?.emit("declineGameInvite", {
 				senderId: props.senderId,
-				message: `${props.invitedUserName} is already invited, try again later.`,
+				message: `${trimUserName(
+					props.invitedUserName,
+				)} is already invited, try again later.`,
 			});
 		}
 	};
@@ -78,7 +83,9 @@ export const AlertProvider = ({ children }: AlertProviderProps) => {
 		localStorage.removeItem("invite");
 		socket?.emit("declineGameInvite", {
 			senderId: props.senderId,
-			message: `${props.invitedUserName} declined your game invitation.`,
+			message: `${trimUserName(
+				props.invitedUserName,
+			)} declined your game invitation.`,
 		});
 	}
 
@@ -89,9 +96,16 @@ export const AlertProvider = ({ children }: AlertProviderProps) => {
 		localStorage.removeItem("invite");
 		socket?.emit("acceptGameInvite", {
 			senderId: props.senderId,
-			message: `${props.invitedUserName} accepted your game invitation.`,
+			message: `${trimUserName(
+				props.invitedUserName,
+			)} accepted your game invitation.`,
 		});
-		showAlert("success", `You accepted invitation from ${props.senderUserName}. You will be redirected.`)
+		showAlert(
+			"success",
+			`You accepted invitation from ${trimUserName(
+				props.invitedUserName,
+			)}. You will be redirected.`,
+		);
 		setTimeout(() => {
 			if (location.pathname === "/play") navigate("/playMinimized");
 			else navigate("/play");

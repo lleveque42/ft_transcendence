@@ -1,8 +1,6 @@
 @use "../../../assets/styles/mixins" as mixin;
 
 .newDmListContainer {
-	display: flex;
-	flex-direction: column;
 	margin-top: 1.5rem;
 	border: 1px solid var(--secondary-dark);
 	border-radius: 5px;

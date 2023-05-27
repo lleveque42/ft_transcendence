@@ -117,11 +117,11 @@ export default function NewDM() {
 		<div className="d-flex flex-column align-items flex-1">
 			<div className="title mt-20">Talk to someone</div>
 			<ChatNav />
-			<div className={` ${styles.newDmListContainer} d-flex flex-column p-20`}>
+			<div className={`${styles.newDmListContainer} d-flex flex-column p-20`}>
 				{usersList.length !== 0 ? (
 					<ul>{usersList}</ul>
 				) : (
-					<p className="d-flex flex-column align-items">
+					<p className="d-flex flex-column align-items m-10">
 						There are no private messages avalaible for you...
 					</p>
 				)}
