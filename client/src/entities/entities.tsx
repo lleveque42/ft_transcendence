@@ -58,7 +58,6 @@ export interface Channel {
 	password?: string;
 	type: string;
 	mode: string;
-	// owner?: User;
 	ownerId?: number;
 	operators: User[];
 	members: User[];
@@ -73,7 +72,6 @@ export class ChannelModel implements Channel {
 	password?: string;
 	type: string;
 	mode: string;
-	// owner?: UserModel;
 	ownerId?: number;
 	operators: UserModel[];
 	members: UserModel[];
@@ -88,7 +86,6 @@ export class ChannelModel implements Channel {
 		this.type = data.type;
 		this.mode = data.mode;
 		this.ownerId = data.ownerId;
-		//   this.owner = data.owner ? new UserModel(data.owner) : undefined;
 		this.operators = data.operators.map((user) => new UserModel(user));
 		this.members = data.members.map((user) => new UserModel(user));
 		this.messages = data.messages;

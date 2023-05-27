@@ -430,6 +430,16 @@ export class ChannelService {
 		return chans;
 	}
 
+	// const channel = await prisma.channel.findUnique({
+	// 	where: { id: channelId },
+	// 	select: {
+	// 	  id: true,
+	// 	  members: { select: { id: true, userName: true } },
+	// 	  operators: { select: { id: true, userName: true } },
+	// 	  banList: { select: { id: true, userName: true } },
+	// 	},
+	//   });
+
 	async getPublicChannelsToJoin(userId: number): Promise<Channel[]> {
 		const chans = await this.prisma.channel.findMany({
 			where: {
@@ -446,11 +456,23 @@ export class ChannelService {
 					},
 				},
 			},
+			select: {
+				id: true,
+				title: true,
+				type: true,
+				mode: true,
+				ownerId: true,
+				messages: true,
+				mutedList: true,
+				members: { select: { id: true, userName: true } },
+				operators: { select: { id: true, userName: true } },
+				banList: { select: { id: true, userName: true } },
+			},
 		});
 		if (!chans) {
 			throw new ForbiddenException("Error while retrieving the channels");
 		}
-		return chans;
+		return null;
 	}
 
 	async getUsersChannels(username: string) {
