@@ -18,8 +18,7 @@ export class MessageService {
 		chanTitle: string,
 	) {
 		const user = await this.userService.getUserById(id);
-		if (!user)
-		throw new HttpException("User not found", HttpStatus.NOT_FOUND);
+		if (!user) throw new HttpException("User not found", HttpStatus.NOT_FOUND);
 		const chan = await this.channelService.getChannelByTitle(chanTitle);
 		const msg: Message = await this.prisma.message.create({
 			data: {
@@ -106,9 +105,5 @@ export class MessageService {
 			},
 		});
 		return chans;
-	}
-
-	async dropdb() {
-		await this.prisma.message.deleteMany({});
 	}
 }

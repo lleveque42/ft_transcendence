@@ -1,18 +1,86 @@
 import { useNavigate } from "react-router-dom";
-import { useUser } from "../../../context";
+import { useAlert, useUser } from "../../../context";
 import styles from "./FriendsList.module.scss";
 import { UserStatus } from "../../../types/UserStatus.enum";
 import trimUserName from "../../../utils/trimUserName";
 import { usePrivateRouteSocket } from "../../../context/PrivateRouteProvider";
+import {
+	createDmRequest,
+	delDmRequest,
+	usersListDmRequest,
+} from "../../../api";
+import { UserModel } from "../../../entities/entities";
 
 export default function FriendsList() {
-	const { user } = useUser();
-	const { socket } = usePrivateRouteSocket();
+	const { user, accessToken } = useUser();
+	const { socket, chatSocket } = usePrivateRouteSocket();
+	const { showAlert } = useAlert();
 	const navigate = useNavigate();
 
 	function sendGameInvite(invited: number) {
 		socket?.emit("sendGameInvite", { sender: user.id, invited });
 	}
+
+	async function checkJoinbaleUsers(userToDmId: number): Promise<boolean> {
+		try {
+			const users = await usersListDmRequest(accessToken);
+			if (users.ok) {
+				const usersJoinable: {
+					id: number;
+					userName: string;
+					blockList: UserModel[];
+				}[] = await users.json();
+				if (usersJoinable.some((u) => u.id === userToDmId)) return true;
+			}
+		} catch (e) {
+			showAlert("error", "An error occured, try again later");
+			console.error(e);
+		}
+		return false;
+	}
+
+	async function handleDmRedir(userToDmId: number, friendUserName: string) {
+		const type = "DM";
+		const mode = "Public";
+		const password = "";
+		const title =
+			user.id < userToDmId
+				? user.id + "_" + userToDmId
+				: userToDmId + "_" + user.id;
+		const canJoinUser = await checkJoinbaleUsers(userToDmId);
+
+		try {
+			const res = await createDmRequest(accessToken, {
+				title,
+				mode,
+				password,
+				type,
+				id1: user.id,
+				id2: userToDmId,
+			});
+			if (res.ok) {
+				const data = await res.json();
+				if (data === "Duplicate") {
+					navigate(`/chat/direct_messages/${title}`);
+					return;
+				} else if (canJoinUser) {
+					chatSocket?.emit("joinDMRoom", {
+						room: title,
+						userId2: userToDmId,
+						userId: user.id,
+					});
+					navigate(`/chat/direct_messages/${title}`);
+					return;
+				}
+			}
+			await delDmRequest(title, accessToken);
+			showAlert("error", `You or ${friendUserName} have blocked each other`);
+		} catch (e) {
+			showAlert("error", "An error occured, try again later");
+			console.error(e);
+		}
+	}
+
 
 	return (
 		<>
@@ -58,7 +126,7 @@ export default function FriendsList() {
 									)}
 									<i
 										className="d-flex flex-1 justify-content fa-solid fa-envelope"
-										onClick={() => navigate("/chat")}
+										onClick={() => handleDmRedir(f.id, f.userName)}
 									/>
 								</li>
 							))}

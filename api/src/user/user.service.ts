@@ -7,7 +7,7 @@ import {
 } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { userInfo42Dto } from "../auth/dto";
-import { Prisma, User, UserStatus , AvatarFile} from "@prisma/client";
+import { Prisma, User, UserStatus, AvatarFile } from "@prisma/client";
 import { authenticator } from "otplib";
 import { toDataURL } from "qrcode";
 import { GameType } from "../game/types/game.type";
@@ -214,8 +214,19 @@ export class UserService {
 		return users;
 	}
 
-	async getJoignableUsers(userName: string) {
-		const users = await this.prisma.user.findMany({
+	async getJoignableUsers(userName: string): Promise<
+		{
+			id: number;
+			userName: string;
+			blockList: {
+				id: number;
+				userName: string;
+			}[];
+		}[]
+	> {
+		const user = await this.getUserByUserName(userName);
+		if (!user) throw new HttpException("Can't find user", HttpStatus.NOT_FOUND);
+		const allUsers = await this.prisma.user.findMany({
 			where: {
 				NOT: {
 					channels: {
@@ -227,14 +238,28 @@ export class UserService {
 						},
 					},
 				},
-				userName: { not: userName },
+				id: { not: user.id },
 			},
-			include: {
-				blockList: true,
+			select: {
+				id: true,
+				userName: true,
+				blockList: {
+					select: {
+						id: true,
+						userName: true,
+					},
+				},
 			},
 		});
-		if (!users){throw new ForbiddenException("Can't retrieve The users")}
-		return users;
+		const usersBlocked = await this.getUserBlockList(user);
+		const filteredUsers = allUsers.filter((u) => {
+			const blockedUsers = u.blockList.map((blocked) => blocked.id);
+			return (
+				!blockedUsers.includes(user.id) &&
+				!usersBlocked.blockList.some((blockedUser) => blockedUser.id === u.id)
+			);
+		});
+		return filteredUsers;
 	}
 
 	async getAllGames(userId: number): Promise<GameInfosType[]> {
@@ -420,11 +445,6 @@ export class UserService {
 			where: { id: loserId },
 			data: { losses: loser.losses + 1 },
 		});
-	}
-
-	async dropdb(): Promise<void> {
-		// to del
-		await this.prisma.user.deleteMany({});
 	}
 
 	async blockUser(

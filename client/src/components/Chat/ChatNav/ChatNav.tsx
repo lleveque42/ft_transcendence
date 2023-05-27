@@ -10,14 +10,16 @@ export default function ChatNav() {
 
 	return (
 		<>
-			<div className={`${styles.navContainer} d-flex flex-row mt-20`}>
+			<div
+				className={`${styles.navContainer} d-flex flex-row align-items justify-content mt-20`}
+			>
 				<NavLink
 					className={`${styles.navLink} ${
 						directMessagesMatch ? styles.activeNavLink : ""
 					} p-20`}
 					to="/chat/direct_messages"
 				>
-					My messages
+					Messages
 				</NavLink>
 				<NavLink
 					className={`${styles.navLink} ${
@@ -25,7 +27,7 @@ export default function ChatNav() {
 					} p-20`}
 					to="/chat/channels"
 				>
-					My channels
+					Channels
 				</NavLink>
 			</div>
 		</>

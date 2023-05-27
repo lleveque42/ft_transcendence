@@ -50,6 +50,10 @@ export const AlertProvider = ({ children }: AlertProviderProps) => {
 		if (!alreayInInvite) {
 			setInvite({ ...props });
 			setIsHiddenInvite(false);
+			socket?.emit("gameInviteReceived", {
+				senderId: props.senderId,
+				message: `Invitation sent successfully to ${props.invitedUserName}.`,
+			});
 			localStorage.setItem(
 				"invite",
 				JSON.stringify({
@@ -62,7 +66,7 @@ export const AlertProvider = ({ children }: AlertProviderProps) => {
 		} else {
 			socket?.emit("declineGameInvite", {
 				senderId: props.senderId,
-				message: `${props.invitedUserName} is already invited, try again later`,
+				message: `${props.invitedUserName} is already invited, try again later.`,
 			});
 		}
 	};
@@ -87,10 +91,11 @@ export const AlertProvider = ({ children }: AlertProviderProps) => {
 			senderId: props.senderId,
 			message: `${props.invitedUserName} accepted your game invitation.`,
 		});
+		showAlert("success", `You accepted invitation from ${props.senderUserName}. You will be redirected.`)
 		setTimeout(() => {
 			if (location.pathname === "/play") navigate("/playMinimized");
 			else navigate("/play");
-		}, 500);
+		}, 2000);
 	}
 
 	useEffect(() => {

@@ -8,100 +8,116 @@ import { useAlert } from "../../context/AlertProvider";
 
 export default function Channels() {
 	const { accessToken, user } = useUser();
-	const {chatSocket} = usePrivateRouteSocket();
+	const { chatSocket } = usePrivateRouteSocket();
 	const { showAlert } = useAlert();
 	const [channelsState, setChannelsState] = useState<ChannelModel[]>([]);
-	
+
 	useEffect(() => {
 		(async () => {
 			try {
-				await fetch(`${process.env.REACT_APP_BACKEND_URL}/channels/${user.userName}`, {
+				await fetch(
+					`${process.env.REACT_APP_BACKEND_URL}/channels/${user.userName}`,
+					{
+						credentials: "include",
+						headers: {
+							"Content-Type": "application/json",
+							Authorization: `Bearer ${accessToken}`,
+						},
+					},
+				)
+					.then((res) => res.json())
+					.then((chans) => {
+						setChannelsState(chans);
+					});
+			} catch (e) {}
+		})();
+	}, [user.userName, accessToken]);
+
+	async function handleLeaveClick(userName: string, id: number, room: string) {
+		const data = { userName, id, room };
+		const mode = "leave";
+		const toEmit = { id, room, userName, mode };
+		try {
+			const res = await fetch(
+				`${process.env.REACT_APP_BACKEND_URL}/channels/leave`,
+				{
+					method: "POST",
 					credentials: "include",
 					headers: {
 						"Content-Type": "application/json",
 						Authorization: `Bearer ${accessToken}`,
 					},
-				})
-					.then((res) => res.json())
-					.then((chans) => {
-						setChannelsState(chans);
-					});
-			} catch (e) {
-			}
-		})();
-	}, [user.userName, accessToken]);
-
-	async function handleLeaveClick(userName : string, id: number, room: string) {
-		const data = {userName, id, room}
-		const mode = "leave";
-		const toEmit = {id, room, userName, mode}
-		try {
-			const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/channels/leave`, {
-				method: "POST",
-				credentials: "include",
-				headers: {
-					"Content-Type": "application/json",
-					Authorization: `Bearer ${accessToken}`,
+					body: JSON.stringify(data),
 				},
-				body: JSON.stringify(data),
-			})
+			);
 			if (res.status === 201) {
 				chatSocket?.emit("exitChatRoom", toEmit);
 			}
 		} catch (e) {
 			console.error("Error leaving channel");
 		}
-	  }
+	}
 
-	const channelsList = channelsState.map(({ id, title, ownerId, mode}) => {
+	const channelsList = channelsState.map(({ id, title, ownerId, mode }) => {
 		const chanTitle = title;
 		return (
-		<li key={id}>
-			<div className="d-flex flex-row m-10 justify-content-space-between">
-					<NavLink className={``}  to={`/chat/channels/${title}`} >
-						<span>
-							{title}
-						</span>
+			<li key={id}>
+				<div className="d-flex flex-row m-10 justify-content-space-between">
+					<NavLink className={``} to={`/chat/channels/${title}`}>
+						<span>{title}</span>
 					</NavLink>
-				<div className="d-flex flex-row" >
-					{ user.id === ownerId &&
-						<NavLink className={`btn-primary`}  to={`/chat/channels/edit_channel/${title}`} >
-									Edit
+					<div className="d-flex flex-row">
+						{user.id === ownerId && (
+							<NavLink
+								className={`btn-primary`}
+								to={`/chat/channels/edit_channel/${title}`}
+							>
+								Edit
 							</NavLink>
-					}		
-					<button  onClick={() => handleLeaveClick(user.userName, user.id, chanTitle )} className="btn-danger ml-10">
-						Leave
-					</button>
+						)}
+						<button
+							onClick={() =>
+								handleLeaveClick(user.userName, user.id, chanTitle)
+							}
+							className="btn-danger ml-10"
+						>
+							Leave
+						</button>
+					</div>
 				</div>
-			</div>
-		</li>
-	)});
+			</li>
+		);
+	});
 
 	useEffect(() => {
-		const inviteListener = (chan: ChannelModel, userId : number) => {
-			if (userId === user.id){	
+		const inviteListener = (chan: ChannelModel, userId: number) => {
+			if (userId === user.id) {
 				setChannelsState([...channelsState, chan]);
 			}
-		}
-		chatSocket?.on("newInvitedChan", inviteListener)
+		};
+		chatSocket?.on("newInvitedChan", inviteListener);
 		return () => {
-			chatSocket?.off("newInvitedChan",);
-		}
-	  }, [chatSocket, channelsState, user.id])
+			chatSocket?.off("newInvitedChan");
+		};
+	}, [chatSocket, channelsState, user.id]);
 
 	useEffect(() => {
-		const chanListener = (chan: ChannelModel, username: string, mode : string) => {
-			if (username === user.userName && mode === "leave"){
-				setChannelsState(channelsState.filter(c => c.id !== chan.id));
-			}else if (username !== user.userName && mode === "leave") {
-				showAlert("success",username + " leaved the channel");
+		const chanListener = (
+			chan: ChannelModel,
+			username: string,
+			mode: string,
+		) => {
+			if (username === user.userName && mode === "leave") {
+				setChannelsState(channelsState.filter((c) => c.id !== chan.id));
+			} else if (username !== user.userName && mode === "leave") {
+				showAlert("success", username + " leaved the channel");
 			}
-		}
-		chatSocket?.on("kickOrBanOrLeaveFromChannel", chanListener)
+		};
+		chatSocket?.on("kickOrBanOrLeaveFromChannel", chanListener);
 		return () => {
-			chatSocket?.off("kickOrBanOrLeaveFromChannel",);
-		}
-	  }, [channelsState, chatSocket, showAlert, user.userName])
+			chatSocket?.off("kickOrBanOrLeaveFromChannel");
+		};
+	}, [channelsState, chatSocket, showAlert, user.userName]);
 
 	return (
 		<div className="d-flex flex-column align-items flex-1">

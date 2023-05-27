@@ -154,45 +154,61 @@ export class AppGateway
 		else client.emit("getUserStatus", user.status);
 	}
 
+	@SubscribeMessage("askUserName")
+	async askUserName(
+		@ConnectedSocket() client: Socket,
+		@MessageBody() userName: string,
+	) {
+		const user = await this.userService.getUserByUserName(userName);
+		if (!user) client.emit("getUserStatus", null);
+		else client.emit("getUserStatus", user.status);
+	}
+
 	@SubscribeMessage("userNameUpdated")
-    async userNameUpdated(
-        @ConnectedSocket() client: Socket,
-        @MessageBody() newUserName: string,
-    ) {
-        let user = this.users.getUserByClientId(client.id);
-        if (!user) return;
-        const oldUserName = user.userName;
-        this.users.updateUserName(user, newUserName);
-        user = this.users.getUserByClientId(client.id);
-        if (!user) return;
-        this.io.emit("userNameUpdatedProfile", {
-            id: user.id,
-            userName: newUserName,
-            status: user.status,
-            oldUserName,
-        });
-        this.emitAllUserFriends(
-            user,
-            "updateOnlineFriend",
-            user.id,
-            user.userName,
-            user.status,
-        );
-        this.io.emit("userNameUpdatedUsersList", {
-            id: user.id,
-            userName: newUserName,
-            status: user.status,
-        });
-        this.io.emit("userNameUpdatedDm", {
-            id: user.id,
-            userName: newUserName,
-        });
+	async userNameUpdated(
+		@ConnectedSocket() client: Socket,
+		@MessageBody() newUserName: string,
+	) {
+		let user = this.users.getUserByClientId(client.id);
+		if (!user) return;
+		const oldUserName = user.userName;
+		this.users.updateUserName(user, newUserName);
+		user = this.users.getUserByClientId(client.id);
+		if (!user) return;
+		this.io.emit("userNameUpdatedProfile", {
+			id: user.id,
+			userName: newUserName,
+			status: user.status,
+			oldUserName,
+		});
+		this.io.emit("userNameUpdatedGameHistory", {
+			id: user.id,
+			userName: newUserName,
+			status: user.status,
+			oldUserName,
+		});
+		this.emitAllUserFriends(
+			user,
+			"updateOnlineFriend",
+			user.id,
+			user.userName,
+			user.status,
+		);
+		this.io.emit("userNameUpdatedUsersList", {
+			id: user.id,
+			userName: newUserName,
+			status: user.status,
+		});
+		this.io.emit("userNameUpdatedDm", {
+			id: user.id,
+			userName: newUserName,
+		});
 		this.io.emit("userNameUpdatedChannel", {
 			id: user.id,
 			userName: newUserName,
 			oldUserName,
 		});
-    }
+	}
 
 	@SubscribeMessage("userStatusInGame")
 	async newInGameStatus(
@@ -252,6 +268,16 @@ export class AppGateway
 		@MessageBody("message") message: string,
 	) {
 		this.users.emitAllbyUserId(senderId, "inviteDeclined", {
+			message,
+		});
+	}
+
+	@SubscribeMessage("gameInviteReceived")
+	gameInviteReceived(
+		@MessageBody("senderId") senderId: number,
+		@MessageBody("message") message: string,
+	) {
+		this.users.emitAllbyUserId(senderId, "inviteReceived", {
 			message,
 		});
 	}
