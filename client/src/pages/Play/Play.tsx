@@ -14,7 +14,7 @@ import {
 	joinedGame,
 } from "./types/gameStatus.type";
 import { GameUserStatus } from "./enums/UserStatus";
-import { useUser } from "../../context";
+import { useAlert, useUser } from "../../context";
 import Countdown from "./components/Common/Countdown/Countdown";
 import Game from "./components/Common/Game/Game";
 import { Default } from "./components/Common/Default/Default";
@@ -35,6 +35,7 @@ export default function Play() {
 	const { user } = useUser();
 	const navigate = useNavigate();
 	const { socket } = usePrivateRouteSocket();
+	const { showAlert } = useAlert();
 	const { gameSocket } = useGameSocket();
 	const [mapOption, setMapOption] = useState<MapStatus>(MapStatus.default);
 	const [acceleratorOption, setAcceleratorOption] = useState<boolean>(false);
@@ -51,7 +52,7 @@ export default function Play() {
 					setGameStatus(defaultGameStatus);
 					setGameUserStatus(GameUserStatus.inQueue);
 				} else {
-					console.log("Queue failed? try again? : err = " + err);
+					showAlert("error", "Could not join queue, try again.");
 					setGameUserStatus(GameUserStatus.connected);
 				}
 			});
@@ -74,7 +75,6 @@ export default function Play() {
 					success: boolean;
 					inGame: boolean;
 					afk?: boolean | false;
-					inOption?: boolean | false;
 				},
 				game: {
 					room: string;
@@ -112,47 +112,14 @@ export default function Play() {
 					setAcceleratorOption(game.accelerator);
 					setMapOption(game.map);
 					setGameUserStatus(GameUserStatus.waitingGameRestart);
-					if (game.ownerId === user.id) {
-						socket?.emit("userStatusInGame", {
-							ownerId: game.ownerId,
-							playerId: game.playerId,
-							inGame: true,
-						});
-					}
-				} else if (status.inOption) {
-					setGameStatus(
-						alreadyInGame(
-							gameStatus,
-							user,
-							game.room,
-							game.ownerScore,
-							game.playerScore,
-							game.ownerId,
-							game.ownerUserName,
-							game.playerId,
-							game.playerUserName,
-							game.map,
-							game.accelerator,
-						),
-					);
-					setGameUserStatus(GameUserStatus.choosingOptions);
-					if (game.ownerId === user.id) {
-						socket?.emit("userStatusInGame", {
-							ownerId: game.ownerId,
-							playerId: game.playerId,
-							inGame: true,
-						});
-					}
 				} else if (status.afk) setGameUserStatus(GameUserStatus.detectedAfk);
 				else setGameUserStatus(GameUserStatus.connected);
-				if (status.inGame || status.inOption)
-					if (game.ownerId === user.id) {
-						socket?.emit("userStatusInGame", {
-							ownerId: game.ownerId,
-							playerId: game.playerId,
-							inGame: true,
-						});
-					}
+				if (status.inGame)
+					socket?.emit("userStatusInGame", {
+						ownerId: game.ownerId,
+						playerId: game.playerId,
+						inGame: true,
+					});
 				gameSocket?.off("privateGameDisconnection");
 			},
 		);
@@ -209,10 +176,6 @@ export default function Play() {
 	}
 
 	function choosingOptions() {
-		gameSocket?.once("reconnection", () => {
-			setGameUserStatus(GameUserStatus.choosingOptions);
-			gameSocket?.off("gameCancelled");
-		});
 		gameSocket?.once("gameCancelled", () => {
 			setGameUserStatus(GameUserStatus.gameCancelled);
 			setGameStatus(gameEnded(gameStatus));
@@ -221,11 +184,11 @@ export default function Play() {
 				playerId: gameStatus.playerId,
 				inGame: false,
 			});
-			gameSocket?.off("reconnection");
 		});
 	}
 
 	function readyToStart() {
+		gameSocket?.off("gameCancelled");
 		gameSocket?.once(
 			"bothPlayersReady",
 			(accelerator: boolean, map: number) => {
@@ -351,7 +314,15 @@ export default function Play() {
 				break;
 		}
 		return () => {
+			document.removeEventListener("visibilitychange", handleVisibilityChange);
 			gameSocket?.removeAllListeners();
+			if (gameUserStatus === GameUserStatus.waitingOpponentReconnection) {
+				socket?.emit("userStatusInGame", {
+					ownerId: gameStatus.ownerId,
+					playerId: gameStatus.playerId,
+					inGame: false,
+				});
+			}
 		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [gameUserStatus, gameSocket, gameStatus, user]);

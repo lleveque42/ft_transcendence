@@ -48,6 +48,11 @@ export class GameGateway
 		this.logger.log("Websocket GameGateway initialized.");
 	}
 
+	changeUserStatus(user: User, inGame: boolean) {
+		const newStatus = inGame ? UserStatus.INGAME : UserStatus.ONLINE;
+		this.users.updateStatus(user.id, newStatus);
+	}
+
 	connectInGame(client: Socket, user: User) {
 		const room = this.ongoing.getGameIdByUserId(user.id);
 		const game = this.ongoing.getGameById(room);
@@ -57,22 +62,6 @@ export class GameGateway
 			client.emit(
 				"connectionStatus",
 				{ success: true, inGame: true },
-				{
-					room: game.id,
-					ownerId: game.ownerId,
-					ownerUserName: game.owner.userName,
-					playerId: game.playerId,
-					playerUserName: game.player.userName,
-					ownerScore: game.ownerScore,
-					playerScore: game.playerScore,
-					accelerator: game.accelerator,
-					map: game.map,
-				},
-			);
-		} else {
-			client.emit(
-				"connectionStatus",
-				{ success: true, inGame: false, inOption: true },
 				{
 					room: game.id,
 					ownerId: game.ownerId,
@@ -148,7 +137,16 @@ export class GameGateway
 		const game = this.ongoing.getGameById(room);
 		this.waitingReconnection.set(user.id, room);
 		const opponent = game.ownerId === user.id ? game.player : game.owner;
-		if (this.waitingReconnection.get(opponent.id)) {
+		if (!game.started) {
+			this.logger.log(
+				`${game.owner.userName} vs ${game.player.userName} : cancelled (Player left).`,
+			);
+			this.endGame(room, false, false, opponent.id);
+			this.changeUserStatus(user, false);
+			this.changeUserStatus(opponent, false);
+			this.users.removeClientId(client.id);
+			return;
+		} else if (this.waitingReconnection.get(opponent.id)) {
 			this.logger.log(
 				`${game.owner.userName} vs ${game.player.userName} : both players disconnected, game ended.`,
 			);
@@ -216,11 +214,6 @@ export class GameGateway
 		else this.users.addNewUser(user, client);
 		this.logger.log(`Client ${client.id} (${user.userName}) connected.`);
 		this.logger.log(`${this.users.size} user(s) connected.`);
-	}
-
-	async changeUserStatus(user: User, inGame: boolean) {
-		const newStatus = inGame ? UserStatus.INGAME : UserStatus.ONLINE;
-		this.users.updateStatus(user.id, newStatus);
 	}
 
 	createGame() {
