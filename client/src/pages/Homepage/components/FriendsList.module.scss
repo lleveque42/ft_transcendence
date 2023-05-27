@@ -1,12 +1,18 @@
 @use "../../../assets/styles/mixins" as mixin;
 
+.friends {
+	color: var(--purple);
+}
+
 .friendsList {
+	border-top: 2px var(--purple) dashed;
 	margin-top: 1rem;
 	margin-bottom: 1rem;
 	max-height: 100%;
 	overflow-y: scroll;
 
 	.listElem {
+		padding: 0.75rem;
 		border-bottom: 1px solid var(--secondary-dark);
 		align-items: center;
 
@@ -15,8 +21,9 @@
 		}
 
 		h4 {
-			font-size: 1.2vw;
+			font-size: 1.2rem;
 			color: var(--light-grey);
+			font-weight: 900;
 		}
 
 		@include mixin.sm-lt {
@@ -36,7 +43,7 @@
 			cursor: pointer;
 			text-decoration: none;
 			text-decoration-color: transparent;
-			transition: color 0.3s ease-in-out, text-decoration-color 0.3s ease-in-out;
+			transition: color 0.2s ease-in-out, text-decoration-color 0.2s ease-in-out;
 
 			&:hover {
 				color: var(--primary);
@@ -47,7 +54,7 @@
 		}
 
 		p {
-			font-size: 1vw;
+			font-size: 1.2rem;
 		}
 
 		@include mixin.sm-lt {
@@ -57,7 +64,7 @@
 		}
 
 		i {
-			font-size: 1.2vw;
+			font-size: 1.2rem;
 		}
 
 		@include mixin.sm-lt {
@@ -76,7 +83,7 @@
 
 		i {
 			cursor: pointer;
-			transition: color 0.3s ease-in-out;
+			transition: color 0.2s ease-in-out;
 
 			&:hover {
 				color: var(--light-grey);
@@ -84,17 +91,20 @@
 		}
 
 		.gamepadDisconnected {
-			color: var(--secondary-dark);
+			color: var(--yellow);
 			cursor: auto;
+			opacity: 25%;
 
 			&:hover {
-				color: var(--secondary-dark);
+				color: var(--yellow);
 			}
 		}
 
 		.statusBadge {
-			width: 0.7vw;
-			height: 0.7vw;
+			min-width: 0.75rem;
+			max-width: 0.75rem;
+			min-height: 0.75rem;
+			max-height: 0.75rem;
 			border: var(--border);
 			border-radius: 50%;
 		}
@@ -118,5 +128,17 @@
 		.ingame {
 			background-color: var(--primary);
 		}
+	}
+
+	.noFriends {
+		font-family: var(--game-font);
+		font-weight: 500;
+		text-align: center;
+		color: var(--light-grey);
+	}
+
+	.findFriends {
+		background-color: var(--purple);
+		border-color: var(--purple);
 	}
 }

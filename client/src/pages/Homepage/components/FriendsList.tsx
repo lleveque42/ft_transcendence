@@ -79,12 +79,12 @@ export default function FriendsList() {
 
 	return (
 		<>
-			<h3 className="underTitle mt-10">My Friends</h3>
+			<h3 className={`underTitle mt-10 mb-10 ${styles.friends}`}>My Friends</h3>
 			<div className={styles.friendsList}>
 				{user.friends.length !== 0 ? (
 					<>
 						<ul className={`pl-5 pr-5`}>
-							<li className={`${styles.listElem} d-flex p-5 mb-10`}>
+							<li className={`${styles.listElem} d-flex`}>
 								<span className={`${styles.titleStatusBadge}`} />
 								<h4 className="flex-1 pl-5">Login</h4>
 								<h4 className="pr-10 pl-5">|</h4>
@@ -128,7 +128,17 @@ export default function FriendsList() {
 						</ul>
 					</>
 				) : (
-					<h4 className="mt-20 pl-5">No friends :(</h4>
+					<div className="d-flex flex-column align-items justify-content">
+						<h4 className={`${styles.noFriends} mt-20 mb-20 pl-5`}>
+							No friends :(
+						</h4>
+						<button
+							className={`btn-primary mb-10 pl-10 pr-10 p-5 ${styles.findFriends}`}
+							onClick={() => navigate("/users")}
+						>
+							<i className="fa-solid fa-magnifying-glass"></i> Find friends
+						</button>
+					</div>
 				)}
 			</div>
 		</>

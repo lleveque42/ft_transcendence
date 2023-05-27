@@ -13,39 +13,45 @@ export default function Homepage() {
 
 	return (
 		<>
-			<div className="d-flex flex-column align-items mt-20">
-				<div className="title">PONG</div>
-				<h2 className="underTitle mb-20">Homepage</h2>
-			</div>
 			<div className={`${styles.homepageContainer} d-flex flex-row flex-1`}>
 				<div className={`${styles.friendsContainer} d-flex flex-column`}>
 					<FriendsList />
 				</div>
 				<div
-					className={`${styles.homepageButtonContainer} d-flex flex-column align-items justify-content`}
+					className={`${styles.mainContainer} d-flex flex-column align-items justify-content`}
 				>
-					<button
-						className={`btn-primary mb-10 pl-10 pr-10 p-5 ${styles.play}`}
-						onClick={handlePlay}
+					<div
+						className={`${styles.titleContainer}d-flex flex-column align-items mt-20`}
 					>
-						<i className="fa-solid fa-gamepad"></i> Play
-					</button>
-					<button
-						className={`btn-primary mb-10 pl-10 pr-10 p-5 ${styles.chat}`}
-						onClick={handlePlay}
+						<div className="title">PONG</div>
+					</div>
+					<div
+						className={`${styles.buttonContainer} d-flex flex-column align-items justify-content`}
 					>
-						<i className="fa-sharp fa-solid fa-comments"></i> Chat
-					</button>
-					<button
-						className={`btn-primary mb-10 pl-10 pr-10 p-5 ${styles.users}`}
-						onClick={handlePlay}
-						// onMouseEnter={() => setHover(true)}
-						// onMouseLeave={() => setHover(false)}
-					>
-						<i className="fa-solid fa-users"></i> Users
-						{/* {hover && "Users"} */}
-					</button>
+						<button
+							className={`btn-primary mb-10 pl-10 pr-10 p-5 ${styles.play}`}
+							onClick={handlePlay}
+						>
+							<i className="fa-solid fa-gamepad"></i> Play
+						</button>
+						<button
+							className={`btn-primary mb-10 pl-10 pr-10 p-5 ${styles.chat}`}
+							onClick={handlePlay}
+						>
+							<i className="fa-sharp fa-solid fa-comments"></i> Chat
+						</button>
+						<button
+							className={`btn-primary mb-10 pl-10 pr-10 p-5 ${styles.users}`}
+							onClick={handlePlay}
+							// onMouseEnter={() => setHover(true)}
+							// onMouseLeave={() => setHover(false)}
+						>
+							<i className="fa-solid fa-users"></i> Users
+							{/* {hover && "Users"} */}
+						</button>
+					</div>
 				</div>
+				<div className={`${styles.emptyContainer}`}>METTRE QUELQUE CHOSE POUR REMPLIR LA PAGE ?</div>
 			</div>
 		</>
 	);
