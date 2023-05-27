@@ -25,30 +25,27 @@ export class ChannelService {
 		let hash: string = null;
 		if (newChannel.password && newChannel.password !== "") {
 			hash = await argon2.hash(newChannel.password);
-		}
-		try {
-			const chan = await this.prisma.channel.create({
-				data: {
-					title: newChannel.title,
-					password: hash,
-					type: newChannel.type,
-					mode: newChannel.mode,
-					ownerId: user.id,
-					operators: {
-						connect: { id: user.id },
-					},
-					members: {
-						connect: { id: user.id },
-					},
-				},
-			});
-		} catch (error) {
-			if (
-				error instanceof Prisma.PrismaClientKnownRequestError &&
-				error.code === "P2002"
-			) {
-				throw new ForbiddenException("Duplicate key value");
+			if (!hash) {
+				throw new ForbiddenException("Error in Argon side");
 			}
+		}
+		const chan = await this.prisma.channel.create({
+			data: {
+				title: newChannel.title,
+				password: hash,
+				type: newChannel.type,
+				mode: newChannel.mode,
+				ownerId: user.id,
+				operators: {
+					connect: { id: user.id },
+				},
+				members: {
+					connect: { id: user.id },
+				},
+			},
+		});
+		if (!chan) {
+			throw new ForbiddenException("Error while updating channel");
 		}
 	}
 
@@ -56,26 +53,23 @@ export class ChannelService {
 		let hash: string = null;
 		if (newChannel.password && newChannel.password !== "") {
 			hash = await argon2.hash(newChannel.password);
-		}
-		try {
-			const chan = await this.prisma.channel.update({
-				where: {
-					title: oldtitle,
-				},
-				data: {
-					title: newChannel.title,
-					password: hash,
-					type: newChannel.type,
-					mode: newChannel.mode,
-				},
-			});
-		} catch (error) {
-			if (
-				error instanceof Prisma.PrismaClientKnownRequestError &&
-				error.code === "P2002"
-			) {
-				throw new ForbiddenException("Duplicate key value");
+			if (!hash) {
+				throw new ForbiddenException("Error in Argon side");
 			}
+		}
+		const chan = await this.prisma.channel.update({
+			where: {
+				title: oldtitle,
+			},
+			data: {
+				title: newChannel.title,
+				password: hash,
+				type: newChannel.type,
+				mode: newChannel.mode,
+			},
+		});
+		if (!chan) {
+			throw new ForbiddenException("Error while updating channel");
 		}
 	}
 
@@ -98,20 +92,20 @@ export class ChannelService {
 					},
 				},
 			});
-		} catch (error) {
-			if (
-				error instanceof Prisma.PrismaClientKnownRequestError &&
-				error.code === "P2002"
-			) {
-				throw new ForbiddenException("Duplicate key value");
-			} else {
-				console.log("Error in update");
+			if (!chan) {
+				throw new ForbiddenException("Can't update the channel");
 			}
+		} catch (error) {
+			throw new ForbiddenException("Error while leaving");
 		}
 	}
 
 	async kickFromChannel(userName: string, id: number) {
 		try {
+			const user = await this.userService.getUserByUserName(userName);
+			if (!user) {
+				throw new ForbiddenException("User not found");
+			}
 			const chan = await this.prisma.channel.update({
 				where: {
 					id: id,
@@ -129,39 +123,20 @@ export class ChannelService {
 					},
 				},
 			});
-			return await this.prisma.channel.findUnique({
-				where: {
-					id: id,
-				},
-				include: {
-					members: {
-						select: {
-							id: true,
-							userName: true,
-						},
-					},
-					operators: {
-						select: {
-							id: true,
-							userName: true,
-						},
-					},
-				},
-			});
-		} catch (error) {
-			if (
-				error instanceof Prisma.PrismaClientKnownRequestError &&
-				error.code === "P2002"
-			) {
-				throw new ForbiddenException("Duplicate key value");
-			} else {
-				console.log("Error in update");
+			if (!chan) {
+				throw new ForbiddenException("Prisma error while kicking");
 			}
+		} catch (error) {
+			throw new ForbiddenException("Error while kicking");
 		}
 	}
 
 	async banFromChannel(userName: string, id: number) {
 		try {
+			const user = await this.userService.getUserByUserName(userName);
+			if (!user) {
+				throw new ForbiddenException("User not found");
+			}
 			const chan = await this.prisma.channel.update({
 				where: {
 					id: id,
@@ -184,34 +159,11 @@ export class ChannelService {
 					},
 				},
 			});
-			return await this.prisma.channel.findUnique({
-				where: {
-					id: id,
-				},
-				include: {
-					members: {
-						select: {
-							id: true,
-							userName: true,
-						},
-					},
-					operators: {
-						select: {
-							id: true,
-							userName: true,
-						},
-					},
-				},
-			});
-		} catch (error) {
-			if (
-				error instanceof Prisma.PrismaClientKnownRequestError &&
-				error.code === "P2002"
-			) {
-				throw new ForbiddenException("Duplicate key value");
-			} else {
-				console.log("Error in update");
+			if (!chan) {
+				throw new ForbiddenException("Prisma error while banishing");
 			}
+		} catch (error) {
+			throw new ForbiddenException("Error while banishing");
 		}
 	}
 
@@ -222,20 +174,31 @@ export class ChannelService {
 					userId: userId,
 				},
 			});
-			const muted: Muted = await this.prisma.muted.upsert({
-				where: {
-					id: retrieve.at(0).id,
-				},
-				update: {
-					muteExpiration: mutedEnd,
-					channelId: chanId,
-				},
-				create: {
-					userId: userId,
-					muteExpiration: mutedEnd,
-					channelId: chanId,
-				},
-			});
+			// if (!retrieve){throw new ForbiddenException("This user doesn't exist")}
+			let muted: Muted;
+			if (!retrieve.at(0).id) {
+				muted = await this.prisma.muted.create({
+					data: {
+						userId: userId,
+						muteExpiration: mutedEnd,
+						channelId: chanId,
+					},
+				});
+			} else {
+				muted = await this.prisma.muted.update({
+					where: {
+						id: retrieve.at(0).id,
+					},
+					data: {
+						userId: userId,
+						muteExpiration: mutedEnd,
+						channelId: chanId,
+					},
+				});
+			}
+			if (!muted) {
+				throw new ForbiddenException("Can't mute this user");
+			}
 			if (muted) {
 				const chan: Channel = await this.prisma.channel.update({
 					where: {
@@ -270,53 +233,75 @@ export class ChannelService {
 						},
 					},
 				});
+				if (!chan) {
+					throw new ForbiddenException(
+						"Error while adding the mute user in channel",
+					);
+				}
 				return chan;
 			}
 		} catch (error) {
-			if (
-				error instanceof Prisma.PrismaClientKnownRequestError &&
-				error.code === "P2002"
-			) {
-				throw new ForbiddenException("Duplicate key value");
-			} else {
-				console.log("Error in update");
-			}
+			throw new ForbiddenException("Error while muting");
 		}
 	}
 
 	async adminOfChannel(userName: string, id: number) {
 		try {
-			const chan = await this.prisma.channel.update({
-				where: {
-					id: id,
-				},
-				data: {
-					operators: {
-						connect: {
-							userName: userName,
-						},
-					},
-				},
-			});
-			return await this.prisma.channel.findUnique({
+			const user = await this.userService.getUserByUserName(userName);
+			if (!user) {
+				throw new ForbiddenException("This user doesn't exist");
+			}
+			const channel = await this.prisma.channel.findUnique({
 				where: {
 					id: id,
 				},
 				include: {
-					members: {
-						select: {
-							id: true,
-							userName: true,
-						},
-					},
-					operators: {
-						select: {
-							id: true,
-							userName: true,
-						},
-					},
+					operators: true,
 				},
 			});
+			if (!channel) {
+				throw new ForbiddenException("Channel doesn't exist");
+			}
+			if (channel && user) {
+				const operatorExists = channel.operators.some(
+					(member) => member.id === user.id,
+				);
+				if (operatorExists) {
+					throw new ForbiddenException("Already an admin");
+				} else {
+					await this.prisma.channel.update({
+						where: {
+							id: id,
+						},
+						data: {
+							operators: {
+								connect: {
+									id: user.id,
+								},
+							},
+						},
+					});
+				}
+				return await this.prisma.channel.findUnique({
+					where: {
+						id: id,
+					},
+					include: {
+						members: {
+							select: {
+								id: true,
+								userName: true,
+							},
+						},
+						operators: {
+							select: {
+								id: true,
+								userName: true,
+							},
+						},
+					},
+				});
+			}
 		} catch (error) {
 			if (
 				error instanceof Prisma.PrismaClientKnownRequestError &&

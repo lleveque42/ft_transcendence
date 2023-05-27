@@ -146,13 +146,13 @@ export class ServerGateway
 	@SubscribeMessage("joinChatRoom")
 	async handleJoinChanRoom(socket: Socket, chanName: string): Promise<void> {
 		const sockets = this.users.getClientsByClientId(socket.id);
-		if (sockets){
+		if (sockets) {
 			for (const socket of sockets) {
 				socket[1].join(chanName);
 			}
 		}
 		const chan = await this.channelService.getChannelByTitle(chanName);
-		if (chan){
+		if (chan) {
 			this.io.to(chanName).emit("userJoinedChan", chan);
 			this.io.emit("addChannelToJoin", chan);
 		}
@@ -170,19 +170,19 @@ export class ServerGateway
 	): Promise<void> {
 		const sockets = this.users.getClientsByClientId(client.id);
 		const sockets2 = this.users.getClientsByUserId(data.userId2);
-		if (sockets){
+		if (sockets) {
 			for (const socket of sockets) {
 				socket[1].join(data.room);
 			}
 		}
-		if (sockets2){
+		if (sockets2) {
 			for (const socket of sockets2) {
 				socket[1].join(data.room);
 			}
 		}
 		this.io.to(data.room).emit("userExpel", data.userId);
 		const chan = await this.channelService.getChannelByTitle(data.room);
-		if (chan){
+		if (chan) {
 			this.io.to(data.room).emit("userJoinedDM", chan);
 		}
 	}
@@ -198,6 +198,7 @@ export class ServerGateway
 			mode: string;
 		},
 	): Promise<void> {
+		const user = await this.userService.getUserByUserName(data.userName);
 		this.io
 			.to(data.room)
 			.emit(
@@ -206,9 +207,8 @@ export class ServerGateway
 				data.userName,
 				data.mode,
 			);
-		const user = await this.userService.getUserByUserName(data.userName);
 		const sockets = await this.users.getClientsByUserId(user.id);
-		if (sockets){
+		if (sockets) {
 			for (const socket of sockets) {
 				socket[1].leave(data.room);
 			}
@@ -268,16 +268,16 @@ export class ServerGateway
 			userId: number;
 		},
 	): Promise<void> {
-		if (data.room && data.userId){
+		if (data.room && data.userId) {
 			const sockets = this.users.getClientsByUserId(data.userId);
-			if (sockets){
+			if (sockets) {
 				for (const socket of sockets) {
 					socket[1].join(data.room);
 				}
 			}
 			const user = await this.userService.getUserById(data.userId);
 			const chan = await this.channelService.getChannelByTitle(data.room);
-			if (user && chan){
+			if (user && chan) {
 				this.io.to(chan.title).emit("userJoinedChan", chan);
 				this.io.to(chan.title).emit("removeFromInviteList", chan, user);
 				this.io.to(chan.title).emit("newInvitedChan", chan, data.userId);

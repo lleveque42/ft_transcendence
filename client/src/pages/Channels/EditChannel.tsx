@@ -38,18 +38,23 @@ export default function EditChannel() {
 	useEffect(() => {
 		(async () => {
 			try {
-				await fetch(`${process.env.REACT_APP_BACKEND_URL}/channels/edit/${title}`, {
-					credentials: "include",
-					headers: {
-						"Content-Type": "application/json",
-						Authorization: `Bearer ${accessToken}`,
+				await fetch(
+					`${process.env.REACT_APP_BACKEND_URL}/channels/edit/${title}`,
+					{
+						credentials: "include",
+						headers: {
+							"Content-Type": "application/json",
+							Authorization: `Bearer ${accessToken}`,
+						},
 					},
-				})
+				)
 					.then((res) => res.json())
 					.then((chan) => {
 						setChannelState(chan);
 					});
-			} catch (e) {}
+			} catch (e) {
+				console.error("Can't fetch the channel");
+			}
 		})();
 	}, [setChannelState, accessToken, title]);
 
@@ -102,6 +107,9 @@ export default function EditChannel() {
 		formValues.type = "Channel";
 		if (formValues.mode !== "Protected") {
 			formValues.password = "";
+		} else if (!formValues.password || formValues.password === "") {
+			showAlert("error", "The password must be not empty");
+			return;
 		}
 		try {
 			const res: Response = await fetch(
@@ -123,12 +131,11 @@ export default function EditChannel() {
 				);
 				chatSocket?.emit("joinChatRoom", formValues.title);
 				navigate("/chat/channels");
-			}
-			else {
-				// To dooooooooooooooo
+			} else {
+				showAlert("error", res.statusText);
 			}
 		} catch (e) {
-			console.error("Fatal error");
+			console.error("Can't edit the channel");
 		}
 	}
 
@@ -179,21 +186,13 @@ export default function EditChannel() {
 						Protected
 					</label>
 				</div>
-				{/* <Input
-				icon="fa-solid fa-at"
-				type="text"
-				name="title"
-				placeholder="New chan title"
-				value={formValues.title}
-				onChange={handleInputChange}
-			/> */}
 				{chanProtected && (
 					<>
 						<Input
 							icon="fa-solid fa-lock"
 							type="password"
 							name="password"
-							placeholder="********"
+							placeholder="****"
 							value={formValues.password || ""}
 							onChange={handleInputChange}
 						/>
@@ -202,8 +201,6 @@ export default function EditChannel() {
 			</>
 		);
 	}
-
-	// = Array.isArray(channelState) ? channelState.map(({ id, title, password, type, mode}) => {
 
 	return (
 		<div className="container d-flex flex-column justify-content align-items">
