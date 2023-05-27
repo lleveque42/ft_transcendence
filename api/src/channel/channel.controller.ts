@@ -34,10 +34,12 @@ export class ChannelController {
 	): Promise<Channel[]> {
 		try {
 			const user = await this.userService.getUserByUserName(userName);
-			if (!user){throw new ForbiddenException("User doesn't exist")}
+			if (!user) {
+				throw new ForbiddenException("User doesn't exist");
+			}
 			const channels = await this.channelService.getPublicChannelsToJoin(
 				user.id,
-			)
+			);
 			return channels;
 		} catch (e) {
 			throw new HttpException(e.message, HttpStatus.FORBIDDEN);
@@ -139,9 +141,9 @@ export class ChannelController {
 				},
 				body.username,
 			);
-			res.json("OK");
+			res.status(201);
 		} catch (e) {
-			res.json("Duplicate");
+			throw new HttpException(e.message, HttpStatus.FORBIDDEN);
 		}
 	}
 
@@ -149,7 +151,7 @@ export class ChannelController {
 	@Post("edit_channel")
 	async editChannel(@Body() body, @Res({ passthrough: true }) res: Response) {
 		try {
-			const chan = await this.channelService.updateChannel(
+			await this.channelService.updateChannel(
 				{
 					title: body.title,
 					type: body.type,
@@ -158,9 +160,9 @@ export class ChannelController {
 				},
 				body.oldTitle,
 			);
-			res.json("OK");
+			res.status(201);
 		} catch (e) {
-			res.json("Error while updating");
+			throw new HttpException(e.message, HttpStatus.FORBIDDEN);
 		}
 	}
 
@@ -171,14 +173,13 @@ export class ChannelController {
 		@Res({ passthrough: true }) res: Response,
 	) {
 		try {
-			const chan = await this.channelService.leaveFromChannel(
+			await this.channelService.leaveFromChannel(
 				body.userName,
 				body.id,
 				body.room,
 			);
-			res.json("OK");
 		} catch (e) {
-			res.json("Error while leaving");
+			throw new HttpException(e.message, HttpStatus.FORBIDDEN);
 		}
 	}
 
@@ -189,13 +190,9 @@ export class ChannelController {
 		@Res({ passthrough: true }) res: Response,
 	) {
 		try {
-			const chan = await this.channelService.kickFromChannel(
-				body.userName,
-				body.id,
-			);
-			res.json("OK");
+			await this.channelService.kickFromChannel(body.userName, body.id);
 		} catch (e) {
-			res.json("Error while kicking");
+			throw new HttpException(e.message, HttpStatus.FORBIDDEN);
 		}
 	}
 
@@ -206,13 +203,9 @@ export class ChannelController {
 		@Res({ passthrough: true }) res: Response,
 	) {
 		try {
-			const chan = await this.channelService.banFromChannel(
-				body.userName,
-				body.id,
-			);
-			res.json("OK");
+			await this.channelService.banFromChannel(body.userName, body.id);
 		} catch (e) {
-			res.json("Error while banishing");
+			throw new HttpException(e.message, HttpStatus.FORBIDDEN);
 		}
 	}
 
@@ -225,9 +218,9 @@ export class ChannelController {
 				body.userId,
 				body.mutedEnd,
 			);
-			res.json("OK");
+			return chan;
 		} catch (e) {
-			res.json("Error while muting");
+			throw new HttpException(e.message, HttpStatus.FORBIDDEN);
 		}
 	}
 
@@ -242,9 +235,8 @@ export class ChannelController {
 				body.userName,
 				body.id,
 			);
-			res.json("OK");
 		} catch (e) {
-			res.json("Error while adminishing");
+			throw new HttpException(e.message, HttpStatus.FORBIDDEN);
 		}
 	}
 
@@ -327,8 +319,8 @@ export class ChannelController {
 	): Promise<void> {
 		try {
 			const users = await this.channelService.addToChannel(
-				body.title ,
-				body.userId
+				body.title,
+				body.userId,
 			);
 		} catch (e) {
 			throw new HttpException(e.message, HttpStatus.NOT_FOUND);
@@ -337,13 +329,13 @@ export class ChannelController {
 
 	@UseGuards(AtGuard)
 	@Post("secret")
-	async checkSecret(@Body() body, @GetCurrentUser("sub") userName: string, @Res({ passthrough: true }) res: Response): Promise<void> {
+	async checkSecret(
+		@Body() body,
+		@GetCurrentUser("sub") userName: string,
+		@Res({ passthrough: true }) res: Response,
+	): Promise<void> {
 		try {
-			await this.channelService.checkSecret(
-				body.chanId,
-				body.secret,
-				userName,
-			);
+			await this.channelService.checkSecret(body.chanId, body.secret, userName);
 		} catch (e) {
 			throw new HttpException(e.message, HttpStatus.FORBIDDEN);
 		}

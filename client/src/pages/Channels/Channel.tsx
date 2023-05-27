@@ -172,7 +172,7 @@ export default function Channel() {
 				unMuted = isAfter(currentTime.getTime(), newDate.getTime());
 			}
 			if (unMuted) {
-				// Might be worthy to delete the mutedList item
+				//Might be worthy to delete the mutedList item
 			}
 			if (
 				!chanInfo?.mutedList?.some(
@@ -279,13 +279,13 @@ export default function Channel() {
 					body: JSON.stringify(data),
 				},
 			);
-			chatSocket?.emit("blockUser", toEmit);
 			if (res.status === 201) {
+				chatSocket?.emit("exitChatRoom", toEmit);
 				setInfoBool(true);
 				setuserBool(false);
 				setInviteBool(false);
 			} else {
-				// To dOOOOOOOOOOOOOO
+				showAlert("error", res.statusText);
 			}
 		} catch (e) {
 			console.error("Error kicking from channel");
@@ -316,13 +316,15 @@ export default function Channel() {
 					body: JSON.stringify(data),
 				},
 			);
-			chatSocket?.emit("blockUser", toEmit);
 			if (res.status === 201) {
+				chatSocket?.emit("blockUser", toEmit);
 				showAlert("success", userBottomName + " has been blocked");
 				setInfoBool(true);
 				setuserBool(false);
 				setInviteBool(false);
 				isAuth();
+			} else {
+				showAlert("error", res.statusText);
 			}
 		} catch (e) {
 			console.error("Error blocking from user");
@@ -362,7 +364,7 @@ export default function Channel() {
 				setuserBool(false);
 				setInviteBool(false);
 			} else {
-				// To dooooooooooooooo
+				showAlert("error", res.statusText);
 			}
 		} catch (e) {
 			console.error("Error bannishing from channel");
@@ -402,7 +404,7 @@ export default function Channel() {
 				setuserBool(false);
 				setInviteBool(false);
 			} else {
-				// To dooooooooooooooo
+				showAlert("error", res.statusText);
 			}
 		} catch (e) {
 			console.error("Error muting from channel");
@@ -434,7 +436,7 @@ export default function Channel() {
 				setuserBool(false);
 				setInviteBool(false);
 			} else {
-				// To dooooooooooooooo
+				showAlert("error", res.statusText);
 			}
 		} catch (e) {
 			console.error("Error adminishing from channel");
@@ -544,7 +546,11 @@ export default function Channel() {
 				navigate(-1);
 			} else if (username === user.userName && mode === "admin") {
 				showAlert("success", "You've been made " + mode + " of " + chan.title);
-			} else if (username !== user.userName && mode === "leave") {
+			} else if (
+				username !== user.userName &&
+				mode === "leave" &&
+				chanInfo?.title === chan.title
+			) {
 				showAlert("success", username + " leaved the channel");
 			} else if (username === user.userName && mode === "mute") {
 				showAlert("success", "You've been muted 30 seconds from this channel");
@@ -572,7 +578,6 @@ export default function Channel() {
 				return chan;
 			});
 		};
-
 		socket?.on("userNameUpdatedChannel", updateUsernameListener);
 		chatSocket?.on("kickOrBanOrLeaveFromChannel", chanListener);
 		chatSocket?.on("userJoinedChan", chanListener);

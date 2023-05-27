@@ -447,32 +447,19 @@ export class UserService {
 		});
 	}
 
-	async blockUser(
-		userTopName: string,
-		userTopId: number,
-		userBottomName: string,
-		userBottomId: number,
-	) {
-		try {
-			const chan = await this.prisma.user.update({
-				where: {
-					id: userTopId,
+	async blockUser(userTopId: number, userBottomId: number) {
+		const user = await this.prisma.user.update({
+			where: {
+				id: userTopId,
+			},
+			data: {
+				blockList: {
+					connect: { id: userBottomId },
 				},
-				data: {
-					blockList: {
-						connect: { id: userBottomId },
-					},
-				},
-			});
-		} catch (error) {
-			if (
-				error instanceof Prisma.PrismaClientKnownRequestError &&
-				error.code === "P2002"
-			) {
-				throw new ForbiddenException("Duplicate key value");
-			} else {
-				console.log("Error in update");
-			}
+			},
+		});
+		if (!user) {
+			throw new ForbiddenException("Error while updating user");
 		}
 	}
 }

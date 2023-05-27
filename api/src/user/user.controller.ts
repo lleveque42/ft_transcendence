@@ -173,18 +173,14 @@ export class UserController {
 		}
 	}
 
+	@UseGuards(AtGuard)
 	@Post("block")
 	async BlockUser(@Body() body, @Res({ passthrough: true }) res: Response) {
 		try {
-			const chan = await this.userService.blockUser(
-				body.userTopName,
-				body.userTopId,
-				body.userBottomName,
-				body.userBottomId,
-			);
-			res.json("OK");
+			await this.userService.blockUser(body.userTopId, body.userBottomId);
+			res.status(201);
 		} catch (e) {
-			res.json("Error while banishing");
+			throw new HttpException(e.message, e.status);
 		}
 	}
 }

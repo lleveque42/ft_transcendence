@@ -14,7 +14,7 @@ type FormValues = {
 export default function JoinChannel() {
 	const { accessToken, user } = useUser();
 	const [channelsState, setChannelsState] = useState<ChannelModel[]>([]);
-	const {chatSocket} = usePrivateRouteSocket();
+	const { chatSocket } = usePrivateRouteSocket();
 	const socket = usePrivateRouteSocket();
 	const { showAlert } = useAlert();
 
@@ -39,14 +39,31 @@ export default function JoinChannel() {
 	}, [user.userName, accessToken]);
 
 	useEffect(() => {
-		const chanListener = (chan: ChannelModel, username: string, mode : string) => {
-			setChannelsState([...channelsState , chan ]);
-		}
-		chatSocket?.on("addChannelToJoin", chanListener)
+		const chanListener = (
+			chan: ChannelModel,
+			username: string,
+			mode: string,
+		) => {
+			const match = channelsState.some((el) => {
+				return el.id === chan.id;
+			});
+			if (!match && chan.mode === "Public") {
+				setChannelsState([...channelsState, chan]);
+			} else if (
+				match &&
+				(chan.mode === "Private" || chan.mode === "Protected")
+			) {
+				const filterChans = channelsState.filter((el) => {
+					return el.id != chan.id;
+				});
+				setChannelsState(filterChans);
+			}
+		};
+		chatSocket?.on("addChannelToJoin", chanListener);
 		return () => {
-			chatSocket?.off("addChannelToJoin",);
-		}
-	  }, [chatSocket, channelsState])
+			chatSocket?.off("addChannelToJoin");
+		};
+	}, [chatSocket, channelsState]);
 
 	async function handleClick(channelId: number, title: string) {
 		const formValues: FormValues = {
@@ -54,20 +71,23 @@ export default function JoinChannel() {
 			channelId: channelId,
 		};
 		try {
-			const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/channels/join_channel`, {
-				method: "POST",
-				credentials: "include",
-				headers: {
-					"Content-Type": "application/json",
-					Authorization: `Bearer ${accessToken}`,
+			const res = await fetch(
+				`${process.env.REACT_APP_BACKEND_URL}/channels/join_channel`,
+				{
+					method: "POST",
+					credentials: "include",
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `Bearer ${accessToken}`,
+					},
+					body: JSON.stringify(formValues),
 				},
-				body: JSON.stringify(formValues),
-			});
+			);
 			if (res.status === 201) {
 				socket.chatSocket?.emit("joinChatRoom", title);
 				showAlert("success", `You've been add to the chan`);
 				navigate(`/chat/channels/${title}`);
-			}else {
+			} else {
 				showAlert("error", "This channel doesn't exist");
 				navigate(`/chat/channels`);
 			}
@@ -79,20 +99,24 @@ export default function JoinChannel() {
 	const channelsList = channelsState.map(({ id, title, ownerId }) => {
 		return (
 			<li key={id}>
-			<div>
-				{user.id !== ownerId ? (
-					<>
-						<button className={` btn-primary m-10`} value={id} onClick={()=> handleClick(id, title)}>
-							{title}
-						</button>
-					</>
-				) : (
-					<>
-					</>
-				)}
-			</div>
-		</li>
-)} );
+				<div>
+					{user.id !== ownerId ? (
+						<>
+							<button
+								className={` btn-primary m-10`}
+								value={id}
+								onClick={() => handleClick(id, title)}
+							>
+								{title}
+							</button>
+						</>
+					) : (
+						<></>
+					)}
+				</div>
+			</li>
+		);
+	});
 
 	return (
 		<div className="d-flex flex-column align-items flex-1">

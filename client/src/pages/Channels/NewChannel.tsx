@@ -49,17 +49,15 @@ export default function NewChannel() {
 
 	async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
 		event.preventDefault();
-		
+
 		formValues.username = user.userName;
 		formValues.type = "Channel";
 		formValues.mode = radioValue;
 		if (formValues.mode !== "Protected") {
 			formValues.password = "";
-		}
-		else if (!formValues.password || formValues.password === "")
-		{
+		} else if (!formValues.password || formValues.password === "") {
 			showAlert("error", "The password must be not empty");
-			return ;
+			return;
 		}
 		try {
 			const res: Response = await fetch(
@@ -75,21 +73,17 @@ export default function NewChannel() {
 				},
 			);
 			if (res.status === 201) {
-				const body = await res.json();
-				if (body != null && body === "Duplicate"){
-					showAlert("error", "Channel " + formValues.title + " already exists");
-				}
-				else{
-					showAlert("success", "Channel " + formValues.title + " created with success");
-					socket.chatSocket?.emit("joinChatRoom",formValues.title);
-					navigate("/chat/channels");
-				}
-			}
-			else{
-				// to doooo
+				showAlert(
+					"success",
+					"Channel " + formValues.title + " created with success",
+				);
+				socket.chatSocket?.emit("joinChatRoom", formValues.title);
+				navigate("/chat/channels");
+			} else {
+				showAlert("error", "Channel " + formValues.title + " already exists");
 			}
 		} catch (e) {
-			console.error("Fatal error");
+			console.error("Error while creating channel");
 		}
 	}
 
