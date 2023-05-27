@@ -233,6 +233,7 @@ export class UserService {
 				blockList: true,
 			},
 		});
+		if (!users){throw new ForbiddenException("Can't retrieve The users")}
 		return users;
 	}
 

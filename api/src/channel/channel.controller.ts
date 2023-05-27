@@ -2,6 +2,7 @@ import {
 	Body,
 	Controller,
 	Delete,
+	ForbiddenException,
 	Get,
 	HttpCode,
 	HttpException,
@@ -44,12 +45,13 @@ export class ChannelController {
 	): Promise<Channel[]> {
 		try {
 			const user = await this.userService.getUserByUserName(userName);
+			if (!user){throw new ForbiddenException("User doesn't exist")}
 			const channels = await this.channelService.getPublicChannelsToJoin(
 				user.id,
-			);
+			)
 			return channels;
 		} catch (e) {
-			throw new HttpException(e.message, e.status);
+			throw new HttpException(e.message, HttpStatus.FORBIDDEN);
 		}
 	}
 
@@ -60,7 +62,7 @@ export class ChannelController {
 			const channels = await this.channelService.getUsersChannels(username);
 			return channels;
 		} catch (e) {
-			throw new HttpException(e.message, e.status);
+			throw new HttpException(e.message, HttpStatus.FORBIDDEN);
 		}
 	}
 
@@ -75,7 +77,7 @@ export class ChannelController {
 			);
 			return channels;
 		} catch (e) {
-			throw new HttpException(e.message, e.status);
+			throw new HttpException(e.message, HttpStatus.FORBIDDEN);
 		}
 	}
 	
@@ -86,7 +88,7 @@ export class ChannelController {
 			const msgs = await this.channelService.getChanMessages(userName, title);
 			return msgs;
 		} catch (e) {
-			throw new HttpException(e.message, e.status);
+			throw new HttpException(e.message, HttpStatus.FORBIDDEN);
 		}
 	}
 
@@ -97,7 +99,7 @@ export class ChannelController {
 			const chan = await this.channelService.getChannelByTitle(title);
 			return chan;
 		} catch (e) {
-			throw new HttpException(e.message, e.status);
+			throw new HttpException(e.message, HttpStatus.FORBIDDEN);
 		}
 	}
 
@@ -110,7 +112,7 @@ export class ChannelController {
 			const msgs = await this.channelService.getDMsMessages(userName, title);
 			return msgs;
 		} catch (e) {
-			throw new HttpException(e.message, e.status);
+			throw new HttpException(e.message, HttpStatus.FORBIDDEN);
 		}
 	}
 
@@ -123,7 +125,7 @@ export class ChannelController {
 			const users = await this.userService.getJoignableUsers(userName);
 			return users;
 		} catch (e) {
-			throw new HttpException(e.message, e.status);
+			throw new HttpException(e.message, HttpStatus.FORBIDDEN);
 		}
 	}
 
@@ -284,7 +286,7 @@ export class ChannelController {
 				body.channelId,
 			);
 		} catch (e) {
-			throw new HttpException(e.message, e.status);
+			throw new HttpException(e.message, HttpStatus.FORBIDDEN);
 		}
 	}
 
