@@ -34,10 +34,12 @@ export class ChannelController {
 	): Promise<Channel[]> {
 		try {
 			const user = await this.userService.getUserByUserName(userName);
-			if (!user){throw new ForbiddenException("User doesn't exist")}
+			if (!user) {
+				throw new ForbiddenException("User doesn't exist");
+			}
 			const channels = await this.channelService.getPublicChannelsToJoin(
 				user.id,
-			)
+			);
 			return channels;
 		} catch (e) {
 			throw new HttpException(e.message, HttpStatus.FORBIDDEN);
@@ -250,10 +252,7 @@ export class ChannelController {
 
 	@UseGuards(AtGuard)
 	@Post("create_join_dm")
-	async createDM(
-		@Body() body: createDmDto,
-		@Res({ passthrough: true }) res: Response,
-	): Promise<void> {
+	async createDM(@Body() body: createDmDto): Promise<void> {
 		try {
 			await this.channelService.createDM(
 				{
@@ -265,9 +264,8 @@ export class ChannelController {
 				body.id1,
 				body.id2,
 			);
-			res.json("OK");
 		} catch (e) {
-			res.json("Duplicate");
+			throw new HttpException(e.message, e.status);
 		}
 	}
 
@@ -277,8 +275,6 @@ export class ChannelController {
 		@GetCurrentUser("sub") userName: string,
 		@Body() body: titleDmDto,
 	) {
-		console.log("Title", body);
-
 		try {
 			await this.channelService.deleteDm(userName, body.title);
 		} catch (e) {
@@ -327,8 +323,8 @@ export class ChannelController {
 	): Promise<void> {
 		try {
 			const users = await this.channelService.addToChannel(
-				body.title ,
-				body.userId
+				body.title,
+				body.userId,
 			);
 		} catch (e) {
 			throw new HttpException(e.message, HttpStatus.NOT_FOUND);
@@ -337,13 +333,13 @@ export class ChannelController {
 
 	@UseGuards(AtGuard)
 	@Post("secret")
-	async checkSecret(@Body() body, @GetCurrentUser("sub") userName: string, @Res({ passthrough: true }) res: Response): Promise<void> {
+	async checkSecret(
+		@Body() body,
+		@GetCurrentUser("sub") userName: string,
+		@Res({ passthrough: true }) res: Response,
+	): Promise<void> {
 		try {
-			await this.channelService.checkSecret(
-				body.chanId,
-				body.secret,
-				userName,
-			);
+			await this.channelService.checkSecret(body.chanId, body.secret, userName);
 		} catch (e) {
 			throw new HttpException(e.message, HttpStatus.FORBIDDEN);
 		}

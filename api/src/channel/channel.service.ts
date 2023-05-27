@@ -334,10 +334,16 @@ export class ChannelService {
 		userId1: number,
 		userId2: number,
 	) {
+		const chanAlreadyExist = await this.prisma.channel.findUnique({
+			where: {
+				title: newChannel.title,
+			},
+		});
+		if (chanAlreadyExist)
+			throw new HttpException("Dm already exists", HttpStatus.FOUND);
 		let hash: string = null;
-		if (newChannel.password && newChannel.password !== "") {
+		if (newChannel.password && newChannel.password !== "")
 			hash = await argon2.hash(newChannel.password);
-		}
 		try {
 			const chan = await this.prisma.channel.create({
 				data: {
@@ -354,7 +360,7 @@ export class ChannelService {
 					},
 				},
 			});
-			const updatedChannel = await this.prisma.channel.update({
+			await this.prisma.channel.update({
 				where: { id: chan.id },
 				data: {
 					operators: {
@@ -366,12 +372,7 @@ export class ChannelService {
 				},
 			});
 		} catch (error) {
-			if (
-				error instanceof Prisma.PrismaClientKnownRequestError &&
-				error.code === "P2002"
-			) {
-				throw new ForbiddenException("Duplicate key value");
-			}
+			throw new ForbiddenException("Error creating Dm");
 		}
 	}
 
@@ -390,30 +391,35 @@ export class ChannelService {
 	}
 
 	async joinPublicChannel(userId: number, channelId: number) {
-
 		const user = await this.prisma.user.findUnique({
-			where :{
-				id : userId,
-			}
-		})
-		if (!user){throw  new ForbiddenException("User does'nt exist");}
+			where: {
+				id: userId,
+			},
+		});
+		if (!user) {
+			throw new ForbiddenException("User does'nt exist");
+		}
 
 		const channel = await this.prisma.channel.findUnique({
-		where: { id: channelId },
-		include: { members: true },
+			where: { id: channelId },
+			include: { members: true },
 		});
 
 		if (channel) {
-			const memberExists = channel.members.some(member => member.id === userId);
+			const memberExists = channel.members.some(
+				(member) => member.id === userId,
+			);
 			if (memberExists) {
-				throw  new ForbiddenException("User already in channel");
+				throw new ForbiddenException("User already in channel");
 			} else {
 				const updatedChannel = await this.prisma.channel.update({
 					where: { id: channelId },
 					data: { members: { connect: { id: userId } } },
 				});
-				if (!updatedChannel){throw  new ForbiddenException("Can't update the channel");}
-			}		
+				if (!updatedChannel) {
+					throw new ForbiddenException("Can't update the channel");
+				}
+			}
 		}
 	}
 
@@ -472,17 +478,21 @@ export class ChannelService {
 				},
 			},
 		});
-		if (!chans){throw new ForbiddenException("Error while retrieving the channels")}
+		if (!chans) {
+			throw new ForbiddenException("Error while retrieving the channels");
+		}
 		return chans;
 	}
 
-	async getUsersChannels(username : string) {
+	async getUsersChannels(username: string) {
 		const user = await this.prisma.user.findUnique({
 			where: {
 				userName: username,
 			},
 		});
-		if (!user){throw  new ForbiddenException("User does'nt exist");}
+		if (!user) {
+			throw new ForbiddenException("User does'nt exist");
+		}
 
 		const chans = await this.prisma.channel.findMany({
 			include: {
@@ -501,7 +511,9 @@ export class ChannelService {
 				},
 			},
 		});
-		if (!chans){throw  new ForbiddenException("Can't retrieve channels");}
+		if (!chans) {
+			throw new ForbiddenException("Can't retrieve channels");
+		}
 		return chans;
 	}
 
@@ -511,7 +523,9 @@ export class ChannelService {
 				userName: username,
 			},
 		});
-		if (!user){throw  new ForbiddenException("User does'nt exist");}
+		if (!user) {
+			throw new ForbiddenException("User does'nt exist");
+		}
 
 		const chans = await this.prisma.channel.findMany({
 			include: {
@@ -530,17 +544,21 @@ export class ChannelService {
 				},
 			},
 		});
-		if (!chans){throw new ForbiddenException("Error while retrieving the channels")}
+		if (!chans) {
+			throw new ForbiddenException("Error while retrieving the channels");
+		}
 		return chans;
 	}
 
-	async getUserDirectMessages(username : string) {
+	async getUserDirectMessages(username: string) {
 		const user = await this.prisma.user.findUnique({
 			where: {
 				userName: username,
 			},
 		});
-		if (!user){throw  new ForbiddenException("User does'nt exist");}
+		if (!user) {
+			throw new ForbiddenException("User does'nt exist");
+		}
 
 		const chans = await this.prisma.channel.findMany({
 			include: {
@@ -561,11 +579,13 @@ export class ChannelService {
 				type: "DM",
 			},
 		});
-		if (!chans){throw new ForbiddenException("Error while retrieving the channels")}
+		if (!chans) {
+			throw new ForbiddenException("Error while retrieving the channels");
+		}
 		return chans;
 	}
 
-	async getChanMessages(userName : string, title : string) {
+	async getChanMessages(userName: string, title: string) {
 		const chan = await this.prisma.channel.findUnique({
 			where: {
 				title: title,
@@ -678,7 +698,7 @@ export class ChannelService {
 				userName: true,
 			},
 		});
-		if (!membersNotInChannel || !membersBanned){
+		if (!membersNotInChannel || !membersBanned) {
 			throw new ForbiddenException("Can't retrieve invite list");
 		}
 		const filteredMembers = membersNotInChannel.filter((member) => {
@@ -707,34 +727,39 @@ export class ChannelService {
 			throw new ForbiddenException("Can't add a user in chan");
 		}
 	}
-	
-	async checkSecret( chanId : number, secret : string, userName : string) : Promise<void> {
+
+	async checkSecret(
+		chanId: number,
+		secret: string,
+		userName: string,
+	): Promise<void> {
 		const channel = await this.prisma.channel.findUnique({
 			where: {
-				id : chanId,
+				id: chanId,
 			},
-			include : {
-				members : true,
-			}
+			include: {
+				members: true,
+			},
 		});
 		const user = await this.userService.getUserByUserName(userName);
 
 		if (channel && user) {
-			const memberExists = channel.members.some(member => member.id === user.id);
+			const memberExists = channel.members.some(
+				(member) => member.id === user.id,
+			);
 			if (memberExists) {
 				let hash: string = null;
 				if (channel && secret && secret !== "") {
 					hash = await argon2.hash(secret);
 					if (await argon2.verify(channel.password, secret)) {
 						return;
-					}
-					else {
+					} else {
 						throw new ForbiddenException("Password doesn't match");
 					}
 				}
 			} else {
-				throw  new ForbiddenException("User not in channel");
-			}		
+				throw new ForbiddenException("User not in channel");
+			}
 		}
 	}
 }

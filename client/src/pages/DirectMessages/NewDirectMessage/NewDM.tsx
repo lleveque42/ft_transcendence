@@ -66,21 +66,17 @@ export default function NewDM() {
 		formValues.password = "";
 		try {
 			const res = await createDmRequest(accessToken, formValues);
-			if (res.status === 201) {
-				const body = await res.json();
-				if (body != null && body === "Duplicate") {
-					showAlert("error", "This conversation already exists");
-				} else {
-					showAlert("success", "A private message connection is established");
-					socket.chatSocket?.emit("joinDMRoom", {
-						room: formValues.title,
-						userId2: formValues.id2,
-						userId: formValues.id1,
-					});
-				}
+			if (res.status === 201 || res.status === 302) {
+				showAlert("success", "Enjoy your chat :)");
+				socket.chatSocket?.emit("joinDMRoom", {
+					room: formValues.title,
+					userId2: formValues.id2,
+					userId: formValues.id1,
+				});
 				navigate(`/chat/direct_messages/${formValues.title}`);
-			}
+			} else showAlert("error", "An error occured, try again later");
 		} catch (e) {
+			showAlert("error", "An error occured, try again later");
 			console.error("Error joining channel");
 		}
 	}
@@ -114,17 +110,15 @@ export default function NewDM() {
 	}, [chatSocket, usersState]);
 
 	return (
-		<div className="container d-flex flex-column justify-content align-items">
-			<div className="title">Start a new private chat</div>
-			<div>
-				<ChatNav />
-				<div className="d-flex flex-column align-items justify-content p-20">
-					{usersList.length !== 0 ? (
-						<ul>{usersList}</ul>
-					) : (
-						<div>There are no private messages avalaible for you</div>
-					)}
-				</div>
+		<div className="d-flex flex-column justify-content flex-1">
+			<div className="title mt-20">Talk to someone</div>
+			<ChatNav />
+			<div className="d-flex flex-column justify-content p-20 flex-1">
+				{usersList.length !== 0 ? (
+					<ul>{usersList}</ul>
+				) : (
+					<div>There are no private messages avalaible for you</div>
+				)}
 			</div>
 		</div>
 	);
