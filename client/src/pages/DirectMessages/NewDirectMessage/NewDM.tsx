@@ -7,6 +7,8 @@ import { usePrivateRouteSocket } from "../../../context/PrivateRouteProvider";
 import { useAlert } from "../../../context/AlertProvider";
 import { UserModel } from "../../../entities/entities";
 import { createDmRequest, usersListDmRequest } from "../../../api";
+import styles from "./NewDM.module.scss";
+import trimUserName from "../../../utils/trimUserName";
 
 type FormValues = {
 	title: string;
@@ -85,12 +87,14 @@ export default function NewDM() {
 		setUsersList(
 			usersState.map((el) => {
 				return (
-					<li
-						key={el.id}
-						id={el.id.toString(10)}
-						onClick={() => createDm(el.id)}
-					>
-						{el.userName}
+					<li className={styles.listElems} key={el.id} id={el.id.toString(10)}>
+						<p>{trimUserName(el.userName)}</p>
+						<button
+							className="btn btn-reverse-primary pl-10 pr-10"
+							onClick={() => createDm(el.id)}
+						>
+							Message
+						</button>
 					</li>
 				);
 			}),
@@ -110,42 +114,18 @@ export default function NewDM() {
 	}, [chatSocket, usersState]);
 
 	return (
-		<div className="d-flex flex-column justify-content flex-1">
+		<div className="d-flex flex-column align-items flex-1">
 			<div className="title mt-20">Talk to someone</div>
 			<ChatNav />
-			<div className="d-flex flex-column justify-content p-20 flex-1">
+			<div className={` ${styles.newDmListContainer} d-flex flex-column p-20`}>
 				{usersList.length !== 0 ? (
 					<ul>{usersList}</ul>
 				) : (
-					<div>There are no private messages avalaible for you</div>
+					<p className="d-flex flex-column align-items">
+						There are no private messages avalaible for you...
+					</p>
 				)}
 			</div>
 		</div>
 	);
 }
-// {
-/* return (
-		<div className="d-flex flex-column align-items flex-1">
-			<div className="title mt-20">New DM</div>
-			<ChatNav />
-			<div className={`${styles.dmListContainer}`}>
-				{userList.length ? (
-					<ul>
-						{userList.map((u, i) => (
-							<p
-								key={u.id}
-								id={u.id.toString(10)}
-								onClick={createDm}
-								className={styles.listElems}
-							>
-								{u.userName}
-							</p>
-						))}
-					</ul>
-				) : (
-					<div className="d-flex align-items justify-content m-30">
-						There are no new private messages avalaible for you...
-					</div>
-				)}
-			</div>) */
-// }

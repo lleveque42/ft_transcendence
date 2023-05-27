@@ -30,7 +30,8 @@ export default function DirectMessage() {
 	const messagesListRef = useRef<HTMLDivElement>(null);
 
 	const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-		if (event.key === "Enter" && value !== "") {
+		const trimedValue = value.trim();
+		if (event.key === "Enter" && trimedValue.length > 0) {
 			chatSocket?.emit("chanMessage", { room: id, message: value });
 			setValue("");
 			const inputValue: HTMLElement | null = document.getElementById("newMsg");
@@ -131,7 +132,7 @@ export default function DirectMessage() {
 				<div className={`d-flex flex-column align-items flex-1`}>
 					<div className="title mt-20">Chat</div>
 					<ChatNav />
-					<div className={`${styles.dmHeader} d-flex flex-row mt-30`}>
+					<div className={`${styles.dmHeader} d-flex flex-row mt-20`}>
 						<h2
 							onClick={() => navigate(`/user/${otherUser?.userName}`)}
 							className="d-flex"
@@ -146,7 +147,7 @@ export default function DirectMessage() {
 									invited: otherUser?.id,
 								})
 							}
-							className="d-flex btn btn-reverse-primary p-5 ml-30"
+							className="d-flex btn btn-reverse-play p-5 ml-30"
 						>
 							Invite to play
 						</button>
@@ -155,8 +156,8 @@ export default function DirectMessage() {
 						{messagesState.length ? (
 							<ul className="mt-10">{messagesList}</ul>
 						) : (
-							<p className="mt-20">
-								Start the conversation with {otherUser?.userName}
+							<p className="d-flex justify-content mt-20">
+								Start the conversation with {trimUserName(otherUser?.userName)}
 							</p>
 						)}
 					</div>

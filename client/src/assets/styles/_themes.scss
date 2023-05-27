@@ -44,6 +44,12 @@
 		border: 2px solid var(--success);
 	}
 
+	&-reverse-play {
+		@extend .btn;
+		color: var(--yellow);
+		background-color: var(--dark-grey);
+		border: 2px solid var(--yellow);
+	}
 
 	&:hover {
 		transition: 0.3s;
