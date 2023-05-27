@@ -226,8 +226,6 @@ export class ServerGateway
 			mode: string;
 		},
 	): Promise<void> {
-		console.log(data);
-		console.log(data.room);
 		this.io
 			.to(data.id)
 			.emit(

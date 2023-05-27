@@ -554,8 +554,14 @@ export default function Channel() {
 				chanInfo?.title === chan.title
 			) {
 				showAlert("success", username + " leaved the channel");
-			} else if (username === user.userName && mode === "mute") {
+			} else if (
+				username === user.userName &&
+				mode === "mute" &&
+				chan.title === chanInfo?.title
+			) {
 				showAlert("success", "You've been muted 30 seconds from this channel");
+			} else {
+				return;
 			}
 			setChanInfo(chan);
 		};
