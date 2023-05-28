@@ -11,6 +11,8 @@ export type UserContextType = {
 	isTfaEnable: boolean;
 	status: UserStatus;
 	blockList: { id: number; userName: string }[];
+	wins: number,
+	losses: number,
 	friends: Friend[];
 };
 
@@ -36,6 +38,8 @@ const UserContext = createContext<UserContextValue>({
 		isTfaEnable: false,
 		status: UserStatus.ONLINE,
 		friends: [],
+		wins: 0,
+		losses: 0,
 		blockList: [],
 	},
 });
@@ -53,6 +57,8 @@ export type UserDataState = {
 	isTfaEnable: boolean;
 	status: UserStatus;
 	blockList: { id: number; userName: string }[];
+	wins: number;
+	losses: number;
 	friends: Friend[];
 };
 
@@ -67,6 +73,8 @@ export const UserProvider = ({ children }: UserProviderProps) => {
 		isTfaEnable: false,
 		status: UserStatus.ONLINE,
 		friends: [],
+		wins: 0,
+		losses: 0,
 		blockList: [],
 	});
 

@@ -11,6 +11,8 @@ export type UserDataRefresh = {
 	isTfaEnable: boolean;
 	status: UserStatus;
 	friends: { userName: string }[];
+	wins: number,
+	losses: number,
 	blockList: { id: number; userName: string }[];
 };
 

@@ -1,4 +1,4 @@
-@use "../../../assets/styles/mixins" as mixin;
+@use "../../../../assets/styles/mixins" as mixin;
 
 .friends {
 	color: var(--purple);
@@ -16,22 +16,6 @@
 		border-bottom: 1px solid var(--secondary-dark);
 		align-items: center;
 
-		h4:first-of-type {
-			min-width: 50%;
-		}
-
-		h4 {
-			font-size: 1.2rem;
-			color: var(--light-grey);
-			font-weight: 900;
-		}
-
-		@include mixin.sm-lt {
-			h4 {
-				font-size: 1.2rem;
-			}
-		}
-
 		.titleStatusBadge {
 			width: 0.7vw;
 			height: 0.7vw;
@@ -39,7 +23,7 @@
 		}
 
 		p:first-of-type {
-			min-width: 50%;
+			min-width: 57.5%;
 			cursor: pointer;
 			text-decoration: none;
 			text-decoration-color: transparent;
@@ -59,7 +43,7 @@
 
 		@include mixin.sm-lt {
 			p {
-				font-size: 1rem;
+				font-size: 0.7rem;
 			}
 		}
 
@@ -69,7 +53,7 @@
 
 		@include mixin.sm-lt {
 			i {
-				font-size: 5vw;
+				font-size: 1rem;
 			}
 		}
 
