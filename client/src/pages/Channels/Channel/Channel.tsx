@@ -12,6 +12,7 @@ import {
 import { usePrivateRouteSocket } from "../../../context/PrivateRouteProvider";
 import { useAlert } from "../../../context/AlertProvider";
 import { isAfter } from "date-fns";
+import styles from "./Channel.module.scss";
 
 export default function Channel() {
 	const { user, isAuth, accessToken } = useUser();
@@ -595,194 +596,184 @@ export default function Channel() {
 	}, [chatSocket, socket, navigate, showAlert, user.userName, chanInfo?.title]);
 
 	return (
-		<div className="container d-flex flex-column justify-content align-items">
-			<div className="title">Chat channels</div>
-			<div>
-				<ChatNav />
-				<h1 className="m-20">{id}</h1>
-				<div className="d-flex flex-raw justify-content-space-between">
-					{chanInfo?.mode === "Protected" && !authenticate ? (
-						<>
-							<div className="d-flex flex-column justify-content-space-between">
-								<h1>Enter the secret password</h1>
-								<input
-									className={`btn-primary m-20 d-flex flex-column justify-content align-items`}
-									onKeyDown={handleKeyDownPassword}
-									type="password"
-									name="secret"
-									id="secret"
-									onChange={(e) => {
-										setValue(e.target.value);
-									}}
-									value={value}
-								/>
-							</div>
-						</>
-					) : (
-						<>
+		<div className="d-flex flex-column align-items flex-1">
+			<div className="title mt-20">Chat channels</div>
+			<ChatNav />
+			<h1 className="m-20">{chanInfo?.title}</h1>
+			<div className="d-flex justify-content-space-between">
+				{chanInfo?.mode === "Protected" && !authenticate ? (
+					<>
+						<div className="d-flex flex-column justify-content-space-between">
+							<h1>Enter the secret password</h1>
+							<input
+								className={`btn-primary m-20 d-flex flex-column justify-content align-items`}
+								onKeyDown={handleKeyDownPassword}
+								type="password"
+								name="secret"
+								id="secret"
+								onChange={(e) => {
+									setValue(e.target.value);
+								}}
+								value={value}
+							/>
+						</div>
+					</>
+				) : (
+					<>
+						<div className="d-flex flex-column">
+							{
+								<>
+									<div className="d-flex flex-column justify-content">
+										<ul className="List">{messagesList}</ul>
+									</div>
+								</>
+							}
+							<input
+								id="newMsg"
+								className={`btn-primary m-20 d-flex flex-column justify-content align-items`}
+								onKeyDown={handleKeyDown}
+								onChange={(e) => {
+									setValue(e.target.value);
+								}}
+								type="text"
+								placeholder="Write a message"
+								value={value}
+							/>
+						</div>
+						{infoBool && (
 							<div className="d-flex flex-column">
-								{
-									<>
-										<div className="d-flex flex-column justify-content">
-											<ul className="List">{messagesList}</ul>
-										</div>
-									</>
-								}
-								<input
-									id="newMsg"
-									className={`btn-primary m-20 d-flex flex-column justify-content align-items`}
-									onKeyDown={handleKeyDown}
-									onChange={(e) => {
-										setValue(e.target.value);
+								<div
+									className={`btn-primary m-20`}
+									onClick={() => {
+										handleInviteListClick();
 									}}
-									type="text"
-									placeholder="Write a message"
-									value={value}
-								/>
+								>
+									Invite
+								</div>
+								<div>
+									<h2 className="ml-10">Users List</h2>
+									<ul>
+										{chanInfo?.members.map((member) => {
+											const username = member.userName;
+											const userId = member.id;
+											return (
+												<li
+													onClick={() => handleMsgClick(username, userId)}
+													key={userId}
+													className="ml-10"
+												>
+													{username}
+												</li>
+											);
+										})}
+									</ul>
+								</div>
 							</div>
-							{infoBool && (
-								<div className="d-flex flex-column">
-									<div
-										className={`btn-primary m-20`}
-										onClick={() => {
-											handleInviteListClick();
-										}}
-									>
-										Invite
-									</div>
-									<div>
-										<h2 className="ml-10">Users List</h2>
-										<ul>
-											{chanInfo?.members.map((member) => {
-												const username = member.userName;
-												const userId = member.id;
-												return (
-													<li
-														onClick={() => handleMsgClick(username, userId)}
-														key={userId}
-														className="ml-10"
-													>
-														{username}
-													</li>
-												);
-											})}
-										</ul>
-									</div>
-								</div>
-							)}
-							{userBool && chanInfo && (
-								<div className="d-flex flex-column">
-									<h2 className="ml-10">Manage {currentUserName}</h2>
-									<NavLink
-										className="btn-primary ml-10 d-flex justify-content"
-										to={`/user/${currentUserName}`}
-									>
-										Profile
-									</NavLink>
+						)}
+						{userBool && chanInfo && (
+							<div className="d-flex flex-column">
+								<h2 className="ml-10">Manage {currentUserName}</h2>
+								<NavLink
+									className="btn-primary ml-10 d-flex justify-content"
+									to={`/user/${currentUserName}`}
+								>
+									Profile
+								</NavLink>
+								<button
+									className="btn-primary ml-10"
+									onClick={() =>
+										socket?.emit("sendGameInvite", {
+											sender: user.id,
+											invited: currentUserId,
+										})
+									}
+								>
+									Play
+								</button>
+								<button
+									onClick={() =>
+										handleBlock(
+											user.userName,
+											user.id,
+											currentUserName,
+											currentUserId,
+										)
+									}
+									className="btn-danger ml-10"
+								>
+									Block
+								</button>
+								{user.id === chanInfo.ownerId && !currentUserAdmin && (
 									<button
+										onClick={() => handleAdmin(currentUserName, currentUserId)}
 										className="btn-primary ml-10"
-										onClick={() =>
-											socket?.emit("sendGameInvite", {
-												sender: user.id,
-												invited: currentUserId,
-											})
-										}
 									>
-										Play
+										Admin
 									</button>
-									<button
-										onClick={() =>
-											handleBlock(
-												user.userName,
-												user.id,
-												currentUserName,
-												currentUserId,
-											)
-										}
-										className="btn-danger ml-10"
-									>
-										Block
-									</button>
-									{user.id === chanInfo.ownerId && !currentUserAdmin && (
+								)}
+								{isOp && (
+									<>
 										<button
-											onClick={() =>
-												handleAdmin(currentUserName, currentUserId)
-											}
-											className="btn-primary ml-10"
+											id="Kick"
+											onClick={() => handleKick(currentUserName, currentUserId)}
+											className="btn-danger ml-10"
 										>
-											Admin
+											Kick
 										</button>
-									)}
-									{isOp && (
-										<>
-											<button
-												id="Kick"
-												onClick={() =>
-													handleKick(currentUserName, currentUserId)
-												}
-												className="btn-danger ml-10"
-											>
-												Kick
-											</button>
-											<button
-												id="Ban"
-												onClick={() =>
-													handleBan(currentUserName, currentUserId)
-												}
-												className="btn-danger ml-10"
-											>
-												Ban
-											</button>
-											<button
-												id="Mute"
-												onClick={() =>
-													handleMute(currentUserName, currentUserId)
-												}
-												className="btn-danger ml-10"
-											>
-												Mute
-											</button>
-										</>
-									)}
-									<button
-										onClick={() => handleReturnToList()}
-										className="btn-primary ml-10"
-									>
-										Return
-									</button>
+										<button
+											id="Ban"
+											onClick={() => handleBan(currentUserName, currentUserId)}
+											className="btn-danger ml-10"
+										>
+											Ban
+										</button>
+										<button
+											id="Mute"
+											onClick={() => handleMute(currentUserName, currentUserId)}
+											className="btn-danger ml-10"
+										>
+											Mute
+										</button>
+									</>
+								)}
+								<button
+									onClick={() => handleReturnToList()}
+									className="btn-primary ml-10"
+								>
+									Return
+								</button>
+							</div>
+						)}
+						{inviteBool && chanInfo && (
+							<div className="d-flex flex-column">
+								<div
+									className={`btn-primary m-20`}
+									onClick={() => {
+										handleInviteListClick();
+									}}
+								>
+									Invite
 								</div>
-							)}
-							{inviteBool && chanInfo && (
-								<div className="d-flex flex-column">
-									<div
-										className={`btn-primary m-20`}
-										onClick={() => {
-											handleInviteListClick();
-										}}
-									>
-										Invite
-									</div>
-									<div>
-										<h2 className="ml-10">Invite List</h2>
-										<ul>
-											{inviteState.map((member) => {
-												return (
-													<li
-														onClick={() => handleInviteClick(member.id)}
-														key={member.id}
-														className="ml-10"
-													>
-														{member.userName}
-													</li>
-												);
-											})}
-										</ul>
-									</div>
+								<div>
+									<h2 className="ml-10">Invite List</h2>
+									<ul>
+										{inviteState.map((member) => {
+											return (
+												<li
+													onClick={() => handleInviteClick(member.id)}
+													key={member.id}
+													className="ml-10"
+												>
+													{member.userName}
+												</li>
+											);
+										})}
+									</ul>
 								</div>
-							)}
-						</>
-					)}
-				</div>
+							</div>
+						)}
+					</>
+				)}
 			</div>
 		</div>
 	);
