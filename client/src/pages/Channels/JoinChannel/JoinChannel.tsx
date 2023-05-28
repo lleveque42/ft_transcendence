@@ -97,6 +97,8 @@ export default function JoinChannel() {
 				showAlert("success", `You've been add to the chan`);
 				navigate(`/chat/channels/${title}`);
 			} else {
+				const data = await res.json();
+				showAlert("error", data.message);
 				navigate(`/chat/channels/${title}`);
 			}
 		} catch (e) {

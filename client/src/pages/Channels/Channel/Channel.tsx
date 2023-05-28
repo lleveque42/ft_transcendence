@@ -283,11 +283,14 @@ export default function Channel() {
 			);
 			if (res.status === 201) {
 				chatSocket?.emit("exitChatRoom", toEmit);
+				showAlert("success", userName + " has been kicked");
 				setInfoBool(true);
 				setuserBool(false);
 				setInviteBool(false);
+				isAuth();
 			} else {
-				showAlert("error", res.statusText);
+				const data = await res.json();
+				showAlert("error", data.message);
 			}
 		} catch (e) {
 			console.error("Error kicking from channel");
@@ -328,7 +331,8 @@ export default function Channel() {
 			} else if (res.status === 403) {
 				showAlert("error", "User already blocked");
 			} else {
-				showAlert("error", res.statusText);
+				const data = await res.json();
+				showAlert("error", data.message);
 			}
 		} catch (e) {
 			console.error("Error blocking from user");
@@ -368,7 +372,8 @@ export default function Channel() {
 				setuserBool(false);
 				setInviteBool(false);
 			} else {
-				showAlert("error", res.statusText);
+				const data = await res.json();
+				showAlert("error", data.message);
 			}
 		} catch (e) {
 			console.error("Error bannishing from channel");
@@ -408,7 +413,8 @@ export default function Channel() {
 				setuserBool(false);
 				setInviteBool(false);
 			} else {
-				showAlert("error", res.statusText);
+				const data = await res.json();
+				showAlert("error", data.message);
 			}
 		} catch (e) {
 			console.error("Error muting from channel");
@@ -440,7 +446,8 @@ export default function Channel() {
 				setuserBool(false);
 				setInviteBool(false);
 			} else {
-				showAlert("error", res.statusText);
+				const data = await res.json();
+				showAlert("error", data.message);
 			}
 		} catch (e) {
 			console.error("Error adminishing from channel");
@@ -508,7 +515,8 @@ export default function Channel() {
 				setuserBool(false);
 				setInviteBool(false);
 			} else {
-				// To dooooooooooooooo
+				const data = await res.json();
+				showAlert("error", data.message);
 			}
 			navigate(`/chat/channels/${chanInfo?.title}`);
 		} catch (e) {
