@@ -114,6 +114,11 @@
 				text-decoration-color: var(--primary);
 			}
 		}
+
+		button {
+			height: 2.5rem;
+			width: 7rem;
+		}
 	}
 }
 
@@ -144,9 +149,24 @@
 		border-radius: 5px;
 		box-shadow: var(--box-shadow);
 
+		button {
+			height: 2.5rem;
+			width: 7rem;
+		}
+
 		@include mixin.sm-lt {
 			width: 75vw;
 			height: 70vh;
+			padding: 1rem;
+
+			h2 {
+				margin: 0;
+				font-size: 1rem;
+			}
+
+			button {
+				margin-top: 0.2rem;
+			}
 		}
 	}
 }
