@@ -4,6 +4,8 @@ import {
 	IsString,
 	IsDate,
 	IsObject,
+	MaxLength,
+	NotContains,
 } from "class-validator";
 
 export class createDmDto {
@@ -51,6 +53,12 @@ export class titleDto {
 export class NewChannelDto {
 	@IsNotEmpty()
 	@IsString()
+	@MaxLength(30, {
+		message: "The title must be shorter or equal to 30 characters",
+	})
+	@NotContains(" " || "	", {
+		message: "the title should not include spaces",
+	})
 	title: string;
 
 	@IsNotEmpty()

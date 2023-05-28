@@ -1,10 +1,10 @@
-import ChatNav from "../../components/Chat/ChatNav/ChatNav";
+import ChatNav from "../../../components/Chat/ChatNav/ChatNav";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useUser } from "../../context/UserProvider";
-import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
-import { ChannelModel, UserModel } from "../../entities/entities";
-import { useAlert } from "../../context/AlertProvider";
+import { useUser } from "../../../context/UserProvider";
+import { usePrivateRouteSocket } from "../../../context/PrivateRouteProvider";
+import { ChannelModel, UserModel } from "../../../entities/entities";
+import { useAlert } from "../../../context/AlertProvider";
 
 type FormValues = {
 	userId: number;

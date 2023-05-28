@@ -1,9 +1,9 @@
-import ChatNav from "../../components/Chat/ChatNav/ChatNav";
+import ChatNav from "../../../components/Chat/ChatNav/ChatNav";
 import { useState } from "react";
-import { useUser } from "../../context/UserProvider";
-import Input from "../../components/Input/Input";
-import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
-import { useAlert } from "../../context/AlertProvider";
+import { useUser } from "../../../context/UserProvider";
+import Input from "../../../components/Input/Input";
+import { usePrivateRouteSocket } from "../../../context/PrivateRouteProvider";
+import { useAlert } from "../../../context/AlertProvider";
 import { useNavigate } from "react-router-dom";
 
 type FormValues = {
@@ -78,10 +78,10 @@ export default function NewChannel() {
 					"Channel " + formValues.title + " created with success",
 				);
 				socket.chatSocket?.emit("joinChatRoom", formValues.title);
-				navigate("/chat/channels");
+				navigate(`/chat/channels/${formValues.title}`);
 			} else {
-				showAlert("error", res.statusText);
-				// showAlert("error", "Channel " + formValues.title + " already exists");
+				const data = await res.json();
+				showAlert("error", data.message);
 			}
 		} catch (e) {
 			console.error("Error while creating channel");

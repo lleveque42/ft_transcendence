@@ -1,11 +1,11 @@
-import ChatNav from "../../components/Chat/ChatNav/ChatNav";
+import ChatNav from "../../../components/Chat/ChatNav/ChatNav";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useUser } from "../../context/UserProvider";
-import Input from "../../components/Input/Input";
-import { useAlert } from "../../context/AlertProvider";
-import { ChannelModel } from "../../entities/entities";
-import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
+import { useUser } from "../../../context/UserProvider";
+import Input from "../../../components/Input/Input";
+import { useAlert } from "../../../context/AlertProvider";
+import { ChannelModel } from "../../../entities/entities";
+import { usePrivateRouteSocket } from "../../../context/PrivateRouteProvider";
 
 type FormValues = {
 	title: string | undefined;
@@ -62,23 +62,7 @@ export default function EditChannel() {
 	function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
 		const { name, value } = event.target;
 
-		// Doesn't work for an unknown reason
 		setFormValues({ ...formValues, [name]: value });
-
-		// Did that instead
-		// if (name === "password") {
-		// 	const chan = channelState;
-		// 	if (chan) {
-		// 		chan.password = value;
-		// 		setChannelState(chan);
-		// 	}
-		// } else if (name === "title") {
-		// 	const chan = channelState;
-		// 	if (chan) {
-		// 		chan.title = value;
-		// 		setChannelState(chan);
-		// 	}
-		// }
 
 		if (name === "password") {
 			setPasswordState(value);
