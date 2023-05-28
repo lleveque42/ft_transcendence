@@ -62,23 +62,7 @@ export default function EditChannel() {
 	function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
 		const { name, value } = event.target;
 
-		// Doesn't work for an unknown reason
 		setFormValues({ ...formValues, [name]: value });
-
-		// Did that instead
-		// if (name === "password") {
-		// 	const chan = channelState;
-		// 	if (chan) {
-		// 		chan.password = value;
-		// 		setChannelState(chan);
-		// 	}
-		// } else if (name === "title") {
-		// 	const chan = channelState;
-		// 	if (chan) {
-		// 		chan.title = value;
-		// 		setChannelState(chan);
-		// 	}
-		// }
 
 		if (name === "password") {
 			setPasswordState(value);
