@@ -492,7 +492,9 @@ export class ChannelService {
 		return chans;
 	}
 
-	async getUsersChannels(username: string) :Promise<{ id: number; title: string }[]>{
+	async getUsersChannels(
+		username: string,
+	): Promise<{ id: number; title: string; ownerId: number }[]> {
 		const user = await this.prisma.user.findUnique({
 			where: {
 				userName: username,
@@ -505,7 +507,8 @@ export class ChannelService {
 		const chans = await this.prisma.channel.findMany({
 			select: {
 				id: true,
-				title : true,
+				title: true,
+				ownerId: true,
 			},
 			where: {
 				type: "Channel",

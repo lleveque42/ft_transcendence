@@ -37,7 +37,6 @@ export class MessageModel implements Message {
 export interface Channel {
 	id: number;
 	title: string;
-	password?: string;
 	type: string;
 	mode: string;
 	ownerId?: number;
@@ -51,7 +50,6 @@ export interface Channel {
 export class ChannelModel implements Channel {
 	id: number;
 	title: string;
-	password?: string;
 	type: string;
 	mode: string;
 	ownerId?: number;
@@ -64,7 +62,6 @@ export class ChannelModel implements Channel {
 	constructor(data: Channel) {
 		this.id = data.id;
 		this.title = data.title;
-		this.password = data.password;
 		this.type = data.type;
 		this.mode = data.mode;
 		this.ownerId = data.ownerId;

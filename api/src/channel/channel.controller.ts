@@ -66,7 +66,7 @@ export class ChannelController {
 	@Get("/:username")
 	async getUserChans(
 		@Param() params: userNameDto,
-	): Promise<{ id: number; title: string }[]> {
+	): Promise<{ id: number; title: string; ownerId: number }[]> {
 		try {
 			const channels = await this.channelService.getUsersChannels(
 				params.username,

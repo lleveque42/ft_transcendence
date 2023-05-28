@@ -27,6 +27,7 @@ const initialFormValues: FormValues = {
 
 export default function EditChannel() {
 	const [chanProtected, setChanProtected] = useState(false);
+	const [passwordState, setPasswordState] = useState("");
 	const [formValues, setFormValues] = useState<FormValues>(initialFormValues);
 	const [channelState, setChannelState] = useState<ChannelModel>();
 	const { chatSocket } = usePrivateRouteSocket();
@@ -65,12 +66,22 @@ export default function EditChannel() {
 		setFormValues({ ...formValues, [name]: value });
 
 		// Did that instead
+		// if (name === "password") {
+		// 	const chan = channelState;
+		// 	if (chan) {
+		// 		chan.password = value;
+		// 		setChannelState(chan);
+		// 	}
+		// } else if (name === "title") {
+		// 	const chan = channelState;
+		// 	if (chan) {
+		// 		chan.title = value;
+		// 		setChannelState(chan);
+		// 	}
+		// }
+
 		if (name === "password") {
-			const chan = channelState;
-			if (chan) {
-				chan.password = value;
-				setChannelState(chan);
-			}
+			setPasswordState(value);
 		} else if (name === "title") {
 			const chan = channelState;
 			if (chan) {
@@ -101,7 +112,7 @@ export default function EditChannel() {
 	async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
 		event.preventDefault();
 		formValues.title = channelState?.title;
-		formValues.password = channelState?.password;
+		formValues.password = passwordState;
 		formValues.username = user.userName;
 		formValues.oldTitle = title;
 		formValues.type = "Channel";
@@ -142,11 +153,11 @@ export default function EditChannel() {
 	let channelForm = null;
 
 	if (channelState) {
-		const { id, title, password, type, mode } = channelState;
+		const { id, title, type, mode } = channelState;
 		// Set the formValues
 		formValues.title = title;
 		formValues.mode = mode;
-		formValues.password = password;
+		formValues.password = passwordState;
 		formValues.type = type;
 		formValues.username = user.userName;
 
