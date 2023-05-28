@@ -87,96 +87,105 @@ export class ChannelService {
 		userId: number,
 		chanTitle,
 	): Promise<void> {
-		try {
-			const chan = await this.prisma.channel.update({
-				where: {
-					title: chanTitle,
-				},
-				data: {
-					members: {
-						disconnect: {
-							userName: userName,
-						},
+		const findChan = await this.prisma.channel.findUnique({
+			where: {
+				title: chanTitle,
+			},
+		});
+		if (!findChan) {
+			throw new ForbiddenException("This channel doesn't exist");
+		}
+		const chanWithUser = await this.prisma.channel.findFirst({
+			where: {
+				id: findChan.id,
+				members: {
+					some: {
+						id: userId,
 					},
-					operators: {
-						disconnect: {
-							userName: userName,
-						},
+				},
+			},
+		});
+		if (!chanWithUser) {
+			throw new ForbiddenException("User does not belong to this channel");
+		}
+		const chan = await this.prisma.channel.update({
+			where: {
+				title: chanTitle,
+			},
+			data: {
+				members: {
+					disconnect: {
+						userName: userName,
 					},
 				},
-			});
-			if (!chan) {
-				throw new ForbiddenException("Can't update the channel");
-			}
-		} catch (error) {
-			throw new ForbiddenException("Error while leaving");
+				operators: {
+					disconnect: {
+						userName: userName,
+					},
+				},
+			},
+		});
+		if (!chan) {
+			throw new ForbiddenException("Can't update the channel");
 		}
 	}
 
 	async kickFromChannel(userName: string, id: number): Promise<void> {
-		try {
-			const user = await this.userService.getUserByUserName(userName);
-			if (!user) {
-				throw new ForbiddenException("User not found");
-			}
-			const chan = await this.prisma.channel.update({
-				where: {
-					id: id,
-				},
-				data: {
-					members: {
-						disconnect: {
-							userName: userName,
-						},
-					},
-					operators: {
-						disconnect: {
-							userName: userName,
-						},
+		const user = await this.userService.getUserByUserName(userName);
+		if (!user) {
+			throw new ForbiddenException("User not found");
+		}
+		const chan = await this.prisma.channel.update({
+			where: {
+				id: id,
+			},
+			data: {
+				members: {
+					disconnect: {
+						userName: userName,
 					},
 				},
-			});
-			if (!chan) {
-				throw new ForbiddenException("Prisma error while kicking");
-			}
-		} catch (error) {
-			throw new ForbiddenException("Error while kicking");
+				operators: {
+					disconnect: {
+						userName: userName,
+					},
+				},
+			},
+		});
+		if (!chan) {
+			throw new ForbiddenException("Prisma error while kicking");
 		}
 	}
 
 	async banFromChannel(userName: string, id: number): Promise<void> {
-		try {
-			const user = await this.userService.getUserByUserName(userName);
-			if (!user) {
-				throw new ForbiddenException("User not found");
-			}
-			const chan = await this.prisma.channel.update({
-				where: {
-					id: id,
-				},
-				data: {
-					members: {
-						disconnect: {
-							userName: userName,
-						},
-					},
-					operators: {
-						disconnect: {
-							userName: userName,
-						},
-					},
-					banList: {
-						connect: {
-							userName: userName,
-						},
+		const user = await this.userService.getUserByUserName(userName);
+		if (!user) {
+			throw new ForbiddenException("User not found");
+		}
+		const chan = await this.prisma.channel.update({
+			where: {
+				id: id,
+			},
+			data: {
+				members: {
+					disconnect: {
+						userName: userName,
 					},
 				},
-			});
-			if (!chan) {
-				throw new ForbiddenException("Prisma error while banishing");
-			}
-		} catch (error) {
-			throw new ForbiddenException("Error while banishing");
+				operators: {
+					disconnect: {
+						userName: userName,
+					},
+				},
+				banList: {
+					connect: {
+						userName: userName,
+					},
+				},
+			},
+		});
+		if (!chan) {
+			throw new ForbiddenException("Prisma error while banishing");
 		}
 	}
 

@@ -207,6 +207,14 @@ export class ServerGateway
 				data.userName,
 				data.mode,
 			);
+		this.io
+			.to(data.room)
+			.emit(
+				"newLeftChan",
+				await this.channelService.getChannelByTitle(data.room),
+				data.userName,
+				data.mode,
+			);
 		const sockets = await this.users.getClientsByUserId(user.id);
 		if (sockets) {
 			for (const socket of sockets) {
