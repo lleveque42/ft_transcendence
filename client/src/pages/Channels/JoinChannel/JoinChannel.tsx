@@ -56,9 +56,21 @@ export default function JoinChannel() {
 				setChannelsState(filterChans);
 			}
 		};
+		const removeFromJoinListener = (
+			chan: ChannelModel,
+			username: string,
+			mode: string,
+		) => {
+			const filterChans = channelsState.filter((el) => {
+				return el.id !== chan.id;
+			});
+			setChannelsState(filterChans);
+		};
 		chatSocket?.on("addChannelToJoin", chanListener);
+		chatSocket?.on("removeFromJoin", removeFromJoinListener);
 		return () => {
 			chatSocket?.off("addChannelToJoin");
+			chatSocket?.off("removeFromJoin");
 		};
 	}, [chatSocket, channelsState]);
 

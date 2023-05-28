@@ -524,15 +524,15 @@ export default function Channel() {
 		}
 	}
 
-	useEffect(() => {
-		const joinedListener = (chan: ChannelModel) => {
-			setChanInfo(chan);
-		};
-		chatSocket?.on("userJoinedChan", joinedListener);
-		return () => {
-			chatSocket?.off("userJoinedChan");
-		};
-	}, [chanInfo, chatSocket]);
+	// useEffect(() => {
+	// 	const joinedListener = (chan: ChannelModel) => {
+	// 		setChanInfo(chan);
+	// 	};
+	// 	chatSocket?.on("userJoinedChan", joinedListener);
+	// 	return () => {
+	// 		chatSocket?.off("userJoinedChan");
+	// 	};
+	// }, [chanInfo, chatSocket]);
 
 	useEffect(() => {
 		const inviteListener = (chan: ChannelModel, user: UserModel) => {
@@ -569,6 +569,8 @@ export default function Channel() {
 				chan.title === chanInfo?.title
 			) {
 				showAlert("success", "You've been muted 30 seconds from this channel");
+			} else if (chanInfo?.title === chan.title) {
+				setChanInfo(chan);
 			} else {
 				return;
 			}
@@ -762,14 +764,6 @@ export default function Channel() {
 							)}
 							{inviteBool && chanInfo && (
 								<div className="d-flex flex-column">
-									<div
-										className={`btn-primary m-20`}
-										onClick={() => {
-											handleInviteListClick();
-										}}
-									>
-										Invite
-									</div>
 									<div>
 										<h2 className="ml-10">Invite List</h2>
 										<ul>
