@@ -1,78 +1,170 @@
-.btn {
-	background: #3d4c53;
-	width: 20rem;
+@use "../../../../../assets/styles/mixins" as mixin;
+
+.underTitleGame {
+	color: var(--yellow);
+}
+
+.buttonContainer > button {
 	height: 3rem;
+	transition: 0.2s;
 	overflow: hidden;
-	text-align: center;
-	transition: 0.3s;
-	cursor: pointer;
-	border-radius: 4px;
-	box-shadow: var(--box-shadow-nav);
+	box-shadow: var(--box-shadow);
+	margin-bottom: 1rem;
+	background-color: var(--pink);
+	border-color: var(--pink);
 
-	&Two {
-		position: relative;
-		width: 20rem;
-		height: 6rem;
-		margin-top: -6rem;
-		padding-top: 2px;
-		background: var(--primary);
-		left: calc(-1.25 * 20rem);
-		top: calc(0.8rem + 1px);
-		transition: 0.3s;
-	}
-
-	&Text {
-		color: white;
-		transition: 0.3s;
-		font-weight: 700;
-	}
-
-	&Text2 {
-		margin-top: 3.78rem;
-		margin-right: calc(-0.65 * 20rem);
-		color: #fff;
-		font-weight: 700;
+	@include mixin.sm-lt {
+		height: 2rem;
+		margin-bottom: 0.5rem;
 	}
 
 	&:hover {
+		scale: 1.1;
 		box-shadow: var(--box-shadow-login42);
 	}
 
-	&:hover &Two {
-		left: calc(-0.65 * 20rem);
-	}
-
-	&:hover &Text {
-		margin-left: calc(4.78rem + 2px);
-	}
-
-	.clickedText2 {
-		color: #fff;
-		transition: margin-right 0.3s;
-		font-weight: 700;
-	}
-
-	.clickedText {
-		color: white;
-		transition: 0.3s;
-		font-weight: 700;
-		margin-left: 20rem;
-		display: none;
-	}
-
-	.clickedBtn2 {
-		position: relative;
-		width: 20rem;
-		background: var(--primary);
-		top: calc(0.8rem + 1px);
-		transition: left 0.3s;
-		margin-top: calc(-2rem + 2px);
-		padding-top: 1rem;
-		height: 3rem;
-		left: 0rem;
-	}
-
 	&:active {
-		box-shadow: var(--box-shadow-nav);
+		scale: 1;
+		box-shadow: var(--box-shadow);
+	}
+
+	.buttonText {
+		font-family: var(--game-font);
+		font-weight: 500;
+		font-size: 1rem;
+		position: relative;
+		top: 1rem;
+		color: var(--primary-dark);
+		@include mixin.sm-lt {
+			font-size: 0.67rem;
+			top: 0.6rem;
+		}
+		text-align: center;
+	}
+
+	.buttonIcon {
+		font-size: 1.5rem;
+		i {
+			color: var(--primary-dark);
+		}
+		@include mixin.sm-lt {
+			font-size: 1rem;
+		}
+	}
+
+	&:hover .buttonText {
+		animation: moveText 0.4s forwards;
+	}
+
+	&:not(:hover) .buttonText {
+		animation: moveText2 0.2s forwards;
+	}
+
+	&:hover .buttonIcon {
+		animation: moveButton 0.2s forwards;
+		@include mixin.sm-lt {
+			animation: moveButtonSM 0.2s forwards;
+		}
+	}
+
+	&:not(:hover) .buttonIcon {
+		animation: moveButton2 0.4s forwards;
+		@include mixin.sm-lt {
+			animation: moveButton2SM 0.2s forwards;
+		}
+	}
+
+	@keyframes moveText {
+		0% {
+			transform: translateY(0);
+			opacity: 1;
+		}
+		50% {
+			opacity: 1;
+			transform: translateY(-2rem);
+		}
+		51% {
+			opacity: 0;
+		}
+		99% {
+			opacity: 0;
+			transform: translateY(2rem);
+		}
+		100% {
+			opacity: 1;
+			transform: translateY(2rem);
+		}
+	}
+
+	@keyframes moveText2 {
+		0% {
+			transform: translateY(2rem);
+		}
+		100% {
+			transform: translateY(0);
+		}
+	}
+
+	@keyframes moveButton {
+		0% {
+			transform: translateY(2rem);
+		}
+		100% {
+			transform: translateY(-0.5rem);
+		}
+	}
+
+	@keyframes moveButton2 {
+		0% {
+			transform: translateY(-0.5rem);
+			opacity: 1;
+		}
+		50% {
+			opacity: 1;
+			transform: translateY(-4rem);
+		}
+		51% {
+			opacity: 0;
+		}
+		99% {
+			opacity: 0;
+			transform: translateY(2rem);
+		}
+		100% {
+			opacity: 1;
+			transform: translateY(2rem);
+		}
+	}
+
+	@keyframes moveButtonSM {
+		0% {
+			transform: translateY(2rem);
+		}
+		100% {
+			transform: translateY(-0.4rem);
+		}
+	}
+
+	@keyframes moveButton2SM {
+		0% {
+			transform: translateY(-0.4rem);
+			opacity: 1;
+		}
+		50% {
+			opacity: 1;
+			transform: translateY(-4rem);
+		}
+		51% {
+			opacity: 0;
+		}
+		99% {
+			opacity: 0;
+			transform: translateY(2rem);
+		}
+		100% {
+			opacity: 1;
+			transform: translateY(2rem);
+		}
 	}
 }
+

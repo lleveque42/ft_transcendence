@@ -25,10 +25,17 @@ export default function Options({
 	const [acceleratorToggle, setAcceleratorToggle] = useState<boolean>(false);
 
 	return (
-		<>
-			<div className="title mb-20">Options</div>
-			<div className="mb-10 d-flex align-items justify-content">
-				<div className="underTitle">
+		<div
+			className={`${styles.optionsContainer} d-flex flex-column align-items justify-content`}
+		>
+			<div className={`${styles.textContainer} underTitle flex-1`}>
+				<div className="title">PONG</div>
+				<div className="underTitle mb-20">Choose your options</div>
+			</div>
+			<div
+				className={`${styles.speedToggler} mb-10 d-flex align-items justify-content`}
+			>
+				<div className={`${styles.speed} underTitle`}>
 					Increasing speed (x0.01 on each strike) :
 				</div>
 				<Toggle
@@ -39,8 +46,8 @@ export default function Options({
 					}}
 				/>
 			</div>
-			<div className={`${styles.mapToggler} mb-10`}>
-				<div className="underTitle mb-10">Chose map:</div>
+			<div className={`${styles.mapToggler} mb-20`}>
+				<div className={`${styles.map} underTitle mb-10`}>Chose map:</div>
 				<img
 					src={defaultMap}
 					alt="default"
@@ -81,18 +88,23 @@ export default function Options({
 					}}
 				/>
 			</div>
-			<button
-				className="btn-primary mb-10"
-				onClick={() => {
-					setGameUserStatus(GameUserStatus.readyToStart);
-					gameSocket?.emit("playerReady", {
-						map: mapToggle,
-						accelerator: acceleratorToggle,
-					});
-				}}
-			>
-				Ready !
-			</button>
-		</>
+			<div className={styles.buttonContainer}>
+				<button
+					className={`btn-primary mb-10`}
+					onClick={() => {
+						setGameUserStatus(GameUserStatus.readyToStart);
+						gameSocket?.emit("playerReady", {
+							map: mapToggle,
+							accelerator: acceleratorToggle,
+						});
+					}}
+				>
+					<div className={styles.buttonText}>Ready !</div>
+					<div className={styles.buttonIcon}>
+						<i className="fa-solid fa-check"></i>
+					</div>
+				</button>
+			</div>
+		</div>
 	);
 }

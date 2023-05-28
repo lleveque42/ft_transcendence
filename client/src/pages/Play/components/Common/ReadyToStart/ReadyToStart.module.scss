@@ -1,0 +1,28 @@
+@use "../../../../../assets/styles/mixins" as mixin;
+
+.readyContainer {
+	margin-top: 10rem;
+	margin-bottom: 25rem;
+	height: 35rem;
+	@include mixin.sm-lt {
+		height: 10rem;
+		margin-top: 3rem;
+		padding-bottom: 5rem;
+		margin-bottom: 7rem;
+	}
+}
+
+.textContainer {
+	padding-top: 6rem;
+	padding-bottom: 3rem;
+
+	> div:nth-child(2) {
+		color: var(--yellow);
+	}
+
+	@include mixin.sm-lt {
+		margin-bottom: 3rem;
+	}
+}
+
+
