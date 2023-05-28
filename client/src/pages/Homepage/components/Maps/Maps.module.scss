@@ -1,0 +1,14 @@
+@use "../../../../assets/styles/mixins" as mixin;
+
+.maps {
+	color: var(--sand);
+	padding-bottom: 2rem;
+	border-bottom: 2px dashed var(--sand);
+	line-height: 1.2rem;
+	font-weight: 500;
+}
+
+.mapImage {
+	margin: 1rem;
+	border-radius: 5px;
+}

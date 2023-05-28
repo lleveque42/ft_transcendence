@@ -4,6 +4,7 @@ import FriendsList from "./components/FriendsList/FriendsList";
 import Stats from "./components/Stats/Stats";
 import { useUser } from "../../context";
 import { useEffect } from "react";
+import Maps from "./components/Maps/Maps";
 
 export default function Homepage() {
 	const navigate = useNavigate();
@@ -23,16 +24,21 @@ export default function Homepage() {
 			<div
 				className={`${styles.homepageContainer} d-flex flex-row justify-content align-items flex-1`}
 			>
-				<div className={`${styles.friendsContainer} d-flex flex-column`}>
-					<FriendsList />
+				<div
+					className={`${styles.leftContainer} d-flex flex-column justify-content align-items`}
+				>
+					<div className={`${styles.friendsContainer} d-flex flex-column`}>
+						<FriendsList />
+					</div>
 				</div>
 				<div
 					className={`${styles.mainContainer} d-flex flex-column align-items justify-content`}
 				>
 					<div
-						className={`title ${styles.titleContainer} d-flex flex-column justify-content align-items`}
+						className={`${styles.titleContainer} d-flex flex-column justify-content align-items`}
 					>
 						<div className="title">PONG</div>
+						<div className="underTitle">The game</div>
 					</div>
 					<div
 						className={`${styles.buttonContainer} d-flex flex-column align-items justify-content`}
@@ -66,12 +72,14 @@ export default function Homepage() {
 						</button>
 					</div>
 				</div>
-				<div className="d-flex flex-column justify-content align-items">
+				<div
+					className={`${styles.rightContainer} d-flex flex-column justify-content align-items`}
+				>
 					<div className={`${styles.statsContainer} d-flex flex-column mb-20`}>
 						<Stats />
 					</div>
 					<div className={`${styles.mapsContainer} d-flex flex-column`}>
-						New maps available/ maps qui defilent
+						<Maps />
 					</div>
 				</div>
 			</div>

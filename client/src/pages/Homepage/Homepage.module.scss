@@ -4,8 +4,36 @@
 	margin: 4rem;
 }
 
+.leftContainer {
+	height: 100%;
+	flex: 25%;
+	min-width: 20rem;
+
+	@include mixin.homepage-responsive {
+		flex: 50%;
+	}
+}
+
+.mainContainer {
+	margin: 0 4rem;
+	flex: 50%;
+	height: 100%;
+}
+
+.rightContainer {
+	flex: 25%;
+
+	@include mixin.homepage-responsive {
+		display: none;
+	}
+
+	@include mixin.sm-lt {
+		display: none;
+	}
+}
+
 .friendsContainer {
-	flex: 20%;
+	width: 100%;
 	max-width: 20rem;
 	height: 100%;
 	border: 4px solid var(--purple);
@@ -17,46 +45,49 @@
 .statsContainer {
 	position: relative;
 	top: -4rem;
-	flex: 20%;
 	max-width: 20rem;
 	width: 100%;
 	border: 4px solid var(--cyan);
 	border-radius: 5px;
 	box-shadow: var(--box-shadow-nav);
 	padding: 1rem;
-
-	@include mixin.sm-lt {
-		display: none;
-	}
 }
 
 .mapsContainer {
 	position: relative;
 	top: -4rem;
-	border: 4px solid var(--deep-purple);
+	border: 4px solid var(--sand);
 	border-radius: 5px;
-	flex: 20%;
 	max-width: 20rem;
 	width: 100%;
 	padding: 1rem;
 	box-shadow: var(--box-shadow-nav);
-
-	@include mixin.sm-lt {
-		display: none;
-	}
-}
-
-.mainContainer {
-	margin: 0 4rem;
-	flex: 1;
-	height: 100%;
 }
 
 .titleContainer {
 	flex: 0.1;
 	margin: 2rem 0;
+	position: relative;
+	top: 4rem;
+
+	div:nth-child(1) {
+		font-size: 4rem;
+
+		@include mixin.sm-lt {
+			font-size: 3rem;
+		}
+	}
+
+	div:nth-child(2) {
+		font-size: 1.2rem;
+		@include mixin.sm-lt {
+			font-size: 0.8rem;
+		}
+	}
+
 	@include mixin.sm-lt {
 		flex: 0.2;
+		top: 0;
 	}
 }
 
