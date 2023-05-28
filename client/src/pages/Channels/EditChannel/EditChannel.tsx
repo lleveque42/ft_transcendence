@@ -148,7 +148,7 @@ export default function EditChannel() {
 		// Rendering
 		channelForm = (
 			<>
-				<div key={id} className="radio">
+				<div key={id} className="mb-10">
 					<label>
 						<input
 							type="radio"
@@ -159,7 +159,7 @@ export default function EditChannel() {
 						Public
 					</label>
 				</div>
-				<div className="radio">
+				<div className="mb-10">
 					<label>
 						<input
 							type="radio"
@@ -170,7 +170,7 @@ export default function EditChannel() {
 						Private
 					</label>
 				</div>
-				<div className="radio mb-10">
+				<div className="mb-20">
 					<label>
 						<input
 							type="radio"
@@ -181,7 +181,7 @@ export default function EditChannel() {
 						Protected
 					</label>
 				</div>
-				{chanProtected && (
+				{(chanProtected || channelState.mode === "Protected") && (
 					<>
 						<Input
 							icon="fa-solid fa-lock"
@@ -198,24 +198,18 @@ export default function EditChannel() {
 	}
 
 	return (
-		<div className="container d-flex flex-column justify-content align-items">
-			<div className="title">Edit channel</div>
-			<div>
-				<ChatNav />
-				<form
-					onSubmit={handleSubmit}
-					className="d-flex flex-column align-items justify-content p-20"
-				>
-					<>{channelForm}</>
-					<div
-						className={` d-flex flex-row justify-content-space-between mb-30`}
-					>
-						<button className="btn-primary" type="submit">
-							Edit
-						</button>
-					</div>
-				</form>
-			</div>
+		<div className="d-flex flex-column align-items flex-1">
+			<div className="title mt-20">Edit channel</div>
+			<ChatNav />
+			<form
+				onSubmit={handleSubmit}
+				className="d-flex flex-column align-items justify-content p-20"
+			>
+				{channelForm}
+				<button className="btn btn-primary pr-20 pl-20 p-5" type="submit">
+					Edit
+				</button>
+			</form>
 		</div>
 	);
 }

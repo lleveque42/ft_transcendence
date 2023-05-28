@@ -42,6 +42,11 @@
 			div {
 				display: flex;
 				margin-top: 0.5rem;
+
+				button {
+					padding-left: 0.5rem;
+					padding-right: 0.5rem;
+				}
 			}
 		}
 	}
@@ -58,5 +63,6 @@
 .channelsBtn {
 	@include mixin.sm-lt {
 		font-size: 0.7rem;
+		margin-top: -0.5rem;
 	}
 }
