@@ -223,17 +223,24 @@ export class AppGateway
 	}
 
 	@SubscribeMessage("sendGameInvite")
-	sendGameInvite(
+	async sendGameInvite(
 		@MessageBody("sender") sender: number,
 		@MessageBody("invited") invited: number,
 	) {
 		const userInvited = this.users.getUserByUserId(invited);
 		const userSender = this.users.getUserByUserId(sender);
 		if (userInvited) {
-			this.users.emitAllbyUserId(userInvited.id, "inviteGameRequest", {
-				senderId: userSender.id,
-				senderUserName: userSender.userName,
-			});
+			const status = await this.userService.getUserStatus(userInvited.id);
+			if (status === UserStatus.INGAME)
+				this.declineGameInvite(
+					userSender.id,
+					`${userInvited.userName} is already in game, try later.`,
+				);
+			else
+				this.users.emitAllbyUserId(userInvited.id, "inviteGameRequest", {
+					senderId: userSender.id,
+					senderUserName: userSender.userName,
+				});
 		} else {
 			setTimeout(() => {
 				this.declineGameInvite(
