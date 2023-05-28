@@ -92,7 +92,6 @@ export default function DirectMessage() {
 					<li className="m-5" key={id}>
 						<Message
 							allMessages={messagesState}
-							// removeMessages={setMessagesState}
 							username={author.userName}
 							content={content}
 						/>
@@ -161,7 +160,7 @@ export default function DirectMessage() {
 						</button>
 					</div>
 					<div className={`${styles.messagesList} mb-10`} ref={messagesListRef}>
-						{messagesState.length ? (
+						{messagesList.length ? (
 							<ul className="mt-10">{messagesList}</ul>
 						) : (
 							<p className="d-flex justify-content mt-20 p-10">

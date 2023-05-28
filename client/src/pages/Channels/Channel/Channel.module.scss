@@ -1,0 +1,152 @@
+@use "../../../assets/styles/mixins" as mixin;
+
+.channelContainer {
+	margin-top: 0.5rem;
+	border: 1px solid var(--secondary-dark);
+	border-radius: 5px;
+	box-shadow: var(--box-shadow);
+	height: 50vh;
+	width: 60vw;
+
+	@include mixin.sm-lt {
+		margin-top: 0.2rem;
+		height: 40vh;
+		width: 80vw;
+
+		h2 {
+			font-size: 1rem;
+		}
+	}
+
+	.channelMessagesList {
+		overflow-y: scroll;
+
+		li {
+			cursor: pointer;
+		}
+	}
+}
+
+.usersList {
+	margin-top: 2.4rem;
+	border: 1px solid var(--secondary-dark);
+	border-radius: 5px;
+	box-shadow: var(--box-shadow);
+	height: 50vh;
+	min-width: 10vw;
+	overflow-y: scroll;
+
+	li {
+		cursor: pointer;
+		text-decoration: none;
+		text-decoration-color: transparent;
+		transition: color 0.2s ease-in-out, text-decoration-color 0.2s ease-in-out;
+
+		&:hover {
+			color: var(--primary);
+			text-decoration: underline;
+			text-underline-offset: 0.3em;
+			text-decoration-color: var(--primary);
+		}
+	}
+
+	@include mixin.sm-lt {
+		display: none;
+	}
+}
+
+.modalInvite {
+	position: fixed;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100vh;
+	z-index: 2;
+	background-color: rgba(0, 0, 0, 0.5);
+
+	.modalInviteContent {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		width: 50vw;
+		height: 70vh;
+		padding: 2rem;
+		background-color: var(--light-grey);
+		border-radius: 5px;
+		box-shadow: var(--box-shadow);
+
+		ul {
+			overflow-y: scroll;
+		}
+
+		ul::-webkit-scrollbar-track {
+			background-color: var(--light-grey);
+		}
+
+		@include mixin.sm-lt {
+			width: 75vw;
+			height: 70vh;
+
+			h2 {
+				margin-bottom: 1rem;
+			}
+		}
+
+		h2 {
+			color: var(--primary);
+		}
+
+		li {
+			padding-top: 0.5rem;
+			cursor: pointer;
+			color: var(--black);
+			text-decoration: none;
+			text-decoration-color: transparent;
+			transition: color 0.2s ease-in-out, text-decoration-color 0.2s ease-in-out;
+
+			&:hover {
+				color: var(--primary);
+				text-decoration: underline;
+				text-underline-offset: 0.3em;
+				text-decoration-color: var(--primary);
+			}
+		}
+	}
+}
+
+.manageUserModal {
+	position: fixed;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100vh;
+	z-index: 2;
+	background-color: rgba(0, 0, 0, 0.5);
+
+	h2 {
+		color: var(--primary);
+	}
+
+	.manageUserModalContent {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		width: 50vw;
+		height: 70vh;
+		padding: 2rem;
+		background-color: var(--light-grey);
+		border-radius: 5px;
+		box-shadow: var(--box-shadow);
+
+		@include mixin.sm-lt {
+			width: 75vw;
+			height: 70vh;
+		}
+	}
+}
