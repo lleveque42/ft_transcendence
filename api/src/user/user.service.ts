@@ -11,7 +11,7 @@ import { Prisma, User, UserStatus, AvatarFile } from "@prisma/client";
 import { authenticator } from "otplib";
 import { toDataURL } from "qrcode";
 import { GameType } from "../game/types/game.type";
-import { GameInfosType } from "../common/types";
+import { GameInfosType, GetUserList } from "../common/types";
 
 @Injectable()
 export class UserService {
@@ -214,16 +214,7 @@ export class UserService {
 		return users;
 	}
 
-	async getJoignableUsers(userName: string): Promise<
-		{
-			id: number;
-			userName: string;
-			blockList: {
-				id: number;
-				userName: string;
-			}[];
-		}[]
-	> {
+	async getJoignableUsers(userName: string): Promise<GetUserList[]> {
 		const user = await this.getUserByUserName(userName);
 		if (!user) throw new HttpException("Can't find user", HttpStatus.NOT_FOUND);
 		const allUsers = await this.prisma.user.findMany({

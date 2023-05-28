@@ -6,10 +6,13 @@ import {
 } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { UserService } from "../user/user.service";
-import { Channel, Muted, Prisma, User } from "@prisma/client";
+import { Channel, Muted, Prisma } from "@prisma/client";
 import * as argon2 from "argon2";
 import { OnlineUsers } from "../classes/OnlineUsers";
-import { ChannelModel } from "./classes/entities";
+import {
+	GetSanitizeChan,
+	GetSanitizeMessage,
+} from "../common/types/channel.type";
 
 @Injectable()
 export class ChannelService {
@@ -20,7 +23,10 @@ export class ChannelService {
 
 	users: OnlineUsers = new OnlineUsers();
 
-	async createChannel(newChannel: Prisma.ChannelCreateInput, userName: string) {
+	async createChannel(
+		newChannel: Prisma.ChannelCreateInput,
+		userName: string,
+	): Promise<void> {
 		const user = await this.userService.getUserByUserName(userName);
 		let hash: string = null;
 		if (newChannel.password && newChannel.password !== "") {
@@ -49,7 +55,10 @@ export class ChannelService {
 		}
 	}
 
-	async updateChannel(newChannel: Prisma.ChannelCreateInput, oldtitle: string) {
+	async updateChannel(
+		newChannel: Prisma.ChannelCreateInput,
+		oldtitle: string,
+	): Promise<void> {
 		let hash: string = null;
 		if (newChannel.password && newChannel.password !== "") {
 			hash = await argon2.hash(newChannel.password);
@@ -73,7 +82,11 @@ export class ChannelService {
 		}
 	}
 
-	async leaveFromChannel(userName: string, userId: number, chanTitle) {
+	async leaveFromChannel(
+		userName: string,
+		userId: number,
+		chanTitle,
+	): Promise<void> {
 		try {
 			const chan = await this.prisma.channel.update({
 				where: {
@@ -100,7 +113,7 @@ export class ChannelService {
 		}
 	}
 
-	async kickFromChannel(userName: string, id: number) {
+	async kickFromChannel(userName: string, id: number): Promise<void> {
 		try {
 			const user = await this.userService.getUserByUserName(userName);
 			if (!user) {
@@ -131,7 +144,7 @@ export class ChannelService {
 		}
 	}
 
-	async banFromChannel(userName: string, id: number) {
+	async banFromChannel(userName: string, id: number): Promise<void> {
 		try {
 			const user = await this.userService.getUserByUserName(userName);
 			if (!user) {
@@ -167,7 +180,11 @@ export class ChannelService {
 		}
 	}
 
-	async muteInChannel(chanId: number, userId: number, mutedEnd: Date) {
+	async muteInChannel(
+		chanId: number,
+		userId: number,
+		mutedEnd: Date,
+	): Promise<GetSanitizeChan> {
 		const retrieve = await this.prisma.muted.findMany({
 			where: {
 				userId: userId,
@@ -199,7 +216,7 @@ export class ChannelService {
 			throw new ForbiddenException("Can't mute this user");
 		}
 		if (muted) {
-			const chan: Channel = await this.prisma.channel.update({
+			const chan = await this.prisma.channel.update({
 				where: {
 					id: chanId,
 				},
@@ -210,17 +227,28 @@ export class ChannelService {
 						},
 					},
 				},
-				include: {
+				select: {
+					id: true,
+					title: true,
+					type: true,
+					mode: true,
+					ownerId: true,
 					members: {
 						select: {
-							id: true,
 							userName: true,
+							id: true,
+						},
+					},
+					banList: {
+						select: {
+							userName: true,
+							id: true,
 						},
 					},
 					operators: {
 						select: {
-							id: true,
 							userName: true,
+							id: true,
 						},
 					},
 					mutedList: {
@@ -228,6 +256,19 @@ export class ChannelService {
 							id: true,
 							userId: true,
 							muteExpiration: true,
+						},
+					},
+					messages: {
+						select: {
+							id: true,
+							content: true,
+							authorId: true,
+							author: {
+								select: {
+									id: true,
+									userName: true,
+								},
+							},
 						},
 					},
 				},
@@ -241,7 +282,7 @@ export class ChannelService {
 		}
 	}
 
-	async adminOfChannel(userName: string, id: number) {
+	async adminOfChannel(userName: string, id: number): Promise<GetSanitizeChan> {
 		const user = await this.userService.getUserByUserName(userName);
 		if (!user) {
 			throw new ForbiddenException("This user doesn't exist");
@@ -281,17 +322,48 @@ export class ChannelService {
 				where: {
 					id: id,
 				},
-				include: {
+				select: {
+					id: true,
+					title: true,
+					type: true,
+					mode: true,
+					ownerId: true,
 					members: {
 						select: {
-							id: true,
 							userName: true,
+							id: true,
+						},
+					},
+					banList: {
+						select: {
+							userName: true,
+							id: true,
 						},
 					},
 					operators: {
 						select: {
-							id: true,
 							userName: true,
+							id: true,
+						},
+					},
+					mutedList: {
+						select: {
+							id: true,
+							userId: true,
+							muteExpiration: true,
+						},
+					},
+					messages: {
+						select: {
+							id: true,
+							content: true,
+							authorId: true,
+							author: {
+								select: {
+									id: true,
+									userName: true,
+								},
+							},
 						},
 					},
 				},
@@ -303,7 +375,7 @@ export class ChannelService {
 		newChannel: Prisma.ChannelCreateInput,
 		userId1: number,
 		userId2: number,
-	) {
+	): Promise<void> {
 		const chanAlreadyExist = await this.prisma.channel.findUnique({
 			where: {
 				title: newChannel.title,
@@ -346,12 +418,12 @@ export class ChannelService {
 		}
 	}
 
-	async deleteDm(userName: string, title: string) {
+	async deleteDm(userName: string, title: string): Promise<void> {
 		const user = await this.userService.getUserByUserName(userName);
 		if (!user)
 			throw new ForbiddenException("Can't find user friend, try again");
 		const userChans = await this.getUsersDMs(userName);
-		if (userChans.some((dm: Channel) => dm.title === title)) {
+		if (userChans.some((dm: GetSanitizeChan) => dm.title === title)) {
 			await this.prisma.channel.delete({
 				where: {
 					title,
@@ -360,7 +432,7 @@ export class ChannelService {
 		}
 	}
 
-	async joinPublicChannel(userId: number, channelId: number) {
+	async joinPublicChannel(userId: number, channelId: number): Promise<void> {
 		const user = await this.prisma.user.findUnique({
 			where: {
 				id: userId,
@@ -393,22 +465,33 @@ export class ChannelService {
 		}
 	}
 
-	async getChannelByTitle(title: string) {
+	async getChannelByTitle(title: string): Promise<GetSanitizeChan> {
 		return await this.prisma.channel.findUnique({
 			where: {
 				title: title,
 			},
-			include: {
+			select: {
+				id: true,
+				title: true,
+				type: true,
+				mode: true,
+				ownerId: true,
 				members: {
 					select: {
-						id: true,
 						userName: true,
+						id: true,
+					},
+				},
+				banList: {
+					select: {
+						userName: true,
+						id: true,
 					},
 				},
 				operators: {
 					select: {
-						id: true,
 						userName: true,
+						id: true,
 					},
 				},
 				mutedList: {
@@ -418,50 +501,22 @@ export class ChannelService {
 						muteExpiration: true,
 					},
 				},
+				messages: {
+					select: {
+						id: true,
+						content: true,
+						authorId: true,
+						author: {
+							select: {
+								id: true,
+								userName: true,
+							},
+						},
+					},
+				},
 			},
 		});
 	}
-
-	async getAllPublicChannels() {
-		const chans = await this.prisma.channel.findMany({
-			where: {
-				mode: "Public",
-			},
-		});
-		return chans;
-	}
-
-	// async getPublicChannelsToJoin(userId: number): Promise<ChannelModel[]> {
-	// 	const chans = await this.prisma.channel.findMany({
-	// 		where: {
-	// 			type: "Channel",
-	// 			mode: "Public",
-	// 			members: {
-	// 				none: {
-	// 					id: userId,
-	// 				},
-	// 			},
-	// 			banList: {
-	// 				none: {
-	// 					id: userId,
-	// 				},
-	// 			},
-	// 		},
-	// 		include: {
-	// 			members: {
-	// 				select: { id: true, userName: true },
-	// 			},
-	// 			banList: true,
-	// 			mutedList: true,
-	// 			messages: true,
-	// 			operators: true,
-	// 		},
-	// 	});
-	// 	if (!chans) {
-	// 		throw new ForbiddenException("Error while retrieving the channels");
-	// 	}
-	// 	return chans.map((channel) => new ChannelModel(channel));
-	// }
 
 	async getPublicChannelsToJoin(
 		userId: number,
@@ -525,7 +580,7 @@ export class ChannelService {
 		return chans;
 	}
 
-	async getUsersDMs(username: string) {
+	async getUsersDMs(username: string): Promise<GetSanitizeChan[]> {
 		const user = await this.prisma.user.findUnique({
 			where: {
 				userName: username,
@@ -534,49 +589,121 @@ export class ChannelService {
 		if (!user) {
 			throw new ForbiddenException("User does'nt exist");
 		}
-
 		const chans = await this.prisma.channel.findMany({
-			include: {
-				owner: true,
-				members: true,
-				operators: true,
-				messages: true,
-				banList: true,
-			},
-			where: {
-				type: "DM",
-				members: {
-					some: {
-						id: user.id,
-					},
-				},
-			},
-		});
-		if (!chans) {
-			throw new ForbiddenException("Error while retrieving the channels");
-		}
-		return chans;
-	}
-
-	async getUserDirectMessages(username: string) {
-		const user = await this.prisma.user.findUnique({
-			where: {
-				userName: username,
-			},
-		});
-		if (!user) {
-			throw new ForbiddenException("User does'nt exist");
-		}
-
-		const chans = await this.prisma.channel.findMany({
-			include: {
+			select: {
+				id: true,
+				title: true,
+				type: true,
+				mode: true,
+				ownerId: true,
 				members: {
 					select: {
-						id: true,
 						userName: true,
+						id: true,
 					},
 				},
-				messages: true,
+				banList: {
+					select: {
+						userName: true,
+						id: true,
+					},
+				},
+				operators: {
+					select: {
+						userName: true,
+						id: true,
+					},
+				},
+				mutedList: {
+					select: {
+						id: true,
+						userId: true,
+						muteExpiration: true,
+					},
+				},
+				messages: {
+					select: {
+						id: true,
+						content: true,
+						authorId: true,
+						author: {
+							select: {
+								id: true,
+								userName: true,
+							},
+						},
+					},
+				},
+			},
+			where: {
+				type: "DM",
+				members: {
+					some: {
+						id: user.id,
+					},
+				},
+			},
+		});
+		if (!chans) {
+			throw new ForbiddenException("Error while retrieving the channels");
+		}
+		return chans;
+	}
+
+	async getUserDirectMessages(username: string): Promise<GetSanitizeChan[]> {
+		const user = await this.prisma.user.findUnique({
+			where: {
+				userName: username,
+			},
+		});
+		if (!user) {
+			throw new ForbiddenException("User doesn't exist");
+		}
+		const chans: GetSanitizeChan[] = await this.prisma.channel.findMany({
+			select: {
+				id: true,
+				title: true,
+				type: true,
+				mode: true,
+				ownerId: true,
+				members: {
+					select: {
+						userName: true,
+						id: true,
+					},
+				},
+				banList: {
+					select: {
+						userName: true,
+						id: true,
+					},
+				},
+				operators: {
+					select: {
+						userName: true,
+						id: true,
+					},
+				},
+				mutedList: {
+					select: {
+						id: true,
+						userId: true,
+						muteExpiration: true,
+					},
+				},
+				messages: {
+					select: {
+						id: true,
+						content: true,
+						authorId: true,
+						author: {
+							select: {
+								id: true,
+								userName: true,
+							},
+						},
+					},
+				},
 			},
 			where: {
 				members: {
@@ -593,7 +720,10 @@ export class ChannelService {
 		return chans;
 	}
 
-	async getChanMessages(userName: string, title: string) {
+	async getChanMessages(
+		userName: string,
+		title: string,
+	): Promise<GetSanitizeMessage[]> {
 		const chan = await this.prisma.channel.findUnique({
 			where: {
 				title: title,
@@ -617,8 +747,16 @@ export class ChannelService {
 				},
 			});
 			const msgs = await this.prisma.message.findMany({
-				include: {
-					author: true,
+				select: {
+					id: true,
+					content: true,
+					authorId: true,
+					author: {
+						select: {
+							id: true,
+							userName: true,
+						},
+					},
 					channel: true,
 				},
 				where: {
