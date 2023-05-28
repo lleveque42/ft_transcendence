@@ -1,12 +1,16 @@
-import ChatNav from "../../components/Chat/ChatNav/ChatNav";
-import Message from "../../components/Message/Message";
+import ChatNav from "../../../components/Chat/ChatNav/ChatNav";
+import Message from "../../../components/Message/Message";
 import { useEffect, useState } from "react";
 import { NavLink, useNavigate, useParams } from "react-router-dom";
-import { useUser } from "../../context/UserProvider";
+import { useUser } from "../../../context/UserProvider";
 import { KeyboardEvent } from "react";
-import { ChannelModel, MessageModel, UserModel } from "../../entities/entities";
-import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
-import { useAlert } from "../../context/AlertProvider";
+import {
+	ChannelModel,
+	MessageModel,
+	UserModel,
+} from "../../../entities/entities";
+import { usePrivateRouteSocket } from "../../../context/PrivateRouteProvider";
+import { useAlert } from "../../../context/AlertProvider";
 import { isAfter } from "date-fns";
 
 export default function Channel() {
