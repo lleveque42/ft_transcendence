@@ -90,31 +90,6 @@ export default function DirectMessages() {
 
 	const directMessageList = directMessagesState.map((channel) => {
 		const members = channel.members;
-		// const members = [
-		// 	{ id: 1, userName: "Denis" },
-		// 	{ id: 1, userName: "Denis" },
-		// 	{ id: 1, userName: "Denis" },
-		// 	{ id: 1, userName: "Denis" },
-		// 	{ id: 1, userName: "Denis" },
-		// 	{ id: 1, userName: "Denis" },
-		// 	{ id: 1, userName: "Denis" },
-		// 	{ id: 1, userName: "Denis" },
-		// 	{ id: 1, userName: "Denis" },
-		// 	{ id: 1, userName: "Denis" },
-		// 	{ id: 1, userName: "Denis" },
-		// 	{ id: 1, userName: "Denis" },
-		// 	{ id: 1, userName: "Denis" },
-		// 	{ id: 1, userName: "Denis" },
-		// 	{ id: 1, userName: "Denis" },
-		// 	{ id: 1, userName: "Denis" },
-		// 	{ id: 1, userName: "Denis" },
-		// 	{ id: 1, userName: "Denis" },
-		// 	{ id: 1, userName: "Denis" },
-		// 	{ id: 1, userName: "Denis" },
-		// 	{ id: 1, userName: "Denis" },
-		// 	{ id: 1, userName: "Denis" },
-		// ];
-
 		if (members) {
 			return members.map((member) => {
 				return (
@@ -191,7 +166,7 @@ export default function DirectMessages() {
 			<>
 				<div className={`${styles.dmListContainer}`}>
 					<h2 className="d-flex justify-content p-10">
-						Private messages ({directMessagesState.length})
+						My Private messages ({directMessagesState.length})
 					</h2>
 					{directMessageList.length ? (
 						<ul>{directMessageList}</ul>

@@ -1,10 +1,11 @@
-import ChatNav from "../../components/Chat/ChatNav/ChatNav";
+import ChatNav from "../../../components/Chat/ChatNav/ChatNav";
 import { useState } from "react";
-import { useUser } from "../../context/UserProvider";
-import Input from "../../components/Input/Input";
-import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
-import { useAlert } from "../../context/AlertProvider";
+import { useUser } from "../../../context/UserProvider";
+import Input from "../../../components/Input/Input";
+import { usePrivateRouteSocket } from "../../../context/PrivateRouteProvider";
+import { useAlert } from "../../../context/AlertProvider";
 import { useNavigate } from "react-router-dom";
+import styles from './NewChannel.module.scss'
 
 type FormValues = {
 	title: string;
@@ -81,7 +82,6 @@ export default function NewChannel() {
 				navigate("/chat/channels");
 			} else {
 				showAlert("error", res.statusText);
-				// showAlert("error", "Channel " + formValues.title + " already exists");
 			}
 		} catch (e) {
 			console.error("Error while creating channel");
@@ -94,9 +94,9 @@ export default function NewChannel() {
 			<ChatNav />
 			<form
 				onSubmit={handleSubmit}
-				className="d-flex flex-column align-items justify-content p-20"
+				className={`${styles.formContainer} d-flex flex-column align-items justify-content p-20`}
 			>
-				<div className="mb-5">
+				<div className="mb-10">
 					<label>
 						<input
 							type="radio"
@@ -107,7 +107,7 @@ export default function NewChannel() {
 						Public
 					</label>
 				</div>
-				<div className="mb-5">
+				<div className="mb-10">
 					<label>
 						<input
 							type="radio"
@@ -118,7 +118,7 @@ export default function NewChannel() {
 						Private
 					</label>
 				</div>
-				<div className="mb-10">
+				<div className="mb-20">
 					<label>
 						<input
 							type="radio"
@@ -149,7 +149,7 @@ export default function NewChannel() {
 						/>
 					</>
 				)}
-				<button className="btn-primary p-5 mt-5" type="submit">
+				<button className="btn-primary p-5 mt-10" type="submit">
 					Create channel
 				</button>
 			</form>

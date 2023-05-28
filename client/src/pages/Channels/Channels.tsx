@@ -1,16 +1,19 @@
 import ChatNav from "../../components/Chat/ChatNav/ChatNav";
 import { useEffect, useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useUser } from "../../context/UserProvider";
 import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
 import { ChannelModel } from "../../entities/entities";
 import { useAlert } from "../../context/AlertProvider";
+import styles from "./Channels.module.scss";
+import trimUserName from "../../utils/trimUserName";
 
 export default function Channels() {
 	const { accessToken, user } = useUser();
 	const { chatSocket } = usePrivateRouteSocket();
 	const { showAlert } = useAlert();
 	const [channelsState, setChannelsState] = useState<ChannelModel[]>([]);
+	const navigate = useNavigate();
 
 	useEffect(() => {
 		(async () => {
@@ -61,29 +64,29 @@ export default function Channels() {
 	const channelsList = channelsState.map(({ id, title, ownerId, mode }) => {
 		const chanTitle = title;
 		return (
-			<li key={id}>
-				<div className="d-flex flex-row m-10 justify-content-space-between">
-					<NavLink className={``} to={`/chat/channels/${title}`}>
-						<span>{title}</span>
-					</NavLink>
-					<div className="d-flex flex-row">
-						{user.id === ownerId && (
-							<NavLink
-								className={`btn-primary`}
-								to={`/chat/channels/edit_channel/${title}`}
-							>
-								Edit
-							</NavLink>
-						)}
+			<li className={styles.listElems} key={id}>
+				<p>{trimUserName(title)}</p>
+				<div>
+					<button
+						className="btn btn-primary pl-10 pr-10 mr-10"
+						onClick={() => navigate(`/chat/channels/${title}`)}
+					>
+						Message
+					</button>
+					{user.id === ownerId && (
 						<button
-							onClick={() =>
-								handleLeaveClick(user.userName, user.id, chanTitle)
-							}
-							className="btn-danger ml-10"
+							className="btn btn-reverse-primary pl-10 pr-10 mr-10"
+							onClick={() => navigate(`/chat/channels/edit_channel/${title}`)}
 						>
-							Leave
+							Edit
 						</button>
-					</div>
+					)}
+					<button
+						onClick={() => handleLeaveClick(user.userName, user.id, chanTitle)}
+						className="btn btn-reverse-danger pl-10 pr-10"
+					>
+						Leave
+					</button>
 				</div>
 			</li>
 		);
@@ -122,27 +125,35 @@ export default function Channels() {
 	return (
 		<div className="d-flex flex-column align-items flex-1">
 			<div className="title mt-20">Channels</div>
-			<div>
-				<ChatNav />
-				{
-					<>
-						<h1 className="mt-20">Channels ({channelsState.length})</h1>
-						<ul className="List m-20">{channelsList}</ul>
-						<NavLink
-							className={`btn-primary m-10 d-flex flex-column justify-content align-items`}
-							to="/chat/channels/new_channel"
-						>
-							New Channel
-						</NavLink>
-						<NavLink
-							className={`btn-primary m-10 d-flex flex-column justify-content align-items`}
-							to="/chat/channels/join_channel"
-						>
-							Join Channel
-						</NavLink>
-					</>
-				}
-			</div>
+			<ChatNav />
+			<>
+				<div className={styles.channelsListContainer}>
+					<h2 className="d-flex justify-content p-10">
+						My Channels ({channelsState.length})
+					</h2>
+					{channelsList.length ? (
+						<ul>{channelsList}</ul>
+					) : (
+						<p className="d-flex justify-content align-items m-10">
+							No channels joinned...
+						</p>
+					)}
+				</div>
+				<div className="d-flex flex-row justify-content align-items mt-10">
+					<NavLink
+						className={`${styles.channelsBtn} btn btn-reverse-primary p-5`}
+						to="/chat/channels/new_channel"
+					>
+						New Channel
+					</NavLink>
+					<NavLink
+						className={`${styles.channelsBtn} btn-primary ml-5 p-5`}
+						to="/chat/channels/join_channel"
+					>
+						Join Channel
+					</NavLink>
+				</div>
+			</>
 		</div>
 	);
 }

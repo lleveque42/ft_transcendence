@@ -1,0 +1,10 @@
+@use "../../../assets/styles/mixins" as mixin;
+
+.formContainer {
+	@include mixin.sm-lt {
+		padding: 1rem;
+		div {
+			margin-bottom: 0.5rem;
+		}
+	}
+}

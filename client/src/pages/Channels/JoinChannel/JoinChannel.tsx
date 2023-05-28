@@ -1,10 +1,12 @@
-import ChatNav from "../../components/Chat/ChatNav/ChatNav";
+import ChatNav from "../../../components/Chat/ChatNav/ChatNav";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useUser } from "../../context/UserProvider";
-import { usePrivateRouteSocket } from "../../context/PrivateRouteProvider";
-import { ChannelModel, UserModel } from "../../entities/entities";
-import { useAlert } from "../../context/AlertProvider";
+import { useUser } from "../../../context/UserProvider";
+import { usePrivateRouteSocket } from "../../../context/PrivateRouteProvider";
+import { ChannelModel, UserModel } from "../../../entities/entities";
+import { useAlert } from "../../../context/AlertProvider";
+import styles from "./JoinChannel.module.scss";
+import trimUserName from "../../../utils/trimUserName";
 
 type FormValues = {
 	userId: number;
@@ -106,22 +108,21 @@ export default function JoinChannel() {
 
 	const channelsList = channelsState.map(({ id, title, ownerId }) => {
 		return (
-			<li key={id}>
-				<div>
-					{user.id !== ownerId ? (
-						<>
-							<button
-								className={` btn-primary m-10`}
-								value={id}
-								onClick={() => handleClick(id, title)}
-							>
-								{title}
-							</button>
-						</>
-					) : (
-						<></>
-					)}
-				</div>
+			<li className={styles.listElems} key={id}>
+				{user.id !== ownerId ? (
+					<>
+						<p className="ml-5">{trimUserName(title)}</p>
+						<button
+							className="btn btn-primary mr-10"
+							value={id}
+							onClick={() => handleClick(id, title)}
+						>
+							Join channel
+						</button>
+					</>
+				) : (
+					<></>
+				)}
 			</li>
 		);
 	});
@@ -130,12 +131,20 @@ export default function JoinChannel() {
 		<div className="d-flex flex-column align-items flex-1">
 			<div className="title mt-20">Join channels</div>
 			<ChatNav />
-			{
-				<>
-					<h1>Channels ({channelsState.length})</h1>
-					<ul>{channelsList}</ul>
-				</>
-			}
+			<div className={styles.joinChannelListContainer}>
+				{channelsList.length ? (
+					<>
+						<h2 className="d-flex justify-content p-10">
+							Channels available ({channelsState.length})
+						</h2>
+						<ul>{channelsList}</ul>
+					</>
+				) : (
+					<p className="d-flex flex-column align-items m-20">
+						There are no channels avalaible for you...
+					</p>
+				)}
+			</div>
 		</div>
 	);
 }

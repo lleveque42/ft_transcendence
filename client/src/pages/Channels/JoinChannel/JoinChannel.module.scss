@@ -1,0 +1,57 @@
+@use "../../../assets/styles/mixins" as mixin;
+
+.joinChannelListContainer {
+	display: flex;
+	flex-direction: column;
+	margin-top: 1.5rem;
+	border: 1px solid var(--secondary-dark);
+	border-radius: 5px;
+	box-shadow: var(--box-shadow);
+	min-height: 40vh;
+	max-height: 50vh;
+	width: 40vw;
+
+	@include mixin.sm-lt {
+		width: 80vw;
+		max-height: 45vh;
+	}
+
+	ul {
+		overflow-y: scroll;
+	}
+
+	.listElems {
+		padding: 1rem;
+		margin: 0.5rem;
+		border-bottom: 1px solid var(--secondary-dark);
+		font-size: 1.5rem;
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+
+		p {
+			cursor: default;
+		}
+
+		@include mixin.sm-lt {
+			padding: 0.8rem;
+			font-size: 1rem;
+
+			p {
+				margin: 0;
+			}
+
+			button {
+				margin: 0;
+			}
+		}
+	}
+
+	h2 {
+		@include mixin.sm-lt {
+			font-size: 1rem;
+			padding: 0;
+			padding-top: 0.5rem;
+		}
+	}
+}
