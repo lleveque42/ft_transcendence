@@ -1,4 +1,4 @@
-@use "../../../assets/styles/mixins" as mixin;
+@use "../../../../assets/styles/mixins" as mixin;
 
 .friends {
 	color: var(--purple);
@@ -59,7 +59,7 @@
 
 		@include mixin.sm-lt {
 			p {
-				font-size: 1rem;
+				font-size: 0.7rem;
 			}
 		}
 
@@ -69,7 +69,7 @@
 
 		@include mixin.sm-lt {
 			i {
-				font-size: 5vw;
+				font-size: 1rem;
 			}
 		}
 

@@ -1,15 +1,15 @@
 import { useNavigate } from "react-router-dom";
-import { useAlert, useUser } from "../../../context";
+import { useAlert, useUser } from "../../../../context";
 import styles from "./FriendsList.module.scss";
-import { UserStatus } from "../../../types/UserStatus.enum";
-import trimUserName from "../../../utils/trimUserName";
-import { usePrivateRouteSocket } from "../../../context/PrivateRouteProvider";
+import { UserStatus } from "../../../../types/UserStatus.enum";
+import trimUserName from "../../../../utils/trimUserName";
+import { usePrivateRouteSocket } from "../../../../context/PrivateRouteProvider";
 import {
 	createDmRequest,
 	delDmRequest,
 	usersListDmRequest,
-} from "../../../api";
-import { UserModel } from "../../../entities/entities";
+} from "../../../../api";
+import { UserModel } from "../../../../entities/entities";
 
 export default function FriendsList() {
 	const { user, accessToken } = useUser();
@@ -83,14 +83,7 @@ export default function FriendsList() {
 			<div className={styles.friendsList}>
 				{user.friends.length !== 0 ? (
 					<>
-						<ul className={`pl-5 pr-5`}>
-							<li className={`${styles.listElem} d-flex`}>
-								<span className={`${styles.titleStatusBadge}`} />
-								<h4 className="flex-1 pl-5">Login</h4>
-								<h4 className="pr-10 pl-5">|</h4>
-								<h4 className="d-flex flex-1 justify-content mr-5">Play</h4>
-								<h4 className="d-flex flex-1 justify-content">Dm</h4>
-							</li>
+						<ul className={`pl-5 pr-5 mt-5`}>
 							{user.friends.map((f, i) => (
 								<li className={` ${styles.listElem} d-flex p-5`} key={i}>
 									<span

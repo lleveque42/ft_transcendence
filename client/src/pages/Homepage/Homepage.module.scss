@@ -7,50 +7,239 @@
 .friendsContainer {
 	flex: 20%;
 	max-width: 20rem;
-	// height: 75vh;
 	height: 100%;
 	border: 4px solid var(--purple);
 	border-radius: 5px;
-	box-shadow: var(--box-shadow);
+	box-shadow: var(--box-shadow-nav);
 	padding: 1rem;
 }
 
-.emptyContainer {
+.statsContainer {
+	position: relative;
+	top: -4rem;
 	flex: 20%;
 	max-width: 20rem;
+	width: 100%;
+	border: 4px solid var(--cyan);
+	border-radius: 5px;
+	box-shadow: var(--box-shadow-nav);
+	padding: 1rem;
+
+	@include mixin.sm-lt {
+		display: none;
+	}
+}
+
+.mapsContainer {
+	position: relative;
+	top: -4rem;
+	border: 4px solid var(--deep-purple);
+	border-radius: 5px;
+	flex: 20%;
+	max-width: 20rem;
+	width: 100%;
+	padding: 1rem;
+	box-shadow: var(--box-shadow-nav);
+
+	@include mixin.sm-lt {
+		display: none;
+	}
 }
 
 .mainContainer {
+	margin: 0 4rem;
 	flex: 1;
-
-	// button {
-	// 	margin-left: -20vw;
-	// }
-
-	// button:nth-child(1) {
-	// 	margin-top: -10rem;
-	// }
+	height: 100%;
 }
 
 .titleContainer {
-	flex: 0.2;
+	flex: 0.1;
+	margin: 2rem 0;
+	@include mixin.sm-lt {
+		flex: 0.2;
+	}
 }
 
 .buttonContainer {
-	flex: 0.8;
+	position: relative;
+	top: -8rem;
+	flex: 0.9;
+	width: 100%;
+	@include mixin.sm-lt {
+		flex: 0.8;
+		top: 0rem;
+	}
+	margin-bottom: 0.5rem;
+}
+
+.buttonContainer > button {
+	width: 10rem;
+	height: 3rem;
+	transition: 0.2s;
+	overflow: hidden;
+	box-shadow: var(--box-shadow);
+	margin-bottom: 1rem;
+
+	@include mixin.sm-lt {
+		width: 7rem;
+		height: 2rem;
+		margin-bottom: 0.5rem;
+	}
+
+	&:hover {
+		scale: 1.1;
+		box-shadow: var(--box-shadow-login42);
+	}
+
+	&:active {
+		scale: 1;
+		box-shadow: var(--box-shadow);
+	}
+
+	.buttonText {
+		font-family: var(--game-font);
+		font-weight: 500;
+		font-size: 1rem;
+		position: relative;
+		top: 0.45rem;
+		color: var(--primary-dark);
+		@include mixin.sm-lt {
+			font-size: 0.67rem;
+			top: 0.1rem;
+		}
+	}
+
+	.buttonIcon {
+		font-size: 1.5rem;
+		i {
+			color: var(--primary-dark);
+		}
+		@include mixin.sm-lt {
+			font-size: 1rem;
+		}
+	}
+
+	&:hover .buttonText {
+		animation: moveText 0.4s forwards;
+	}
+
+	&:not(:hover) .buttonText {
+		animation: moveText2 0.2s forwards;
+	}
+
+	&:hover .buttonIcon {
+		animation: moveButton 0.2s forwards;
+		@include mixin.sm-lt {
+			animation: moveButtonSM 0.2s forwards;
+		}
+	}
+
+	&:not(:hover) .buttonIcon {
+		animation: moveButton2 0.4s forwards;
+		@include mixin.sm-lt {
+			animation: moveButton2SM 0.2s forwards;
+		}
+	}
+
+	@keyframes moveText {
+		0% {
+			transform: translateY(0);
+			opacity: 1;
+		}
+		50% {
+			opacity: 1;
+			transform: translateY(-2rem);
+		}
+		51% {
+			opacity: 0;
+		}
+		99% {
+			opacity: 0;
+			transform: translateY(2rem);
+		}
+		100% {
+			opacity: 1;
+			transform: translateY(2rem);
+		}
+	}
+
+	@keyframes moveText2 {
+		0% {
+			transform: translateY(2rem);
+		}
+		100% {
+			transform: translateY(0);
+		}
+	}
+
+	@keyframes moveButton {
+		0% {
+			transform: translateY(2rem);
+		}
+		100% {
+			transform: translateY(-1rem);
+		}
+	}
+
+	@keyframes moveButton2 {
+		0% {
+			transform: translateY(-1rem);
+			opacity: 1;
+		}
+		50% {
+			opacity: 1;
+			transform: translateY(-4rem);
+		}
+		51% {
+			opacity: 0;
+		}
+		99% {
+			opacity: 0;
+			transform: translateY(2rem);
+		}
+		100% {
+			opacity: 1;
+			transform: translateY(2rem);
+		}
+	}
+
+	@keyframes moveButtonSM {
+		0% {
+			transform: translateY(2rem);
+		}
+		100% {
+			transform: translateY(-0.9rem);
+		}
+	}
+
+	@keyframes moveButton2SM {
+		0% {
+			transform: translateY(-0.9rem);
+			opacity: 1;
+		}
+		50% {
+			opacity: 1;
+			transform: translateY(-4rem);
+		}
+		51% {
+			opacity: 0;
+		}
+		99% {
+			opacity: 0;
+			transform: translateY(2rem);
+		}
+		100% {
+			opacity: 1;
+			transform: translateY(2rem);
+		}
+	}
 }
 
 .play {
 	background-color: var(--yellow);
 	border-color: var(--yellow);
-	color: var(--primary-dark);
 	& > i {
 		color: var(--primary-dark);
-	}
-	&:hover {
-		scale: 1.1;
-		background-color: var(--primary);
-		border-color: var(--primary);
 	}
 }
 
@@ -61,11 +250,6 @@
 	& > i {
 		color: var(--primary-dark);
 	}
-	&:hover {
-		scale: 1.1;
-		background-color: var(--primary);
-		border-color: var(--primary);
-	}
 }
 
 .users {
@@ -75,32 +259,28 @@
 	& > i {
 		color: var(--primary-dark);
 	}
-	&:hover {
-		scale: 1.1;
-		background-color: var(--primary);
-		border-color: var(--primary);
-	}
 }
 
 @include mixin.sm-lt {
 	.homepageContainer {
 		flex-direction: column-reverse;
+		justify-content: center;
+		align-items: center;
+		margin: 0.5rem;
 	}
 
-	.homepageButtonContainer {
-		flex: 1%;
-		justify-content: right;
-		button {
-			margin-left: 0;
-			margin-bottom: 0;
-		}
+	.mainContainer {
+		flex: 1;
+		align-items: space-between;
+		margin: 0;
+	}
 
-		button:nth-child(1) {
-			margin-top: 0;
-		}
+	.titleContainer {
+		margin: 1rem 0rem;
 	}
 
 	.friendsContainer {
+		width: 80%;
 		margin-left: 1rem;
 		margin-right: 1rem;
 		margin-bottom: 1rem;

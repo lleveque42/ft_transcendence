@@ -39,10 +39,10 @@ export default function Profile() {
 					else setIsFriend(false);
 				} else {
 					navigate("/");
-					showAlert("error", "User not found");
+					showAlert("error", "User not found.");
 				}
 			} catch (e) {
-				console.error("Error user profile", e);
+				console.error("Error user profile.", e);
 			}
 		};
 		const getUserAvatar = async () => {
@@ -57,11 +57,11 @@ export default function Profile() {
 						setUserProfileAvatar(data);
 					} else setUserProfileAvatar(default_avatar);
 				} else {
-					console.error("Can't load avatar, default avatar is used");
+					console.error("Can't load avatar, default avatar is used.");
 					setUserProfileAvatar(default_avatar);
 				}
 			} catch (e) {
-				console.error("Error get User Avatar", e);
+				console.error("Error get User Avatar.", e);
 				setUserProfileAvatar(default_avatar);
 			}
 		};

@@ -1,19 +1,28 @@
 import styles from "./Homepage.module.scss";
 import { useNavigate } from "react-router-dom";
-import FriendsList from "./components/FriendsList";
-// import { useState } from "react";
+import FriendsList from "./components/FriendsList/FriendsList";
+import Stats from "./components/Stats/Stats";
+import { useUser } from "../../context";
+import { useEffect } from "react";
 
 export default function Homepage() {
 	const navigate = useNavigate();
-	// const [hover, setHover] = useState<boolean>(false);
+	const { isAuth } = useUser();
 
 	function handlePlay() {
 		navigate("/play");
 	}
 
+	useEffect(() => {
+		isAuth();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
 	return (
 		<>
-			<div className={`${styles.homepageContainer} d-flex flex-row flex-1`}>
+			<div
+				className={`${styles.homepageContainer} d-flex flex-row justify-content align-items flex-1`}
+			>
 				<div className={`${styles.friendsContainer} d-flex flex-column`}>
 					<FriendsList />
 				</div>
@@ -21,7 +30,7 @@ export default function Homepage() {
 					className={`${styles.mainContainer} d-flex flex-column align-items justify-content`}
 				>
 					<div
-						className={`${styles.titleContainer}d-flex flex-column align-items mt-20`}
+						className={`title ${styles.titleContainer} d-flex flex-column justify-content align-items`}
 					>
 						<div className="title">PONG</div>
 					</div>
@@ -29,29 +38,42 @@ export default function Homepage() {
 						className={`${styles.buttonContainer} d-flex flex-column align-items justify-content`}
 					>
 						<button
-							className={`btn-primary mb-10 pl-10 pr-10 p-5 ${styles.play}`}
+							className={`btn-primary pl-10 pr-10 p-5 ${styles.play}`}
 							onClick={handlePlay}
 						>
-							<i className="fa-solid fa-gamepad"></i> Play
+							<div className={styles.buttonText}>Play</div>
+							<div className={styles.buttonIcon}>
+								<i className="fa-solid fa-gamepad"></i>
+							</div>
 						</button>
 						<button
-							className={`btn-primary mb-10 pl-10 pr-10 p-5 ${styles.chat}`}
-							onClick={() => navigate("/chat")}
+							className={`btn-primary pl-10 pr-10 p-5 ${styles.chat}`}
+							onClick={() => navigate("/chat/direct_messages")}
 						>
-							<i className="fa-sharp fa-solid fa-comments"></i> Chat
+							<div className={styles.buttonText}>Chat</div>
+							<div className={styles.buttonIcon}>
+								<i className="fa-sharp fa-solid fa-comments"></i>
+							</div>
 						</button>
 						<button
-							className={`btn-primary mb-10 pl-10 pr-10 p-5 ${styles.users}`}
+							className={`btn-primary pl-10 pr-10 p-5 ${styles.users}`}
 							onClick={() => navigate("/users")}
-							// onMouseEnter={() => setHover(true)}
-							// onMouseLeave={() => setHover(false)}
 						>
-							<i className="fa-solid fa-users"></i> Users
-							{/* {hover && "Users"} */}
+							<div className={styles.buttonText}>Users</div>
+							<div className={styles.buttonIcon}>
+								<i className="fa-solid fa-users"></i>
+							</div>
 						</button>
 					</div>
 				</div>
-				<div className={`${styles.emptyContainer}`}>METTRE QUELQUE CHOSE POUR REMPLIR LA PAGE ?</div>
+				<div className="d-flex flex-column justify-content align-items">
+					<div className={`${styles.statsContainer} d-flex flex-column mb-20`}>
+						<Stats />
+					</div>
+					<div className={`${styles.mapsContainer} d-flex flex-column`}>
+						New maps available/ maps qui defilent
+					</div>
+				</div>
 			</div>
 		</>
 	);

@@ -82,6 +82,8 @@ export class AuthController {
 				status: user.status,
 				isTfaEnable: user.isTfaEnable,
 				friends: friends,
+				wins: user.wins,
+				losses: user.losses,
 				blockList: blockList,
 			},
 		};

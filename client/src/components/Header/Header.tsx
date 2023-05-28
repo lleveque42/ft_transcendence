@@ -76,12 +76,19 @@ export default function Header() {
 								USERS
 							</h3>
 						</div>
-
-						<div className="d-flex align-end" ref={menuRef}>
+						<div
+							className={`${styles.menuTriggerContainer} d-flex align-end`}
+							ref={menuRef}
+						>
+							<h3>
+								Welcome
+								<br />
+								{trimUserName(user.userName)}
+							</h3>
 							<div
 								className={`${styles.menuTrigger} d-flex ${
 									openMenu ? styles.menuTriggerActive : ""
-								}`}
+								} align-items justify-content`}
 								onClick={() => setOpenMenu(!openMenu)}
 							>
 								<img src={userAvatar} alt="Avatar" />
@@ -91,7 +98,6 @@ export default function Header() {
 									openMenu ? styles.active : styles.inactive
 								}`}
 							>
-								<h3>Hey {trimUserName(user.userName)}</h3>
 								<ul>
 									<li
 										className={`${styles.dropdownItem}`}
