@@ -252,7 +252,7 @@ export class AppGateway
 	}
 
 	@SubscribeMessage("acceptGameInvite")
-	acceptGameInvite(
+	async acceptGameInvite(
 		@ConnectedSocket() client: Socket,
 		@MessageBody("senderId") senderId: number,
 		@MessageBody("message") message: string,
@@ -262,7 +262,23 @@ export class AppGateway
 			return this.users.emitAllbyUserId(senderId, "inviteDeclined", {
 				message,
 			});
+		const status = await this.userService.getUserStatus(senderId);
+		if (
+			status === UserStatus.INGAME ||
+			this.gameSocket.isInPrivateGame(senderId)
+		) {
+			this.declineGameInvite(
+				senderId,
+				"An invitation you send was accepted but you had already join a game.",
+			);
+			return this.users.emitAllbyUserId(
+				player.id,
+				"inviteInGameAfterAccept",
+				true,
+			);
+		}
 		this.gameSocket.createPrivateGame(senderId, player.id);
+		this.users.emitAllbyUserId(player.id, "inviteInGameAfterAccept", false);
 		this.users.emitAllbyUserId(senderId, "inviteAccepted", {
 			playerId: player.id,
 			message,

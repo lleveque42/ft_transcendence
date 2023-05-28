@@ -22,6 +22,16 @@ export default class PrivateGames {
 		return room;
 	}
 
+	isInPrivateGame(userId: number) {
+		let isIn: boolean = false;
+		this.privateGames.forEach((value) => {
+			if (value.first.id === userId || value.second.id === userId) {
+				return (isIn = true);
+			}
+		});
+		return isIn;
+	}
+
 	hasByUserId(userId: number): string {
 		let room: string = "";
 		this.privateGames.forEach((value, key) => {
