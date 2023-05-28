@@ -9,6 +9,7 @@ import { UserService } from "../user/user.service";
 import { Channel, Muted, Prisma, User } from "@prisma/client";
 import * as argon2 from "argon2";
 import { OnlineUsers } from "../classes/OnlineUsers";
+import { ChannelModel } from "./classes/entities";
 
 @Injectable()
 export class ChannelService {
@@ -430,17 +431,41 @@ export class ChannelService {
 		return chans;
 	}
 
-	// const channel = await prisma.channel.findUnique({
-	// 	where: { id: channelId },
-	// 	select: {
-	// 	  id: true,
-	// 	  members: { select: { id: true, userName: true } },
-	// 	  operators: { select: { id: true, userName: true } },
-	// 	  banList: { select: { id: true, userName: true } },
-	// 	},
-	//   });
+	// async getPublicChannelsToJoin(userId: number): Promise<ChannelModel[]> {
+	// 	const chans = await this.prisma.channel.findMany({
+	// 		where: {
+	// 			type: "Channel",
+	// 			mode: "Public",
+	// 			members: {
+	// 				none: {
+	// 					id: userId,
+	// 				},
+	// 			},
+	// 			banList: {
+	// 				none: {
+	// 					id: userId,
+	// 				},
+	// 			},
+	// 		},
+	// 		include: {
+	// 			members: {
+	// 				select: { id: true, userName: true },
+	// 			},
+	// 			banList: true,
+	// 			mutedList: true,
+	// 			messages: true,
+	// 			operators: true,
+	// 		},
+	// 	});
+	// 	if (!chans) {
+	// 		throw new ForbiddenException("Error while retrieving the channels");
+	// 	}
+	// 	return chans.map((channel) => new ChannelModel(channel));
+	// }
 
-	async getPublicChannelsToJoin(userId: number): Promise<Channel[]> {
+	async getPublicChannelsToJoin(
+		userId: number,
+	): Promise<{ id: number; title: string }[]> {
 		const chans = await this.prisma.channel.findMany({
 			where: {
 				type: "Channel",
@@ -459,23 +484,15 @@ export class ChannelService {
 			select: {
 				id: true,
 				title: true,
-				type: true,
-				mode: true,
-				ownerId: true,
-				messages: true,
-				mutedList: true,
-				members: { select: { id: true, userName: true } },
-				operators: { select: { id: true, userName: true } },
-				banList: { select: { id: true, userName: true } },
 			},
 		});
 		if (!chans) {
 			throw new ForbiddenException("Error while retrieving the channels");
 		}
-		return null;
+		return chans;
 	}
 
-	async getUsersChannels(username: string) {
+	async getUsersChannels(username: string) :Promise<{ id: number; title: string }[]>{
 		const user = await this.prisma.user.findUnique({
 			where: {
 				userName: username,
@@ -486,12 +503,9 @@ export class ChannelService {
 		}
 
 		const chans = await this.prisma.channel.findMany({
-			include: {
-				owner: true,
-				members: true,
-				operators: true,
-				messages: true,
-				banList: true,
+			select: {
+				id: true,
+				title : true,
 			},
 			where: {
 				type: "Channel",

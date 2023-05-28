@@ -34,6 +34,7 @@ import {
 	titleDto,
 	userNameDto,
 } from "./dto/channel.dto";
+import { ChannelModel } from "./classes/entities";
 
 @Controller("channels")
 export class ChannelController {
@@ -46,7 +47,7 @@ export class ChannelController {
 	@Get("/join")
 	async getPublicChannelsToJoin(
 		@GetCurrentUser("sub") userName: string,
-	): Promise<Channel[]> {
+	): Promise<{ id: number; title: string }[]> {
 		try {
 			const user = await this.userService.getUserByUserName(userName);
 			if (!user) {
@@ -63,7 +64,9 @@ export class ChannelController {
 
 	@UseGuards(AtGuard)
 	@Get("/:username")
-	async getUserChans(@Param() params: userNameDto): Promise<Channel[]> {
+	async getUserChans(
+		@Param() params: userNameDto,
+	): Promise<{ id: number; title: string }[]> {
 		try {
 			const channels = await this.channelService.getUsersChannels(
 				params.username,
