@@ -78,10 +78,10 @@ export default function NewChannel() {
 					"Channel " + formValues.title + " created with success",
 				);
 				socket.chatSocket?.emit("joinChatRoom", formValues.title);
-				navigate("/chat/channels");
+				navigate(`/chat/channels/${formValues.title}`);
 			} else {
-				showAlert("error", res.statusText);
-				// showAlert("error", "Channel " + formValues.title + " already exists");
+				const data = await res.json();
+				showAlert("error", data.message);
 			}
 		} catch (e) {
 			console.error("Error while creating channel");
