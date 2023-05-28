@@ -55,6 +55,9 @@ export default function Channels() {
 			);
 			if (res.status === 201) {
 				chatSocket?.emit("exitChatRoom", toEmit);
+			} else {
+				const data = await res.json();
+				showAlert("error", data.message);
 			}
 		} catch (e) {
 			console.error("Error leaving channel");
@@ -98,11 +101,26 @@ export default function Channels() {
 				setChannelsState([...channelsState, chan]);
 			}
 		};
+		const leftListener = (
+			chan: ChannelModel,
+			username: string,
+			mode: string,
+		) => {
+			if (username === user.userName && (mode === "ban" || mode === "kick")) {
+				showAlert("error", "You've been " + mode + " from " + chan.title);
+				const filterChans = channelsState.filter((el) => {
+					return el.id !== chan.id;
+				});
+				setChannelsState(filterChans);
+			}
+		};
 		chatSocket?.on("newInvitedChan", inviteListener);
+		chatSocket?.on("newLeftChan", leftListener);
 		return () => {
 			chatSocket?.off("newInvitedChan");
+			chatSocket?.off("newLeftChan");
 		};
-	}, [chatSocket, channelsState, user.id]);
+	}, [chatSocket, channelsState, user.id, user.userName, showAlert]);
 
 	useEffect(() => {
 		const chanListener = (
@@ -111,6 +129,7 @@ export default function Channels() {
 			mode: string,
 		) => {
 			if (username === user.userName && mode === "leave") {
+				console.log("Delete one netry");
 				setChannelsState(channelsState.filter((c) => c.id !== chan.id));
 			} else if (username !== user.userName && mode === "leave") {
 				showAlert("success", username + " leaved the channel");

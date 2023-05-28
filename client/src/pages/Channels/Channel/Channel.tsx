@@ -1,7 +1,7 @@
 import ChatNav from "../../../components/Chat/ChatNav/ChatNav";
 import Message from "../../../components/Message/Message";
 import { useEffect, useRef, useState } from "react";
-import { NavLink, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useUser } from "../../../context/UserProvider";
 import { KeyboardEvent } from "react";
 import {
@@ -290,11 +290,14 @@ export default function Channel() {
 			);
 			if (res.status === 201) {
 				chatSocket?.emit("exitChatRoom", toEmit);
+				showAlert("success", userName + " has been kicked");
 				// setInfoBool(true);
 				// setuserBool(false);
 				// setInviteBool(false);
+				isAuth();
 			} else {
-				showAlert("error", res.statusText);
+				const data = await res.json();
+				showAlert("error", data.message);
 			}
 		} catch (e) {
 			console.error("Error kicking from channel");
@@ -335,7 +338,8 @@ export default function Channel() {
 			} else if (res.status === 403) {
 				showAlert("error", "User already blocked");
 			} else {
-				showAlert("error", res.statusText);
+				const data = await res.json();
+				showAlert("error", data.message);
 			}
 		} catch (e) {
 			console.error("Error blocking from user");
@@ -375,7 +379,8 @@ export default function Channel() {
 				// setuserBool(false);
 				// setInviteBool(false);
 			} else {
-				showAlert("error", res.statusText);
+				const data = await res.json();
+				showAlert("error", data.message);
 			}
 		} catch (e) {
 			console.error("Error bannishing from channel");
@@ -415,7 +420,8 @@ export default function Channel() {
 				// setuserBool(false);
 				// setInviteBool(false);
 			} else {
-				showAlert("error", res.statusText);
+				const data = await res.json();
+				showAlert("error", data.message);
 			}
 		} catch (e) {
 			console.error("Error muting from channel");
@@ -447,7 +453,8 @@ export default function Channel() {
 				// setuserBool(false);
 				// setInviteBool(false);
 			} else {
-				showAlert("error", res.statusText);
+				const data = await res.json();
+				showAlert("error", data.message);
 			}
 		} catch (e) {
 			console.error("Error adminishing from channel");
@@ -516,7 +523,8 @@ export default function Channel() {
 				// setuserBool(false);
 				// setInviteBool(false);
 			} else {
-				// To dooooooooooooooo
+				const data = await res.json();
+				showAlert("error", data.message);
 			}
 			navigate(`/chat/channels/${chanInfo?.title}`);
 		} catch (e) {
@@ -524,15 +532,15 @@ export default function Channel() {
 		}
 	}
 
-	useEffect(() => {
-		const joinedListener = (chan: ChannelModel) => {
-			setChanInfo(chan);
-		};
-		chatSocket?.on("userJoinedChan", joinedListener);
-		return () => {
-			chatSocket?.off("userJoinedChan");
-		};
-	}, [chanInfo, chatSocket]);
+	// useEffect(() => {
+	// 	const joinedListener = (chan: ChannelModel) => {
+	// 		setChanInfo(chan);
+	// 	};
+	// 	chatSocket?.on("userJoinedChan", joinedListener);
+	// 	return () => {
+	// 		chatSocket?.off("userJoinedChan");
+	// 	};
+	// }, [chanInfo, chatSocket]);
 
 	useEffect(() => {
 		const inviteListener = (chan: ChannelModel, user: UserModel) => {
@@ -569,6 +577,8 @@ export default function Channel() {
 				chan.title === chanInfo?.title
 			) {
 				showAlert("success", "You've been muted 30 seconds from this channel");
+			} else if (chanInfo?.title === chan.title) {
+				setChanInfo(chan);
 			} else {
 				return;
 			}

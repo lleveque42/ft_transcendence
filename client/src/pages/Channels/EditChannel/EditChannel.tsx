@@ -127,7 +127,8 @@ export default function EditChannel() {
 				chatSocket?.emit("joinChatRoom", formValues.title);
 				navigate("/chat/channels");
 			} else {
-				showAlert("error", res.statusText);
+				const data = await res.json();
+				showAlert("error", data.message);
 			}
 		} catch (e) {
 			console.error("Can't edit the channel");

@@ -58,9 +58,21 @@ export default function JoinChannel() {
 				setChannelsState(filterChans);
 			}
 		};
+		const removeFromJoinListener = (
+			chan: ChannelModel,
+			username: string,
+			mode: string,
+		) => {
+			const filterChans = channelsState.filter((el) => {
+				return el.id !== chan.id;
+			});
+			setChannelsState(filterChans);
+		};
 		chatSocket?.on("addChannelToJoin", chanListener);
+		chatSocket?.on("removeFromJoin", removeFromJoinListener);
 		return () => {
 			chatSocket?.off("addChannelToJoin");
+			chatSocket?.off("removeFromJoin");
 		};
 	}, [chatSocket, channelsState]);
 
@@ -99,6 +111,8 @@ export default function JoinChannel() {
 				showAlert("success", `You've been add to the chan`);
 				navigate(`/chat/channels/${title}`);
 			} else {
+				const data = await res.json();
+				showAlert("error", data.message);
 				navigate(`/chat/channels/${title}`);
 			}
 		} catch (e) {

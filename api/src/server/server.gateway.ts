@@ -199,14 +199,28 @@ export class ServerGateway
 		},
 	): Promise<void> {
 		const user = await this.userService.getUserByUserName(data.userName);
-		this.io
-			.to(data.room)
-			.emit(
-				"kickOrBanOrLeaveFromChannel",
-				await this.channelService.getChannelByTitle(data.room),
-				data.userName,
-				data.mode,
-			);
+		if (user) {
+			this.io
+				.to(data.room)
+				.emit(
+					"kickOrBanOrLeaveFromChannel",
+					await this.channelService.getChannelByTitle(data.room),
+					data.userName,
+					data.mode,
+				);
+			this.io
+				.to(data.room)
+				.emit(
+					"newLeftChan",
+					await this.channelService.getChannelByTitle(data.room),
+					data.userName,
+					data.mode,
+				);
+			const chan = await this.channelService.getChannelByTitle(data.room);
+			if (user && chan) {
+				this.io.to(chan.title).emit("addChannelToJoin", chan, user.id);
+			}
+		}
 		const sockets = await this.users.getClientsByUserId(user.id);
 		if (sockets) {
 			for (const socket of sockets) {
@@ -279,6 +293,8 @@ export class ServerGateway
 				this.io.to(chan.title).emit("userJoinedChan", chan);
 				this.io.to(chan.title).emit("removeFromInviteList", chan, user);
 				this.io.to(chan.title).emit("newInvitedChan", chan, data.userId);
+				this.io.to(chan.title).emit("removeFromJoin", chan, data.userId);
+				this.io.to(chan.title).emit("addChannelToJoin", chan, data.userId);
 			}
 		}
 	}

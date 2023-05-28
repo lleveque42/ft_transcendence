@@ -17,7 +17,11 @@ import { AtGuard } from "../auth/guards";
 import { GetCurrentUser } from "../common/decorators";
 import { Channel, Message, User } from "@prisma/client";
 import { Response } from "express";
-import { GetUserList } from "../common/types";
+import {
+	GetSanitizeChan,
+	GetSanitizeMessage,
+	GetUserList,
+} from "../common/types";
 import {
 	AddInviteDto,
 	AdminDto,
@@ -81,7 +85,7 @@ export class ChannelController {
 	@Get("/dm/:username")
 	async getUserDirectMessages(
 		@Param() params: userNameDto,
-	): Promise<Channel[]> {
+	): Promise<GetSanitizeChan[]> {
 		try {
 			const channels = await this.channelService.getUserDirectMessages(
 				params.username,
@@ -97,7 +101,7 @@ export class ChannelController {
 	async getChanMessages(
 		@GetCurrentUser("sub") userName: string,
 		@Param() params: titleDto,
-	): Promise<Message[] | null> {
+	): Promise<GetSanitizeMessage[] | null> {
 		try {
 			const msgs = await this.channelService.getChanMessages(
 				userName,
@@ -111,7 +115,7 @@ export class ChannelController {
 
 	@UseGuards(AtGuard)
 	@Get("/edit/:title")
-	async getChanInfos(@Param() params: titleDto): Promise<Channel> {
+	async getChanInfos(@Param() params: titleDto): Promise<GetSanitizeChan> {
 		try {
 			const chan = await this.channelService.getChannelByTitle(params.title);
 			return chan;
@@ -156,9 +160,9 @@ export class ChannelController {
 	async createChannel(
 		@Body() body: NewChannelDto,
 		@Res({ passthrough: true }) res: Response,
-	) {
+	): Promise<void> {
 		try {
-			const chan = await this.channelService.createChannel(
+			await this.channelService.createChannel(
 				{
 					title: body.title,
 					type: body.type,
@@ -178,7 +182,7 @@ export class ChannelController {
 	async editChannel(
 		@Body() body: EditChannelDto,
 		@Res({ passthrough: true }) res: Response,
-	) {
+	): Promise<void> {
 		try {
 			await this.channelService.updateChannel(
 				{
@@ -200,7 +204,7 @@ export class ChannelController {
 	async leaveFromChannel(
 		@Body() body: LeaveChannelDto,
 		@Res({ passthrough: true }) res: Response,
-	) {
+	): Promise<void> {
 		try {
 			await this.channelService.leaveFromChannel(
 				body.userName,
@@ -217,7 +221,7 @@ export class ChannelController {
 	async kickFromChannel(
 		@Body() body: BanOrKickDto,
 		@Res({ passthrough: true }) res: Response,
-	) {
+	): Promise<void> {
 		try {
 			await this.channelService.kickFromChannel(body.userName, body.id);
 		} catch (e) {
@@ -230,7 +234,7 @@ export class ChannelController {
 	async banFromChannel(
 		@Body() body: BanOrKickDto,
 		@Res({ passthrough: true }) res: Response,
-	) {
+	): Promise<void> {
 		try {
 			await this.channelService.banFromChannel(body.userName, body.id);
 		} catch (e) {
@@ -243,7 +247,7 @@ export class ChannelController {
 	async muteInChannel(
 		@Body() body: MuteDto,
 		@Res({ passthrough: true }) res: Response,
-	) {
+	): Promise<GetSanitizeChan> {
 		try {
 			const chan = await this.channelService.muteInChannel(
 				body.chanId,
@@ -261,12 +265,9 @@ export class ChannelController {
 	async adminOfChannel(
 		@Body() body: AdminDto,
 		@Res({ passthrough: true }) res: Response,
-	) {
+	): Promise<void> {
 		try {
-			const chan = await this.channelService.adminOfChannel(
-				body.userName,
-				body.id,
-			);
+			await this.channelService.adminOfChannel(body.userName, body.id);
 		} catch (e) {
 			throw new HttpException(e.message, HttpStatus.FORBIDDEN);
 		}
@@ -296,7 +297,7 @@ export class ChannelController {
 	async FdelDm(
 		@GetCurrentUser("sub") userName: string,
 		@Body() body: titleDmDto,
-	) {
+	): Promise<void> {
 		try {
 			await this.channelService.deleteDm(userName, body.title);
 		} catch (e) {
