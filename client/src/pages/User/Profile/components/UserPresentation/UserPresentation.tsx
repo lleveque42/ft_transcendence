@@ -32,14 +32,14 @@ const UserPresentation = ({
 			const res = await toggleFriendshipRequest(accessToken, userName, method);
 			if (method === "DELETE" && res.status === 204) {
 				await isAuth();
-				showAlert("warning", "Removed from friends");
+				showAlert("warning", `${userName} removed from friends.`);
 			} else if (res.ok) {
 				await isAuth();
-				showAlert("info", "Added to friends");
-			} else showAlert("error", "A problem occured, try again later");
+				showAlert("info", `${userName} added to friends.`);
+			} else showAlert("error", "A problem occured, try again later.");
 		} catch (e) {
 			console.error("Error remove from friend: ", e);
-			showAlert("error", "A problem occured, try again later");
+			showAlert("error", "A problem occured, try again later.");
 		}
 	}
 
@@ -77,14 +77,14 @@ const UserPresentation = ({
 						className="btn btn-reverse-danger p-5 mt-20"
 						onClick={toggleFriendship}
 					>
-						Unfollow
+						Remove from friends
 					</button>
 				) : (
 					<button
 						className="btn btn-reverse-primary p-5 mt-20"
 						onClick={toggleFriendship}
 					>
-						Follow
+						Add to friends
 					</button>
 				)
 			) : (

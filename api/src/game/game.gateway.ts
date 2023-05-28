@@ -74,6 +74,22 @@ export class GameGateway
 					map: game.map,
 				},
 			);
+		} else {
+			client.emit(
+				"connectionStatus",
+				{ success: true, inGame: false, inOption: true },
+				{
+					room: game.id,
+					ownerId: game.ownerId,
+					ownerUserName: game.owner.userName,
+					playerId: game.playerId,
+					playerUserName: game.player.userName,
+					ownerScore: game.ownerScore,
+					playerScore: game.playerScore,
+					accelerator: game.accelerator,
+					map: game.map,
+				},
+			);
 		}
 		this.users.emitAllbyUserId(opponent.id, "reconnection", undefined);
 	}
@@ -126,7 +142,8 @@ export class GameGateway
 		}
 		setTimeout(() => {
 			if (!this.ongoing.getGameById(room)) {
-				this.users.emitAllbyUserId(user.id, "privateGameDisconnection", "");
+				if (this.users.hasByUserId(user.id))
+					this.users.emitAllbyUserId(user.id, "privateGameDisconnection", "");
 				this.privateGames.deleteGame(room);
 			}
 		}, DISCONNECTION_TIMEOUT);

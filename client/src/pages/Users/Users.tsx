@@ -87,15 +87,15 @@ export default function Users() {
 			if (method === "DELETE" && res.status === 204) {
 				await isAuth();
 				updateUsersListFriendship(userId, false);
-				showAlert("warning", "Removed from friends");
+				showAlert("warning", `${userName} removed from friends.`);
 			} else if (res.ok) {
 				await isAuth();
 				updateUsersListFriendship(userId, true);
-				showAlert("info", "Added to friends");
-			} else showAlert("error", "A problem occured, try again later");
+				showAlert("info", `${userName} added to friends.`);
+			} else showAlert("error", "A problem occured, try again later.");
 		} catch (e) {
 			console.error("Error remove from friend: ", e);
-			showAlert("error", "A problem occured, try again later");
+			showAlert("error", "A problem occured, try again later.");
 		}
 	}
 
@@ -122,7 +122,7 @@ export default function Users() {
 				if (usersJoinable.some((u) => u.id === userToDmId)) return true;
 			}
 		} catch (e) {
-			showAlert("error", "An error occured, try again later");
+			showAlert("error", "An error occured, try again later.");
 			console.error(e);
 		}
 		return false;
@@ -159,9 +159,9 @@ export default function Users() {
 				return;
 			}
 			await delDmRequest(title, accessToken);
-			showAlert("error", `You or ${friendUserName} have blocked each other`);
+			showAlert("error", `You or ${friendUserName} have blocked each other.`);
 		} catch (e) {
-			showAlert("error", "An error occured, try again later");
+			showAlert("error", "An error occured, try again later.");
 			console.error(e);
 		}
 	}

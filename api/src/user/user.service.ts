@@ -415,6 +415,14 @@ export class UserService {
 		return authenticator.verify({ token: code, secret: user.tfaSecret });
 	}
 
+	async getUserStatus(userId: number): Promise<UserStatus> {
+		const status = await this.prisma.user.findUnique({
+			where: { id: userId },
+			select: { status: true },
+		});
+		return status.status;
+	}
+
 	async changeUserStatus(userId: number, newStatus: UserStatus) {
 		await this.prisma.user.update({
 			where: { id: userId },

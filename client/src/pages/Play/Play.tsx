@@ -75,6 +75,7 @@ export default function Play() {
 					success: boolean;
 					inGame: boolean;
 					afk?: boolean | false;
+					inOption?: boolean | false;
 				},
 				game: {
 					room: string;
@@ -112,9 +113,26 @@ export default function Play() {
 					setAcceleratorOption(game.accelerator);
 					setMapOption(game.map);
 					setGameUserStatus(GameUserStatus.waitingGameRestart);
+				} else if (status.inOption) {
+					setGameStatus(
+						alreadyInGame(
+							gameStatus,
+							user,
+							game.room,
+							game.ownerScore,
+							game.playerScore,
+							game.ownerId,
+							game.ownerUserName,
+							game.playerId,
+							game.playerUserName,
+							game.map,
+							game.accelerator,
+						),
+					);
+					setGameUserStatus(GameUserStatus.choosingOptions);
 				} else if (status.afk) setGameUserStatus(GameUserStatus.detectedAfk);
 				else setGameUserStatus(GameUserStatus.connected);
-				if (status.inGame)
+				if (status.inGame || status.inOption)
 					socket?.emit("userStatusInGame", {
 						ownerId: game.ownerId,
 						playerId: game.playerId,

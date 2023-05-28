@@ -36,13 +36,13 @@ export default function Homepage() {
 						</button>
 						<button
 							className={`btn-primary mb-10 pl-10 pr-10 p-5 ${styles.chat}`}
-							onClick={handlePlay}
+							onClick={() => navigate("/chat")}
 						>
 							<i className="fa-sharp fa-solid fa-comments"></i> Chat
 						</button>
 						<button
 							className={`btn-primary mb-10 pl-10 pr-10 p-5 ${styles.users}`}
-							onClick={handlePlay}
+							onClick={() => navigate("/users")}
 							// onMouseEnter={() => setHover(true)}
 							// onMouseLeave={() => setHover(false)}
 						>
