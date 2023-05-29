@@ -67,25 +67,29 @@ export default function Channels() {
 	const channelsList = channelsState.map(({ id, title, ownerId, mode }) => {
 		const chanTitle = title;
 		return (
-			<li className={styles.listElems} key={id}>
+			<li
+				className={`${styles.listElems} d-flex justify-content align-items`}
+				key={id}
+				onClick={() => navigate(`/chat/channels/${title}`)}
+			>
 				<p>{trimUserName(title)}</p>
-				<div>
-					<button
-						className="btn btn-primary pl-10 pr-10 mr-10"
-						onClick={() => navigate(`/chat/channels/${title}`)}
-					>
-						Message
-					</button>
+				<div className="d-flex justify-content align-items">
 					{user.id === ownerId && (
 						<button
 							className="btn btn-reverse-primary pl-10 pr-10 mr-10"
-							onClick={() => navigate(`/chat/channels/edit_channel/${title}`)}
+							onClick={(e) => {
+								e.stopPropagation();
+								navigate(`/chat/channels/edit_channel/${title}`);
+							}}
 						>
 							Edit
 						</button>
 					)}
 					<button
-						onClick={() => handleLeaveClick(user.userName, user.id, chanTitle)}
+						onClick={(e) => {
+							e.stopPropagation();
+							handleLeaveClick(user.userName, user.id, chanTitle);
+						}}
 						className="btn btn-reverse-danger pl-10 pr-10"
 					>
 						Leave
@@ -143,7 +147,7 @@ export default function Channels() {
 
 	return (
 		<div className="d-flex flex-column align-items flex-1">
-			<div className="title mt-20">Channels</div>
+			<div className={`${styles.title} title mt-20`}>Channels</div>
 			<ChatNav />
 			<>
 				<div className={styles.channelsListContainer}>
@@ -154,22 +158,28 @@ export default function Channels() {
 						<ul>{channelsList}</ul>
 					) : (
 						<p className="d-flex justify-content align-items m-10">
-							No channels joinned...
+							No channels joined...
 						</p>
 					)}
 				</div>
 				<div className="d-flex flex-row justify-content align-items mt-10">
 					<NavLink
-						className={`${styles.channelsBtn} btn btn-reverse-primary p-5`}
+						className={`${styles.channelsBtn} btn d-flex flex-column justify-content align-items pl-10 pr-10 p-5 `}
 						to="/chat/channels/new_channel"
 					>
-						New Channel
+						<div className={styles.buttonText}>New channel</div>
+						<div className={styles.buttonIcon}>
+							<i className="fa-solid fa-plus"></i>
+						</div>
 					</NavLink>
 					<NavLink
-						className={`${styles.channelsBtn} btn-primary ml-5 p-5`}
+						className={`${styles.channelsBtn} btn d-flex flex-column justify-content align-items pl-10 pr-10 p-5 ml-5`}
 						to="/chat/channels/join_channel"
 					>
-						Join Channel
+						<div className={styles.buttonText}>Join Channel</div>
+						<div className={styles.buttonIcon}>
+							<i className="fa-solid fa-right-to-bracket"></i>
+						</div>
 					</NavLink>
 				</div>
 			</>

@@ -29,7 +29,8 @@ export default function Channel() {
 	const [chanInfo, setChanInfo] = useState<ChannelModel>();
 	const [currentUserName, setCurrentUserName] = useState("");
 	const [currentUserId, setCurrentUserId] = useState(0);
-	const [currentUserAdmin, setCurrentUserAdmin] = useState(false);
+	// const [currentUserAdmin, setCurrentUserAdmin] = useState(false);
+	const [currentUserBlocked, setCurrentUserBlocked] = useState(false);
 	const [isOp, setOp] = useState(false);
 	const [currentTime, setCurrentTime] = useState(new Date());
 	const navigate = useNavigate();
@@ -93,9 +94,14 @@ export default function Channel() {
 		setCurrentUserId(userId);
 		chanInfo?.operators.forEach((op) => {
 			if (op.id === userId) {
-				setCurrentUserAdmin(true);
+				// setCurrentUserAdmin(true);
 			}
 		});
+		if (user.blockList.some((el) => el.userName === userName)) {
+			setCurrentUserBlocked(true);
+		} else {
+			setCurrentUserBlocked(false);
+		}
 		setManageUserModal(!manageUserModal);
 	}
 
@@ -307,9 +313,8 @@ export default function Channel() {
 			);
 			if (res.status === 201) {
 				chatSocket?.emit("blockUser", toEmit);
-				showAlert("success", userBottomName + " has been blocked");
+				showAlert("success", "Operation success");
 				setManageUserModal(false);
-
 				isAuth();
 			} else if (res.status === 403) {
 				showAlert("error", "User already blocked");
@@ -691,7 +696,36 @@ export default function Channel() {
 								>
 									Invite to Play
 								</button>
-								<button
+								{!currentUserBlocked ? (
+									<button
+										onClick={() =>
+											handleBlock(
+												user.userName,
+												user.id,
+												currentUserName,
+												currentUserId,
+											)
+										}
+										className="btn btn-reverse-danger mt-10"
+									>
+										Block
+									</button>
+								) : (
+									<button
+										onClick={() =>
+											handleBlock(
+												user.userName,
+												user.id,
+												currentUserName,
+												currentUserId,
+											)
+										}
+										className="btn btn-reverse-danger mt-10"
+									>
+										Unblock
+									</button>
+								)}
+								{/* <button
 									onClick={() =>
 										handleBlock(
 											user.userName,
@@ -703,7 +737,7 @@ export default function Channel() {
 									className="btn btn-reverse-danger mt-10"
 								>
 									Block
-								</button>
+								</button> */}
 								{/* {user.id === chanInfo?.ownerId && !currentUserAdmin && (
 									<button
 										onClick={() => handleAdmin(currentUserName, currentUserId)}

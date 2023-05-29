@@ -72,6 +72,7 @@
 
 .messagesList {
 	margin-top: 1.5rem;
+	padding: 1rem;
 	border: 2px solid var(--secondary-dark);
 	border-radius: 5px;
 	box-shadow: var(--box-shadow);
@@ -83,6 +84,7 @@
 		height: 35vh;
 		width: 80vw;
 		margin-top: 1rem;
+		padding: 0.5rem;
 	}
 
 	.blockedMessageContainer {
@@ -98,4 +100,9 @@
 			color: var(--secondary-dark);
 		}
 	}
+}
+
+.start {
+	text-align: center;
+	line-height: 1.2rem;
 }

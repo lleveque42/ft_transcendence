@@ -6,6 +6,7 @@ import Input from "../../../components/Input/Input";
 import { useAlert } from "../../../context/AlertProvider";
 import { ChannelModel } from "../../../entities/entities";
 import { usePrivateRouteSocket } from "../../../context/PrivateRouteProvider";
+import styles from "../NewChannel/NewChannel.module.scss";
 
 type FormValues = {
 	title: string | undefined;
@@ -150,36 +151,36 @@ export default function EditChannel() {
 		channelForm = (
 			<>
 				<div key={id} className="mb-10">
-					<label>
+					<label className={`${styles.radio}`}>
 						<input
 							type="radio"
 							value="Public"
 							checked={formValues.mode === "Public"}
 							onChange={handleRadioChange}
 						/>
-						Public
+						&nbsp;Public
 					</label>
 				</div>
 				<div className="mb-10">
-					<label>
+					<label className={`${styles.radio}`}>
 						<input
 							type="radio"
 							value="Private"
 							checked={formValues.mode === "Private"}
 							onChange={handleRadioChange}
 						/>
-						Private
+						&nbsp;Private
 					</label>
 				</div>
 				<div className="mb-20">
-					<label>
+					<label className={`${styles.radio}`}>
 						<input
 							type="radio"
 							value="Protected"
 							checked={formValues.mode === "Protected"}
 							onChange={handleRadioChange}
 						/>
-						Protected
+						&nbsp;Protected
 					</label>
 				</div>
 				{(chanProtected || channelState.mode === "Protected") && (
@@ -207,8 +208,14 @@ export default function EditChannel() {
 				className="d-flex flex-column align-items justify-content p-20"
 			>
 				{channelForm}
-				<button className="btn btn-primary pr-20 pl-20 p-5" type="submit">
-					Edit
+				<button
+					className={`${styles.createBtn} btn d-flex flex-column justify-content align-items pl-10 pr-10 p-5 `}
+					type="submit"
+				>
+					<div className={styles.buttonText}>Edit channel</div>
+					<div className={styles.buttonIcon}>
+						<i className="fa-solid fa-pen-to-square"></i>
+					</div>
 				</button>
 			</form>
 		</div>

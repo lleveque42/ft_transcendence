@@ -1,5 +1,9 @@
 .messageContainer {
 	p {
+		background-color: var(--secondary-dark);
+		border-radius: 5px;
+		padding: 0.5rem;
+		font-family: var(--font-family);
 		max-width: 50%;
 		display: flex;
 		word-break: break-all;

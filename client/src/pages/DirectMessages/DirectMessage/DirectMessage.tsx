@@ -175,7 +175,7 @@ export default function DirectMessage() {
 						{messagesList.length ? (
 							<ul className="mt-10">{messagesList}</ul>
 						) : (
-							<p className="d-flex justify-content mt-20 p-10">
+							<p className={`${styles.start} d-flex justify-content mt-20 p-10`}>
 								Start the conversation with {trimUserName(otherUser?.userName)}
 							</p>
 						)}
