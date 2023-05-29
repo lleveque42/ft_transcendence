@@ -1,12 +1,41 @@
 @use "../../../assets/styles/mixins" as mixin;
 
+.chanHeader {
+	border: 2px var(--orange) solid;
+	width: 50vw;
+	padding: 1rem;
+	border-radius: 5px;
+
+	h2 {
+		font-size: 1rem;
+		font-family: var(--game-font);
+		font-weight: 500;
+		color: var(--light-grey);
+		cursor: pointer;
+		transition: 0.2s;
+		&:hover {
+			color: var(--primary);
+		}
+	}
+
+	@include mixin.sm-lt {
+		width: 80vw;
+		padding: 0.5rem;
+
+		h2 {
+			font-size: 0.5rem;
+		}
+	}
+}
+
 .channelContainer {
 	margin-top: 0.5rem;
-	border: 1px solid var(--secondary-dark);
 	border-radius: 5px;
-	box-shadow: var(--box-shadow);
-	height: 50vh;
-	width: 60vw;
+	height: 45vh;
+	width: 50vw;
+	border: 2px var(--secondary-dark) solid;
+	padding: 1rem;
+	border-radius: 5px;
 
 	@include mixin.sm-lt {
 		margin-top: 0.2rem;
@@ -32,11 +61,11 @@
 }
 
 .usersList {
-	margin-top: 2.4rem;
+	margin-top: 4.7rem;
 	border: 1px solid var(--secondary-dark);
 	border-radius: 5px;
 	box-shadow: var(--box-shadow);
-	height: 50vh;
+	height: 45vh;
 	min-width: 10vw;
 	overflow-y: scroll;
 
