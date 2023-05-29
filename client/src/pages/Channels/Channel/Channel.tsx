@@ -496,16 +496,6 @@ export default function Channel() {
 		}
 	}
 
-	// useEffect(() => {
-	// 	const joinedListener = (chan: ChannelModel) => {
-	// 		setChanInfo(chan);
-	// 	};
-	// 	chatSocket?.on("userJoinedChan", joinedListener);
-	// 	return () => {
-	// 		chatSocket?.off("userJoinedChan");
-	// 	};
-	// }, [chanInfo, chatSocket]);
-
 	useEffect(() => {
 		const inviteListener = (chan: ChannelModel, user: UserModel) => {
 			setInviteState(
@@ -577,7 +567,7 @@ export default function Channel() {
 	}, [chatSocket, socket, navigate, showAlert, user.userName, chanInfo?.title]);
 
 	return (
-		<div className="d-flex flex-column align-items flex-1">
+		<div className="d-flex flex-column justify-content align-items flex-1">
 			<div className="title mt-20">Channels</div>
 			<ChatNav />
 			{chanInfo?.mode === "Protected" && !authenticate ? (

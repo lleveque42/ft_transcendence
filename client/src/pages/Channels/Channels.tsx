@@ -145,7 +145,7 @@ export default function Channels() {
 	}, [channelsState, chatSocket, showAlert, user.userName]);
 
 	return (
-		<div className="d-flex flex-column align-items flex-1">
+		<div className="d-flex flex-column justify-content align-items flex-1">
 			<div className={`${styles.title} title mt-20`}>Channels</div>
 			<ChatNav />
 			<>
