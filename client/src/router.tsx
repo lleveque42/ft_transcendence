@@ -4,7 +4,6 @@ import NotFound from "./components/NotFound";
 import Homepage from "./pages/Homepage/Homepage";
 import Login from "./pages/Login/Login";
 import Login42 from "./pages/Login/Login42/Login42";
-import Signup from "./pages/Signup/Signup";
 import PrivateRoute from "./components/Routes/PrivateRoute";
 import PublicRoute from "./components/Routes/PublicRoute";
 import DirectMessages from "./pages/DirectMessages/DirectMessages";
