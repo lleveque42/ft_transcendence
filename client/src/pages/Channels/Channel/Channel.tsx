@@ -593,7 +593,9 @@ export default function Channel() {
 				<div>
 					<div className="d-flex flex-row mt-10 flex-1">
 						<div className="d-flex flex-column justify-content align-items">
-							<div className={`${styles.chanHeader} d-flex flex-row align-items`}>
+							<div
+								className={`${styles.chanHeader} d-flex flex-row align-items`}
+							>
 								<h2 className="ml-10">{chanInfo?.title}</h2>
 								<div
 									className={`btn-reverse-primary d-flex align-items pl-10 pr-10 mr-10 ml-auto`}
@@ -715,27 +717,6 @@ export default function Channel() {
 										Unblock
 									</button>
 								)}
-								{/* <button
-									onClick={() =>
-										handleBlock(
-											user.userName,
-											user.id,
-											currentUserName,
-											currentUserId,
-										)
-									}
-									className="btn btn-reverse-danger mt-10"
-								>
-									Block
-								</button> */}
-								{/* {user.id === chanInfo?.ownerId && !currentUserAdmin && (
-									<button
-										onClick={() => handleAdmin(currentUserName, currentUserId)}
-										className="btn btn-reverse-success mt-10"
-									>
-										Admin
-									</button>
-								)} */}
 								{isOp && (
 									<>
 										<button

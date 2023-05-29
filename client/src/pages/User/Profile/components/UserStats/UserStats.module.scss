@@ -63,6 +63,10 @@
 	color: var(--light-grey);
 	border-bottom: 1px solid var(--secondary-dark);
 	background: rgba(0, 0, 0, 0.1);
+	text-align: center;
+	font-family: var(--game-font);
+	font-size: 1.2rem;
+	margin-bottom: 0.5rem;
 
 	@include mixin.sm-lt {
 		font-size: 1rem;

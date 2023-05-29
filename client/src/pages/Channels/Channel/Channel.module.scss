@@ -57,6 +57,20 @@
 		p {
 			text-align: center;
 		}
+
+		.blockedMessageContainer {
+			p {
+				max-width: 50%;
+				display: flex;
+				word-break: break-all;
+				font-size: 0.8rem;
+				color: var(--secondary-dark);
+			}
+
+			small {
+				color: var(--secondary-dark);
+			}
+		}
 	}
 }
 
