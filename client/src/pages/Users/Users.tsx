@@ -48,7 +48,6 @@ export default function Users() {
 					};
 				return u;
 			});
-			console.log(updatedList);
 			return sortUsersList(updatedList);
 		});
 	}

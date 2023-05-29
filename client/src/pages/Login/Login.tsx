@@ -25,8 +25,6 @@ export default function Login() {
 				<div
 					className={`${styles.card} d-flex flex-column align-items justify-content`}
 				>
-					<LoginForm />
-					<div className="mb-10">or</div>
 					<a
 						href={process.env.REACT_APP_URL42}
 						className={`${styles.btn} d-flex flex-column justify-content align-items`}

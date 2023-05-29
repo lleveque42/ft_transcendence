@@ -133,7 +133,6 @@ export default function Channels() {
 			mode: string,
 		) => {
 			if (username === user.userName && mode === "leave") {
-				console.log("Delete one netry");
 				setChannelsState(channelsState.filter((c) => c.id !== chan.id));
 			} else if (username !== user.userName && mode === "leave") {
 				showAlert("success", username + " leaved the channel");

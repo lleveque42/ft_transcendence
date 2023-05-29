@@ -68,14 +68,12 @@ export class ServerGateway
 		const channels = await this.channelService.getUsersChannels(user.userName);
 		clients.forEach((value) => {
 			for (let chan of channels) {
-				// console.log("This socket : " + value.id + " joined " + chan.title);
 				value.join(chan.title);
 			}
 		});
 		const dms = await this.channelService.getUsersDMs(user.userName);
 		clients.forEach((value) => {
 			for (let dm of dms) {
-				// console.log("This socket : " + value.id + " joined " + dm.title);
 				value.join(dm.title);
 			}
 		});

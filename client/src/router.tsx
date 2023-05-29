@@ -30,7 +30,6 @@ export default function Router() {
 		<Routes>
 			<Route element={<App />}>
 				<Route path="/login" element={<PublicRoute element={<Login />} />} />
-				<Route path="/signup" element={<PublicRoute element={<Signup />} />} />
 				<Route
 					path="/verify"
 					element={<PublicRoute element={<VerifyTfa />} />}
