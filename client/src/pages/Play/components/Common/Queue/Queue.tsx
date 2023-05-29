@@ -18,7 +18,7 @@ export default function Queue({ gameSocket, setGameUserStatus }: QueueProps) {
 
 	return (
 		<div
-			className={`${styles.queueContainer} d-flex flex-column align-items justify-content flex-1`}
+			className={`${styles.queueContainer} d-flex flex-column align-items justify-content`}
 		>
 			<div className={`${styles.textContainer} underTitle mb-10 flex-1`}>
 				<div className="title">PONG</div>

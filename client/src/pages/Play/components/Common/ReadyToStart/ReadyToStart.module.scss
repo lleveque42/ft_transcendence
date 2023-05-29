@@ -3,7 +3,7 @@
 .readyContainer {
 	margin-top: 10rem;
 	margin-bottom: 25rem;
-	height: 35rem;
+	height: 10rem;
 	@include mixin.sm-lt {
 		height: 10rem;
 		margin-top: 3rem;
@@ -24,5 +24,3 @@
 		margin-bottom: 3rem;
 	}
 }
-
-
