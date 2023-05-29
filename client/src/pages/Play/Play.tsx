@@ -30,6 +30,7 @@ import WaitingOpponentReconnection from "./components/Common/WaitingOpponentReco
 import GameWinner from "./components/Common/GameWinner/GameWinner";
 import GameLoser from "./components/Common/GameLoser/GameLoser";
 import DetectedAfk from "./components/Common/DetectedAfk/DetectedAfk";
+import AlreadyConnected from "./components/Common/alreadyConnected/AlreadyConnected";
 
 export default function Play() {
 	const { user } = useUser();
@@ -351,12 +352,7 @@ export default function Play() {
 		>
 			{gameUserStatus === GameUserStatus.notConnected && <NotConnected />}
 			{gameUserStatus === GameUserStatus.alreadyConnected && (
-				<div className={`${styles.alertContainer} underTitle`}>
-					You are already playing on another device or browser. <br />
-					<br /> Please disconnect from this other session and try again. <br />
-					<br /> You will be redirected, please do not refresh. If the problem
-					persists, wait 15 seconds.
-				</div>
+				<AlreadyConnected />
 			)}
 			{gameUserStatus === GameUserStatus.connected && (
 				<Default joinQueue={joinQueue} />
@@ -396,15 +392,24 @@ export default function Play() {
 					className={`${styles.buttonContainer} d-flex flex-row justify-content-space-between align-items`}
 				>
 					<button
-						className="btn-primary mb-10"
+						className="btn-primary d-flex flex-column align-items justify-content pl-10 pr-10 p-5 mb-50"
 						onClick={() => {
 							joinQueue();
 						}}
 					>
-						Play again
+						<div className={styles.buttonText}>Play again</div>
+						<div className={styles.buttonIcon}>
+							<i className="fa-solid fa-gamepad"></i>
+						</div>
 					</button>
-					<button className="btn-primary mb-10" onClick={backToPlay}>
-						Go back
+					<button
+						className="btn-primary d-flex flex-column align-items justify-content pl-10 pr-10 p-5 mb-50"
+						onClick={backToPlay}
+					>
+						<div className={styles.buttonText}>Go back</div>
+						<div className={styles.buttonIcon}>
+							<i className="fa-solid fa-backward"></i>
+						</div>
 					</button>
 				</div>
 			)}

@@ -1,0 +1,7 @@
+@use "../../../../../assets/styles/mixins" as mixin;
+
+.textContainer {
+	> div:nth-child(2) {
+		color: var(--yellow);
+	}
+}

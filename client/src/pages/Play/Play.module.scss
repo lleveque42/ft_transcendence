@@ -1,19 +1,38 @@
+@use "./../../assets/styles/mixins" as mixin;
+
 .gamePage {
 	flex: 1;
+	margin-bottom: 5rem;
+	@include mixin.sm-lt {
+		margin-bottom: 1rem;
+	}
+}
+
+.textContainer {
+	> div:nth-child(2) {
+		color: var(--yellow);
+	}
 }
 
 .sizeContainer {
-	width: calc(0.45 * 100vw);
+	width: calc(0.7 * 100vw);
 	max-width: 576px;
+	@include mixin.sm-lt {
+		width: calc(0.8 * 100vw);
+		max-width: 576px;
+	}
 }
 
 .gameContainer {
 	width: 100%;
-	height: calc(0.8 * 0.45 * 100vw);
+	height: calc(0.8 * 0.7 * 100vw);
 	max-height: calc(0.8 * 576px);
 	border-radius: 4px;
 	aspect-ratio: 5 / 4;
 	box-shadow: var(--box-shadow-nav);
+	@include mixin.sm-lt {
+		height: calc(0.8 * 0.8 * 100vw);
+	}
 }
 
 .pointContainer {
@@ -23,6 +42,11 @@
 	margin-bottom: 2rem;
 	background-color: var(--primary-dark);
 	box-shadow: var(--box-shadow-login42);
+
+	@include mixin.sm-lt {
+		padding: 0.5rem;
+		height: 5rem;
+	}
 }
 
 .points {
@@ -39,12 +63,12 @@
 	text-align: center;
 	font-family: var(--game-font);
 	width: 2em;
-	color: var(--primary);
+	color: var(--orange);
 }
 
 .score {
 	font-family: var(--game-font);
-	color: var(--primary);
+	color: var(--orange);
 	flex: 0.3;
 	text-align: center;
 }
@@ -67,6 +91,9 @@
 		font-weight: 500;
 		font-family: var(--game-font);
 		color: var(--yellow);
+		@include mixin.sm-lt {
+			display: none;
+		}
 	}
 }
 
@@ -88,16 +115,182 @@
 		font-weight: 500;
 		font-family: var(--game-font);
 		color: var(--pink);
+		@include mixin.sm-lt {
+			display: none;
+		}
 	}
 }
 
 .buttonContainer {
-	width: 18rem;
+	@include mixin.sm-lt {
+		flex-direction: column;
+	}
 }
 
 .buttonContainer > button {
-	width: 8rem;
-	height: 1.5rem;
+	height: 3rem;
+	transition: 0.2s;
+	overflow: hidden;
+	box-shadow: var(--box-shadow);
+	margin-bottom: 1rem;
+	background-color: var(--pink);
+	border-color: var(--pink);
+	margin: 0rem 1rem;
+
+	@include mixin.sm-lt {
+		width: 10rem;
+		height: 2rem;
+		margin-bottom: 0.5rem;
+	}
+
+	&:hover {
+		scale: 1.1;
+		box-shadow: var(--box-shadow-login42);
+	}
+
+	&:active {
+		scale: 1;
+		box-shadow: var(--box-shadow);
+	}
+
+	.buttonText {
+		font-family: var(--game-font);
+		font-weight: 500;
+		font-size: 1rem;
+		position: relative;
+		top: 1rem;
+		color: var(--primary-dark);
+		@include mixin.sm-lt {
+			font-size: 0.67rem;
+			top: 0.6rem;
+		}
+		text-align: center;
+	}
+
+	.buttonIcon {
+		font-size: 1.5rem;
+		i {
+			color: var(--primary-dark);
+		}
+		@include mixin.sm-lt {
+			font-size: 1rem;
+		}
+	}
+
+	&:hover .buttonText {
+		animation: moveText 0.4s forwards;
+	}
+
+	&:not(:hover) .buttonText {
+		animation: moveText2 0.2s forwards;
+	}
+
+	&:hover .buttonIcon {
+		animation: moveButton 0.2s forwards;
+		@include mixin.sm-lt {
+			animation: moveButtonSM 0.2s forwards;
+		}
+	}
+
+	&:not(:hover) .buttonIcon {
+		animation: moveButton2 0.4s forwards;
+		@include mixin.sm-lt {
+			animation: moveButton2SM 0.2s forwards;
+		}
+	}
+
+	@keyframes moveText {
+		0% {
+			transform: translateY(0);
+			opacity: 1;
+		}
+		50% {
+			opacity: 1;
+			transform: translateY(-2rem);
+		}
+		51% {
+			opacity: 0;
+		}
+		99% {
+			opacity: 0;
+			transform: translateY(2rem);
+		}
+		100% {
+			opacity: 1;
+			transform: translateY(2rem);
+		}
+	}
+
+	@keyframes moveText2 {
+		0% {
+			transform: translateY(2rem);
+		}
+		100% {
+			transform: translateY(0);
+		}
+	}
+
+	@keyframes moveButton {
+		0% {
+			transform: translateY(2rem);
+		}
+		100% {
+			transform: translateY(-0.5rem);
+		}
+	}
+
+	@keyframes moveButton2 {
+		0% {
+			transform: translateY(-0.5rem);
+			opacity: 1;
+		}
+		50% {
+			opacity: 1;
+			transform: translateY(-4rem);
+		}
+		51% {
+			opacity: 0;
+		}
+		99% {
+			opacity: 0;
+			transform: translateY(2rem);
+		}
+		100% {
+			opacity: 1;
+			transform: translateY(2rem);
+		}
+	}
+
+	@keyframes moveButtonSM {
+		0% {
+			transform: translateY(2rem);
+		}
+		100% {
+			transform: translateY(-0.4rem);
+		}
+	}
+
+	@keyframes moveButton2SM {
+		0% {
+			transform: translateY(-0.4rem);
+			opacity: 1;
+		}
+		50% {
+			opacity: 1;
+			transform: translateY(-4rem);
+		}
+		51% {
+			opacity: 0;
+		}
+		99% {
+			opacity: 0;
+			transform: translateY(2rem);
+		}
+		100% {
+			opacity: 1;
+			transform: translateY(2rem);
+		}
+	}
 }
 
 .alertContainer {
@@ -106,4 +299,5 @@
 	padding: 2rem;
 	border-radius: 5px;
 	color: var(--light-grey);
+	margin-bottom: 10rem;
 }

@@ -1,21 +1,219 @@
+@use "../../../../../assets/styles/mixins" as mixin;
+
+.optionsContainer {
+	margin-bottom: 5rem;
+	@include mixin.sm-lt {
+		margin-bottom: 2rem;
+	}
+}
+
+.textContainer {
+	> div:nth-child(2) {
+		color: var(--yellow);
+	}
+}
+
+.speedToggler {
+	@include mixin.sm-lt {
+		flex-direction: column;
+	}
+}
+
+.speed {
+	color: var(--orange);
+}
+
+.map {
+	color: var(--orange);
+}
+
 .mapToggler {
 	img {
-		width: 5rem;
-		height: 5rem;
+		width: 5.78rem;
+		height: 4.59rem;
 		transition: 0.2s;
-		// border-radius: 5px;
+		border-radius: 5px;
+
+		@include mixin.sm-lt {
+			width: 4.335rem;
+			height: 3.4425rem;
+		}
 	}
 }
 
 .imgFocused {
 	transform: scale(1.2);
-	border: 2px var(--primary) solid;
+	border: 2px var(--orange) solid;
 	margin: 0.5rem 1.5rem;
-	border-color: var(--primary);
 }
 
 .imgUnfocused {
 	margin: 0.5rem 0.5rem;
 	transition: 0.2s;
 	border: 2px var(--light-grey) solid;
+}
+
+.buttonContainer > button {
+	width: 10rem;
+	height: 3rem;
+	transition: 0.2s;
+	overflow: hidden;
+	box-shadow: var(--box-shadow);
+	margin-bottom: 1rem;
+	background-color: var(--pink);
+	border-color: var(--pink);
+
+	@include mixin.sm-lt {
+		height: 2rem;
+		margin-bottom: 0.5rem;
+	}
+
+	&:hover {
+		scale: 1.1;
+		box-shadow: var(--box-shadow-login42);
+	}
+
+	&:active {
+		scale: 1;
+		box-shadow: var(--box-shadow);
+	}
+
+	.buttonText {
+		font-family: var(--game-font);
+		font-weight: 500;
+		font-size: 1rem;
+		position: relative;
+		top: 1rem;
+		color: var(--primary-dark);
+		@include mixin.sm-lt {
+			font-size: 0.67rem;
+			top: 0.6rem;
+		}
+		text-align: center;
+	}
+
+	.buttonIcon {
+		font-size: 1.5rem;
+		i {
+			color: var(--primary-dark);
+		}
+		@include mixin.sm-lt {
+			font-size: 1rem;
+		}
+	}
+
+	&:hover .buttonText {
+		animation: moveText 0.4s forwards;
+	}
+
+	&:not(:hover) .buttonText {
+		animation: moveText2 0.2s forwards;
+	}
+
+	&:hover .buttonIcon {
+		animation: moveButton 0.2s forwards;
+		@include mixin.sm-lt {
+			animation: moveButtonSM 0.2s forwards;
+		}
+	}
+
+	&:not(:hover) .buttonIcon {
+		animation: moveButton2 0.4s forwards;
+		@include mixin.sm-lt {
+			animation: moveButton2SM 0.2s forwards;
+		}
+	}
+
+	@keyframes moveText {
+		0% {
+			transform: translateY(0);
+			opacity: 1;
+		}
+		50% {
+			opacity: 1;
+			transform: translateY(-2rem);
+		}
+		51% {
+			opacity: 0;
+		}
+		99% {
+			opacity: 0;
+			transform: translateY(2rem);
+		}
+		100% {
+			opacity: 1;
+			transform: translateY(2rem);
+		}
+	}
+
+	@keyframes moveText2 {
+		0% {
+			transform: translateY(2rem);
+		}
+		100% {
+			transform: translateY(0);
+		}
+	}
+
+	@keyframes moveButton {
+		0% {
+			transform: translateY(2rem);
+		}
+		100% {
+			transform: translateY(-0.5rem);
+		}
+	}
+
+	@keyframes moveButton2 {
+		0% {
+			transform: translateY(-0.5rem);
+			opacity: 1;
+		}
+		50% {
+			opacity: 1;
+			transform: translateY(-4rem);
+		}
+		51% {
+			opacity: 0;
+		}
+		99% {
+			opacity: 0;
+			transform: translateY(2rem);
+		}
+		100% {
+			opacity: 1;
+			transform: translateY(2rem);
+		}
+	}
+
+	@keyframes moveButtonSM {
+		0% {
+			transform: translateY(2rem);
+		}
+		100% {
+			transform: translateY(-0.4rem);
+		}
+	}
+
+	@keyframes moveButton2SM {
+		0% {
+			transform: translateY(-0.4rem);
+			opacity: 1;
+		}
+		50% {
+			opacity: 1;
+			transform: translateY(-4rem);
+		}
+		51% {
+			opacity: 0;
+		}
+		99% {
+			opacity: 0;
+			transform: translateY(2rem);
+		}
+		100% {
+			opacity: 1;
+			transform: translateY(2rem);
+		}
+	}
 }

@@ -18,7 +18,10 @@ export default function DetectedAfk() {
 				className={`btn-primary ${styles.btnDetectedAfk}`}
 				onClick={() => navigate("/playMinimized")}
 			>
-				Reconnect
+				<div className={stylesParent.buttonText}>Reconnect</div>
+				<div className={stylesParent.buttonIcon}>
+					<i className="fa-sharp fa-solid fa-link"></i>
+				</div>
 			</button>
 		</div>
 	);

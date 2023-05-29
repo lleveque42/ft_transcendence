@@ -2,6 +2,7 @@
 
 .friends {
 	color: var(--purple);
+	font-weight: 500;
 }
 
 .friendsList {
@@ -23,11 +24,17 @@
 		}
 
 		p:first-of-type {
-			min-width: 57.5%;
+			font-family: var(--game-font);
+			font-weight: 500;
+			font-size: 0.65em;
+			min-width: 62%;
 			cursor: pointer;
 			text-decoration: none;
 			text-decoration-color: transparent;
 			transition: color 0.2s ease-in-out, text-decoration-color 0.2s ease-in-out;
+			@include mixin.sm-lt {
+				font-size: 0.5rem;
+			}
 
 			&:hover {
 				color: var(--primary);
@@ -39,6 +46,7 @@
 
 		p {
 			font-size: 1.2rem;
+			padding-right: 0.75rem;
 		}
 
 		@include mixin.sm-lt {

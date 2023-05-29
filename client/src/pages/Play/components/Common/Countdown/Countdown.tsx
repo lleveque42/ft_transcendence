@@ -10,5 +10,5 @@ export default function Countdown() {
 		return () => clearInterval(timer);
 	}, []);
 
-	return <div className="title">{countdown}</div>;
+	return <div className="title mb-30">{countdown}</div>;
 }

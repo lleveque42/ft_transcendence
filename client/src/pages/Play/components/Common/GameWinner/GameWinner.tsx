@@ -3,7 +3,7 @@ import Confetti from "react-confetti";
 export default function GameWinner() {
 	return (
 		<>
-			<div className="title">Win</div>
+			<div className="title mb-30">Win !</div>
 			<Confetti />
 		</>
 	);

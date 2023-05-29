@@ -4,6 +4,7 @@ import { GameStatus } from "../../../types/gameStatus.type";
 import OwnerGameRender from "../../OwnerView/OwnerGameRender";
 import PlayerGameRender from "../../PlayerView/PlayerGameRender";
 import styles from "../../../Play.module.scss";
+import styles2 from "./Game.module.scss";
 import { MapStatus } from "../../../enums/MapStatus";
 import trimUserName from "../../../../../utils/trimUserName";
 import { useState } from "react";
@@ -47,6 +48,10 @@ export default function Game({
 			<div
 				className={`${styles.sizeContainer} d-flex flex-column align-items justify-content`}
 			>
+				<div className={`${styles2.textContainer} underTitle flex-1 mb-20`}>
+					<div className="title">PONG</div>
+					<div className="underTitle">Game</div>
+				</div>
 				<div
 					className={`${styles.pointContainer} d-flex flex-row align-items justify-content-space-between`}
 				>
@@ -78,7 +83,7 @@ export default function Game({
 						</div>
 					</div>
 				</div>
-				<div className={`${styles.gameContainer}`}>
+				<div className={`${styles.gameContainer} mb-30`}>
 					{gameStatus.owner ? (
 						<GameSocketContext.Provider value={{ gameSocket }}>
 							<OwnerGameRender

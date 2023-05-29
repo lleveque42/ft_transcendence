@@ -12,6 +12,7 @@ import styles from "./DirectMessage.module.scss";
 import trimUserName from "../../../utils/trimUserName";
 import Loader from "react-loaders";
 import Input from "../../../components/Input/Input";
+import useAvatar from "../../../hooks/useAvatar";
 
 export default function DirectMessage() {
 	const { user, accessToken } = useUser();
@@ -28,6 +29,11 @@ export default function DirectMessage() {
 	const { id } = useParams();
 	const [isLoading, setIsLoading] = useState(true);
 	const messagesListRef = useRef<HTMLDivElement>(null);
+	// const [ownerAvatar, setOwnerAvatar] = useState<string>("");
+	const [otherAvatar, setOtherAvatar] = useState<string>("");
+
+	// useAvatar(accessToken, setOwnerAvatar, setIsLoading, user.userName);
+	useAvatar(accessToken, setOtherAvatar, setIsLoading, otherUser.userName);
 
 	const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
 		const trimedValue = value.trim();
@@ -101,7 +107,7 @@ export default function DirectMessage() {
 						<span
 							className={` ${styles.blockedMessageContainer} d-flex flex-column flex-begin`}
 						>
-							<p>blocked message</p>
+							<p>Blocked message</p>
 							<small>{trimUserName(author.userName)}</small>
 						</span>
 					</li>
@@ -136,12 +142,17 @@ export default function DirectMessage() {
 				/>
 			) : (
 				<div className={`d-flex flex-column align-items flex-1`}>
-					<div className="title mt-20">Chat</div>
+					<div className={`${styles.title} title mt-20`}>Chat</div>
 					<ChatNav />
 					<div
-						className={`${styles.dmHeader} d-flex flex-row align-items mt-20`}
+						className={`${styles.dmHeader} d-flex flex-row align-items justify-content mt-20`}
 					>
-						<div className="d-flex align-items">
+						<div className="d-flex align-items justify-content">
+							<img
+								src={otherAvatar}
+								alt="otherAvatar"
+								onClick={() => navigate(`/user/${otherUser?.userName}`)}
+							/>
 							<h2 onClick={() => navigate(`/user/${otherUser?.userName}`)}>
 								{trimUserName(otherUser?.userName as string)}
 							</h2>

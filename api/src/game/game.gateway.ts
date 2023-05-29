@@ -251,6 +251,10 @@ export class GameGateway
 		this.privateGames.newPrivateGame(ownerId, playerId);
 	}
 
+	isInPrivateGame(userId: number): boolean {
+		return this.privateGames.isInPrivateGame(userId);
+	}
+
 	endGame(
 		room: string,
 		finished: boolean,

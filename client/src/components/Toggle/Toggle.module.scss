@@ -11,7 +11,7 @@
 	height: 0;
 
 	&:checked + span {
-		background-color: var(--primary);
+		background-color: var(--orange);
 	}
 
 	&:checked + span:before {

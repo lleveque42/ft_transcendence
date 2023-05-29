@@ -94,22 +94,33 @@ export const AlertProvider = ({ children }: AlertProviderProps) => {
 		setIsHiddenInvite(true);
 		setInvite(null);
 		localStorage.removeItem("invite");
+		socket?.once("inviteInGameAfterAccept", (senderInGame) => {
+			if (senderInGame)
+				showAlert(
+					"error",
+					`${trimUserName(
+						props.invitedUserName,
+					)} had already join a game when you accepted invite.`,
+				);
+			else {
+				showAlert(
+					"success",
+					`You accepted invitation from ${trimUserName(
+						props.invitedUserName,
+					)}. You will be redirected.`,
+				);
+				setTimeout(() => {
+					if (location.pathname === "/play") navigate("/playMinimized");
+					else navigate("/play");
+				}, 2000);
+			}
+		});
 		socket?.emit("acceptGameInvite", {
 			senderId: props.senderId,
 			message: `${trimUserName(
 				props.invitedUserName,
 			)} accepted your game invitation.`,
 		});
-		showAlert(
-			"success",
-			`You accepted invitation from ${trimUserName(
-				props.invitedUserName,
-			)}. You will be redirected.`,
-		);
-		setTimeout(() => {
-			if (location.pathname === "/play") navigate("/playMinimized");
-			else navigate("/play");
-		}, 2000);
 	}
 
 	useEffect(() => {
