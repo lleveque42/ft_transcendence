@@ -1,6 +1,5 @@
 import { useState } from "react";
 import styles from "./Login.module.scss";
-import LoginForm from "./components/LoginForm";
 
 export default function Login() {
 	const [hasBeenClicked, setHasBeenClicked] = useState<Boolean>(false);

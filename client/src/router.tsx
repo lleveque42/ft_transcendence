@@ -4,7 +4,6 @@ import NotFound from "./components/NotFound";
 import Homepage from "./pages/Homepage/Homepage";
 import Login from "./pages/Login/Login";
 import Login42 from "./pages/Login/Login42/Login42";
-import Signup from "./pages/Signup/Signup";
 import PrivateRoute from "./components/Routes/PrivateRoute";
 import PublicRoute from "./components/Routes/PublicRoute";
 import DirectMessages from "./pages/DirectMessages/DirectMessages";
@@ -21,9 +20,6 @@ import Users from "./pages/Users/Users";
 import EditChannel from "./pages/Channels/EditChannel/EditChannel";
 import Play from "./pages/Play/Play";
 import PlayMinimized from "./pages/Play/minimized/PlayMinimized";
-// import Play from "./pages/Play/Play";
-// import { defaultGameStatus } from "./pages/Play/types/gameStatus.type";
-// import { GameUserStatus } from "./pages/Play/enums/UserStatus";
 
 export default function Router() {
 	return (

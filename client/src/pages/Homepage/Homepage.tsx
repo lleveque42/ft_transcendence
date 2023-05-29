@@ -41,7 +41,7 @@ export default function Homepage() {
 						<div className="underTitle">The game</div>
 					</div>
 					<div
-						className={`${styles.buttonContainer} d-flex flex-column align-items justify-content`}
+						className={`${styles.buttonContainer} d-flex flex-column align-items justify-content mt-30`}
 					>
 						<button
 							className={`btn-primary pl-10 pr-10 p-5 ${styles.play}`}
