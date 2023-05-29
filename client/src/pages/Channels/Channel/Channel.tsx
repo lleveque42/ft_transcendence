@@ -447,8 +447,8 @@ export default function Channel() {
 					body: JSON.stringify(data),
 				},
 			);
-			chatSocket?.emit("adminChatRoom", toEmit);
 			if (res.status === 201) {
+				chatSocket?.emit("adminChatRoom", toEmit);
 				// setInfoBool(true);
 				// setuserBool(false);
 				// setInviteBool(false);
@@ -744,16 +744,24 @@ export default function Channel() {
 								>
 									Block
 								</button>
-								{user.id === chanInfo?.ownerId && !currentUserAdmin && (
+								{/* {user.id === chanInfo?.ownerId && !currentUserAdmin && (
 									<button
 										onClick={() => handleAdmin(currentUserName, currentUserId)}
 										className="btn btn-primary pl-10 pr-10 p-5 mt-10"
 									>
 										Admin
 									</button>
-								)}
+								)} */}
 								{isOp && (
 									<>
+										<button
+											onClick={() =>
+												handleAdmin(currentUserName, currentUserId)
+											}
+											className="btn btn-primary pl-10 pr-10 p-5 mt-10"
+										>
+											Admin
+										</button>
 										<button
 											id="Kick"
 											onClick={() => handleKick(currentUserName, currentUserId)}
