@@ -58,6 +58,7 @@ export default function JoinChannel() {
 				setChannelsState(filterChans);
 			}
 		};
+
 		const removeFromJoinListener = (
 			chan: ChannelModel,
 			username: string,
