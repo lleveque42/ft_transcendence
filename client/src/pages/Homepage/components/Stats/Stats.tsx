@@ -18,7 +18,12 @@ export default function Stats() {
 				</div>
 				<div>
 					<span className={`${styles.winRate}`}>Win Rate :&nbsp;</span>
-					<p>{(user.wins / (user.wins + user.losses) * 100).toFixed(0) + "%"}</p>
+					<p>
+						{user.wins + user.losses === 0
+							? "0%"
+							: ((user.wins / (user.wins + user.losses)) * 100).toFixed(0) +
+							  "%"}
+					</p>
 				</div>
 			</div>
 		</>
