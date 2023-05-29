@@ -462,20 +462,34 @@ export class UserService {
 			return el.id === userBottomId;
 		});
 		if (match) {
-			throw new ForbiddenException("User already blocked");
-		}
-		const userUpdated = await this.prisma.user.update({
-			where: {
-				id: userTopId,
-			},
-			data: {
-				blockList: {
-					connect: { id: userBottomId },
+			// throw new ForbiddenException("User already blocked");
+			const userUpdated = await this.prisma.user.update({
+				where: {
+					id: userTopId,
 				},
-			},
-		});
-		if (!userUpdated) {
-			throw new ForbiddenException("Error while updating user");
+				data: {
+					blockList: {
+						disconnect: { id: userBottomId },
+					},
+				},
+			});
+			if (!userUpdated) {
+				throw new ForbiddenException("Error while updating user");
+			}
+		} else {
+			const userUpdated = await this.prisma.user.update({
+				where: {
+					id: userTopId,
+				},
+				data: {
+					blockList: {
+						connect: { id: userBottomId },
+					},
+				},
+			});
+			if (!userUpdated) {
+				throw new ForbiddenException("Error while updating user");
+			}
 		}
 	}
 }

@@ -313,9 +313,8 @@ export default function Channel() {
 			);
 			if (res.status === 201) {
 				chatSocket?.emit("blockUser", toEmit);
-				showAlert("success", userBottomName + " has been blocked");
+				showAlert("success", "Operation success");
 				setManageUserModal(false);
-
 				isAuth();
 			} else if (res.status === 403) {
 				showAlert("error", "User already blocked");
