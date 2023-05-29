@@ -11,7 +11,7 @@
 	transition: 0.3s;
 
 	@include mixin.sm-lt {
-		width: 15rem;
+		width: 80vw;
 	}
 
 	input {
@@ -22,16 +22,15 @@
 		padding: 1rem 1rem 1rem 3rem;
 		color: white;
 		outline: 0;
-		transition: 0.3s;
+		transition: 0.2s;
 		background-color: var(--primary-dark);
-		border: 2px solid rgba(116, 185, 255, 0);
+		border: 2px solid var(--pink);
 
 		&::placeholder {
 			color: var(--light-grey);
 		}
 
 		&:focus {
-			border: 2px solid var(--primary);
 			box-shadow: var(--box-shadow-login42);
 		}
 

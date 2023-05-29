@@ -1,42 +1,93 @@
 @use "../../assets/styles/mixins" as mixin;
 
+.title {
+	@include mixin.sm-lt {
+		margin-top: 1rem;
+	}
+}
+
 .dmListContainer {
 	display: flex;
 	flex-direction: column;
-	margin-top: 1.5rem;
-	border: 1px solid var(--secondary-dark);
+	margin-top: 2rem;
+	border: 4px solid var(--orange);
 	border-radius: 5px;
 	box-shadow: var(--box-shadow);
 	min-height: 40vh;
-	max-height: 50vh;
+	max-height: 65vh;
 	width: 50vw;
+	padding: 1rem;
+
+	h2 {
+		font-family: var(--game-font);
+		color: var(--orange);
+		font-weight: 500;
+		font-size: 1.25rem;
+		border-bottom: 2px dashed var(--orange);
+		padding-bottom: 2rem;
+		margin-bottom: 1rem;
+		text-align: center;
+
+		@include mixin.sm-lt {
+			padding-top: 0;
+			padding-bottom: 1rem;
+		}
+	}
 
 	@include mixin.sm-lt {
 		width: 80vw;
+		max-height: 50vh;
+		margin-top: 1rem;
+		margin-bottom: 1rem;
 	}
 
 	ul {
 		overflow-y: scroll;
-		// padding-left: 0.6rem;
 	}
 
 	.listElems {
-		padding: 1rem;
+		padding: 0.5rem 1rem;
 		margin: 0.5rem;
-		border-bottom: 1px solid var(--secondary-dark);
+		border-radius: 5px;
 		font-size: 1.5rem;
 		display: flex;
 		flex-direction: row;
 		justify-content: space-between;
+		cursor: pointer;
+		transition: 0.2s;
+
+		&:hover {
+			background-color: #415158;
+		}
 
 		p {
-			cursor: default;
+			font-size: 1rem;
+			font-weight: 500;
+			font-family: var(--game-font);
+			color: var(--light-grey);
+			transition: 0.2s;
+		}
+
+		&:hover p {
+			color: var(--primary);
+		}
+
+		> button {
+			font-family: var(--game-font);
+			font-weight: 500;
+			font-size: 0.65rem;
+			height: 1.5rem;
+		}
+
+		> button:hover {
+			background-color: var(--primary-dark);
 		}
 
 		@include mixin.sm-lt {
 			flex-direction: column;
 			padding: 0.8rem;
 			font-size: 1rem;
+			height: 5rem;
 
 			div {
 				margin-top: 0.5rem;
@@ -46,13 +97,176 @@
 
 	h2 {
 		@include mixin.sm-lt {
-			font-size: 1rem;
+			font-size: 0.8rem;
+			line-height: 1rem;
 		}
 	}
 }
 
 .newDmBtn {
+	height: 3rem;
+	transition: 0.2s;
+	overflow: hidden;
+	box-shadow: var(--box-shadow);
+	margin-bottom: 1rem;
+	background-color: var(--pink);
+	border-color: var(--pink);
+	margin: 0rem 1rem;
+	margin-bottom: 5rem;
+	min-width: 15rem;
+
 	@include mixin.sm-lt {
-		font-size: 0.7rem;
+		width: 10rem;
+		height: 2rem;
+		margin-bottom: 0.5rem;
+	}
+
+	&:hover {
+		scale: 1.1;
+		box-shadow: var(--box-shadow-login42);
+	}
+
+	&:active {
+		scale: 1;
+		box-shadow: var(--box-shadow);
+	}
+
+	.buttonText {
+		font-family: var(--game-font);
+		font-weight: 500;
+		font-size: 1rem;
+		position: relative;
+		top: 1rem;
+		color: var(--primary-dark);
+		@include mixin.sm-lt {
+			font-size: 0.67rem;
+			top: 0.6rem;
+		}
+		text-align: center;
+	}
+
+	.buttonIcon {
+		font-size: 1.5rem;
+		i {
+			color: var(--primary-dark);
+		}
+		@include mixin.sm-lt {
+			font-size: 1rem;
+		}
+	}
+
+	&:hover .buttonText {
+		animation: moveText 0.4s forwards;
+	}
+
+	&:not(:hover) .buttonText {
+		animation: moveText2 0.2s forwards;
+	}
+
+	&:hover .buttonIcon {
+		animation: moveButton 0.2s forwards;
+		@include mixin.sm-lt {
+			animation: moveButtonSM 0.2s forwards;
+		}
+	}
+
+	&:not(:hover) .buttonIcon {
+		animation: moveButton2 0.4s forwards;
+		@include mixin.sm-lt {
+			animation: moveButton2SM 0.2s forwards;
+		}
+	}
+
+	@keyframes moveText {
+		0% {
+			transform: translateY(0);
+			opacity: 1;
+		}
+		50% {
+			opacity: 1;
+			transform: translateY(-2rem);
+		}
+		51% {
+			opacity: 0;
+		}
+		99% {
+			opacity: 0;
+			transform: translateY(2rem);
+		}
+		100% {
+			opacity: 1;
+			transform: translateY(2rem);
+		}
+	}
+
+	@keyframes moveText2 {
+		0% {
+			transform: translateY(2rem);
+		}
+		100% {
+			transform: translateY(0);
+		}
+	}
+
+	@keyframes moveButton {
+		0% {
+			transform: translateY(2rem);
+		}
+		100% {
+			transform: translateY(-0.5rem);
+		}
+	}
+
+	@keyframes moveButton2 {
+		0% {
+			transform: translateY(-0.5rem);
+			opacity: 1;
+		}
+		50% {
+			opacity: 1;
+			transform: translateY(-4rem);
+		}
+		51% {
+			opacity: 0;
+		}
+		99% {
+			opacity: 0;
+			transform: translateY(2rem);
+		}
+		100% {
+			opacity: 1;
+			transform: translateY(2rem);
+		}
+	}
+
+	@keyframes moveButtonSM {
+		0% {
+			transform: translateY(2rem);
+		}
+		100% {
+			transform: translateY(-0.4rem);
+		}
+	}
+
+	@keyframes moveButton2SM {
+		0% {
+			transform: translateY(-0.4rem);
+			opacity: 1;
+		}
+		50% {
+			opacity: 1;
+			transform: translateY(-4rem);
+		}
+		51% {
+			opacity: 0;
+		}
+		99% {
+			opacity: 0;
+			transform: translateY(2rem);
+		}
+		100% {
+			opacity: 1;
+			transform: translateY(2rem);
+		}
 	}
 }

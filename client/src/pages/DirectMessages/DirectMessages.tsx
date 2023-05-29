@@ -59,7 +59,7 @@ export default function DirectMessages() {
 		});
 		const boolMatch: boolean = match.length > 0 ? true : false;
 		if (boolMatch) {
-			showAlert("error", userBottomName + " is already blocked");
+			showAlert("error", userBottomName + " is already blocked.");
 			return;
 		}
 		const mode = "block";
@@ -81,7 +81,7 @@ export default function DirectMessages() {
 			chatSocket?.emit("blockUser", toEmit);
 			if (res.status === 201) {
 				isAuth();
-				showAlert("success", "You've just blocked " + userBottomName);
+				showAlert("success", "You've just blocked " + userBottomName + ".");
 			}
 		} catch (e) {
 			console.error("Error blocking from user");
@@ -94,24 +94,21 @@ export default function DirectMessages() {
 			return members.map((member) => {
 				return (
 					member.id !== user.id && (
-						<li className={styles.listElems} key={member.id}>
+						<li
+							className={`${styles.listElems} d-flex justify-content align-items`}
+							key={member.id}
+							onClick={() => navigate(`/chat/direct_messages/${channel.title}`)}
+						>
 							<p>{trimUserName(member.userName)}</p>
-							<div>
-								<button
-									className="btn btn-primary pl-10 pr-10 mr-10"
-									onClick={() =>
-										navigate(`/chat/direct_messages/${channel.title}`)
-									}
-								>
-									Message
-								</button>
-								<button
-									className="btn btn-reverse-danger pl-10 pr-10"
-									onClick={() => handleBlock(channel)}
-								>
-									Block
-								</button>
-							</div>
+							<button
+								className="btn btn-reverse-danger pl-10 pr-10"
+								onClick={(e) => {
+									e.stopPropagation();
+									handleBlock(channel);
+								}}
+							>
+								Block
+							</button>
 						</li>
 					)
 				);
@@ -160,31 +157,30 @@ export default function DirectMessages() {
 	}, [chatSocket, directMessagesState]);
 
 	return (
-		<div className="d-flex flex-column align-items flex-1">
-			<div className="title mt-20">Chat</div>
+		<div className="d-flex flex-column align-items justify-content flex-1">
+			<div className={`${styles.title} title mt-20`}>Chat</div>
 			<ChatNav />
-			<>
-				<div className={`${styles.dmListContainer}`}>
-					<h2 className="d-flex justify-content p-10">
-						My Private messages ({directMessagesState.length})
-					</h2>
-					{directMessageList.length ? (
-						<ul>{directMessageList}</ul>
-					) : (
-						<p className="d-flex justify-content align-items m-10">
-							No private messages...
-						</p>
-					)}
+			<div className={`${styles.dmListContainer} mb-20 flex-1`}>
+				<h2 className="d-flex justify-content p-10">
+					My Private messages ({directMessagesState.length})
+				</h2>
+				{directMessageList.length ? (
+					<ul>{directMessageList}</ul>
+				) : (
+					<p className="d-flex justify-content align-items m-10">
+						No private messages...
+					</p>
+				)}
+			</div>
+			<NavLink
+				className={`${styles.newDmBtn} btn d-flex flex-column justify-content align-items pl-10 pr-10 p-5`}
+				to="/chat/direct_messages/new_dm"
+			>
+				<div className={styles.buttonText}>New direct message</div>
+				<div className={styles.buttonIcon}>
+					<i className="fa-solid fa-plus"></i>
 				</div>
-				<div className="d-flex justify-content">
-					<NavLink
-						className={`${styles.newDmBtn} btn btn-reverse-primary d-flex justify-content mt-10 p-5`}
-						to="/chat/direct_messages/new_dm"
-					>
-						New Direct Messages
-					</NavLink>
-				</div>
-			</>
+			</NavLink>
 		</div>
 	);
 }
