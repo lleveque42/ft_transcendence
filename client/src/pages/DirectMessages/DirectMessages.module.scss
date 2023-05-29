@@ -101,6 +101,13 @@
 			line-height: 1rem;
 		}
 	}
+
+	p {
+		font-size: 1rem;
+		font-weight: 500;
+		font-family: var(--game-font);
+		color: var(--light-grey);
+	}
 }
 
 .newDmBtn {

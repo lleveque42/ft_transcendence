@@ -87,7 +87,11 @@ export default function NewDM() {
 		setUsersList(
 			usersState.map((el) => {
 				return (
-					<li className={styles.listElems} key={el.id} id={el.id.toString(10)}>
+					<li
+						className={`${styles.listElems} d-flex justify-content align-items`}
+						key={el.id}
+						id={el.id.toString(10)}
+					>
 						<p>{trimUserName(el.userName)}</p>
 						<button
 							className="btn btn-reverse-primary pl-10 pr-10"
@@ -121,7 +125,7 @@ export default function NewDM() {
 				{usersList.length !== 0 ? (
 					<ul>{usersList}</ul>
 				) : (
-					<p className="d-flex flex-column align-items m-10">
+					<p className={`${styles.noDM} d-flex flex-column align-items m-10`}>
 						There are no private messages avalaible for you...
 					</p>
 				)}

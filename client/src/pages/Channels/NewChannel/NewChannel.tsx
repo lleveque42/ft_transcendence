@@ -5,7 +5,7 @@ import Input from "../../../components/Input/Input";
 import { usePrivateRouteSocket } from "../../../context/PrivateRouteProvider";
 import { useAlert } from "../../../context/AlertProvider";
 import { useNavigate } from "react-router-dom";
-import styles from './NewChannel.module.scss'
+import styles from "./NewChannel.module.scss";
 
 type FormValues = {
 	title: string;
@@ -57,7 +57,7 @@ export default function NewChannel() {
 		if (formValues.mode !== "Protected") {
 			formValues.password = "";
 		} else if (!formValues.password || formValues.password === "") {
-			showAlert("error", "The password must be not empty");
+			showAlert("error", "The password must be not empty.");
 			return;
 		}
 		try {
@@ -76,13 +76,13 @@ export default function NewChannel() {
 			if (res.status === 201) {
 				showAlert(
 					"success",
-					"Channel " + formValues.title + " created with success",
+					"Channel " + formValues.title + " created with success.",
 				);
 				socket.chatSocket?.emit("joinChatRoom", formValues.title);
 				navigate(`/chat/channels/${formValues.title}`);
 			} else {
 				const data = await res.json();
-				showAlert("error", data.message);
+				showAlert("error", data.message + ".");
 			}
 		} catch (e) {
 			console.error("Error while creating channel");
@@ -98,36 +98,39 @@ export default function NewChannel() {
 				className={`${styles.formContainer} d-flex flex-column align-items justify-content p-20`}
 			>
 				<div className="mb-10">
-					<label>
+					<label className={`${styles.radio}`}>
 						<input
+							className={`${styles.radio}`}
 							type="radio"
 							value="Public"
 							checked={radioValue === "Public"}
 							onChange={handleRadioChange}
 						/>
-						Public
+						&nbsp;Public
 					</label>
 				</div>
 				<div className="mb-10">
-					<label>
+					<label className={`${styles.radio}`}>
 						<input
+							className={`${styles.radio}`}
 							type="radio"
 							value="Private"
 							checked={radioValue === "Private"}
 							onChange={handleRadioChange}
 						/>
-						Private
+						&nbsp;Private
 					</label>
 				</div>
 				<div className="mb-20">
-					<label>
+					<label className={`${styles.radio}`}>
 						<input
+							className={`${styles.radio}`}
 							type="radio"
 							value="Protected"
 							checked={radioValue === "Protected"}
 							onChange={handleRadioChange}
 						/>
-						Protected
+						&nbsp;Protected
 					</label>
 				</div>
 				<Input
@@ -150,8 +153,14 @@ export default function NewChannel() {
 						/>
 					</>
 				)}
-				<button className="btn-primary p-5 mt-10" type="submit">
-					Create channel
+				<button
+					className={`${styles.createBtn} btn d-flex flex-column justify-content align-items pl-10 pr-10 p-5 `}
+					type="submit"
+				>
+					<div className={styles.buttonText}>Create channel</div>
+					<div className={styles.buttonIcon}>
+						<i className="fa-solid fa-plus"></i>
+					</div>
 				</button>
 			</form>
 		</div>
