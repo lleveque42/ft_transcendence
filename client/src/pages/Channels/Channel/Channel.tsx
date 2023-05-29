@@ -22,9 +22,6 @@ export default function Channel() {
 	const { id } = useParams();
 	const { showAlert } = useAlert();
 	const [value, setValue] = useState("");
-	// const [infoBool, setInfoBool] = useState(false);
-	// const [userBool, setuserBool] = useState(false);
-	// const [inviteBool, setInviteBool] = useState(false);
 	const [messagesState, setMessagesState] = useState<Array<MessageModel>>([]);
 	const [authenticate, setAuthenticate] = useState(false);
 	const [inviteState, setInviteState] = useState<Array<UserModel>>([]);
@@ -69,9 +66,6 @@ export default function Channel() {
 				)
 					.then((res) => res.json())
 					.then((chan) => {
-						// setuserBool(false);
-						// setInviteBool(false);
-						// setInfoBool(true);
 						setChanInfo(chan);
 					});
 			} catch (e) {
@@ -93,12 +87,6 @@ export default function Channel() {
 		};
 	}, []);
 
-	// function handleChanClick(event: MouseEvent) {
-	// 	setuserBool(false);
-	// 	setInfoBool(true);
-	// 	setInviteBool(false);
-	// }
-
 	function handleMsgClick(userName: string, userId: number) {
 		if (userName === user.userName) return;
 		setCurrentUserName(userName);
@@ -109,13 +97,7 @@ export default function Channel() {
 			}
 		});
 		setManageUserModal(!manageUserModal);
-		// setuserBool(true);
-		// setInfoBool(false);
-		// setInviteBool(false);
 	}
-
-	// const chanClick = document.querySelectorAll("h1");
-	// chanClick.forEach((chan) => chan.addEventListener("click", handleChanClick));
 
 	useEffect(() => {
 		setMessagesList(
@@ -229,9 +211,6 @@ export default function Channel() {
 						inputValue.nodeValue = "";
 					}
 					setAuthenticate(true);
-					// setInfoBool(true);
-					// setuserBool(false);
-					// setInviteBool(false);
 				} else {
 					showAlert("error", "Invalid password, little gourgandin");
 					setValue("");
@@ -291,9 +270,7 @@ export default function Channel() {
 			if (res.status === 201) {
 				chatSocket?.emit("exitChatRoom", toEmit);
 				showAlert("success", userName + " has been kicked");
-				// setInfoBool(true);
-				// setuserBool(false);
-				// setInviteBool(false);
+				setManageUserModal(false);
 				isAuth();
 			} else {
 				const data = await res.json();
@@ -331,9 +308,8 @@ export default function Channel() {
 			if (res.status === 201) {
 				chatSocket?.emit("blockUser", toEmit);
 				showAlert("success", userBottomName + " has been blocked");
-				// setInfoBool(true);
-				// setuserBool(false);
-				// setInviteBool(false);
+				setManageUserModal(false);
+
 				isAuth();
 			} else if (res.status === 403) {
 				showAlert("error", "User already blocked");
@@ -375,9 +351,7 @@ export default function Channel() {
 			chatSocket?.emit("exitChatRoom", toEmit);
 			if (res.status === 201) {
 				showAlert("success", userName + " has been banned");
-				// setInfoBool(true);
-				// setuserBool(false);
-				// setInviteBool(false);
+				setManageUserModal(false);
 			} else {
 				const data = await res.json();
 				showAlert("error", data.message);
@@ -416,9 +390,7 @@ export default function Channel() {
 			if (res.status === 201) {
 				chatSocket?.emit("MuteInChatRoom", toEmit);
 				showAlert("success", userName + " has been muted for 30 seconds");
-				// setInfoBool(true);
-				// setuserBool(false);
-				// setInviteBool(false);
+				setManageUserModal(false);
 			} else {
 				const data = await res.json();
 				showAlert("error", data.message);
@@ -449,9 +421,7 @@ export default function Channel() {
 			);
 			if (res.status === 201) {
 				chatSocket?.emit("adminChatRoom", toEmit);
-				// setInfoBool(true);
-				// setuserBool(false);
-				// setInviteBool(false);
+				setManageUserModal(false);
 			} else {
 				const data = await res.json();
 				showAlert("error", data.message);
@@ -460,12 +430,6 @@ export default function Channel() {
 			console.error("Error adminishing from channel");
 		}
 	}
-
-	// async function handleReturnToList() {
-	// 	setInfoBool(true);
-	// 	setuserBool(false);
-	// 	setInviteBool(false);
-	// }
 
 	async function handleInviteClick() {
 		if (!chanInfo?.title) {
@@ -493,9 +457,6 @@ export default function Channel() {
 			console.error("Error retieving invite users from channel");
 		}
 		setModalInvite(!modalInvite);
-		// setInviteBool(true);
-		// setInfoBool(false);
-		// setuserBool(false);
 	}
 
 	async function handleInviteUser(userId: number) {
@@ -519,9 +480,7 @@ export default function Channel() {
 			);
 			if (res.status === 201) {
 				chatSocket?.emit("addUserToChan", toEmit);
-				// setInfoBool(true);
-				// setuserBool(false);
-				// setInviteBool(false);
+				setModalInvite(!modalInvite);
 			} else {
 				const data = await res.json();
 				showAlert("error", data.message);
@@ -715,13 +674,13 @@ export default function Channel() {
 									Manage {trimUserName(currentUserName)}
 								</h2>
 								<button
-									className="btn btn-primary pl-10 pr-10 p-5"
+									className="btn btn-primary"
 									onClick={() => navigate(`/user/${currentUserName}`)}
 								>
 									See Profile
 								</button>
 								<button
-									className="btn btn-play pl-10 pr-10 p-5 mt-10"
+									className="btn btn-play mt-10"
 									onClick={() =>
 										socket?.emit("sendGameInvite", {
 											sender: user.id,
@@ -740,14 +699,14 @@ export default function Channel() {
 											currentUserId,
 										)
 									}
-									className="btn btn-reverse-danger pl-10 pr-10 p-5 mt-10"
+									className="btn btn-reverse-danger mt-10"
 								>
 									Block
 								</button>
 								{/* {user.id === chanInfo?.ownerId && !currentUserAdmin && (
 									<button
 										onClick={() => handleAdmin(currentUserName, currentUserId)}
-										className="btn btn-primary pl-10 pr-10 p-5 mt-10"
+										className="btn btn-reverse-success mt-10"
 									>
 										Admin
 									</button>
@@ -765,21 +724,21 @@ export default function Channel() {
 										<button
 											id="Kick"
 											onClick={() => handleKick(currentUserName, currentUserId)}
-											className="btn btn-primary pl-10 pr-10 p-5 mt-10"
+											className="btn btn-danger mt-10"
 										>
 											Kick
 										</button>
 										<button
 											id="Ban"
 											onClick={() => handleBan(currentUserName, currentUserId)}
-											className="btn btn-primary pl-10 pr-10 p-5 mt-10"
+											className="btn btn-danger mt-10"
 										>
 											Ban
 										</button>
 										<button
 											id="Mute"
 											onClick={() => handleMute(currentUserName, currentUserId)}
-											className="btn btn-primary pl-10 pr-10 p-5 mt-10"
+											className="btn btn-reverse-chat mt-10"
 										>
 											Mute
 										</button>
@@ -787,9 +746,9 @@ export default function Channel() {
 								)}
 								<button
 									onClick={() => setManageUserModal(!manageUserModal)}
-									className="btn btn-primary pl-10 pr-10 p-5 mt-10"
+									className="btn btn-primary mt-10"
 								>
-									Return
+									Close
 								</button>
 							</div>
 						</div>
@@ -815,11 +774,17 @@ export default function Channel() {
 												onClick={() => handleInviteUser(member.id)}
 												key={member.id}
 											>
-												{member.userName}
+												{trimUserName(member.userName)}
 											</li>
 										);
 									})}
 								</ul>
+								<button
+									onClick={() => setModalInvite(!modalInvite)}
+									className="btn btn-primary mt-10"
+								>
+									Close
+								</button>
 							</div>
 						</div>
 					)}
