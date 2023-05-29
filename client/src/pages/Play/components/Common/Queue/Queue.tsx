@@ -2,6 +2,7 @@ import { Socket } from "socket.io-client";
 import { GameUserStatus } from "../../../enums/UserStatus";
 import styles from "./Queue.module.scss";
 import Loader from "react-loaders";
+import { useEffect } from "react";
 
 interface QueueProps {
 	gameSocket: Socket | null;
@@ -11,10 +12,13 @@ interface QueueProps {
 export default function Queue({ gameSocket, setGameUserStatus }: QueueProps) {
 	function leaveQueue() {
 		gameSocket?.emit("leaveQueue");
+	}
+
+	useEffect(() => {
 		gameSocket?.once("leftQueue", () => {
 			setGameUserStatus(GameUserStatus.connected);
 		});
-	}
+	});
 
 	return (
 		<div

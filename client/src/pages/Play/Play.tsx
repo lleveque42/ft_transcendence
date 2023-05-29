@@ -48,15 +48,6 @@ export default function Play() {
 	function joinQueue() {
 		if (gameSocket) {
 			gameSocket.emit("joinQueue");
-			gameSocket.once("queuedStatus", (success: boolean, err: string) => {
-				if (success === true) {
-					setGameStatus(defaultGameStatus);
-					setGameUserStatus(GameUserStatus.inQueue);
-				} else {
-					showAlert("error", "Could not join queue, try again.");
-					setGameUserStatus(GameUserStatus.connected);
-				}
-			});
 		}
 	}
 
@@ -154,7 +145,7 @@ export default function Play() {
 				setGameStatus(defaultGameStatus);
 				setGameUserStatus(GameUserStatus.inQueue);
 			} else {
-				console.log("Queue failed? try again? : err = " + err);
+				showAlert("error", "Could not join queue, try again.");
 				setGameUserStatus(GameUserStatus.connected);
 			}
 		});

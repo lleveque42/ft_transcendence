@@ -248,6 +248,17 @@ export class GameGateway
 	}
 
 	createPrivateGame(ownerId: number, playerId: number) {
+		if (this.queue.alreadyQueued(ownerId)) {
+			console.log("leave queue");
+			this.queue.dequeueUser(ownerId);
+			this.logger.log(`${this.queue.size()} user(s) queued.`);
+			this.users.emitAllbyUserId(ownerId, "leftQueue", undefined);
+		}
+		if (this.queue.alreadyQueued(playerId)) {
+			this.queue.dequeueUser(playerId);
+			this.logger.log(`${this.queue.size()} user(s) queued.`);
+			this.users.emitAllbyUserId(playerId, "leftQueue", undefined);
+		}
 		this.privateGames.newPrivateGame(ownerId, playerId);
 	}
 
@@ -329,7 +340,9 @@ export class GameGateway
 	@SubscribeMessage("joinQueue")
 	handleJoinQueue(@ConnectedSocket() client: Socket): void {
 		const user = this.users.getUserByClientId(client.id);
-		if (!this.queue.alreadyQueued(user.id)) {
+		if (this.isInPrivateGame(user.id))
+			this.users.emitAllbyUserId(user.id, "queuedStatus", false);
+		else if (!this.queue.alreadyQueued(user.id)) {
 			try {
 				this.queue.enqueue({ client: client.id, userId: user.id });
 				this.logger.log(`${user.userName} joined queue.`);
@@ -344,16 +357,18 @@ export class GameGateway
 		}
 		if (this.queue.size() === 2) {
 			const game = this.createGame();
-			this.io
-				.to(game.id)
-				.emit(
-					"joinedGame",
-					game.id,
-					game.ownerId,
-					game.owner.userName,
-					game.playerId,
-					game.player.userName,
-				);
+			setTimeout(() => {
+				this.io
+					.to(game.id)
+					.emit(
+						"joinedGame",
+						game.id,
+						game.ownerId,
+						game.owner.userName,
+						game.playerId,
+						game.player.userName,
+					);
+			}, 2000);
 			this.logger.log(
 				`${this.ongoing.getGameById(game.id).owner.userName} vs ${
 					user.userName
@@ -377,6 +392,7 @@ export class GameGateway
 			if (accelerator !== game.accelerator)
 				accelerator = Math.random() < 0.5 ? accelerator : game.accelerator;
 			if (map !== game.map) map = Math.random() < 0.5 ? map : game.map;
+			this.ongoing.setMapById(gameId, map);
 			this.ongoing.setStarted(game.id);
 			this.io.to(gameId).emit("bothPlayersReady", accelerator, map);
 		} else {
