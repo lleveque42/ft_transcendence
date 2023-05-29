@@ -17,7 +17,7 @@ export default function Message({
 	return user.userName === username ? (
 		<>
 			<span
-				className={` ${styles.messageContainer} d-flex flex-column flex-end`}
+				className={`${styles.messageContainer} ${styles.ownMessage} d-flex flex-column flex-end`}
 			>
 				<p>{content}</p>
 			</span>

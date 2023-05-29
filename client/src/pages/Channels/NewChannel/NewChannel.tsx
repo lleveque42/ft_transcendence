@@ -90,7 +90,7 @@ export default function NewChannel() {
 	}
 
 	return (
-		<div className="d-flex flex-column align-items flex-1">
+		<div className="d-flex flex-column justify-content align-items flex-1">
 			<div className="title mt-20">New channel</div>
 			<ChatNav />
 			<form
