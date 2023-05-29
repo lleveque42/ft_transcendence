@@ -249,7 +249,6 @@ export class GameGateway
 
 	createPrivateGame(ownerId: number, playerId: number) {
 		if (this.queue.alreadyQueued(ownerId)) {
-			console.log("leave queue");
 			this.queue.dequeueUser(ownerId);
 			this.logger.log(`${this.queue.size()} user(s) queued.`);
 			this.users.emitAllbyUserId(ownerId, "leftQueue", undefined);
