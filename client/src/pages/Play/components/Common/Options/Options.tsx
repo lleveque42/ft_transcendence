@@ -1,7 +1,6 @@
 import { Socket } from "socket.io-client";
 import { GameUserStatus } from "../../../enums/UserStatus";
 import { useState } from "react";
-import { Toggle } from "../../../../../components/Toggle/Toggle";
 import { MapStatus } from "../../../enums/MapStatus";
 import styles from "./Options.module.scss";
 import defaultMap from "../../../../../assets/images/maps/default.png";
@@ -22,7 +21,6 @@ export default function Options({
 	setMapOption,
 }: OptionsProps) {
 	const [mapToggle, setMapToggle] = useState<MapStatus>(MapStatus.default);
-	const [acceleratorToggle, setAcceleratorToggle] = useState<boolean>(false);
 
 	return (
 		<div
@@ -31,20 +29,6 @@ export default function Options({
 			<div className={`${styles.textContainer} underTitle flex-1`}>
 				<div className="title">PONG</div>
 				<div className="underTitle mb-20">Choose your options</div>
-			</div>
-			<div
-				className={`${styles.speedToggler} mb-10 d-flex align-items justify-content`}
-			>
-				<div className={`${styles.speed} underTitle`}>
-					Increasing speed (x0.01 on each strike) :
-				</div>
-				<Toggle
-					toggled={false}
-					onClick={() => {
-						setAcceleratorToggle(!acceleratorToggle);
-						setAcceleratorOption(!acceleratorToggle);
-					}}
-				/>
 			</div>
 			<div className={`${styles.mapToggler} mb-20`}>
 				<div className={`${styles.map} underTitle mb-10`}>Chose map:</div>
@@ -95,7 +79,7 @@ export default function Options({
 						setGameUserStatus(GameUserStatus.readyToStart);
 						gameSocket?.emit("playerReady", {
 							map: mapToggle,
-							accelerator: acceleratorToggle,
+							accelerator: false,
 						});
 					}}
 				>
