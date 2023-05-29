@@ -3,15 +3,9 @@ import styles from "./Login.module.scss";
 import LoginForm from "./components/LoginForm";
 
 export default function Login() {
-	const [hasBeenClicked, setHasBeenClicked] = useState<Boolean>(false);
-
 	function handleLoginFortyTwoClick(e: React.MouseEvent) {
-		setHasBeenClicked(!hasBeenClicked);
 		e.preventDefault();
-		let tID = setTimeout(function () {
-			window.location.href = process.env.REACT_APP_URL42 as string;
-			window.clearTimeout(tID);
-		}, 250);
+		window.location.href = process.env.REACT_APP_URL42 as string;
 	}
 
 	return (
@@ -24,33 +18,16 @@ export default function Login() {
 				</div>
 				<div
 					className={`${styles.card} d-flex flex-column align-items justify-content`}
+					onClick={handleLoginFortyTwoClick}
 				>
-					<a
-						href={process.env.REACT_APP_URL42}
-						className={`${styles.btn} d-flex flex-column justify-content align-items`}
-						onClick={handleLoginFortyTwoClick}
+					<div
+						className={`${styles.btn} btn d-flex flex-column justify-content align-items pl-10 pr-10 p-5 `}
 					>
-						<p
-							className={`${
-								hasBeenClicked ? styles.clickedText : styles.btnText
-							}`}
-						>
-							Login with 42
-						</p>
-						<div
-							className={`${
-								hasBeenClicked ? styles.clickedBtn2 : styles.btnTwo
-							}`}
-						>
-							<p
-								className={`${
-									hasBeenClicked ? styles.clickedText2 : styles.btnText2
-								}`}
-							>
-								<i className="fa-solid fa-right-to-bracket"></i>
-							</p>
+						<div className={styles.buttonText}>Login with 42</div>
+						<div className={styles.buttonIcon}>
+							<i className="fa-solid fa-right-to-bracket"></i>{" "}
 						</div>
-					</a>
+					</div>
 				</div>
 			</div>
 		</>
