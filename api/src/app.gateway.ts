@@ -71,14 +71,14 @@ export class AppGateway
 		await this.userService.changeUserStatus(user.id, newStatus);
 		this.emitAllUserFriends(
 			user,
-			"updateOnlineFriend",
+			"userStatusUpdatedUsersList",
 			user.id,
 			user.userName,
 			newStatus,
 		);
 		this.emitAllUserFriends(
 			user,
-			"userStatusUpdatedUsersList",
+			"updateOnlineFriend",
 			user.id,
 			user.userName,
 			newStatus,

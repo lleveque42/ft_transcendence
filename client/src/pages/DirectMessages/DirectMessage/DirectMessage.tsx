@@ -33,7 +33,6 @@ export default function DirectMessage() {
 	const [otherAvatar, setOtherAvatar] = useState<string>("");
 
 	// useAvatar(accessToken, setOwnerAvatar, setIsLoading, user.userName);
-	useAvatar(accessToken, setOtherAvatar, setIsLoading, otherUser.userName);
 
 	const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
 		const trimedValue = value.trim();
@@ -131,6 +130,8 @@ export default function DirectMessage() {
 		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [messageListener, messagesList, messagesState]);
+
+	useAvatar(accessToken, setOtherAvatar, setIsLoading, otherUser.userName);
 
 	return (
 		<>

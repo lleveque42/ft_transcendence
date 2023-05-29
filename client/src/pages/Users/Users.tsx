@@ -38,10 +38,17 @@ export default function Users() {
 
 	function updateUserInList(userToUpdate: NewUserName | Friend | UsersList) {
 		setUsersList((prevUsersList) => {
-			const updatedList = prevUsersList.map((u) => {
-				if (u.id === userToUpdate.id) return { ...u, ...userToUpdate };
+			const updatedList = prevUsersList.map((u: UsersList) => {
+				if (u.id === userToUpdate.id)
+					return {
+						...u,
+						...userToUpdate,
+						status: userToUpdate.status,
+						userName: userToUpdate.userName,
+					};
 				return u;
 			});
+			console.log(updatedList);
 			return sortUsersList(updatedList);
 		});
 	}
@@ -109,7 +116,7 @@ export default function Users() {
 		setUsersList(sortUsersList(list));
 	}
 
-	async function checkJoinbaleUsers(userToDmId: number): Promise<boolean> {
+	async function checkJoinableUsers(userToDmId: number): Promise<boolean> {
 		try {
 			const users = await usersListDmRequest(accessToken);
 			if (users.ok) {
@@ -135,7 +142,7 @@ export default function Users() {
 			user.id < userToDmId
 				? user.id + "_" + userToDmId
 				: userToDmId + "_" + user.id;
-		const canJoinUser = await checkJoinbaleUsers(userToDmId);
+		const canJoinUser = await checkJoinableUsers(userToDmId);
 		try {
 			const res = await createDmRequest(accessToken, {
 				title,
@@ -185,6 +192,7 @@ export default function Users() {
 		});
 		socket?.on("userStatusUpdatedUsersList", (userSender: NewUserName) => {
 			updateUserInList(userSender);
+			updateUsersFriends();
 		});
 		return () => {
 			socket?.off("userNameUpdatedUsersList");

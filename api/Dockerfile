@@ -1,4 +1,4 @@
-FROM node:18.15.0 AS builder
+FROM node:18.16.0 AS builder
 
 WORKDIR /app
 
@@ -9,10 +9,9 @@ RUN npm i
 
 COPY . .
 
-# A virer ??
 RUN npm run build
 
-FROM node:18.15.0
+FROM node:18.16.0
 
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package*.json ./
