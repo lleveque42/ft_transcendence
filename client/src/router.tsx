@@ -20,9 +20,6 @@ import Users from "./pages/Users/Users";
 import EditChannel from "./pages/Channels/EditChannel/EditChannel";
 import Play from "./pages/Play/Play";
 import PlayMinimized from "./pages/Play/minimized/PlayMinimized";
-// import Play from "./pages/Play/Play";
-// import { defaultGameStatus } from "./pages/Play/types/gameStatus.type";
-// import { GameUserStatus } from "./pages/Play/enums/UserStatus";
 
 export default function Router() {
 	return (

@@ -40,6 +40,10 @@
 	border-radius: 5px;
 	box-shadow: var(--box-shadow-nav);
 	padding: 1rem;
+
+	@include mixin.sm-lt {
+		padding: 0;
+	}
 }
 
 .statsContainer {
@@ -74,7 +78,7 @@
 		font-size: 4rem;
 
 		@include mixin.sm-lt {
-			font-size: 3rem;
+			font-size: 2rem;
 		}
 	}
 
@@ -99,6 +103,12 @@
 	@include mixin.sm-lt {
 		flex: 0.8;
 		top: 0rem;
+		margin-top: 0;
+	}
+
+	@include mixin.homepage-responsive {
+		margin-top: 10rem;
+		height: 40vh;
 	}
 	margin-bottom: 0.5rem;
 }

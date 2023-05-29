@@ -12,7 +12,6 @@ import styles from "./DirectMessage.module.scss";
 import trimUserName from "../../../utils/trimUserName";
 import Loader from "react-loaders";
 import Input from "../../../components/Input/Input";
-import useAvatar from "../../../hooks/useAvatar";
 
 export default function DirectMessage() {
 	const { user, accessToken } = useUser();
@@ -29,10 +28,6 @@ export default function DirectMessage() {
 	const { id } = useParams();
 	const [isLoading, setIsLoading] = useState(true);
 	const messagesListRef = useRef<HTMLDivElement>(null);
-	// const [ownerAvatar, setOwnerAvatar] = useState<string>("");
-	const [otherAvatar, setOtherAvatar] = useState<string>("");
-
-	// useAvatar(accessToken, setOwnerAvatar, setIsLoading, user.userName);
 
 	const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
 		const trimedValue = value.trim();
@@ -131,8 +126,6 @@ export default function DirectMessage() {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [messageListener, messagesList, messagesState]);
 
-	useAvatar(accessToken, setOtherAvatar, setIsLoading, otherUser.userName);
-
 	return (
 		<>
 			{isLoading ? (
@@ -149,11 +142,6 @@ export default function DirectMessage() {
 						className={`${styles.dmHeader} d-flex flex-row align-items justify-content mt-20`}
 					>
 						<div className="d-flex align-items justify-content">
-							<img
-								src={otherAvatar}
-								alt="otherAvatar"
-								onClick={() => navigate(`/user/${otherUser?.userName}`)}
-							/>
 							<h2 onClick={() => navigate(`/user/${otherUser?.userName}`)}>
 								{trimUserName(otherUser?.userName as string)}
 							</h2>
@@ -175,7 +163,9 @@ export default function DirectMessage() {
 						{messagesList.length ? (
 							<ul className="mt-10">{messagesList}</ul>
 						) : (
-							<p className={`${styles.start} d-flex justify-content mt-20 p-10`}>
+							<p
+								className={`${styles.start} d-flex justify-content mt-20 p-10`}
+							>
 								Start the conversation with {trimUserName(otherUser?.userName)}
 							</p>
 						)}

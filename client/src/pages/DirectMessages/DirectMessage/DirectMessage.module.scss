@@ -12,20 +12,6 @@
 	padding: 1rem;
 	border-radius: 5px;
 
-	img {
-		border: 2px solid var(--light-grey);
-		border-radius: 50%;
-		height: 3rem;
-		width: 3rem;
-		margin-right: 1rem;
-		cursor: pointer;
-		transition: 0.2s;
-		&:hover {
-			scale: 1.1;
-			border-color: var(--orange);
-		}
-	}
-
 	h2 {
 		font-size: 1rem;
 		font-family: var(--game-font);
@@ -45,11 +31,10 @@
 	@include mixin.sm-lt {
 		margin-top: 1rem;
 		width: 80vw;
-		flex-direction: column;
 		padding: 0.5rem;
 
 		h2 {
-			font-size: 0.75rem;
+			font-size: 0.5rem;
 		}
 
 		img {

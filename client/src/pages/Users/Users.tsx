@@ -231,7 +231,7 @@ export default function Users() {
 						>
 							<ul>
 								{usersList.map((u: UsersList, i: number) => (
-									<li className="d-flex p-10 ml-5" key={i}>
+									<li className="d-flex p-10" key={i}>
 										<span
 											className={`${styles.statusBadge} ${
 												u.isFriend
@@ -244,7 +244,7 @@ export default function Users() {
 											}`}
 										/>
 										<h3
-											className="flex-1 pl-5"
+											className="flex-1"
 											onClick={() => navigate(`/user/${u.userName}`)}
 										>
 											{trimUserName(u.userName)}
@@ -269,16 +269,10 @@ export default function Users() {
 											<i
 												className={`${styles.gamepadIcon} fa-solid fa-gamepad ml-20`}
 												onClick={() => {
-													// if (!invited) {
 													socket?.emit("sendGameInvite", {
 														sender: user.id,
 														invited: u.id,
 													});
-													// 	setInvited(true);
-													// 	setTimeout(() => {
-													// 		setInvited(false);
-													// 	});
-													// } else showAlert("error", "You just invited this user.")
 												}}
 											/>
 										) : (
