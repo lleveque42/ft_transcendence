@@ -143,7 +143,7 @@ export default function JoinChannel() {
 	});
 
 	return (
-		<div className="d-flex flex-column align-items flex-1">
+		<div className="d-flex flex-column justify-content align-items flex-1">
 			<div className="title mt-20">Join channels</div>
 			<ChatNav />
 			<div className={styles.joinChannelListContainer}>

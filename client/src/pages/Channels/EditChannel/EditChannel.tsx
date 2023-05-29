@@ -200,7 +200,7 @@ export default function EditChannel() {
 	}
 
 	return (
-		<div className="d-flex flex-column align-items flex-1">
+		<div className="d-flex flex-column justify-content align-items flex-1">
 			<div className="title mt-20">Edit channel</div>
 			<ChatNav />
 			<form
