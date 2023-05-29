@@ -155,6 +155,8 @@ export class ServerGateway
 		if (chan) {
 			this.io.to(chanName).emit("userJoinedChan", chan);
 			this.io.emit("addChannelToJoin", chan);
+			if (chan.mode === "Protected" || chan.mode === "Private")
+				this.io.emit("removeFromJoin", chan);
 		}
 	}
 

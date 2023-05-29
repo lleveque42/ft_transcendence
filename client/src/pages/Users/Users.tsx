@@ -27,7 +27,6 @@ export default function Users() {
 	const { socket, chatSocket } = usePrivateRouteSocket();
 	const { showAlert } = useAlert();
 	const navigate = useNavigate();
-	// const [invited, setInvited] = useState<boolean>(false);
 	const [isLoading, setIsloading] = useState<boolean>(true);
 	const [usersList, setUsersList] = useState<UsersList[]>([]);
 
@@ -184,8 +183,12 @@ export default function Users() {
 		socket?.on("userNameUpdatedUsersList", (userSender: NewUserName) => {
 			updateUserInList(userSender);
 		});
+		socket?.on("userStatusUpdatedUsersList", (userSender: NewUserName) => {
+			updateUserInList(userSender);
+		});
 		return () => {
 			socket?.off("userNameUpdatedUsersList");
+			socket?.off("userStatusUpdatedUsersList");
 		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [socket, user.friends]);

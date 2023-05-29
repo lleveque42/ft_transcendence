@@ -681,12 +681,13 @@ export default function Channel() {
 								</button>
 								<button
 									className="btn btn-play mt-10"
-									onClick={() =>
+									onClick={() => {
 										socket?.emit("sendGameInvite", {
 											sender: user.id,
 											invited: currentUserId,
-										})
-									}
+										});
+										setManageUserModal(!manageUserModal);
+									}}
 								>
 									Invite to Play
 								</button>
