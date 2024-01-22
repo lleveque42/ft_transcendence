@@ -9,23 +9,11 @@ We seperated the project in 3 main parts :
 - game ([@lleveque42](https://github.com/lleveque42))
 - chat ([@ADNASLIDEV](https://github.com/ADNASLIDEV))
 
+:warning: You won't be able to use this website as you need 42Paris api keys. This is only for explanation purposes. :warning:
+
 ---
 
-### Usage :desktop_computer:
+### The website :desktop_computer:
 
-First:
 
-    git clone https://github.com/lleveque42/ft_transcendence
-    cd ft_transcendence
-    
-Then:
-    
-    make
 
-<p align="center">
-    <img src="https://github.com/lleveque42/scop/blob/main/readme/42scopMake.gif">
-</p>
-
-And finally:
-
-    ./scop <path_to_obj_file.obj>
