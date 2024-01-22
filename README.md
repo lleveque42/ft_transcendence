@@ -82,3 +82,17 @@ In the top right corner, you'll find your statistics based on the games you've p
 <p align="center">
     <img src="https://github.com/lleveque42/ft_transcendence/blob/main/readme/friendsAndStats.png">
 </p>
+
+---
+
+You can chat with other users by clicking the "Chat" button on the header or the homepage. 
+
+<p align="center">
+    <img src="https://github.com/lleveque42/ft_transcendence/blob/main/readme/chat.png">
+</p>
+
+You can also create and join channels (public, private and protected).
+
+<p align="center">
+    <img src="https://github.com/lleveque42/ft_transcendence/blob/main/readme/channels.png">
+</p>
