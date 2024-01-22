@@ -15,5 +15,17 @@ We seperated the project in 3 main parts :
 
 ### The website :desktop_computer:
 
+Firstly, you will be able to login or signup.
+
+
+
+Once you're logged in, you'll be on the homepage.
+
+You can now play by clicking the "Play" button.
+
+And join the matchmaking queue by clicking the "Find game" button.
+
+You will instantly find a match if someone is already waiting in the queue. Otherwise, you will have to wait for someone to join.
+Once a match is found, you will be directed on the map selection page where you can choose the map you want to play on.
 
 
