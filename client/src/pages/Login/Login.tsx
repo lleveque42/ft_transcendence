@@ -1,4 +1,5 @@
 import styles from "./Login.module.scss";
+import LoginForm from "./components/LoginForm";
 
 export default function Login() {
 	function handleLoginFortyTwoClick(e: React.MouseEvent) {
@@ -14,6 +15,8 @@ export default function Login() {
 				<div className="title mb-30">
 					PONG<h2 className="underTitle">Login</h2>
 				</div>
+				<LoginForm />
+				<div className="mb-10">or</div>
 				<div
 					className={`${styles.card} d-flex flex-column align-items justify-content`}
 					onClick={handleLoginFortyTwoClick}

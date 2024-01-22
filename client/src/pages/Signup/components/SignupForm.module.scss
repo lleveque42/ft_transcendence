@@ -1,6 +1,10 @@
 .formContainer {
 	margin-bottom: 5rem;
 
+	input {
+		border-color: var(--primary);
+	}
+
 	.buttonContainer {
 		width: 15rem;
 	}

@@ -20,12 +20,14 @@ import Users from "./pages/Users/Users";
 import EditChannel from "./pages/Channels/EditChannel/EditChannel";
 import Play from "./pages/Play/Play";
 import PlayMinimized from "./pages/Play/minimized/PlayMinimized";
+import Signup from "./pages/Signup/Signup";
 
 export default function Router() {
 	return (
 		<Routes>
 			<Route element={<App />}>
 				<Route path="/login" element={<PublicRoute element={<Login />} />} />
+				<Route path="/signup" element={<PublicRoute element={<Signup />} />} />
 				<Route
 					path="/verify"
 					element={<PublicRoute element={<VerifyTfa />} />}

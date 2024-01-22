@@ -2,6 +2,11 @@
 	.buttonContainer {
 		width: 15rem;
 	}
+	label {
+		input {
+			border-color: var(--primary);
+		}
+	}
 
 	button {
 		margin-top: 0.5rem;
