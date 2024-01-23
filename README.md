@@ -50,7 +50,7 @@ Once a match is found, you will be directed on the map selection page where you 
     <img src="https://github.com/lleveque42/ft_transcendence/blob/main/readme/mapSelection.png">
 </p>
 
-If you and your opponend choose the same map, you will play on that map. Otherwise, the map will be randomly selected from the two choices. <br>
+If you and your opponent choose the same map, you will play on that map. Otherwise, the map will be randomly selected from the two choices. <br>
 The game will be hosted by the player who joined the game first.
 A 3 seconds countdown will start and the match will begin. <br>
 
